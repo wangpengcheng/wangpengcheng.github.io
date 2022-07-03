@@ -42,10 +42,10 @@ tags:
 ### 实例节点
 |角色|主机名称|IP|配置|系统|地域|云厂商|相关组件|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--|
-|k8s-master|k8s-master-01|118.24.113.233|2C2GB|CentOS 8.2 64bit|成都|腾讯云|TODO|
-|k8s-master|k8s-master-02|120.48.102.222|2C4G|CentOS 8.2 64bit|北京|百度云|TODO|
-|k8s-node01|k8s-node-01|124.222.67.59|4C16G|CentOS 8.2 64bit|上海|腾讯云|TODO|
-|k8s-node02|k8s-node-02|120.48.42.73|4C16G|CentOS 8.2 64bit|北京|百度云|TODO|
+|k8s-master|k8s-master-01|xxx.xxx.113.233|2C2GB|CentOS 8.2 64bit|成都|腾讯云|TODO|
+|k8s-master|k8s-master-02|xxx.xxx.102.222|2C4G|CentOS 8.2 64bit|北京|百度云|TODO|
+|k8s-node01|k8s-node-01|xxx.xxx.67.59|4C16G|CentOS 8.2 64bit|上海|腾讯云|TODO|
+|k8s-node02|k8s-node-02|xxx.xxx.42.73|4C16G|CentOS 8.2 64bit|北京|百度云|TODO|
 
 ### 软件版本
 
@@ -85,7 +85,7 @@ PS1="\[\e[1;33m\]\[\e[0;33m\][\[\e[1;32m\]\u\[\e[m\]\[\e[1;33m\]@\[\e[m\]\[\e[1;
 ```
 增加控制台颜色和历史命令
 显示最终色彩
-![最终色彩](../img/2022-06-26-13-51-38.png)
+![最终色彩](http://wangpengcheng.github.io/img/2022-06-26-13-51-38.png)
 
 #### 1.2 增加dev 用户
 所有机器新增dev用户并作为k8s 默认用户，可参考[centos8新增用户](https://blog.csdn.net/happy__yun/article/details/124760781)
@@ -93,7 +93,7 @@ PS1="\[\e[1;33m\]\[\e[0;33m\][\[\e[1;32m\]\u\[\e[m\]\[\e[1;33m\]@\[\e[m\]\[\e[1;
 ```bash
 # 新增dev用户
 adduser dev
-# 修改密码 dev@ins47!
+# 修改密码
 passwd dev 
 
 # 修改用户权限
@@ -290,10 +290,10 @@ ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELE
 
 # 初始化节点
 sudo kubeadm init \
---apiserver-advertise-address=118.24.113.233 \
+--apiserver-advertise-address=公网IP \
 --image-repository registry.aliyuncs.com/google_containers \
 --kubernetes-version v1.23.2 \
---control-plane-endpoint=118.24.113.233 \
+--control-plane-endpoint=公网IP \
 --service-cidr=10.96.0.0/12 \
 --pod-network-cidr=10.244.0.0/16 \
 --v=5
@@ -311,7 +311,7 @@ kubectl apply -f "https://docs.projectcalico.org/manifests/calico.yaml"
 
 ## 结果
 
-![图像](../img/2022-06-26-22-57-52.png)
+![图像](http://wangpengcheng.github.io/img/2022-06-26-22-57-52.png)
 
 ```bash
 # 配置永久环境变量
@@ -338,22 +338,225 @@ service/nginx exposed
 kubectl get pod,svc
 ```
 
+### 异常清空
+出现异常情况，需要对master 进行清空重试
 
-清空IPtables
+清空网卡节点
 
 ```bash
-iptables -P INPUT ACCEPT
-iptables -P FORWARD ACCEPT
-iptables -P OUTPUT ACCEPT
-iptables -t nat -P PREROUTING ACCEPT
-iptables -t nat -P POSTROUTING ACCEPT
-iptables -t nat -P OUTPUT ACCEPT
-iptables -t mangle -P PREROUTING ACCEPT
-iptables -t mangle -P OUTPUT ACCEPT
-iptables -F
-iptables -t nat -F
-iptables -t mangle -F
-iptables -X
-iptables -t nat -X
-iptables -t mangle -X
+#第一步，在master节点删除flannel
+kubectl delete -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+#第二步，在node节点清理flannel网络留下的文件
+sudo ifconfig cni0 down
+sudo ip link delete cni0
+sudo ifconfig flannel.1 down
+sudo ip link delete flannel.1
+sudo rm -rf /var/lib/cni/
+sudo rm -f /etc/cni/net.d/*
+sudo systemctl restart kubelet.service
+
+#第三步，应用calico相关的yaml文件
 ```
+
+
+```bash
+# k8s 重置脚本
+kubectl delete pod --all
+kubectl delete node --all
+
+sudo kubeadm reset -f 
+
+rm -rf $HOME/.kube
+
+
+kubeadm reset
+systemctl stop kubelet
+systemctl stop docker
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /etc/cni/
+##重启kubelet
+systemctl restart kubelet
+##重启docker
+systemctl restart docker
+
+
+sudo ifconfig cni0 down
+sudo ip link delete cni0
+sudo ifconfig flannel.1 down
+sudo ip link delete flannel.1
+sudo rm -rf /var/lib/cni/
+sudo rm -f /etc/cni/net.d/*
+sudo systemctl restart kubelet.service
+
+for service in kube-apiserver kube-controller-manager kubectl kubelet kube-proxy kube-scheduler; 
+do
+      systemctl stop $service
+done
+
+rm -rf ~/.kube/
+
+rm -rf /etc/kubernetes/
+ 
+rm -rf /etc/systemd/system/kubelet.service.d
+
+rm -rf /etc/systemd/system/kubelet.service
+
+rm -rf /usr/bin/kube*
+
+rm -rf /etc/cni
+
+rm -rf /opt/cni
+
+rm -rf /var/lib/etcd
+
+rm -rf /var/etcd
+
+yum clean all
+
+yum remove kube* -y
+
+
+```
+
+```bash
+# 重新安装k8s 
+systemctl disable docker
+systemctl stop docker
+sudo yum remove docker-*
+rm -rf /var/lib/docker/
+rm -rf /etc/docker/
+rm -rf /run/docker
+rm -rf /var/lib/dockershim
+rm -rf /usr/libexec/docker/
+
+yum install -y yum-utils
+
+yum install -y docker-ce-19.03.13 docker-ce-cli-19.03.13 containerd.io
+
+systemctl start docker
+
+# 设置开机自启动
+systemctl enable docker.service
+systemctl enable containerd.service
+
+sudo yum install -y kubelet-1.20.9 kubeadm-1.20.9 kubectl-1.20.9 --disableexcludes=kubernetes
+ 
+sudo systemctl enable --now kubelet
+```
+
+
+
+
+### 搭建dashborad
+- [k8s（v18.6）安装Dashboard](https://blog.csdn.net/make_progress/article/details/124566603)
+- [(转载）Chrome 您的连接不是私密连接解决办法](https://zhuanlan.zhihu.com/p/341857389?ivk_sa=1024320u)
+
+
+[对应版本](https://github.com/kubernetes/dashboard/releases/tag/v2.3.1)
+
+```bash
+ wget -c https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml
+# 执行模板文件
+kubectl apply -f recommended.yaml
+ 
+# 查看所有的Pod，参数-A可以换成 --all-namespaces
+kubectl get pods -A
+ 
+# 出现以下结果说明成功
+NAMESPACE              NAME                                            READY   STATUS    RESTARTS   AGE
+..... #省略
+kubernetes-dashboard   dashboard-metrics-scraper-6b4884c9d5-88sct      1/1     Running   0          3m13s
+kubernetes-dashboard   kubernetes-dashboard-7b544877d5-6bvfr           1/1     Running   0          3m13s
+```
+
+新建“kubernetes-dashboard-service.yaml”文件
+```bash
+# kubernetes-dashboard-service.yaml
+# 下面的配置文件可以从recommended.yaml中找到
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  type: NodePort
+  ports:
+    - port: 443
+      targetPort: 8443
+  selector:
+    k8s-app: kubernetes-dashboard
+```
+
+应用文件
+```bash
+kubectl apply -f kubernetes-dashboard-service.yaml
+```
+
+此时可以用公网IP + port 进行访问
+出现chrome 无法访问 参考：[(转载）Chrome 您的连接不是私密连接解决办法](https://zhuanlan.zhihu.com/p/341857389?ivk_sa=1024320u)
+
+
+新建“kubernetes-dashboard-account.yaml” 
+设置访问权限
+```yaml
+# kubernetes-dashboard-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: dashboard-admin
+  namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dashboard-admin-bind-cluster-role
+  labels:
+    k8s-app: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: dashboard-admin
+  namespace: kubernetes-dashboard
+```
+执行配置文件并获取token
+
+```bash
+kubectl apply -f kubernetes-dashboard-account.yaml
+
+
+# 执行如下命令
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep dashboard-admin | awk '{print $1}')
+ 
+# 返回结果
+Name:         dashboard-admin-token-l49vj
+Namespace:    kubernetes-dashboard
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: dashboard-admin
+              kubernetes.io/service-account.uid: e1bdcbbc-5d43-479c-be6d-508960413b6a
+ 
+Type:  kubernetes.io/service-account-token
+ 
+Data
+====
+# 注意！！！ Tocken值，在登录Dashboard时使用
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IjhNbjY3S1FMRFhHUkNBS2pYMmE3UHpuZmk4NEEzODJqbWxjUHZ4Mk1xMnMifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkYXNoYm9hcmQtYWRtaW4tdG9rZW4tbDQ5dmoiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGFzaGJvYXJkLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiZTFiZGNiYmMtNWQ0My00NzljLWJlNmQtNTA4OTYwNDEzYjZhIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmVybmV0ZXMtZGFzaGJvYXJkOmRhc2hib2FyZC1hZG1pbiJ9.PN0QkyynqW_Me4h__eWGo3hzQPs1RHy47FUZvQIzmi62CCV-uI5GESW5glb8IIKhmmGojvOHCWwJ_zgQCwL2DODFTbj7ZtQ2gj8R6CvU_etP0kOPm_pAQkN-HdiPdJrRt84Hb7Q8yJ3IvAC94dyvges1Z3T4NtTbhcJdBbBzmeQ-79cNPWf9SdCgINrpb5RO8ChNE_SrQ4ppr-olP5drZH8iO8tpha-F3PbHJl1aZemnQggaJioysXSoX9qxrOJ0NlR7d6bP0gdMWCCaGMj7bTmdARGaU5tQgy0im5rpK_mBPyiBegwgzqP0-SQLB-KDBVgDGQSyBWm08r4kKCJUsA
+ca.crt:     1025 bytes
+namespace:  20 bytes
+
+```
+
+继续进行登陆
+可以看到登陆面板
+
+如果想看到所有，需要创建admin账号， 详见：[K8S关于Dashboard浏览器访问填坑](https://blog.csdn.net/LoveyourselfJiuhao/article/details/91044268)
+
+
