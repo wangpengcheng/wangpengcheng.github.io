@@ -40,6 +40,7 @@ tags:
 ## 集群设计
 
 ### 实例节点
+
 |角色|主机名称|IP|配置|系统|地域|云厂商|相关组件|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--|
 |k8s-master|k8s-master-01|xxx.xxx.113.233|2C2GB|CentOS 8.2 64bit|成都|腾讯云|TODO|
@@ -51,23 +52,21 @@ tags:
 
 |软件|版本|备注|
 |:--:|:--:|:--|
-|k8s|v1.23.2||
-|kube-apiserver|v1.23.2||
-|kube-proxy|v1.23.2||
-|kube-controller-manager|v1.23.2||
-|kube-scheduler|v1.23.2||
-|coredns|v1.8.0||
-|etcd|3.4.13-0||
-|pause|3.4.1||
+|k8s|v1.23.2| |
+|kube-apiserver|v1.23.2| |
+|kube-proxy|v1.23.2| |
+|kube-controller-manager|v1.23.2| |
+|kube-scheduler|v1.23.2| |
+|coredns|v1.8.0| |
+|etcd|3.4.13-0| |
+|pause|3.4.1| |
 
 k8s1.24版本之后不再使用docker作为容器，因此我们暂不使用该版本，使用1.23.2版本进行安装
 
 TODO 使用container 进行升级替换
 
 
-## 操作步骤
-
-### 
+## 操作步骤 
 
 ### 1. 主机基础配置
 
@@ -111,16 +110,16 @@ chmod -v u-w /etc/sudoers
 |端口|协议|服务|说明|
 |:--:|:--:|:--:|:--:|
 |8080、6443|HTTP/HTTPS|kube-apiserver|API专用端口号|
-|10252|TCP|kube-controller-manager||
-|10251|TCP|kube-scheduler||
-|10250、10255|TCP|kubelet||
+|10252|TCP|kube-controller-manager| |
+|10251|TCP|kube-scheduler| |
+|10250、10255|TCP|kubelet| |
 |2379|TCP/UDP|etcd|客户端访问|
 |2380|TCP/UDP|etcd|集群内部访问|
 |53|TCP/UDP|DNS|集群DNS|
 |8472|UDP|flannel|flannel网络通讯插件使用|
 |6443|TCP|k8s-master|k8smaster 端口|
 |30000~32767|TCP|node service pod|节点端口服务，如果希望Master的IP也可以访问Pod服务，那么也可以给Master主机开放这些端口（建议）|
-|5000|TCP||镜像服务|
+|5000|TCP| |镜像服务|
 
 
 
@@ -324,7 +323,7 @@ source /etc/profile
 
 ```
 
-### 创建节点
+### 创建nginx测试节点
 
 ```bash
 # 创建节点
@@ -548,7 +547,7 @@ Type:  kubernetes.io/service-account-token
 Data
 ====
 # 注意！！！ Tocken值，在登录Dashboard时使用
-token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IjhNbjY3S1FMRFhHUkNBS2pYMmE3UHpuZmk4NEEzODJqbWxjUHZ4Mk1xMnMifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkYXNoYm9hcmQtYWRtaW4tdG9rZW4tbDQ5dmoiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGFzaGJvYXJkLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiZTFiZGNiYmMtNWQ0My00NzljLWJlNmQtNTA4OTYwNDEzYjZhIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmVybmV0ZXMtZGFzaGJvYXJkOmRhc2hib2FyZC1hZG1pbiJ9.PN0QkyynqW_Me4h__eWGo3hzQPs1RHy47FUZvQIzmi62CCV-uI5GESW5glb8IIKhmmGojvOHCWwJ_zgQCwL2DODFTbj7ZtQ2gj8R6CvU_etP0kOPm_pAQkN-HdiPdJrRt84Hb7Q8yJ3IvAC94dyvges1Z3T4NtTbhcJdBbBzmeQ-79cNPWf9SdCgINrpb5RO8ChNE_SrQ4ppr-olP5drZH8iO8tpha-F3PbHJl1aZemnQggaJioysXSoX9qxrOJ0NlR7d6bP0gdMWCCaGMj7bTmdARGaU5tQgy0im5rpK_mBPyiBegwgzqP0-SQLB-KDBVgDGQSyBWm08r4kKCJUsA
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IjhNbjY3S1FMRFhHUkNBS2pYMmE3UHpuZmk4NEEzODJqbWxjUHZ4Mk1xMnMifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkYXNoYm9hcmQtYWRtaW4tdG9rZW4tbDQ5dmoiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGFzaGJvYXJkLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiZTFiZGNiYmMtNWQ0My00NzljLWJlNmQtNTA4OTYwNDEzYjZhIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmVybmV0ZXM
 ca.crt:     1025 bytes
 namespace:  20 bytes
 
