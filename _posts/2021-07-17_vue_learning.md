@@ -3,7 +3,7 @@ layout:     post
 title:      前端学习笔记--Vue
 subtitle:   前端学习笔记--Vue(一)
 date:       2020-10-20
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

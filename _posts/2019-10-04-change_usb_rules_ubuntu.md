@@ -3,7 +3,7 @@ layout:     post
 title:      更改USB设备设置
 subtitle:   ubuntu 添加USB rules配置，实现USB设备的固定设备名称
 date:       2019-09-18
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

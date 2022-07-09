@@ -3,7 +3,7 @@ layout:     post
 title:      Java开发规范学习笔记
 subtitle:   Java开发规范华山版学习笔记
 date:       2020-06-12
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

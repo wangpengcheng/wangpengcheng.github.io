@@ -3,7 +3,7 @@ layout:     post
 title:      markdown 语法
 subtitle:   文章转载自果冻虾仁
 date:       2019-4-10
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

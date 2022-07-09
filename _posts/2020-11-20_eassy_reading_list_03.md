@@ -3,7 +3,7 @@ layout:     post
 title:      GEN-SLAM: Generative Modeling for Monocular Simultaneous Localization and Mapping
 subtitle:   GEN-SLAM: 单目SLAM的通用解决方案
 date:       2020-10-20
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

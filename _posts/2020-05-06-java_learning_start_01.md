@@ -3,7 +3,7 @@ layout:     post
 title:      java简单学习笔记(一)
 subtitle:   java简单学习笔记(一)
 date:       2020-04-21
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

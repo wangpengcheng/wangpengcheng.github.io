@@ -3,7 +3,7 @@ layout:     post
 title:      C++ Encode 学习笔记
 subtitle:   C++ Encode 详细学习笔记
 date:       2019-4-11
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

@@ -3,7 +3,7 @@ layout:     post
 title:      文集补校(二)
 subtitle:   一种基于GPU的高性能稀疏卷积神经网络优化
 date:       2019-10-11
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

@@ -3,7 +3,7 @@ layout:     post
 title:      C++ Primer 学习笔记 (三)
 subtitle:   C++ Primer 学习记录 (三)
 date:       2019-4-25
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

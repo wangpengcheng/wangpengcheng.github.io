@@ -3,7 +3,7 @@ layout:     post
 title:      C/C++ 的一个符号操作问题
 subtitle:   深入思考操作符
 date:       2019-05-12
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

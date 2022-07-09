@@ -3,7 +3,7 @@ layout:     post
 title:      ali中间件学习笔记
 subtitle:   阿里中间件学习笔记
 date:       2020-08-25
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

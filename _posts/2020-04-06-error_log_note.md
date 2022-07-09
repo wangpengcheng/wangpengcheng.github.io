@@ -3,7 +3,7 @@ layout:     post
 title:      笔试知识点总结
 subtitle:   笔试错误和知识点总结
 date:       2020-04-06
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

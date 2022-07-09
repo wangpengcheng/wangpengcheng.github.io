@@ -3,7 +3,7 @@ layout:     post
 title:      跟我一起写makefile 学习笔记
 subtitle:   跟我一起写makefile 
 date:       2019-07-06
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

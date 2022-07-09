@@ -3,7 +3,7 @@ layout:     post
 title:      C++ 并发编程笔记(一)
 subtitle:   C++ 并发编程笔记(一)
 date:       2019-07-03
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

@@ -3,7 +3,7 @@ layout:     post
 title:      毕业论文实验记录
 subtitle:   毕业论文实验记录 (一)
 date:       2020-10-20
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

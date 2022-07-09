@@ -3,7 +3,7 @@ layout:     post
 title:      卷积大集合
 subtitle:   包含看到的论文中的卷积方式 
 date:       2019-10-11
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

@@ -3,7 +3,7 @@ layout:     post
 title:      Linux内核设计与实现 学习笔记 (二)
 subtitle:   Linux内核设计与实现 学习笔记 (二)
 date:       2019-10-9
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

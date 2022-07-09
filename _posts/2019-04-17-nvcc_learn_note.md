@@ -3,7 +3,7 @@ layout:     post
 title:      NVCC 学习笔记
 subtitle:   NVCC 学习笔记
 date:       2019-4-17
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

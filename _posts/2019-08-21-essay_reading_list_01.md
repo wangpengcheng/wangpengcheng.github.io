@@ -3,7 +3,7 @@ layout:     post
 title:      文集补校(一)
 subtitle:   卷积神经网络结构优化综述
 date:       2019-08-13
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

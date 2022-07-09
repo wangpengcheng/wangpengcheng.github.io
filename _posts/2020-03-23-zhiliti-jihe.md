@@ -3,7 +3,7 @@ layout:     post
 title:      面试中的智力题集合
 subtitle:   面试中的智力题集合
 date:       2020-03-23
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

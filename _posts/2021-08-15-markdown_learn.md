@@ -3,7 +3,7 @@ layout:     post
 title:      makrdown新语法学习
 subtitle:   测试说明
 date:       2021-08-15
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

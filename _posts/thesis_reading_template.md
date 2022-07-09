@@ -3,7 +3,7 @@ layout:     post
 title:      论文标题
 subtitle:   标题和关键子
 date:       2019-07-06
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

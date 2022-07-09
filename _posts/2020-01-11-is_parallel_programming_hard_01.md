@@ -3,7 +3,7 @@ layout:     post
 title:      深入理解并行编程L读书笔记(一)
 subtitle:   深入理解并行编程读书笔记(一)
 date:       2019-12-27
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

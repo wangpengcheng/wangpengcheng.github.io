@@ -3,7 +3,7 @@ layout:     post
 title:      C++ Primer 学习笔记 (五)
 subtitle:   C++ Primer 学习记录 (五)
 date:       2019-5-5
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-miui6.jpg
 catalog: true
 tags:

@@ -3,7 +3,7 @@ layout:     post
 title:      分布式系统概念与设计学习笔记(一)
 subtitle:   分布式系统概念与设计学习笔记(一)
 date:       2020-08-05
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

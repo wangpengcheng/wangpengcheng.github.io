@@ -3,7 +3,7 @@ layout:     post
 title:      libx264 学习笔记
 subtitle:   libx264 的学习笔记
 date:       2019-4-19
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

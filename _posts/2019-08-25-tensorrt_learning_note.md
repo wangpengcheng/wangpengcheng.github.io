@@ -3,7 +3,7 @@ layout:     post
 title:      TensorRT 学习笔记
 subtitle:   TensorRT 官方文档笔记
 date:       2019-08-13
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-ios10.jpg
 catalog: true
 tags:

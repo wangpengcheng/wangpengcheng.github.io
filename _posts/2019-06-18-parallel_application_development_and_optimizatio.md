@@ -3,7 +3,7 @@ layout:     post
 title:      并行应用开发和优化概论阅读笔记
 subtitle:   并行应用开发和优化概论之系统优化
 date:       2019-5-4
-author:     王鹏程
+author:     敬方
 header-img: img/post-bg-miui6.jpg
 catalog: true
 tags:
