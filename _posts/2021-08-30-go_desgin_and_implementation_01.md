@@ -34,3 +34,15 @@ _参考链接：_
 
 ![文章主要架构图](https://img.draveness.me/2020-02-07-15810644766743-contents-mindnode.png)
 
+
+# 第一章 go语言的前世今生
+## 1.2 go语言综述
+
+### 1.2.1 基础类型和值
+go 语言的基础类型如下：
+```bash
+bool, 
+uint, uint8, uint16, uint32, uint64, 
+int, int8, int16, int32, int64, 
+float32, float64
+```
