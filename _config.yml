@@ -1,10 +1,10 @@
 # Site settings
 title: My Blog
-SEOTitle: 敬方的个人博客 | BY Blog
+SEOTitle: 敬方的个人博客 | JF Blog
 header-img: img/post-bg-desk.jpg
 email: wangpengcheng2018@gmail.com
 description: "Leaning and function with your new object."
-keyword: "BY, BY Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算"
+keyword: "JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算"
 url: "https://wangpengcheng.github.io/"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
 github_repo: "https://github.com/wangpengcheng/wangpengcheng.github.io.git" # you code repository
@@ -21,7 +21,7 @@ RSS: false
 # weibo_username:     qiubaiying
 zhihu_username:     
 github_username:    wangpengcheng
-facebook_username:  baiying.qiu.7
+facebook_username:  wangpengcheng
 jianshu_username:   
 #twitter_username:   qiubaiying
 
@@ -111,7 +111,7 @@ friends: [
         title: "WY",
         href: "http://zhengwuyang.com"
     },{
-        title: "简书·BY",
+        title: "简书·JF",
         href: "http://www.jianshu.com/u/e71990ada2fd"
     },{
         title: "Apple",
