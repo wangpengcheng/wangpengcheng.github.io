@@ -14,14 +14,18 @@ tags:
 # 烹饪学习笔记
 
 _参考链接：_
+
 - [github-cook-book](https://github.com/Anduin2017/HowToCook)
 - [github-cook](https://github.com/YunYouJun/cook)
 
 # 前言
+
 记录美好生活中的做饭记录
 
 ## 阿胶jiangtang
+
 _参考链接：_
+
 - [小红书-老姜黑糖](http://xhslink.com/HEGWpv)
 - [小红书-阿胶红糖姜枣茶的教程](ttp://xhslink.com/1wGWpv)
 - [小红书-自制三种口味红糖姜块](http://xhslink.com/PzIWpv)
@@ -37,7 +41,6 @@ _参考链接：_
 - 阿胶：100g
 - 干桂花：若干
 - 干玫瑰：若干
-
 
 ### 做法步骤
 
