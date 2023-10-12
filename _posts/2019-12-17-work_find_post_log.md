@@ -84,3 +84,8 @@ tags:
 |字节跳动|[后端研发](https://xiaoyuan.zhaopin.com/job/CC000347841J90000050000)|[牛客](https://www.nowcoder.com/discuss/501056?type=post&order=time&pos=&page=1&channel=1009&source_id=search_post)|2020-09-09|内推邮件已发送||||||成都无岗位&放弃|
 |中电10所|[应用软件开发工程师](http://ai-hr.cetc.com.cn/position/detail?channel=2&brand=20&id=1175)|[学校](https://www.nowcoder.com/discuss/501056?type=post&order=time&pos=&page=1&channel=1009&source_id=search_post)|2020-09-09|[状态查看](http://ai-hr.cetc.com.cn/campus_delivery/record)||||||放弃面试|
 |新浪微博|[研发工程师_C++方向-北京](https://career.sina.com.cn/portal/campusposition/detail?id=1342)|[学校](https://www.nowcoder.com/discuss/501056?type=post&order=time&pos=&page=1&channel=1009&source_id=search_post)|2020-09-09|[状态查看](https://career.sina.com.cn/portal/myapply/?gql=glluemeuser%3D%257B%257Bglluemeuser.id%257D%257D%26record_type__ns%3DInternal%2520Transfer)||||||放弃面试|
+
+
+## 相信自己，不要放弃
+![](http://wangpengcheng.github.io/img/WechatIMG87.png)
+![](http://wangpengcheng.github.io/img/WechatIMG88.png)
