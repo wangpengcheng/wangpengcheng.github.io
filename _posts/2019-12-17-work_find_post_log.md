@@ -15,7 +15,7 @@ tags:
 ## 寒假实习投递
 
 |公司名称|招聘岗位|来源|投递时间|回复时间|1次面试时间|面试结果|2面时间|面试记录|结果|
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |百度|C++研发实习生|[牛客](https://www.nowcoder.com/discuss/354663)|2019-12-17-18:12|无回复||||||
 |58同城|后台开发工程师|[牛客](https://www.nowcoder.com/discuss/355536?type=7&order=0&pos=11&page=1)|2019-12-17-18:12|||||||
 |爱奇艺|游戏-服务器开发实习生|[实习僧](https://www.shixiseng.com/intern/inn_qwqoudlpmudu?mxa=asdd.0eqlx1.4xnxf0.$3)|2019-12-17-18:52|被拒绝||||||
@@ -85,6 +85,8 @@ tags:
 |中电10所|[应用软件开发工程师](http://ai-hr.cetc.com.cn/position/detail?channel=2&brand=20&id=1175)|[学校](https://www.nowcoder.com/discuss/501056?type=post&order=time&pos=&page=1&channel=1009&source_id=search_post)|2020-09-09|[状态查看](http://ai-hr.cetc.com.cn/campus_delivery/record)||||||放弃面试|
 |新浪微博|[研发工程师_C++方向-北京](https://career.sina.com.cn/portal/campusposition/detail?id=1342)|[学校](https://www.nowcoder.com/discuss/501056?type=post&order=time&pos=&page=1&channel=1009&source_id=search_post)|2020-09-09|[状态查看](https://career.sina.com.cn/portal/myapply/?gql=glluemeuser%3D%257B%257Bglluemeuser.id%257D%257D%26record_type__ns%3DInternal%2520Transfer)||||||放弃面试|
 
+## 感悟总结
+**艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹**
 
 ## 相信自己，不要放弃
 ![](http://wangpengcheng.github.io/img/WechatIMG87.png)
