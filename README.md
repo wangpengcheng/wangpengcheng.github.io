@@ -4,5 +4,5 @@
 ## 快速进行文件创建
 
 ```bash
-touch `date  +'%Y-%m-%d-%H-%M-%S'`-${titlename}.md
+touch `date  +'%Y-%m-%d'`-${titlename}.md
 ```
