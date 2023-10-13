@@ -86,7 +86,7 @@ tags:
 |新浪微博|[研发工程师_C++方向-北京](https://career.sina.com.cn/portal/campusposition/detail?id=1342)|[学校](https://www.nowcoder.com/discuss/501056?type=post&order=time&pos=&page=1&channel=1009&source_id=search_post)|2020-09-09|[状态查看](https://career.sina.com.cn/portal/myapply/?gql=glluemeuser%3D%257B%257Bglluemeuser.id%257D%257D%26record_type__ns%3DInternal%2520Transfer)||||||放弃面试|
 
 ## 感悟总结
-**艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹**
+**艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹艹， 去他妈的面试**
 
 ## 相信自己，不要放弃
 ![](http://wangpengcheng.github.io/img/WechatIMG87.png)
