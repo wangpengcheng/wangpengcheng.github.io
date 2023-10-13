@@ -26,11 +26,11 @@ tags:
 
 ## 虚拟化技能要求
 - 字节虚拟化工程师要求
-![](../img/2023-04-11-11-39-16.png)
+![](http://wangpengcheng.github.io/img/2023-04-11-11-39-16.png)
 - 百度
-![](../img/2023-04-11-11-43-58.png)
+![](http://wangpengcheng.github.io/img/2023-04-11-11-43-58.png)
 - 中曙光
-![](../img/2023-04-11-11-41-58.png)
+![](http://wangpengcheng.github.io/img/2023-04-11-11-41-58.png)
 
 ## 学习资料与书籍
 
