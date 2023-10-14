@@ -55,13 +55,13 @@ _参考链接：_
 7. 干燥凉凉之后，使用糯米纸包裹+真空机打包压缩
 8. 分类分袋子封装
 
-![材料准备](https//wangpengcheng.github.io/img/981697290346_.pic.png)
+![材料准备](https//wangpengcheng.github.io/img/981697290346.png)
 
 ### 最终成品
 
-![最终1](https//wangpengcheng.github.io/img/941697290341_.pic.png)
+![最终1](https//wangpengcheng.github.io/img/941697290341.png)
 
-![最终2](https//wangpengcheng.github.io/img/971697290345_.pic.png)
+![最终2](https//wangpengcheng.github.io/img/971697290345.png)
 
 
 ### 注意事项
