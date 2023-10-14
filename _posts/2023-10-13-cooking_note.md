@@ -55,7 +55,14 @@ _参考链接：_
 7. 干燥凉凉之后，使用糯米纸包裹+真空机打包压缩
 8. 分类分袋子封装
 
+![材料准备](https//wangpengcheng.github.io/img/981697290346_.pic.png)
+
 ### 最终成品
+
+![最终1](https//wangpengcheng.github.io/img/941697290341_.pic.png)
+
+![最终2](https//wangpengcheng.github.io/img/971697290345_.pic.png)
+
 
 ### 注意事项
 - 注意调味比例，适当加入对应材料，每次放入新材料前先加水稀释品尝一下
