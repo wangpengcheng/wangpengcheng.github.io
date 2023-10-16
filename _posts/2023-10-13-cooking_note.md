@@ -83,7 +83,7 @@ _参考链接：_
 4. 生抽&糖&味精&葱花制作小料汁，淋在水蛋上
 
 ### 最终成品
-![水蛋成品](http://wangpengcheng.github.io/img/2023-10-16-shuidan.png)
+![水蛋成品](https://wangpengcheng.github.io/img/2023-10-16-shuidan.png)
 
 ### 注意事项
 - 必须用开水，否则会有气泡
