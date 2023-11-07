@@ -19,3 +19,33 @@ shell 练习笔记，包含leetcode等shell 题目冲刺笔记
 
 ## 参考链接
 - [leetcode-shell](https://leetcode.cn/problemset/shell/)
+- [shell脚本快速入门之-----shell脚本练习100例](https://cloud.tencent.com/developer/article/1691052)
+- [now-code 在线编程shell篇](https://www.nowcoder.com/exam/oj?page=1&tab=SHELL%E7%AF%87&topicId=195)
+
+## leetcode题目
+
+### [192.统计词频率](https://leetcode.cn/problems/word-frequency/description/)
+
+- 提交解答
+
+```shell
+cat words.txt | xargs -n1 | sort | uniq -c | sort -nr | awk '{print $2, $1}'
+```
+
+- 优质解答
+
+```shell
+awk '{for (i = 1; i <= NF; i++) {print $i}}' words.txt | sort | uniq -c | sort -nr | awk '{print $2, $1}'
+```
+
+- 优质解答2
+
+```shell
+cat words.txt | tr -s ' ' '\n' | sort | uniq -c | sort -nr | awk '{print $2, $1}'
+```
+
+- 原始解答
+
+```shell
+cat words.txt | awk '{ for(i=1;i<=NF;i++){count[$i]++} } END { for(k in count){print k" "count[k]} }' | sort -rnk 2
+```

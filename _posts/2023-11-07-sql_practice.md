@@ -29,11 +29,13 @@ SQL 练习笔记，包含leetcode等SQL题目冲刺笔记
 
 - 提交解答：
 ```sql
+
 SELECT Person.FirstName as firstName, Person.LastName as lastName, Address.City as city, Address.State AS state  FROM Person LEFT JOIN  Address ON Person.PersonId = Address.PersonId;
 ```
 - 优质解答：
 
 ```sql
+
 # Write your MySQL query statement below
 SELECT firstname, lastname, city, state FROM person LEFT JOIN address ON person.personid = address.personid
 ```
