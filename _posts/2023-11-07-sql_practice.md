@@ -54,3 +54,44 @@ on Person.PersonId = Address.PersonId
 > 来源：力扣（LeetCode）
 > 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 >
+
+### [176.第二高的薪水](https://leetcode.cn/problems/second-highest-salary/description/)
+
+- 提交解答
+
+```sql
+# Write your MySQL query statement below
+# notice: 这里必须使用SELECT 子查询才能让空行显示null
+SELECT (
+    SELECT DISTINCT salary FROM Employee ORDER BY salary DESC LIMIT 1,1
+) AS SecondHighestSalary;
+
+
+# 使用ISFULL 进行二次替换
+SELECT (
+    IFNULL((SELECT DISTINCT salary FROM Employee ORDER BY salary DESC LIMIT 1,1),NULL)
+) AS SecondHighestSalary;
+
+```
+
+- 优质解答
+
+```sql
+# 使用offset加快了速度
+SELECT (
+    SELECT DISTINCT Salary AS 'SecondHighestSalary' FROM Employee ORDER BY Salary DESC LIMIT 1 OFFSET 1
+) AS 'SecondHighestSalary';  
+```
+
+- 官方题解：
+
+```sql
+# 思路相同
+SELECT
+    IFNULL(
+      (SELECT DISTINCT Salary
+       FROM Employee
+       ORDER BY Salary DESC
+        LIMIT 1 OFFSET 1),
+    NULL) AS SecondHighestSalary
+```
