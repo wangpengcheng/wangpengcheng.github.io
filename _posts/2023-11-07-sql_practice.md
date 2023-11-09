@@ -95,3 +95,62 @@ SELECT
         LIMIT 1 OFFSET 1),
     NULL) AS SecondHighestSalary
 ```
+
+### [177.第N高的薪水](https://leetcode.cn/problems/nth-highest-salary/description/)
+
+- 参考链接：
+    - [MySQL之自定义函数](https://zhuanlan.zhihu.com/p/128744140)
+    - [MySQL全面瓦解18：自定义函数](https://www.cnblogs.com/wzh2010/p/13843095.html)
+
+- 个人解答：
+
+```sql
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+    declare a int;
+   SET a = N-1;
+  RETURN (
+    # Write your MySQL query statement below.
+   SELECT IFNULL((SELECT DISTINCT salary  FROM Employee ORDER BY salary DESC LIMIT 1 OFFSET a),NULL)
+   
+  );
+END
+```
+
+- 优质解答：
+
+```sql
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+Declare M INT;
+set M=N-1;
+  RETURN (
+      # Write your MySQL query statement below.
+select distinct Salary
+      from Employee
+      order by Salary desc
+      limit M,1
+  );
+END
+```
+
+- 官方题解：
+
+```sql
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+DECLARE M INT; 
+    SET M = N-1; 
+  RETURN (
+      SELECT DISTINCT salary
+      FROM Employee
+      ORDER BY salary DESC
+      LIMIT M, 1
+  );
+END
+
+# 作者：力扣官方题解
+# 链接：https://leetcode.cn/problems/nth-highest-salary/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
