@@ -75,3 +75,82 @@ awk '/^([0-9]{3}-|\([0-9]{3}\) )[0-9]{3}-[0-9]{4}$/' file.txt
 
 gawk '/^([0-9]{3}-|\([0-9]{3}\) )[0-9]{3}-[0-9]{4}$/' file.txt
 ```
+
+### [194. 转置文件](https://leetcode.cn/problems/transpose-file/description/)
+
+- 参考链接：
+    - [awk多维数组](https://blog.csdn.net/xiyangyang052/article/details/45584311)
+    - [xargs命令](https://www.runoob.com/linux/linux-comm-xargs.html)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+awk '{
+    nf=NF;
+    for(i=1; i<=NF; i++){ 
+        array1[NR,i]=$i; 
+    }
+} 
+END{ 
+    for(i=1;i<=nf;i++){
+        for (j=1;j<=NR;j++) {
+            if (j<NR) {
+                printf "%s ",array1[j,i];
+            }else{
+                printf "%s",array1[j,i];
+            }
+            
+        }
+        print '\n'
+    } 
+}' file.txt
+```
+
+- 优质解答1:
+
+```bash
+# Read from the file file.txt and print its transposed content to stdout.
+# 统计列数
+line=$(cat file.txt | head -n 1 | wc -w)
+
+# 遍历所有列
+for i in $(seq 1 $line)
+
+do
+  # 输出指定列 | 将列转换为行
+   awk '{print $'''$i'''}' file.txt | xargs
+
+done
+```
+
+- 优质解答2：
+
+```bash
+# 获取列数
+COLUMNS=$(head -n 1 file.txt| wc -w)
+
+for i in $(seq 1 $COLUMNS); do
+    # 获取第i列，然后用paste合并
+    cut -d ' ' -f"$i" file.txt | paste -s -d' ' -
+done
+```
+
+- 官方题解：
+
+```bash
+
+# 获取列数
+COLUMNS=$(head -n 1 file.txt| wc -w)
+
+for i in $(seq 1 $COLUMNS); do
+    # 获取第i列，然后用paste合并
+    cut -d ' ' -f"$i" file.txt | paste -s -d' ' -
+done
+
+
+#作者：Aronic
+#链接：https://leetcode.cn/problems/transpose-file/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```

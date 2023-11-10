@@ -154,3 +154,68 @@ END
 # 来源：力扣（LeetCode）
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [178. 分数排名](https://leetcode.cn/problems/rank-scores/description/)
+
+- 参考链接：
+    - [mysql 计算排名，生成排行榜](https://segmentfault.com/a/1190000014386692)
+    - [mysql窗口函数](https://dev.mysql.com/doc/refman/8.0/en/window-functions-usage.html)
+
+- 提交解答：
+
+```sql
+SELECT
+ a.score,
+(SELECT COUNT(DISTINCT  score) FROM Scores AS b WHERE  b.score > a.score) + 1 AS 'rank'
+FROM Scores AS a ORDER BY a.score DESC;
+```
+
+- 优质解答：
+
+```sql
+# select  * from  Scores id  where score order by desc;
+# dense_rank()窗口函数进行排序
+#对Scores这张表的S字段进行排序
+#对score字段进行排序按照降序排序
+#最后放到rank这个新的列中
+select S.score, dense_rank() over(
+    order by S.score desc
+) As 'rank' from Scores S;
+```
+
+- 官方题解：
+
+```sql
+SELECT
+  S.score,
+  COUNT(DISTINCT T.score) AS 'rank'
+FROM
+  Scores S
+  INNER JOIN Scores T ON S.score <= T.score
+GROUP BY
+  S.id,
+  S.score
+ORDER BY
+  S.score DESC;
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/rank-scores/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+```sql
+SELECT
+  S.score,
+  DENSE_RANK() OVER (
+    ORDER BY
+      S.score DESC
+  ) AS 'rank'
+FROM
+  Scores S;
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/rank-scores/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
