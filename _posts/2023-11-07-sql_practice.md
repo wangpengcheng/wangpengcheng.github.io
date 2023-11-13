@@ -26,12 +26,13 @@ SQL 练习笔记，包含leetcode等SQL题目冲刺笔记
 
 ### [175. 组合两个表](https://leetcode.cn/problems/combine-two-tables/description/)
 
-
 - 提交解答：
-```sql
 
+```sql
+# 直接正常查询即可 
 SELECT Person.FirstName as firstName, Person.LastName as lastName, Address.City as city, Address.State AS state  FROM Person LEFT JOIN  Address ON Person.PersonId = Address.PersonId;
 ```
+
 - 优质解答：
 
 ```sql
@@ -45,8 +46,7 @@ SELECT firstname, lastname, city, state FROM person LEFT JOIN address ON person.
 ```sql
 select FirstName, LastName, City, State
 from Person left join Address
-on Person.PersonId = Address.PersonId
-;
+on Person.PersonId = Address.PersonId;
 ```
 >
 > 作者：LeetCode
@@ -290,9 +290,9 @@ SELECT name as Employee FROM Employee JOIN (
 ```
 
 - 优质解答：
+
 ```sql
 # Write your MySQL query statement below
-
 # 使用inner join 进行快速查询
 select a.name as Employee
 from  Employee as a  inner join Employee as b
@@ -317,7 +317,6 @@ WHERE
 #链接：https://leetcode.cn/problems/employees-earning-more-than-their-managers/
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-
 
 # 使用join 进行查询
 SELECT

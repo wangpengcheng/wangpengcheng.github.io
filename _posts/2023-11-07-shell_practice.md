@@ -190,6 +190,7 @@ sed -n '10p' file.txt
 ### [SHELL1 统计文件的行数](https://www.nowcoder.com/practice/205ccba30b264ae697a78f425f276779?tpId=195&tqId=36211&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj&difficulty=undefined&judgeStatus=undefined&tags=&title=)
 
 - 提交解答1
+
 ```bash
 #!/bin/bash
 # 结合cat
@@ -220,6 +221,7 @@ exit 0
 ```
 
 - 优质解答：
+
 ```bash
 # 直接使用read 进行解析
 line=0
