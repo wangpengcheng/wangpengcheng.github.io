@@ -219,3 +219,116 @@ FROM
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [180. 连续出现的数字](https://leetcode.cn/problems/consecutive-numbers/description/)
+
+- 参考链接：
+    - [mysql in 多个字段的用法](https://blog.csdn.net/Guanjs2016/article/details/80237490)
+
+- 提交解答：
+
+```sql
+
+# 使用in语句,保证id进行同匹配即可
+SELECT DISTINCT(num) AS ConsecutiveNums   FROM Logs
+WHERE (id+1, num) IN (SELECT id,num FROM Logs)
+AND (id+2, num) IN (SELECT id,num FROM Logs)
+```
+
+- 优质解答：
+
+```sql
+# 
+# Write your MySQL query statement below
+# 查询num 别名
+select distinct Num as ConsecutiveNums
+from (
+  select Num, 
+    # 筛选CNT
+    case 
+      when @prev = Num then @count := @count + 1
+      when (@prev := Num) is not null then @count := 1
+    end as CNT
+  from Logs, (select @prev := null,@count := null) as t
+) as temp
+where temp.CNT >= 3
+```
+
+- 官方题解：
+
+```sql
+
+## 直接使用别名进行简单计算即可
+SELECT *
+FROM
+    Logs l1,
+    Logs l2,
+    Logs l3
+WHERE
+    l1.Id = l2.Id - 1
+    AND l2.Id = l3.Id - 1
+    AND l1.Num = l2.Num
+    AND l2.Num = l3.Num
+;
+
+# 作者：LeetCode
+# 链接：https://leetcode.cn/problems/consecutive-numbers/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### [181. 超过经理收入的员工](https://leetcode.cn/problems/employees-earning-more-than-their-managers/description/)
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+# 直接使用子查询别名进行筛选
+SELECT name as Employee FROM Employee JOIN (
+ SELECT id, salary FROM Employee
+) AS new_table ON Employee.managerId = new_table.id WHERE  Employee.salary > new_table.salary;
+```
+
+- 优质解答：
+```sql
+# Write your MySQL query statement below
+
+# 使用inner join 进行快速查询
+select a.name as Employee
+from  Employee as a  inner join Employee as b
+on a.managerId=b.id and a.salary>b.salary;
+```
+
+- 官方题解：
+
+```sql
+
+# 直接别名进行联表查询
+SELECT
+    *
+FROM
+    Employee AS a,
+    Employee AS b
+WHERE
+    a.ManagerId = b.Id
+        AND a.Salary > b.Salary;
+
+#作者：LeetCode
+#链接：https://leetcode.cn/problems/employees-earning-more-than-their-managers/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+# 使用join 进行查询
+SELECT
+     a.NAME AS Employee
+FROM Employee AS a JOIN Employee AS b
+     ON a.ManagerId = b.Id
+     AND a.Salary > b.Salary
+;
+
+#作者：LeetCode
+#链接：https://leetcode.cn/problems/employees-earning-more-than-their-managers/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```

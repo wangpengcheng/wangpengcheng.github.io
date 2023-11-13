@@ -154,3 +154,125 @@ done
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [195. 第十行](https://leetcode.cn/problems/tenth-line/description/)
+
+- 提交解答：
+
+```bash
+# Read from the file file.txt and output the tenth line to stdout.
+tail -n +10 file.txt | head -n 1;
+```
+
+- 优质解答：
+
+```bash
+# 直接使用sed 进行过滤
+sed -n '10p' file.txt
+```
+
+- 官方题解：
+
+```bash
+# awk，当处理到第10行时，打印该行。NR表示awk处理的当前行号。
+awk 'NR == 10' file.txt
+
+# tail+head，使用tail命令输出文件的第10行及之后的所有行，然后将结果通过管道传递给head命令。head命令只保留第一行并将其作为输出。
+tail -n +10 file.txt | head -1
+
+# sed，-n选项取消sed默认的输出，'10p'指定只打印第10行。
+sed -n '10p' file.txt
+```
+
+
+## nowcode 题目
+
+### [SHELL1 统计文件的行数](https://www.nowcoder.com/practice/205ccba30b264ae697a78f425f276779?tpId=195&tqId=36211&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答1
+```bash
+#!/bin/bash
+# 结合cat
+cat nowcoder.txt | wc -l 
+
+# 直接使用wc,但是会输出文件名，需要用awk 进行切分
+wc -l nowcoder.txt | awk '{print $1}'
+
+
+# 直接awk打印行号
+awk 'END{print NR}' ./nowcoder.txt
+```
+
+- 提交解答2
+
+```bash
+#!/bin/bash
+
+read -a arr
+while [ ${#arr[@]} -eq 2 ]
+    do
+        sum=$((${arr[0]} + ${arr[1]}))
+        echo $sum
+        read -a arr
+    done
+exit 0
+
+```
+
+- 优质解答：
+```bash
+# 直接使用read 进行解析
+line=0
+while read p
+do
+    ((line++))
+done < ./nowcoder.txt
+echo $line
+```
+
+- 官方题解：
+
+```bash
+
+# 直接使用wc
+wc -l ./nowcoder.txt | awk '{print $1}'
+
+# awk 直接输出行号
+awk 'END{print NR}' ./nowcoder.txt
+
+# grep 统计
+grep -c "" ./nowcoder.txt 
+
+# grep 统计
+grep -n "" ./nowcoder.txt  | awk -F ":" '{print $1 }' | tail -n 1
+
+# sed 统计
+sed -n '$=' ./nowcoder.txt
+```
+
+
+## shell 日常脚本收集
+
+### 打印日志
+
+```bash
+#!/bin/bash
+
+log_model="日志测试模块"
+
+function main_log() {
+    # 打印格式： [时间] [pid] [modename] [args]
+    # 0. 获取原始字符串
+    data_str="[`date +"%Y-%m-%d %H:%M:%S.%N"`] [$$] [$log_model] $*"
+    # 1. 输出到控制台
+    echo $data_str
+    # 2. 输出到文件
+    echo $data_str >> log.txt 
+}
+
+function main() {
+    main_log "$@"
+}
+
+main "$@"
+```
