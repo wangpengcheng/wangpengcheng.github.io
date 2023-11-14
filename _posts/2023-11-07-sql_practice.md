@@ -331,3 +331,44 @@ FROM Employee AS a JOIN Employee AS b
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [182. 查找重复的电子邮箱](https://leetcode.cn/problems/duplicate-emails/description/)
+
+- 提交解答
+
+```sql
+# Write your MySQL query statement below
+
+SELECT email AS Email FROM Person GROUP BY email HAVING COUNT(*) > 1;
+```
+
+- 优质解答：
+
+```sql
+# Write your MySQL query statement below
+SELECT DISTINCT Email FROM PERSON GROUP BY EMAIL HAVING COUNT(EMAIL) > 1;
+```
+
+- 官方题解：
+
+```sql
+## 1. 直接使用group by 和临时表
+select Email from
+(
+  select Email, count(Email) as num
+  from Person
+  group by Email
+) as statistic
+where num > 1;
+
+#作者：LeetCode
+#链接：https://leetcode.cn/problems/duplicate-emails/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+## 2. group by 和having
+
+select Email from Person group by Email having count(Email) > 1;
+
+```
+

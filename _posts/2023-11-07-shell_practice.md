@@ -204,21 +204,7 @@ wc -l nowcoder.txt | awk '{print $1}'
 awk 'END{print NR}' ./nowcoder.txt
 ```
 
-- 提交解答2
 
-```bash
-#!/bin/bash
-
-read -a arr
-while [ ${#arr[@]} -eq 2 ]
-    do
-        sum=$((${arr[0]} + ${arr[1]}))
-        echo $sum
-        read -a arr
-    done
-exit 0
-
-```
 
 - 优质解答：
 
@@ -251,7 +237,27 @@ grep -n "" ./nowcoder.txt  | awk -F ":" '{print $1 }' | tail -n 1
 # sed 统计
 sed -n '$=' ./nowcoder.txt
 ```
+### [SHELL2 打印文件的最后5行](https://www.nowcoder.com/practice/ff6f36d357d24ce5a0eb817a0ef85ee2?tpId=195&tqId=36212&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
 
+- 提交解答：
+
+```bash
+tail -n 5 nowcoder.txt
+```
+
+- 优质解答：
+
+```bash
+# 使用awk统计所有行数据，再进行打印
+awk 'BEGIN {x=1} { arg[x]=$0;x++} END{ for (i=NR-4;i<=NR;i++) print arg[i]}'
+
+# 使用head 负数进行打印
+head -5 filename
+
+# 使用sed命令进行添加
+sed -n '5,20p' filename
+
+```
 
 ## shell 日常脚本收集
 
