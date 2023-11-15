@@ -259,6 +259,65 @@ sed -n '5,20p' filename
 
 ```
 
+### [SHELL3 输出 0 到 500 中 7 的倍数](https://www.nowcoder.com/practice/8b85768394304511b0eb887244e51872?tpId=195&tqId=36213&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 官方题解：
+    - [shell算术运算(加减乘除求余)](https://blog.csdn.net/qq_41419761/article/details/84033620)
+    - [seq命令的用法](https://www.jianshu.com/p/7dff1a106ab5)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+for ((i=0;i<=500;i++));
+do 
+    res=$(expr $i % 7)
+    if [[ $res == 0 ]];then
+        echo $i;
+    fi
+done 
+```
+
+- 优质题解：
+
+```bash
+#!/bin/bash
+# 直接使用间隔的方式进行输出即可
+for num in {0..500..7}; do 
+  echo "${num}"
+done
+
+
+# 使用sed 直接进行输出
+seq 0 7 500
+```
+
+- 官方题解：
+
+```bash
+#!/bin/bash
+for i in {0..500};
+do
+    if [[ i%7 -eq 0 ]];then
+        echo $i
+    fi
+done
+```
+
+```bash
+#!/bin/bash
+for var in {0..500}
+do
+    if ((var%7==0))
+    then
+        echo $var
+    else
+        continue
+    fi
+done
+```
+
+
 ## shell 日常脚本收集
 
 ### 打印日志

@@ -372,3 +372,63 @@ select Email from Person group by Email having count(Email) > 1;
 
 ```
 
+### [183. 从不订购的客户](https://leetcode.cn/problems/customers-who-never-order/description/)
+
+- 提交解答
+
+```sql
+# Write your MySQL query statement below
+
+SELECT name AS Customers FROM Customers WHERE Id NOT IN ( 
+    SELECT DISTINCT(customerId) AS customerId FROM Orders
+); 
+```
+
+- 优质解答
+
+```sql
+# Write your MySQL query statement below
+# 思路相同，没有使用DISTINCT 节省了时间
+SELECT
+    name as Customers
+FROM
+    Customers
+WHERE
+    id NOT IN (SELECT customerId as id FROM Orders)
+
+# 使用NOT EXISTS 函数节省了时间
+SELECT Name as Customers FROM Customers as c1
+WHERE NOT EXISTS(
+    SELECT Id FROM Orders as c2
+    WHERE c2.CustomerId = c1.Id
+)
+```
+
+- 官方题解
+
+```sql
+
+# 使用 not in 进行排除
+select customers.name as 'Customers'
+from customers
+where customers.id not in
+(
+    select customerid from orders
+);
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/customers-who-never-order/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+# 使用左连接
+SELECT Customers.name AS Customers 
+FROM Customers
+LEFT JOIN Orders ON Customers.Id = Orders.CustomerId WHERE customerId is NULL;
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/customers-who-never-order/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
