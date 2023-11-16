@@ -287,7 +287,6 @@ for num in {0..500..7}; do
   echo "${num}"
 done
 
-
 # 使用sed 直接进行输出
 seq 0 7 500
 ```
@@ -317,6 +316,35 @@ do
 done
 ```
 
+### [SHELL4 输出第5行的内容](https://www.nowcoder.com/practice/1d5978c6136d4252904757b4fa0c9296?tpId=195&tqId=36214&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+awk 'NR == 5' nowcoder.txt
+```
+
+- 优质解答：
+
+```bash
+#!/bin/bash
+head -n 5 nowcoder.txt | tail -n 1
+
+# 使用sed  
+sed -n 5p nowcoder.txt
+
+
+# 使用read
+line=1
+while read value
+do 
+    if [ $line -eq 5 ]
+    then echo $value
+    fi
+    ((line++))
+done < nowcoder.txt
+```
 
 ## shell 日常脚本收集
 

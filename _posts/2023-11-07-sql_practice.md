@@ -432,3 +432,82 @@ LEFT JOIN Orders ON Customers.Id = Orders.CustomerId WHERE customerId is NULL;
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
+
+### [184. 部门工资最高的员工](https://leetcode.cn/problems/department-highest-salary/description/)
+
+- 提交解答:
+
+```sql
+# Write your MySQL query statement below
+# 使用子查询，找出每个部门的最大值，然后匹配即可
+
+SELECT b.department_name AS Department, Employee.name AS Employee, Employee.Salary AS Salary
+FROM Employee, (
+		SELECT MAX(salary) AS max_salary, Department.id AS department_id, Department.name AS department_name
+		FROM Employee
+			LEFT JOIN Department ON Department.id = Employee.departmentId
+		GROUP BY departmentId
+	) b
+WHERE Employee.departmentId = b.department_id
+	AND Employee.Salary = b.max_salary;
+```
+
+- 优质解答1：
+
+```sql
+# Write your MySQL query statement below
+# 使用rank 统计最大值
+SELECT Department, name AS Employee, salary AS Salary 
+FROM
+(
+    SELECT a.*, b.name AS Department, 
+           RANK() OVER(PARTITION BY a.departmentId ORDER BY salary DESC) AS rk
+    FROM Employee a LEFT JOIN Department b ON a.departmentId =b.id
+) t
+WHERE rk = 1
+```
+
+- 优质解答2：
+
+```sql
+# Write your MySQL query statement below
+# 使用连接后，直接使用IN 查询
+SELECT Department.Name AS 'Department', Employee.Name AS 'Employee', Salary
+FROM Employee
+JOIN Department 
+ON Employee.DepartmentId = Department.Id
+WHERE (Employee.DepartmentId, Salary) 
+IN (SELECT DepartmentId, MAX(Salary)
+   FROM Employee
+   GROUP BY DepartmentId);
+```
+
+- 官方题解：
+
+```sql
+SELECT
+    Department.name AS 'Department',
+    Employee.name AS '
+
+Employee',
+    Salary
+FROM
+    Employee
+        JOIN
+    Department ON Employee.DepartmentId = Department.Id
+WHERE
+    (Employee.DepartmentId , Salary) IN
+    (   SELECT
+            DepartmentId, MAX(Salary)
+        FROM
+            Employee
+        GROUP BY DepartmentId
+    )
+;
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/department-highest-salary/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
