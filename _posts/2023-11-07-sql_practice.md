@@ -511,3 +511,124 @@ WHERE
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
+
+### [185. 部门工资前三高的所有员工](https://leetcode.cn/problems/department-top-three-salaries/description/)
+
+- 提交解答：
+
+```sql
+
+# 子查询排序后，使用 ROW_NUMBER 窗口函数统计行数
+SELECT  Department.name AS Department, Employee.name AS Employee , Employee.salary AS Salary  
+FROM Employee LEFT JOIN (
+    SELECT departmentId, MIN(salary) as min_salary  FROM (
+    SELECT departmentId,salary,
+        ROW_NUMBER()  OVER(partition by departmentId  order by salary  desc) as num
+    FROM 
+    (
+        select departmentId,salary FROM Employee GROUP BY departmentId,salary ) b
+    ) c
+    WHERE num <= 3 GROUP BY departmentId
+) d ON  Employee.departmentId = d.departmentId
+LEFT JOIN Department  ON Employee.departmentId = Department.id 
+WHERE Employee.salary >= d.min_salary ;
+```
+
+- 优质解答1：
+
+```sql
+
+## 直接左连接相同表，找到比自己小的表，最终统计小的数目即可
+SELECT  d.name Department, e.name Employee, e.salary Salary
+FROM Employee e
+LEFT JOIN Employee ee
+ON e.departmentId = ee.departmentId AND e.salary < ee.salary
+JOIN Department d
+ON d.id = e.departmentId
+GROUP BY e.id
+HAVING count(distinct(ee.salary)) < 3;
+```
+
+- 优质解答2：
+
+```sql
+# 直接使用 DENSE_RANK 窗口函数，统计去重后的行数
+SELECT Department, name AS Employee, salary AS Salary 
+FROM
+(
+    SELECT a.*, b.name AS Department, 
+           DENSE_RANK() OVER(PARTITION BY a.departmentId ORDER BY salary DESC) AS rk
+    FROM Employee a LEFT JOIN Department b ON a.departmentId =b.id
+) t
+WHERE rk <= 3
+```
+
+- 官方题解：
+
+```sql
+SELECT
+    d.Name AS 'Department', e1.Name AS 'Employee', e1.Salary
+FROM
+    Employee e1
+        JOIN
+    Department d ON e1.DepartmentId = d.Id
+WHERE
+    3 > (SELECT
+            COUNT(DISTINCT e2.Salary)
+        FROM
+            Employee e2
+        WHERE
+            e2.Salary > e1.Salary
+                AND e1.DepartmentId = e2.DepartmentId
+        )
+;
+
+#作者：LeetCode
+#链接：https://leetcode.cn/problems/department-top-three-salaries/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### [196. 删除重复的电子邮箱](https://leetcode.cn/problems/delete-duplicate-emails/description/)
+
+- 提交解答
+
+```sql
+# Write your MySQL query statement below
+# 使用子查询找出最小的id即可
+DELETE FROM  Person WHERE id NOT IN (
+    SELECT a.min_id FROM
+        (select email, MIN(id) AS min_id FROM Person GROUP BY email) a
+);
+
+```
+
+- 优质解答
+
+```sql
+delete from Person
+where id in(
+    select id from(
+        select *,row_number() over(partition by email order by id ) as row_num
+        from Person
+    ) a
+    where row_num >1)
+
+```
+
+- 官方题解
+
+```sql
+# 使用where语句更加简洁
+DELETE p1 FROM
+    Person p1,
+    Person p2
+WHERE
+    p1.Email = p2.Email AND p1.Id > p2.Id
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/delete-duplicate-emails/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```

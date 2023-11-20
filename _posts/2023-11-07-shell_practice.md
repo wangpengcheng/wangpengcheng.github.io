@@ -346,6 +346,39 @@ do
 done < nowcoder.txt
 ```
 
+### [SHELL5 打印空行的行号](https://www.nowcoder.com/practice/030fc368e42e44b8b1f8985a8d6ad255?tpId=195&tqId=36215&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答
+
+```bash
+#!/bin/bash
+# 直接使用awk 
+
+awk '{
+    if ( length($0) <= 0) {
+        print NR
+    }
+}' nowcoder.txt
+```
+
+- 优质解答
+
+```bash
+#!/bin/bash
+# https://www.gl.sh.cn/2018/08/15/shell_zhong_pan_duan_zi_fu_chuan_wei_kong_de_ji_zhong_fang_fa.html
+line=1
+while read value
+do  
+    # if [ ! "$value" ]; then
+    # if [ -z "$value" ]; then
+    if [ X$value = "X" ]; then
+        echo $line $value
+    fi
+    ((line++))
+done < nowcoder.txt
+```
+
+
 ## shell 日常脚本收集
 
 ### 打印日志
