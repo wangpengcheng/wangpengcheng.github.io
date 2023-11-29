@@ -378,6 +378,31 @@ do
 done < nowcoder.txt
 ```
 
+### [SHELL6 去掉空行](https://www.nowcoder.com/practice/0372acd5725d40669640fd25e9fb7b0f?tpId=195&tqId=36216&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+
+# 打印数据
+awk '{ 
+    if (length($0) > 0 ) {
+        print $0
+    }
+}' nowcoder.txt
+
+
+# 使用read
+
+while  read  value
+do
+    if [[ X$value != "X" ]]; then
+        echo $value
+    fi
+done < nowcoder.txt
+```
+
 
 ## shell 日常脚本收集
 

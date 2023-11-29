@@ -632,3 +632,41 @@ WHERE
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 ```
+
+### [511. 游戏玩法分析 I](https://leetcode.cn/problems/game-play-analysis-i/description/)
+
+- 提交解答：
+
+```sql
+
+SELECT player_id, MIN(event_date) AS first_login  FROM Activity GROUP BY player_id; 
+```
+
+- 优质解答：
+
+```sql
+elect a1.player_id, min(a1.event_date) as first_login
+from Activity as a1
+group by a1.player_id;
+```
+
+- 官方题解：
+
+```sql
+# 使用窗口函数进行解决
+SELECT DISTINCT
+  A.player_id,
+  FIRST_VALUE(A.event_date) OVER (
+    PARTITION BY
+      A.player_id
+    ORDER BY
+      A.event_date
+  ) AS first_login
+FROM
+  Activity A;
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/game-play-analysis-i/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
