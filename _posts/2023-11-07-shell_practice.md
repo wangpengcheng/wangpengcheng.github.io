@@ -403,6 +403,95 @@ do
 done < nowcoder.txt
 ```
 
+### [SHELL7 打印字母数小于8的单词](https://www.nowcoder.com/practice/bd5b5d4b93a04226a81afbabf0be797d?tpId=195&tqId=36217&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+awk '{ 
+    for (i=1;i<=NF;i++) { 
+        if (length($i)<8) {
+            printf "%s\n",$i
+        }
+    } 
+}' nowcoder.txt
+```
+
+- 优质解答1：
+
+```bash
+### 获取字符串长度的方式 ele-字符串变量
+# awk 的length()函数
+# awk的NF变量 echo "${ele}" | awk -F"" '{print NF}'
+# wc -c 字节个数,一个英文一个字节,因此可用,但是换行符也会被算上, 中文编码方式不同结果也不同
+# wc -m 字符个数
+# wc -L line的长度
+# ${#ele} [ele是字符串变量名]
+# expr length ${ele}
+awk '{for(i=1;i<=NF;i++) if(length($i)<8) print $i}' nowcoder.txt
+cat nowcoder.txt | awk '{for(i=1;i<=NF;i++) if(length($i)<8) print $i}'
+
+### 已下都用方法/函数定义
+function test0() {
+    for ele in `cat nowcoder.txt`; do 
+        if [ ${#ele} -lt 8 ]; then
+            echo ${ele}
+        fi
+    done
+}
+
+# tem=`cat now/coder.txt`
+# arr=(${tem})
+function test1() {
+    for ele in ${arr[@]}; do 
+        if [ ${#ele} -lt 8 ]; then
+            echo ${ele}
+        fi
+    done
+}
+
+function test11() {
+    for ele in ${arr[@]}; do
+        #temp=$(echo -n "${ele}" | wc -c)
+        # -n参数:去除"\n"换行符,不去除的话,默认带换行符,字符个数就肉眼看到的多一个
+        temp=`echo -n "${ele}" | wc -c`
+        if [ ${temp} -lt 8 ]; then
+            echo ${ele}
+        fi
+    done
+}
+
+function test111() {
+    for ele in ${arr[@]}; do
+        temp=`expr length ${ele}`
+        if [ ${temp} -lt 8 ]; then
+            echo ${ele}
+        fi
+    done
+}
+
+function test1111() {
+    for ele in ${arr[@]}; do
+        temp=`echo "${ele}" | wc -L`
+        if [ ${temp} -lt 8 ]; then
+            echo ${ele}
+        fi
+    done
+}
+
+function test2() {
+    local ele=""
+    for (( i=0; i<${#arr[@]}; i++ )); do
+        ele=${arr[${i}]}
+        if [ ${#ele} -lt 8 ]; then
+            echo ${ele}
+        fi
+    done
+}
+test0
+
+```
 
 ## shell 日常脚本收集
 

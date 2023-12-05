@@ -670,3 +670,82 @@ FROM
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [550. 游戏玩法分析 IV](https://leetcode.cn/problems/game-play-analysis-iv/description/)
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+SELECT  IFNULL(
+    ROUND(
+        COUNT(a.player_id) / c.all_user, 
+        2
+    ), 
+    0
+    ) AS fraction FROM 
+Activity a,
+# 首次登陆时间
+(SELECT player_id, MIN(event_date) AS frist_date FROM Activity GROUP BY player_id) b,
+(SELECT COUNT(DISTINCT(player_id))  AS all_user FROM  Activity)  c
+WHERE a.player_id = b.player_id AND a.event_date = date_add(b.frist_date, interval 1 day);
+
+```
+
+- 优质解答：
+
+```sql
+
+# Write your MySQL query statement below
+
+# 使用datediff直接进行判断
+select round(avg(if(a.event_date is null, 0, 1)), 2) fraction
+from 
+    (select player_id, min(event_date) as login
+    from activity
+    group by player_id) p 
+left join activity a 
+on p.player_id=a.player_id and datediff(a.event_date, p.login)=1
+
+```
+
+- 优质解答2：
+
+```sql
+# 思路基本相同
+SELECT 
+    IFNULL(ROUND(COUNT(DISTINCT(result.player_id)) / COUNT(DISTINCT(Activity.player_id)),2),0) 
+    AS fraction
+FROM
+(SELECT Activity.player_id as player_id
+FROM 
+(SELECT 
+    player_id,
+    DATE_ADD(MIN(event_date),INTERVAL 1 DAY) AS second_date
+FROM
+    Activity
+GROUP BY player_id
+) AS excepted,Activity
+WHERE Activity.event_date = excepted.second_date and Activity.player_id = excepted.player_id
+) AS result,Activity
+```
+
+- 官方题解：
+
+```sql
+select IFNULL(round(count(distinct(Result.player_id)) / count(distinct(Activity.player_id)), 2), 0) as fraction
+from (
+  select Activity.player_id as player_id
+  from (
+    select player_id, DATE_ADD(MIN(event_date), INTERVAL 1 DAY) as second_date
+    from Activity
+    group by player_id
+  ) as Expected, Activity
+  where Activity.event_date = Expected.second_date and Activity.player_id = Expected.player_id
+) as Result, Activity
+
+# 作者：力扣官方题解
+# 链接：https://leetcode.cn/problems/game-play-analysis-iv/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
