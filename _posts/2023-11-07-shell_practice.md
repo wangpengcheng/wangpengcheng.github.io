@@ -493,6 +493,53 @@ test0
 
 ```
 
+### [SHELL8 统计所有进程占用内存百分比的和](https://www.nowcoder.com/practice/fb24140bac154e5b99e44e0cee45dcaf?tpId=195&tqId=36218&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 参考链接：
+    - [题解 | #统计所有进程占用内存大小的和#](https://blog.nowcoder.net/n/82e5732e08ae4abe83bb07e75860dc9e)
+
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+# 直接使用awk,注意awk相关语法
+# 建议在awk中引用shell变量，使用格式：'"$var"'
+awk  '
+BEGIN{sum=0}
+{
+    if(NR>1){ 
+        sum+=$4
+    }
+} 
+END {print sum}
+' nowcoder.txt 
+```
+
+- 优质解答：
+
+```bash
+#!/bin/bash
+# 直接使用计算
+sum=0
+for i in `awk '{print $6}' nowcoder.txt`
+do
+    ((sum+=$i))
+    done
+echo $sum
+
+
+#  性能最佳
+sum=0;
+while read p
+do
+    arr=($p)
+    ((sum+=arr[5]))
+done <nowcoder.txt
+echo $sum
+```
+
+
 ## shell 日常脚本收集
 
 ### 打印日志

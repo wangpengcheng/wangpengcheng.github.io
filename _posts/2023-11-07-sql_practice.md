@@ -12,7 +12,7 @@ tags:
     - 编程练习
 ---
 
-# shell练习笔记
+# SQL练习笔记
 > 2023-11-07 14:35:58
 
 SQL 练习笔记，包含leetcode等SQL题目冲刺笔记
@@ -748,4 +748,40 @@ from (
 # 链接：https://leetcode.cn/problems/game-play-analysis-iv/
 # 来源：力扣（LeetCode）
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### [577. 员工奖金](https://leetcode.cn/problems/employee-bonus/description/)
+
+- 提交解答：
+
+```sql
+SELECT Employee.name, Bonus.bonus FROM Employee 
+LEFT JOIN  Bonus ON 
+    Employee.empId = Bonus.empId 
+WHERE Employee.empId NOT IN (
+    SELECT empId FROM Bonus WHERE bonus >=1000
+);
+```
+
+
+- 优质解答：
+
+```sql
+# Write your MySQL query statement below
+select Employee.name, Bonus.bonus from Employee left join Bonus on Employee.empId=Bonus.empId where Bonus.bonus <1000 or bonus  is null;
+```
+
+- 官方题解：
+
+```sql
+
+select name, bonus
+from Employee left join Bonus
+on Employee.EmpId = Bonus.EmpId
+where bonus is null or bonus < 1000
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/employee-bonus/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
