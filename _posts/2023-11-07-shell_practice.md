@@ -540,6 +540,100 @@ echo $sum
 ```
 
 
+### [SHELL9 统计每个单词出现的个数](https://www.nowcoder.com/practice/ad921ccc0ba041ea93e9fb40bb0f2786?tpId=195&tqId=36219&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+
+# 主要思路使用awk 加 进行统计，使用sort进行输出
+
+awk '
+{
+    for(i=1;i<NF;i++) {
+        arr[$i]++
+    }
+}
+END {
+    for(key in arr) {
+        printf "%s %d",key,arr[key]
+    }
+}
+' nowcoder.txt | sort -k 2
+
+
+```
+
+- 优质解答：
+
+```bash
+# 使用cat 进行文本提取
+# 使用xargs 转换为行
+# 使用sort 进行排序
+# 使用uniq 进行去重统计
+# 使用sort 按照数值进行排序
+# 使用awk 列输出顺序交换
+cat nowcoder.txt | xargs -n1 | sort | uniq -c | sort -n | awk '{print $2, $1}'
+
+```
+
+- 优质解答：
+
+```bash
+declare -A map
+
+while read line
+do
+    # 进行行读取
+    arr=$line
+    # 遍历行中每一个单次
+    for i in ${arr[@]}
+    # 进行数量统计
+    do
+        if [ -z ${map[$i]} ]
+        then
+            map[$i]=1
+        else
+            ((map[$i]++))
+        fi
+    done
+ done < nowcoder.txt
+ 
+ mm=()
+ 
+for value in ${map[@]}
+do
+    mm[${#mm[@]}]=${value}
+done
+# 在这里进行手动排序
+len=${#mm[@]}
+for ((i=0;i<len;i++))
+do
+    for ((j=i+1;j<len;j++))
+    do
+        if [ ${mm[$i]} -gt ${mm[$j]} ]
+        then
+            tmp=${mm[$i]}
+            mm[$i]=${mm[$j]}
+            mm[$j]=$tmp
+         fi
+     done
+ done
+ 
+for ((k=0;k<${#mm[*]};k++))
+do
+    for key in ${!map[@]}
+    do
+        if [ ${map[$key]} -eq ${mm[$k]} ]
+        then
+            echo $key ${map[$key]}
+        fi
+    done
+done
+```
+
+
 ## shell 日常脚本收集
 
 ### 打印日志

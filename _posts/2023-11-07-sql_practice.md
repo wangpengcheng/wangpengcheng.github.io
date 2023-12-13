@@ -785,3 +785,68 @@ where bonus is null or bonus < 1000
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [262. 行程和用户](https://leetcode.cn/problems/trips-and-users/description/)
+
+- 提交解答：
+
+```sql
+
+# 1. 先做子查询，查询出非禁止用户的所有订单
+# 2. 子查询统计，每天订单总数/取消订单数，天数
+# 3. round计算对应值
+
+SELECT b.request_at AS Day, IFNULL(ROUND(c.completed_count /b.completed_count, 2), 0.00) AS "Cancellation Rate" FROM (
+    SELECT  request_at , COUNT(*) AS completed_count FROM (
+        SELECT status, request_at   FROM Trips WHERE client_id NOT IN (
+            SELECT users_id FROM Users WHERE banned = "Yes"
+        ) AND driver_id NOT IN (
+            SELECT users_id FROM Users WHERE banned = "Yes"
+        ) ) a WHERE request_at between  "2013-10-01" and "2013-10-03" GROUP BY request_at 
+    ) b  
+LEFT JOIN 
+    (
+    SELECT  request_at , COUNT(*) AS completed_count FROM (
+        SELECT status, request_at   FROM Trips WHERE client_id NOT IN (
+            SELECT users_id FROM Users WHERE banned = "Yes"
+        ) AND driver_id NOT IN (
+            SELECT users_id FROM Users WHERE banned = "Yes"
+        ) ) b WHERE status  != "completed" AND  request_at between  "2013-10-01" and "2013-10-03"  GROUP BY request_at 
+    ) c  
+ON b.request_at = c.request_at 
+```
+
+- 优质解答1：
+
+```sql
+
+# 直接使用AVG函数，统计特殊状态的值
+SELECT 
+    request_at Day,ROUND(AVG(status != 'completed'),2) 'Cancellation Rate' 
+  FROM 
+    Trips 
+  WHERE 
+      client_id IN (SELECT users_id FROM Users WHERE banned = 'No') 
+    AND 
+      driver_id in (SELECT users_id FROM Users WHERE banned = 'No') 
+    AND 
+      request_at BETWEEN '2013-10-01' AND '2013-10-03' GROUP BY request_at;
+```
+
+- 优质解答2：
+
+```sql
+# Write your MySQL query statement below
+# 使用了IF SUM 运算更快
+SELECT T.request_at AS `Day`, 
+ROUND(SUM(IF(T.STATUS = 'completed',0,1))/ COUNT(1),2) AS `Cancellation Rate`
+FROM Trips AS T
+JOIN Users AS U1 ON (T.client_id = U1.users_id AND U1.banned ='No')
+JOIN Users AS U2 ON (T.driver_id = U2.users_id AND U2.banned ='No')
+WHERE T.request_at BETWEEN '2013-10-01' AND '2013-10-03'
+GROUP BY T.request_at;
+```
+
+
+- 官方题解：
+无
