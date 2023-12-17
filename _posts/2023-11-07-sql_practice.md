@@ -850,3 +850,56 @@ GROUP BY T.request_at;
 
 - 官方题解：
 无
+
+
+### [570. 至少有5名直接下属的经理](https://leetcode.cn/problems/managers-with-at-least-5-direct-reports/description/)
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+
+# 直接使用子查询
+SELECT name FROM Employee WHERE id IN (
+    SELECT managerId FROM Employee GROUP BY managerId HAVING COUNT(*) >= 5
+);
+
+# 使用连表查询
+SELECT e1.name FROM 
+Employee e1 LEFT JOIN  Employee e2 ON  e1.Id = e2.managerId GROUP BY e1.id HAVING COUNT(*) >=5; 
+
+```
+
+- 优质解答：
+
+```sql
+# Write your MySQL query statement below
+select
+    m.name as name
+from 
+    employee e 
+join 
+    employee m 
+on e.managerId = m.id
+group by
+    e.managerId
+having count(*)>=5
+```
+
+- 官方题解：
+
+```sql
+select Employee.Name as Name
+from (
+  select ManagerId as Id
+  from Employee
+  group by ManagerId
+  having count(Id) >= 5
+) as Manager join Employee
+on Manager.Id = Employee.Id
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/managers-with-at-least-5-direct-reports/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```

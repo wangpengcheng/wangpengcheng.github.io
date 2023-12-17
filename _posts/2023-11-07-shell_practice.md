@@ -548,16 +548,15 @@ echo $sum
 #!/bin/bash
 
 # 主要思路使用awk 加 进行统计，使用sort进行输出
-
 awk '
 {
-    for(i=1;i<NF;i++) {
+    for(i=1;i<=NF;i++) {
         arr[$i]++
     }
 }
 END {
     for(key in arr) {
-        printf "%s %d",key,arr[key]
+        printf "%s %d\n",key,arr[key]
     }
 }
 ' nowcoder.txt | sort -k 2
@@ -633,6 +632,78 @@ do
 done
 ```
 
+### [SHELL10 第二列是否有重复](https://www.nowcoder.com/practice/61b79ffe88964c7ab7b98ae16dd76492?tpId=195&tqId=36220&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+
+- 提交解答：
+
+```bash
+# 主要思路还是使用awk 进行数据过滤
+awk '{print $2}' nowcoder.txt | sort | uniq -c | sort -n | awk '{if($1>1) {printf "%d %s\n",$1,$2}}'
+# 使用awk进行统计
+
+awk '{ arr[$2]++} END{ for (key in arr) { if (arr[key] >1) { printf "%d %s\n",arr[key],key } } }' nowcoder.txt | sort -n 
+
+```
+
+- 优质解答：
+
+```bash
+# 知己使用read line 进行分割
+
+declare -A arr
+while read line
+do
+    temparr=($line)
+    arr[${temparr[1]}]=$((${arr[${temparr[1]}]}+1))
+done
+for key in ${!arr[@]}
+do
+    if [[ ${arr[$key]} -gt 1 ]]
+    then
+        echo ${arr[$key]}" "$key
+    fi
+done
+```
+
+
+- 优质解答2：
+
+```bash
+#!/bin/bash
+# 用map存储
+unset map
+declare -A map
+# 将每一行及重复数以键值对形式存储
+while read line
+do
+  j=(${line[@]})     #  将每行的数据以数组方式存储,()初始化
+  i=${j[1]}     #  将第二列的值赋值给j
+  if (( -z ${map[$i]} ))    # 这数据第一次出现
+  then
+     map[$i]=1
+  else
+    ((map[$i]++))   # 这数据不是第一次出现，value值加一
+  fi
+done < nowcoder.txt
+
+for key in ${!map[@]}
+do
+  if (( ${map[$key]} > 1 ))
+  then
+    echo ${map[$key]} $key
+  fi
+done
+```
+
+- 官方题解：
+
+```bash
+cat nowcoder.txt | awk '{print $2}' | sort | uniq -c | grep -v '1' | sort -n
+
+#先用awk提取文本的第二列信息并对之进行排序，排序后才能用uniq进行去重统计（先去重统计在排序会造成统计不准确），再用grep把没有重复的取反求出（没有重复数值就是1），最后按题目要求再次按数值排序！！！
+
+```
 
 ## shell 日常脚本收集
 
