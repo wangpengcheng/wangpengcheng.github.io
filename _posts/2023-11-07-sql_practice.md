@@ -903,3 +903,33 @@ on Manager.Id = Employee.Id
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [584. 寻找用户推荐人](https://leetcode.cn/problems/find-customer-referee/description/)
+
+_参考链接：_
+- [SQL - where条件里的!=会过滤值为null的数据](https://blog.csdn.net/lewky_liu/article/details/103059943)
+
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+SELECT name FROM Customer  WHERE referee_id <> 2 OR referee_id is null;
+```
+
+- 优质解答：
+
+```sql
+# Write your MySQL query statement below
+# 进行过滤筛选
+select t.name from Customer t where (t.referee_id!=2 or t.referee_id is null)
+# 进行对应的过滤筛选
+select name from Customer where referee_id != 2 or referee_id is null;
+```
+
+- 官方题解：
+
+```sql
+SELECT name FROM customer WHERE referee_id != 2 OR referee_id IS NULL;
+```
+

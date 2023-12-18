@@ -705,6 +705,76 @@ cat nowcoder.txt | awk '{print $2}' | sort | uniq -c | grep -v '1' | sort -n
 
 ```
 
+### [SHELL11 转置文件的内容](https://www.nowcoder.com/practice/2240cd809c8f4d80b3479d7c95bb1e2e?tpId=195&tqId=36221&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+# 1. 先统计行列
+# 使用awk 输出指定列，使用xargs转换为 行
+
+# 统计列数
+line=$(cat nowcoder.txt | head -n 1 |  wc -w)
+for i in $(seq 1 $line)
+do 
+    awk '{print $'''$i'''}' nowcoder.txt | xargs
+done 
+```
+
+- 优质解答：
+
+```bash
+#/bin/bash
+ 
+# 进行哄统计
+lines=()
+while read line
+do
+    lines[${#lines[@]}]=$line
+done<nowcoder.txt
+
+# 获取当前列长度
+rows=${#lines[@]}
+t=(${lines[0]})
+columns=${#t[@]}
+
+# 遍历进行数据打印
+for ((i=0;i<$columns;i++))
+do
+    for ((j=0;j<$rows;j++))
+    do
+        tmp=(${lines[$j]})
+        echo "${tmp[$i]} "
+    done
+done
+```
+
+- 优质解答2：
+
+```bash
+
+
+#awk '{a[NR]=$1} END{print "'${a[1]}',a[2],a[3],a[4],a[5]\nb[1],b[2],b[3],b[4],b[5]"}' nowcoder.txt
+#awk '{a[NF]=$1} {print a[NF]}' nowcoder.txt
+#
+#! /bin/bash
+declare -a arr1
+declare -a arr2
+ 
+while read line
+do
+    arr=($line)
+    arr1[${#arr1[@]}]=${arr[0]}
+    arr2[${#arr2[@]}]=${arr[1]}
+done < nowcoder.txt
+ 
+echo ${arr1[@]}
+echo ${arr2[@]}
+#
+```
+
+
 ## shell 日常脚本收集
 
 ### 打印日志
