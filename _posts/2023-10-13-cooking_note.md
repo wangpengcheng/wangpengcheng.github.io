@@ -59,13 +59,13 @@ _参考链接：_
 7. 干燥凉凉之后，使用糯米纸包裹+真空机打包压缩
 8. 分类分袋子封装
 
-![材料准备](https://wangpengcheng.github.io/img/981697290346.png)
+<img src="https://wangpengcheng.github.io/img/981697290346.png" title="材料准备" width="480"></img>
+
 
 #### 最终成品
+<img src="https://wangpengcheng.github.io/img/971697290345.png" title="最终成品1" width="400"> </img>
 
-![最终1](https://wangpengcheng.github.io/img/971697290345.png)
-
-![最终2](https://wangpengcheng.github.io/img/941697290341.png)
+<img src="https://wangpengcheng.github.io/img/941697290341.png" title="最终成品2" width="400"> </img>
 
 #### 注意事项
 - 注意调味比例，适当加入对应材料，每次放入新材料前先加水稀释品尝一下
@@ -91,10 +91,16 @@ _参考链接：_
 
 #### 最终成品
 
-![水蛋成品](https://wangpengcheng.github.io/img/2023-10-16-shuidan.png)
+<img src="https://wangpengcheng.github.io/img/2023-10-16-shuidan.png" title="水蛋成品" width="400"></img>
 
 #### 注意事项
 
 - 必须用开水，否则会有气泡
 - 搅拌后的表面气泡，必须舀走，否则会变成大气泡
 - 葱花可以直接放在水蛋中蒸熟，这样葱味更浓厚
+
+
+### 油泼拉条子
+
+
+

@@ -537,7 +537,6 @@ WHERE Employee.salary >= d.min_salary ;
 - 优质解答1：
 
 ```sql
-
 ## 直接左连接相同表，找到比自己小的表，最终统计小的数目即可
 SELECT  d.name Department, e.name Employee, e.salary Salary
 FROM Employee e
@@ -689,7 +688,6 @@ Activity a,
 (SELECT player_id, MIN(event_date) AS frist_date FROM Activity GROUP BY player_id) b,
 (SELECT COUNT(DISTINCT(player_id))  AS all_user FROM  Activity)  c
 WHERE a.player_id = b.player_id AND a.event_date = date_add(b.frist_date, interval 1 day);
-
 ```
 
 - 优质解答：
@@ -933,3 +931,5 @@ select name from Customer where referee_id != 2 or referee_id is null;
 SELECT name FROM customer WHERE referee_id != 2 OR referee_id IS NULL;
 ```
 
+
+### [统计用户每天登陆时长](https://zhuanlan.zhihu.com/p/358887348)
