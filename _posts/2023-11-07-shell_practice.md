@@ -727,11 +727,12 @@ done
 ```bash
 #/bin/bash
  
-# 进行哄统计
+# 进行统计
 lines=()
 while read line
 do
     lines[${#lines[@]}]=$line
+
 done<nowcoder.txt
 
 # 获取当前列长度
@@ -774,6 +775,79 @@ echo ${arr2[@]}
 #
 ```
 
+
+# [SHELL12 打印每一行出现的数字个数](https://www.nowcoder.com/practice/2d2a124f98054292aef71b453e705ca9?tpId=195&tqId=36222&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+
+# 1. 注意shell中的计算方式： let / $(()) / `expr $a + $b` 
+# 2. 字符串/数组提取： ${line:i:1}
+lineNum=0
+sumNum=0
+while read line
+do
+    lineCount=0
+    # 统计行长度
+    num=${#line}
+    ((lineNum++))
+    for i in $(seq 0 ${num})
+    do 
+        ch=${line:i:1}
+        case $ch in 
+            [1-5])
+                ((lineCount++))
+                #((sumNum++))
+                ;;
+        esac
+    done
+    echo "line$lineNum number: $lineCount"
+    sumNum=$((sumNum + lineCount))
+    #  sumNum=`expr $sumNum + $lineCount`
+    #echo "dd $sumNum"
+done < nowcoder.txt
+echo "sum is $sumNum"
+
+````
+
+- 优质解答1：
+
+```bash
+#!/bin/bash
+row=0
+sum=0
+while read line
+do
+        num=0
+        len=${#line}
+        for((i=0;i<len;i++))
+        do
+                tmp=${line:i:1}
+                if [[ ${tmp} -eq 1 || ${tmp} -eq 2 || ${tmp} -eq 3 || ${tmp} -eq 4 || ${tmp} -eq 5 ]]
+                then
+                        ((num++))
+                fi
+        done
+        ((row++))
+        ((sum+=num))
+        echo "line${row} number:${num}"
+done < nowcoder.txt
+echo "sum is ${sum}"
+```
+
+- 优质解答2：
+
+```bash
+# 使用awk -F 进行字符串分割，然后按照行进行统计
+#
+awk -F "" 'BEGIN{sum=0} {count=0,for(i=1;i<=NF;i++){if($i ~ /[1-5]/){count++}} print "line"NR+1" number:"count,sum += count} END{print "sum is "sum}' nowcoder.txt
+
+
+# 这里巧妙的使用了字符串分割，检查分割后的字符串列数-1即可
+awk -F "[1,2,3,4,5]" 'BEGIN{sum=0}{print "line"NR" number:"(NF-1);sum+=(NF-1)}END{print "sum is "sum}' nowcoder.txt
+```
 
 ## shell 日常脚本收集
 

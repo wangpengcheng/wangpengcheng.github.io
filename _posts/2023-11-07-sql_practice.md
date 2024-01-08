@@ -933,3 +933,103 @@ SELECT name FROM customer WHERE referee_id != 2 OR referee_id IS NULL;
 
 
 ### [统计用户每天登陆时长](https://zhuanlan.zhihu.com/p/358887348)
+
+
+### [577.员工奖金](https://leetcode.cn/problems/employee-bonus/description/)
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+# 直接反向取数即可
+SELECT Employee.name, Bonus.bonus FROM Employee LEFT JOIN  Bonus ON Employee.empId = Bonus.empId WHERE Employee.empId NOT IN (
+    SELECT empId FROM Bonus WHERE bonus >=1000
+);
+```
+
+- 优质解答(官方题解)：
+
+```sql
+# Write your MySQL query statement below
+# 直接使用null过滤
+select Employee.name, Bonus.bonus from Employee left join Bonus on Employee.empId=Bonus.empId where Bonus.bonus <1000 or bonus  is null;
+```
+
+### [585. 2016年的投资](https://leetcode.cn/problems/investments-in-2016/)
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+
+
+# 保留两位小数
+SELECT ROUND(SUM(tiv_2016),2 ) AS tiv_2016 FROM Insurance 
+WHERE pid IN (
+    # 条件1
+    SELECT  a.pid FROM Insurance a, Insurance b WHERE a.pid != b.pid  AND a.tiv_2015 = b.tiv_2015) 
+AND pid NOT IN (
+    # 条件2
+    SELECT  a.pid FROM Insurance a, Insurance b WHERE a.pid != b.pid AND a.lat = b.lat AND a.lon = b.lon
+);
+
+
+
+# 保留两位小数
+SELECT ROUND(SUM(tiv_2016),2 ) AS tiv_2016 
+FROM Insurance 
+WHERE  tiv_2015  IN (
+    # 至少一相同
+    SELECT tiv_2015  FROM Insurance  GROUP BY tiv_2015 HAVING COUNT(*) >1 ) 
+AND (lat, lon) IN (
+    SELECT lat,lon FROM Insurance GROUP BY lat,lon HAVING COUNT(*) = 1
+);
+```
+
+- 优质解答：
+
+```sql
+# 使用partition 直接统计数量
+select round( sum(tiv_2016) ,2)  tiv_2016
+from(
+    select *,
+    count(*) over(partition by tiv_2015) c1,
+    count(*) over(partition by lat,lon) c2
+    from Insurance
+) t1
+where t1.c1 > 1 and t1.c2 = 1 
+```
+
+- 官方题解：
+
+```sql
+
+SELECT
+    SUM(insurance.TIV_2016) AS TIV_2016
+FROM
+    insurance
+WHERE
+    insurance.TIV_2015 IN
+    (
+      SELECT
+        TIV_2015
+      FROM
+        insurance
+      GROUP BY TIV_2015
+      HAVING COUNT(*) > 1
+    )
+    AND CONCAT(LAT, LON) IN
+    (
+      SELECT
+        CONCAT(LAT, LON)
+      FROM
+        insurance
+      GROUP BY LAT , LON
+      HAVING COUNT(*) = 1
+    )
+;
+
+#作者：LeetCode
+##来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
