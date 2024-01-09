@@ -1033,3 +1033,52 @@ WHERE
 ##来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [586. 订单最多的客户](https://leetcode.cn/problems/customer-placing-the-largest-number-of-orders/description/)
+
+- 提交解答：
+
+```sql
+
+SELECT customer_number FROM Orders GROUP bY customer_number ORDER BY  COUNT(*) DESC LIMIT 1;
+```
+
+- 优质解答：
+
+```sql
+# 不使用COUNT(*) 直接指明字段，提升了速度
+select  customer_number
+from Orders
+group by customer_number
+order by count(customer_number) desc
+limit 1
+
+
+##  使用子查询
+select cn customer_number 
+from (
+    select count(customer_number) cc, customer_number cn
+    from Orders
+    group by customer_number
+) T
+order by T.cc desc
+limit 0,1
+```
+
+- 官方题解：
+
+```sql
+SELECT
+    customer_number
+FROM
+    orders
+GROUP BY customer_number
+ORDER BY COUNT(*) DESC
+LIMIT 1
+;
+
+# 作者：力扣官方题解
+# 链接：https://leetcode.cn/problems/customer-placing-the-largest-number-of-orders/solutions/2366301/ding-dan-zui-duo-de-ke-hu-by-leetcode-so-bywe/
+# 来源：力扣（LeetCode）
+# 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```

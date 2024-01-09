@@ -849,6 +849,42 @@ awk -F "" 'BEGIN{sum=0} {count=0,for(i=1;i<=NF;i++){if($i ~ /[1-5]/){count++}} p
 awk -F "[1,2,3,4,5]" 'BEGIN{sum=0}{print "line"NR" number:"(NF-1);sum+=(NF-1)}END{print "sum is "sum}' nowcoder.txt
 ```
 
+
+### [SHELL13 去掉所有包含this的句子](https://www.nowcoder.com/practice/2c5a46ef755a4f099368f7588361a8af?tpId=195&tqId=36223&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+# 使用grep -v 进行基础的操作
+cat nowcoder.txt | grep -v 'this'
+```
+
+- 优质解答：
+
+```bash
+while read line
+do
+    # 直接使用 =~进行判断
+    if [[ $line =~ "this" ]];;then
+        continue
+    else
+        echo $line
+    fi
+done < nowcoder.txt
+```
+
+- 优质解答2：
+
+```bash
+# 使用sed 直接进行删除
+sed '/this/d'
+
+# awk
+awk '$0!~/this/ {print $0}'
+```
+
+
 ## shell 日常脚本收集
 
 ### 打印日志
