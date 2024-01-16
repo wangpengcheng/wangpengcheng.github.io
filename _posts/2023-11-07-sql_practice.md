@@ -1082,3 +1082,63 @@ LIMIT 1
 # 来源：力扣（LeetCode）
 # 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [595. 大的国家](https://leetcode.cn/problems/big-countries/description/)
+
+
+World 表：
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| name        | varchar |
+| continent   | varchar |
+| area        | int     |
+| population  | int     |
+| gdp         | bigint  |
++-------------+---------+
+name 是该表的主键（具有唯一值的列）。
+这张表的每一行提供：国家名称、所属大陆、面积、人口和 GDP 值。
+ 
+
+如果一个国家满足下述两个条件之一，则认为该国是 大国 ：
+
+面积至少为 300 万平方公里（即，3000000 km2），或者
+人口至少为 2500 万（即 25000000）
+编写解决方案找出 大国 的国家名称、人口和面积。
+
+按 任意顺序 返回结果表。
+
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+SELECT name, population, area FROM World WHERE population >= 25000000 OR area >= 3000000;
+```
+
+- 优质解答：
+
+```sql 
+# Write your MySQL query statement below
+select name, population, area
+from World
+where area >= 3000000 or population >=25000000
+```
+
+- 官方题解：
+
+```sql
+SELECT
+    name, population, area
+FROM
+    world
+WHERE
+    area >= 3000000 OR population >= 25000000
+;
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/big-countries/solutions/2366084/big-countries-by-leetcode-solution-8k13/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```

@@ -884,6 +884,109 @@ sed '/this/d'
 awk '$0!~/this/ {print $0}'
 ```
 
+### [SHELL14 求平均值](https://www.nowcoder.com/practice/c44b98aeaf9942d3a61548bff306a7de?tpId=195&tqId=36224&rp=1&ru=/exam/oj&qru=/exam/oj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=undefined&judgeStatus=undefined&tags=&title=)
+
+- [shell中的浮点计算](https://www.cnblogs.com/chengmo/archive/2010/09/30/1839556.html)
+- [bc命令计算浮点数](https://www.runoob.com/linux/linux-comm-bc.html)
+
+- 提交解答
+
+```bash
+#!/bin/bash
+
+# 使用wak 进行统计和输出
+
+awk ' 
+BEGIN{
+    sum=0
+    numberCount=0
+}
+{
+    if(NR==1) {
+        numberCount=$1
+    } else {
+        sum+=$1
+    }
+}
+END{
+    res=sum/numberCount*1.000
+    printf "%.3f\n",res
+}
+
+'  nowcoder.txt 
+```
+
+- 优质解答1:
+
+```bash
+#!/bin/bash
+awk '{if(NR>1) {sum+=$0}} END {printf("%.3f", sum/(NR-1))}' nowcoder.txt
+```
+
+- 优质解答2：
+
+```bash
+#!/usr/bin/env bash
+
+function solution_1() {
+    read count
+    local sum=0
+    local loop=${count}
+    while (( ${loop} > 0)); do
+        read m
+        sum=$((${sum}+${m}))
+        loop=$((${loop}-1))
+    done
+    # 这里使用scale 指定了浮点数小数位长度
+    echo "scale=3; ${sum}/${count}" | bc 
+}
+
+function solution_2() {
+    read count
+    local sum=0
+    local loop=1
+    while (( ${loop} <= ${count})); do
+        read m
+        ((sum+=m))
+        ((loop++))
+    done
+    echo "scale=3; ${sum}/${count}" | bc 
+}
+
+function solution_3()  {
+    awk 'NR==1{all=$0} NR>1{total+=$0} END{printf "%.3f" ,total/all}'
+}
+
+function solution_4()  {
+    read -p '请输入数组长度：' len
+    i=1
+    while [ $i -le $len ]
+    do
+        read -p '请输入数组数字：' num[$i]
+        let i++
+    done
+    for i in ${num[*]}
+    do
+        sum=$((sum+i))
+    done
+    echo "scale=3; ${sum}/${len}" | bc 
+    #awk -va=$sum -vb=$len 'BEGIN{printf "%.3f\n",a / b }'
+}
+
+function solution_999() {
+    read n
+    sum=0
+    read m
+    arr=($m)
+    for ele in ${arr{@}}; do 
+        sum=$((${sum}+${ele}))
+    done
+    echo "scale=3; ${sum}/${n}" | bc 
+}
+
+solution_1
+```
+
 
 ## shell 日常脚本收集
 
