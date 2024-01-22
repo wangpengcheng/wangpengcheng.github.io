@@ -1013,3 +1013,24 @@ function main() {
 
 main "$@"
 ```
+
+
+### 检查yum包是否安装
+
+```bash
+#!/bin/bash
+function pkg_install_check() {
+    local pkg_name
+    pkg_name=$1
+    if ! command -v $pkg_name >/dev/null 2>&1 ; then
+        yum install -y $pkg_name
+    fi
+    # 再次进行校验
+    if ! command -v $pkg_name >/dev/null 2>&1 ; then
+        error_abort 1 "$pkg_name not found"
+    fi
+}
+
+# 确认jq 包已经安装
+pkg_install_check "jq"
+```
