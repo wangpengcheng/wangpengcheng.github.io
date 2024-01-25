@@ -1088,6 +1088,7 @@ LIMIT 1
 
 World 表：
 
+```
 +-------------+---------+
 | Column Name | Type    |
 +-------------+---------+
@@ -1097,6 +1098,8 @@ World 表：
 | population  | int     |
 | gdp         | bigint  |
 +-------------+---------+
+```
+
 name 是该表的主键（具有唯一值的列）。
 这张表的每一行提供：国家名称、所属大陆、面积、人口和 GDP 值。
  
@@ -1139,6 +1142,113 @@ WHERE
 
 #作者：力扣官方题解
 #链接：https://leetcode.cn/problems/big-countries/solutions/2366084/big-countries-by-leetcode-solution-8k13/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### [596. 超过5名学生的课](https://leetcode.cn/problems/classes-more-than-5-students/description/)
+
+表: Courses
+
+```
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| student     | varchar |
+| class       | varchar |
++-------------+---------+
+```
+
+在 SQL 中，(student, class)是该表的主键列。
+该表的每一行表示学生的名字和他们注册的班级。
+ 
+
+查询 至少有5个学生 的所有班级。
+
+以 任意顺序 返回结果表。
+
+查询结果格式如下所示。
+
+ 
+
+示例 1:
+
+输入: 
+
+```
+Courses table:
++---------+----------+
+| student | class    |
++---------+----------+
+| A       | Math     |
+| B       | English  |
+| C       | Math     |
+| D       | Biology  |
+| E       | Math     |
+| F       | Computer |
+| G       | Math     |
+| H       | Math     |
+| I       | Math     |
++---------+----------+
+```
+
+输出:
+
+``` 
++---------+ 
+| class   | 
++---------+ 
+| Math    | 
++---------+
+```
+
+解释: 
+-数学课有6个学生，所以我们包括它。
+-英语课有1名学生，所以我们不包括它。
+-生物课有1名学生，所以我们不包括它。
+-计算机课有1个学生，所以我们不包括它。
+
+- 提交解答：
+
+```sql
+# Write your MySQL query statement below
+# 主要思路直接使用GROUP 和having进行解决
+SELECT class FROM Courses GROUP BY class HAVING COUNT() >=5;
+```
+
+- 优质解答：
+
+```sql
+# Write your MySQL query statement below
+select
+    class
+From
+    Courses
+group by 
+    class
+having count(student)>=5;
+```
+
+- 官方题解：
+
+```sql
+
+## 使用子查询对每个班级的学生进行统计
+## 统计完成后执行过滤
+SELECT
+    class
+FROM
+    (SELECT
+        class, COUNT(student) AS num
+    FROM
+        courses
+    GROUP BY class) AS temp_table
+WHERE
+    num >= 5
+;
+
+#作者：力扣官方题解
+#链接：https://leetcode.cn/problems/classes-more-than-5-students/solutions/2366294/chao-guo-5ming-xue-sheng-de-ke-by-leetco-l4es/
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```

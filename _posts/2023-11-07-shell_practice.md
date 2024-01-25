@@ -988,6 +988,76 @@ solution_1
 ```
 
 
+### [SHELL15 去掉不需要的单词](https://www.nowcoder.com/practice/838a3acde92c4805a22ac73ca04e503b?tpId=195&rp=1&ru=%2Fexam%2Foj&qru=%2Fexam%2Foj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=&judgeStatus=&tags=&title=&gioEnter=menu)
+
+- []()
+- []()
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+# 直接使用grep的反向选择
+cat nowcoder.txt | grep  -v -i 'B'
+# 如下选择
+grep  -E -v "[bB]"
+```
+
+- 优质解答：
+
+```bash
+#!/user/bin/bash
+# 直接读取检查是否含有b
+function solution_1() {
+    local arr=""
+    while read line; do
+        arr=(${line})
+        for ele in ${arr[@]}; do
+            # 含有对应字母，直接跳过
+            if [[ "${ele}" =~ B || "${ele}" =~ b ]]; then
+                continue
+            fi
+            echo "${ele} "
+        done
+    done < nowcoder.txt
+}
+ 
+function solution_2() {
+    local arr=""
+    while read line; do
+        arr=(${line})
+        for ele in ${arr[@]}; do
+            if [[ "${ele}" =~ B|b ]]; then
+                continue
+            fi
+            echo "${ele} "
+        done
+    done < nowcoder.txt
+}
+# 直接使用sed进行替换
+function solution_4() {
+    sed '/B\|b/d' nowcoder.txt
+}
+# 使用awk
+function solution_5() {
+    #awk '{ for(i=0; i<NF; i++) if($i ~! /b/) print $i }' nowcoder.txt
+    #awk '/\+[^b\+]\+/{print $1}' nowcoder.txt
+    :
+}
+ 
+function solution_999() {
+    while read line; do
+        my_array=("${my_array[@]}" $line)
+    done
+    declare -a pattern=(${my_array[@]/*[B|b]*/})
+    echo ${pattern[@]}
+}
+ 
+solution_1
+```
+
+
+
 ## shell 日常脚本收集
 
 ### 打印日志
