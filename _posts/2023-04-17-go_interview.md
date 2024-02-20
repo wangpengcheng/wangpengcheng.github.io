@@ -27,6 +27,7 @@ _参考链接:_
 - [go面经](https://github.com/go-share-team/go_interview)
 - [牛客go面经](https://www.nowcoder.com/search/all?query=go%20%E9%9D%A2%E7%BB%8F&type=all&searchType=%E9%A1%B6%E9%83%A8%E5%AF%BC%E8%88%AA%E6%A0%8F)
 - [常见算法题总结](https://codetop.cc/home)
+- [技术摘抄](https://learn.lianglianglee.com/)
 
 ## 基础语法
 
@@ -34,25 +35,31 @@ _参考链接:_
 
 | 类型分类 |类型|默认值| 描述|
 |:---:|:---:|:---:|:---:|
-|布尔型|bool|`false`|基础bool类型|
-|整数类型|uint8|0|无符号8位整型(0~255)|
-|^^     |uint16|0|无符号16位整型(0~65535)|
-|^^     |uint32|0|无符号32位整型(0~4294967295)|
-|^^     |uint64|0|无符号64位整型(0~18446744073709551615)|
-|^^     |int8|0|有符号8位整型(-128~127)|
-|^^     |int16|0|有符号16位整型(-32768~32767)|
-|^^     |int32|0|有符号32位整型 (-2147483648~2147483647)|
-|^^     |int64|0|有符号32位整型(-9223372036854775808~9223372036854775807)|
-|浮点类型|float32|0.0|IEEE-754 32位浮点型数|
-|^^  |float64|0.0|IEEE-754 64位浮点型数|
-|^^  |complex64|0.0|32位实数和虚数|
-|^^  |complex128|0.0|64 位实数和虚数|
-|其它数字类型|byte|0|与uint8一致，一个字节8位|
-|^^  |rune|0|char默认类型，与int32类似|
-|^^     |int|0|有符号32/64整型，字节长度与操作系统类型一致|
-|^^     |uint|0|无符号32/64整型，字节长度与操作系统类型一致|
-|^^     |uintptr|0|与uint一致，用于存放指针地址|
-
+|布尔型|`bool`|false|基础bool类型|
+|整数类型|`uint8`|0|无符号8位整型(0~255)|
+|^^     |`uint16`|0|无符号16位整型(0~65535)|
+|^^     |`uint32`|0|无符号32位整型(0~4294967295)|
+|^^     |`uint64`|0|无符号64位整型(0~18446744073709551615)|
+|^^     |`int8`|0|有符号8位整型(-128~127)|
+|^^     |`int16`|0|有符号16位整型(-32768~32767)|
+|^^     |`int32`|0|有符号32位整型 (-2147483648~2147483647)|
+|^^     |`int64`|0|有符号32位整型(-9223372036854775808~9223372036854775807)|
+|浮点类型|`float32`|0.0|IEEE-754 32位浮点型数|
+|^^  |`float64`|0.0|IEEE-754 64位浮点型数|
+|^^  |`complex64`|0.0|32位实数和虚数|
+|^^  |`complex128`|0.0|64 位实数和虚数|
+|其它数字类型|`byte`|0|与uint8一致，一个字节8位|
+|^^  |`rune`|0|char默认类型，与int32类似|
+|^^     |`int`|0|有符号32/64整型，字节长度与操作系统类型一致|
+|^^     |`uint`|0|无符号32/64整型，字节长度与操作系统类型一致|
+|^^     |`uintptr`|0|与uint一致，用于存放指针地址|
+|派生类型|`pointer`|nil|指针类型，用于指向对应的内存地址|
+|^^ |`[]T`|nil|数组类型，用于进行数组存储|
+|^^ |`slice`|nil|切片类型，用于进行go切片管理|
+|^^ |`Channel`|nil|管道，统一的消息管理|
+|^^ |`func`|nil|函数，类似于c语言的函数指针|
+|^^ |`interface/any` |nil|接口类型，类似于C++中的虚函数指针|
+|^^ |`map`|nil|map类型，hash map基础类型|
 
 ___
 - 参考:[go语言基础类型](https://www.runoob.com/go/go-data-types.html);[go语言基本类型](https://fasionchan.com/golang/tour/basic-types/);[Golang中uint、int, int8, int16, int32, int64区别](https://blog.csdn.net/FromTheWind/article/details/105862844)
@@ -73,14 +80,70 @@ ___
 - 参考: [Go语言学习之:=与=的区别](https://juejin.cn/post/6947897494059614215);[golang快速入门[8.2]-自动类型推断的秘密](https://zhuanlan.zhihu.com/p/115085755)
 
 ### 02 指针的作用
+
+1. 保存变量地址，通过`&` 与`*` 操作符间接访问内存地址，减少值传递损耗
+
 ### 03 Go 允许多个返回值吗？
+
+允许，同时允许命名返回值。命名后的返回值，相当于预定义变量。
+返回值注意事项：
+- 返回值不能用容器对象接收：只能用多个变量或者用`_` 忽略
+- 命名返回参数：可看做形参类似局部变量，最后由return 隐式返回
+- 局部变量遮蔽：命名返回参数可被同名局部变量遮蔽，此时需要显式返回
+- defer作用：defer 函数作用在空return之前。返回值无命名是会生成不同的临时变量。避免异常
+
+```go
+func add1(x, y int) (z int) {
+    { // 不能在一个级别，引发 "z redeclared in this block" 错误。
+        var z = x + y
+        // return   // Error: z is shadowed during return
+        return z // 必须显式返回。
+    }
+}
+
+func add2(x, y int) (z int) {
+    defer func() {
+        z++
+        println(z) // 输出: 203
+    }()
+
+    z = x + y
+    return z + 200 // 执行顺序: (z = z + 200) -> (call defer) -> (return)
+}
+
+func add3(x,y int) int {
+    z := x+y
+    defer func() {
+        z++
+        println(z) // 输出: 204
+    }
+    return z + 200 // 执行顺序：(s = z + 200) -> (call defer) -> (return s)
+}
+
+
+func main() {
+    println(add1(1, 2)) // 输出：3
+    println(add2(1, 2)) // 输出: 204
+    println(add3(1, 2)) // 输出: 203
+}
+```
+__
+- 参考：[go返回值](https://www.topgoer.com/%E5%87%BD%E6%95%B0/%E8%BF%94%E5%9B%9E%E5%80%BC.html)
+
+
 ### 04 Go 有异常类型吗？
+
 ### 05 什么是协程（Goroutine）
 ### 06 如何高效地拼接字符串
 ### 07 什么是 rune 类型
 ### 08 如何判断 map 中是否包含某个 key ？
 ### 09 Go支持默认参数或可选参数吗？
 ### 10 defer 的执行顺序
+
+
+___
+- 参考：[Golang的defer与return的执行顺序](https://juejin.cn/post/7095631673865273352)
+
 ### 11 如何交换 2 个变量的值？
 ### 12 Go 语言 tag 的用处？
 ### 13 如何判断 2 个字符串切片(slice) 是相等的？
