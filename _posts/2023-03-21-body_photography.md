@@ -1,3 +1,18 @@
+---
+layout:     post
+title:      人体摄影学习
+subtitle:   人体摄影(拍照)学习
+date:       2023-04-11
+author:     敬方
+header-img: img/post-bg-ios10.jpg
+catalog: true
+tags:
+    - 生活
+    - 拍照
+    - 摄影
+---
+
+
 # 人体摄影(拍照)学习
 
 ## 概述
