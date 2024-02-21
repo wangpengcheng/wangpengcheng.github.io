@@ -28,6 +28,7 @@ _参考链接:_
 - [牛客go面经](https://www.nowcoder.com/search/all?query=go%20%E9%9D%A2%E7%BB%8F&type=all&searchType=%E9%A1%B6%E9%83%A8%E5%AF%BC%E8%88%AA%E6%A0%8F)
 - [常见算法题总结](https://codetop.cc/home)
 - [技术摘抄](https://learn.lianglianglee.com/)
+- [go专家编程](https://books.studygolang.com/GoExpertProgramming/)
 
 ## 基础语法
 
@@ -134,12 +135,79 @@ ___
 
 
 ### 04 Go 有异常类型吗？
+go 没有异常类型，只有错误类型，通常用返回值来表示异常状态
+```go
+f, err := os.Open("test.txt")
+if err != nil {
+    log.Fatal(err)
+}
+```
 
 ### 05 什么是协程（Goroutine）
+Goroutine 是与其他函数或方法同时运行的函数或方法。 Goroutines 可以被认为是轻量级的线程。 与线程相比，创建 Goroutine 的开销很小。 Go应用程序同时运行数千个 Goroutine 是非常常见的做法。
+___
+参考：[说一说协程](https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#418-%E8%AF%B7%E4%BD%A0%E6%9D%A5%E8%AF%B4%E4%B8%80%E8%AF%B4%E5%8D%8F%E7%A8%8B);[协程与线程区别](https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#418-%E8%AF%B7%E4%BD%A0%E6%9D%A5%E8%AF%B4%E4%B8%80%E8%AF%B4%E5%8D%8F%E7%A8%8B)
+
 ### 06 如何高效地拼接字符串
+Go语言中，字符串是只读的，每次修改操作都会创建一个新的字符串(与java类似)，如果需要拼接多次，使用strings.Builder，最小化内存拷贝次数
+
+```go
+var str strings.Builder
+for i := 0; i < 1000; i++ {
+    str.WriteString("a")
+}
+fmt.Println(str.String())
+```
+
+___
+
+- 参考：[深入理解 Go 中的字符串](https://blog.51cto.com/yuzhou1su/5268459);[深入理解Go语言的string 类型](https://blog.csdn.net/sinat_31862487/article/details/134044392);[你不知道的Go 之string](https://segmentfault.com/a/1190000040023113)
+
 ### 07 什么是 rune 类型
+go 语言中rune是unicode 编码代称，是int32的别名，string 可以转换为rune数组。
+但是字符串的底层是byte(8 bit)序列，而非rune(32bit)。如下：
+```go
+package main
+
+import (
+    "fmt"
+)
+func main() {
+    a := `Go语言`
+    // 这里string底层为byte，`语言`为utf-8编码因此使用6个字节
+    fmt.Println(len(a)) // 8
+    // 这里转换为rune数组，每个字符都是一个rune，长度为4，内存为16字节
+    fmt.Println(len([]rune(a))) // 4
+    // 输出内存中第3个字节内容，长度为1字节
+    fmt.Println(a[2]) // 232
+    // 输出第二个rune内容，长度为4字节
+    fmt.Println([]rune(a)[2]) // 35821
+    fmt.Println("Hello W3Cschool!")
+}
+```
+- 注意：
+    - 字符串遍历**通过下标索引字符串将会产生一个字节**,字符串中含有UTF-8编码字符时，会出现乱码
+    - 使用range 遍历：会将字符串转换为rune类型
+
+___
+
+参考:[Go 语言中的字符与字符串遍历](https://zhuanlan.zhihu.com/p/93052559);[你不知道的Go之string](https://segmentfault.com/a/1190000040023113)
+
 ### 08 如何判断 map 中是否包含某个 key ？
+- 普通情况下： 在map不为`nil` 的情况下，直接根据key取值第二个，检查是否存在即可，如下：
+```go
+if val, ok := dict["foo"]; ok {
+    //do something here
+}
+```
+- 高并发情况下：原始map并非并发安全，高并发情况下，应该使用读写锁/分片锁/sync.map(仅仅适用于一写多读情况)
+
+___
+
+参考：[Go并发之三种线程安全的map](https://zhuanlan.zhihu.com/p/356739568);[Golang sync.Map原理（两个map实现 读写分离、适用读多写少场景）](https://developer.aliyun.com/article/1172753)
+
 ### 09 Go支持默认参数或可选参数吗？
+
 ### 10 defer 的执行顺序
 
 
@@ -149,6 +217,10 @@ ___
 ### 11 如何交换 2 个变量的值？
 ### 12 Go 语言 tag 的用处？
 ### 13 如何判断 2 个字符串切片(slice) 是相等的？
+
+___
+- 参考: [你不知道的Go之slice](https://darjun.github.io/2021/05/09/youdontknowgo/slice/)
+
 ### 14 字符串打印时，%v 和 %+v 的区别
 ### 15 Go 语言中如何表示枚举值(enums)？
 ### 16 空 struct{} 的用途
