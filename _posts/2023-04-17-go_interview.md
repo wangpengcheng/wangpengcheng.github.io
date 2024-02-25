@@ -119,7 +119,7 @@ func add3(x,y int) int {
         z++
         println(z) // 输出: 204
     }
-    return z + 200 // 执行顺序：(s = z + 200) -> (call defer) -> (return s)
+    return z + 200 // 执行顺序：(s = z + 200) -> (call defer) -> (return )
 }
 
 
@@ -207,22 +207,154 @@ ___
 参考：[Go并发之三种线程安全的map](https://zhuanlan.zhihu.com/p/356739568);[Golang sync.Map原理（两个map实现 读写分离、适用读多写少场景）](https://developer.aliyun.com/article/1172753)
 
 ### 09 Go支持默认参数或可选参数吗？
-
-### 10 defer 的执行顺序
-
+- 不支持：GO不支持可选参数和默认参数，也不支持方法重载。可以通过struct的方式，添加默认参数。支持可变参数，可以通过可变参数判断，间接实现参数可选
+- 间接支持：
+    - 可用通过struct配合反射实现可变参数的间接支持
+    - 通过选择器模式与适配器模式实现可变参数的间接支持
 
 ___
+
+参考: [golang中函数如何设置参数默认值](https://cloud.tencent.com/developer/article/2025794);[golang函数中的参数为什么不支持默认值?-知乎](
+https://www.zhihu.com/question/24368980);[Golang中设置函数默认参数的优雅实现](https://www.cnblogs.com/smartrui/p/10324320.html)
+
+### 10 defer 的执行顺序
+- 多个defer 后进先出：多个defer遵循后进先出的原则，最后声明的最先得到执行
+- 已代码块为分界点：代码块中defer作用在代码块上下文中
+- defer 在return之后，函数退出之前执行：将`return i` 拆分为`s=i; return `两个语句分析接口
+
+```go
+func test() int {
+	i := 0
+
+    {
+        defer func() {
+            fmt.Println("defer0")    
+        }()
+    }
+
+	defer func() {
+		fmt.Println("defer1")
+	}()
+	defer func() {
+		i += 1
+		fmt.Println("defer2")
+	}()
+	return i
+}
+
+
+func test1() (i  int) {
+    i = 0
+	defer func() {
+		i += 1
+		fmt.Println("defer4")
+	}()
+	return i
+}
+
+func main() {
+	fmt.Println("return", test())
+    fmt.Println("return", test1())
+}
+// defer0
+// defer2
+// defer1
+// return 0
+// defer4
+// return 1
+```
+___
+
 - 参考：[Golang的defer与return的执行顺序](https://juejin.cn/post/7095631673865273352)
 
 ### 11 如何交换 2 个变量的值？
-### 12 Go 语言 tag 的用处？
-### 13 如何判断 2 个字符串切片(slice) 是相等的？
 
+go 中无swap函数，也不像java交换复杂(需要借助临时变量)，直接交换即可。如下：
+
+```go 
+a, b := "A", "B"
+a, b = b, a
+fmt.Println(a, b) // B A
+```
+
+### 12 Go 语言 tag 的用处？
+
+本质：tag的本质是struct字段注解：用于定义字段的一个或者多个属性，通过反射获取tag进行解析
+由本质衍生了如下作用：
+- 序列化和反序列化：通过标签控制字段与输出值的映射，控制其序列化与反序列化，如json转换：通过`json:"xxx"`定义结构体字段与json字段的转换关系
+- 数据验证：通过标签中的`default` 进行字段值的验证和添加
+- 数据库 ORM 映射： 有些数据库 ORM（对象关系映射）库允许你使用标签来定义数据库表和结构体之间的映射关系
+- HTTP 路由和处理： 在某些 Web 框架中，标签可以被用来定义 HTTP 路由规则或者请求处理逻辑
+
+```go
+package main
+
+import (
+	"fmt"
+	"reflect"
+)
+
+type User struct {
+	Name string `json:"name" mytag:"myName"`
+	Age  int    `json:"age" mytag:"myAge"`
+}
+
+func main() {
+	user := User{"Bob", 30}
+	// 获取值反射
+	v := reflect.ValueOf(user)
+	// 获取类型
+	t := v.Type()
+	for i := 0; i < t.NumField(); i++ {
+		// 字段
+		field := t.Field(i)
+		// 输出字段和值
+		fmt.Println(field.Name, field.Tag.Get("json"), field.Tag.Get("mytag"), v.FieldByName(field.Name))
+	}
+}
+
+// 输出：
+// Name name myName Bob
+// Age age myAge 30
+
+```
 ___
-- 参考: [你不知道的Go之slice](https://darjun.github.io/2021/05/09/youdontknowgo/slice/)
+
+- 参考：[GoTag标签](https://learnku.com/articles/78000)
+
+### 13 如何判断 2 个字符串切片(slice) 是相等的？
+不能直接使用`==` 这样只能说明两个slice指向同一个底层数组
+
+- 反射比较：直接使用反射reflect.DeepEqual(a, b) 判断 a、b两个切片是否相等。但是性能较低
+- 直接比较：遍历比较切片中的每一个元素（注意处理越界的情况），性能较好
+
+```go
+func StringSliceEqualBCE(a, b []string) bool {
+    if len(a) != len(b) {
+        return false
+    }
+
+    if (a == nil) != (b == nil) {
+        return false
+    }
+
+    b = b[:len(a)]
+    for i, v := range a {
+        if v != b[i] {
+            return false
+        }
+    }
+    return true
+}
+```
+___
+
+- 参考: [Golang中如何判断两个slice是否相等？](https://zhuanlan.zhihu.com/p/615613789);[你不知道的Go之slice](https://darjun.github.io/2021/05/09/youdontknowgo/slice/)
 
 ### 14 字符串打印时，%v 和 %+v 的区别
+
 ### 15 Go 语言中如何表示枚举值(enums)？
+
 ### 16 空 struct{} 的用途
 
 ## 实现原理
