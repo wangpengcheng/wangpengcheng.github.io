@@ -352,13 +352,116 @@ ___
 - 参考: [Golang中如何判断两个slice是否相等？](https://zhuanlan.zhihu.com/p/615613789);[你不知道的Go之slice](https://darjun.github.io/2021/05/09/youdontknowgo/slice/)
 
 ### 14 字符串打印时，%v 和 %+v 的区别
+%v 和 %+v 都可以用来打印 struct 的值，区别在于 %v 仅打印各个字段的值，%+v 还会打印各个字段的名称。
+```go
+type Stu struct {
+	Name string
+}
+
+func main() {
+	fmt.Printf("%v\n", Stu{"Tom"}) // {Tom}
+	fmt.Printf("%+v\n", Stu{"Tom"}) // {Name:Tom}
+}
+```
+|格式|描述|
+|:---:|:---|
+|`%v`|按值的本来值输出|
+|`%+v`|在 %v 基础上，对结构体字段名和值进行展开|
+|`%#v`|输出 Go 语言语法格式的值|
+|`%T`|输出 Go 语言语法格式的类型和值|
+|`%%`|输出 % 本体|
+|`%b`|整型以二进制方式显示|
+|`%o`|整型以八进制方式显示|
+|`%d`|整型以十进制方式显示|
+|`%x`|整型以十六进制方式显示|
+|`%X`|整型以十六进制、字母大写方式显示|
+|`%U`|Unicode 字符|
+|`%f`|浮点数,如`%6.2f`，指定整数与小数位长度|
+|`%p`|指针，十六进制方式显示|
+|`%s`|字符串，指定字符串输出，`%10s`/`%-10s`，宽度为10左/右对齐|
+
+___
+
+- 参考：[Gofmt.Sprintf格式化字符串](https://www.runoob.com/go/go-fmt-sprintf.html);[深入理解fmt包](https://studygolang.com/articles/17400)
+
 
 ### 15 Go 语言中如何表示枚举值(enums)？
 
+使用const 常量来表示枚举值 `iota` 表示0
+```go
+type StuType int32
+
+const (
+	Type1 StuType = iota
+	Type2
+	Type3
+	Type4
+)
+
+func main() {
+	fmt.Println(Type1, Type2, Type3, Type4) // 0, 1, 2, 3
+}
+```
+
+
 ### 16 空 struct{} 的用途
+主要用于占位符号，表明这里并不需要一个值，来进行内存节省。主要用于以下场景
+1. map中value占位符，用于表示set
+2. 管道(channel)中占位符，仅仅表示信号
+3. 基础工具类：仅仅用于继承接口声明方法
+
+```go
+package main 
+
+// 1. 输出值
+func PrintTest() {
+    fmt.Println(unsafe.Sizeof(struct{}{})) // 0
+}
+
+// 2. 构造set
+type Set map[string]struct{}
+
+func SetTest() {
+    set := make(Set)
+
+	for _, item := range []string{"A", "A", "B", "C"} {
+		set[item] = struct{}{}
+	}
+	fmt.Println(len(set)) // 3
+	if _, ok := set["A"]; ok {
+		fmt.Println("A exists") // A exists
+	}
+}
+
+// 3. 使用管道
+func ChannelTest() {
+    ch := make(chan struct{}, 1)
+	go func() {
+		<-ch
+		// do something
+	}()
+	ch <- struct{}{}
+}
+
+// 4. 声明方法继承
+type Lamp struct{}
+
+func (l Lamp) On() {
+        println("On")
+
+}
+func (l Lamp) Off() {
+        println("Off")
+}
+
+func main() {
+    PrintTest()
+    SetTest()
+    ChannelTest()
+}
+```
 
 ## 实现原理
-
 ### 01 init() 函数是什么时候执行的？
 ### 02 Go 语言的局部变量分配在栈上还是堆上？
 ### 03 2 个 interface 可以比较吗 ？

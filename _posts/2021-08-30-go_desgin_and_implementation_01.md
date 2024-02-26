@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      go语言设计与实现(一)
-subtitle:   go语言设计与实现阅读笔记(-)
+subtitle:   go语言设计与实现阅读笔记(一)
 date:       2021-08-30
 author:     敬方
 header-img: img/post-bg-ios10.jpg
