@@ -31,6 +31,8 @@ _参考链接：_
 ### 脚本运维
 
 ## DevOps(CI&CD)
+- Git
+- [Jenkins](https://www.jenkins.io/zh/doc/tutorials/):
 
 ### 发布系统
 

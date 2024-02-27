@@ -29,6 +29,9 @@ _参考链接:_
 - [常见算法题总结](https://codetop.cc/home)
 - [技术摘抄](https://learn.lianglianglee.com/)
 - [go专家编程](https://books.studygolang.com/GoExpertProgramming/)
+- [Go安全指南](https://github.com/Tencent/secguide/blob/main/Go%E5%AE%89%E5%85%A8%E6%8C%87%E5%8D%97.md)
+- [Go 编码规范建议](https://cloud.tencent.com/developer/article/1911268)
+- [Go语言高性能编程](https://geektutu.com/post/hpg-escape-analysis.html)
 
 ## 基础语法
 
@@ -363,6 +366,7 @@ func main() {
 	fmt.Printf("%+v\n", Stu{"Tom"}) // {Name:Tom}
 }
 ```
+
 |格式|描述|
 |:---:|:---|
 |`%v`|按值的本来值输出|
@@ -463,12 +467,156 @@ func main() {
 
 ## 实现原理
 ### 01 init() 函数是什么时候执行的？
+- init 与man函数一样，不能有入参与返回值
+- init 函数由runtime初始化每个包的导入，按照解析的依赖关系，没有依赖的包最先初始化
+- 包初始化顺序： 包作用域常量-> 包作用域变量-> 包内init()函数。即`import –> const –> var –> init() –> main()`
+- 同包内多个`init()`：按照它们呈现给编译器的顺序被调用
+    - 同文件内：按照函数顺序进行调用
+    - 同包不同源文件：是根据文件名的字典序来确定
+- 不同包：
+    - 无相互依赖：按照main 包中import的顺序调用其包中的init函数
+    - 存在依赖：调用顺序为最后被依赖的最先被初始化，如导入顺序`main > a > b >c`, 初始化顺序`c > b > a > main`
+
+- 使用建议：应当尽量避免使用`init()`，避免`init` 依赖其他顺序。 
+
+![](https://cdn.learnku.com/uploads/images/202007/13/1/hVMYyqi6EU.png!large)
+
+```go
+// a 包
+// a.go
+package a
+
+import _ "main/b"
+
+func init() {
+	println("init a")
+}
+
+// b 包
+// b.go
+package b
+
+import _ "main/c"
+
+func init() {
+	println("init b")
+}
+
+// c 包
+// c.go
+package c
+
+func init() {
+	println("init c")
+}
+
+// main 包
+// main.go
+package main
+
+import (
+	_ "main/a"
+)
+
+func init() {
+	println("init main")
+}
+
+func main() {
+	println("main")
+}
+
+```
+对应输出：
+
+```bash
+$ go build && ./main
+init c
+init b
+init a
+init main
+main
+```
+
+___
+
+- 参考：[一张图了解 Go 语言中的 init () 执行顺序
+](https://learnku.com/go/t/47135);[一文读懂Golang init函数执行顺序](https://cloud.tencent.com/developer/article/2138066)
+
 ### 02 Go 语言的局部变量分配在栈上还是堆上？
+
+由编译器决定。编译器经过逃逸分析，发现变量作用域未超出函数范围时，分配在栈上。反之必须分配在堆上。可以使用`-gcflags=-m` 编译参数，查看逃逸分析
+
+关键在于go的逃逸分析，go 逃逸(堆上分配)原则如下：
+1. 指针逃逸：函数返回对象指针时，内存分配在堆上
+2. `interface{}`动态类型逃逸：interface{}为指针别名，也会发生逃逸
+3. 栈空间不足：栈使用超过操作系统内核线程栈限制(64位通常为8M,可以用`ulimit -a`查看)或者切片长度无法确定时，将存在逃逸
+4. 闭包：闭包中内层函数会访问外层函数作用域。访问的外部变量会逃逸
+
+```go
+// 1. 返回指针逃逸
+// d 在堆上分配内存
+func createDemo(name string) *Demo {
+	d := new(Demo) // 局部变量 d 逃逸到堆
+	d.name = name
+	return d
+}
+
+// 2. interface 逃逸
+// 局部变量demo 不会发生逃逸，但是demo.name 会逃逸
+func test(demo *Demo) {
+	fmt.Println(demo.name)
+}
+
+// 3. 内存不足逃逸
+// 3.1 超过64KB发生逃逸
+func generate8192() {
+	nums := make([]int, 8192) // = 64KB
+	for i := 0; i < 8192; i++ {
+		nums[i] = rand.Int()
+	}
+}
+// 3.2 不确定大小逃逸
+func generate(n int) {
+	nums := make([]int, n) // 不确定大小
+	for i := 0; i < n; i++ {
+		nums[i] = rand.Int()
+	}
+}
+
+// 4. 闭包逃逸
+// Increase() 返回值是一个闭包函数
+// 函数访问了外部变量n,n会一直存在直到in 被销毁
+func IncreaseTest() {
+    in := Increase()
+	fmt.Println(in()) // 1
+}
+
+func Increase() func() int {
+	n := 0
+	return func() int {
+		n++
+		return n
+	}
+}
+```
+使用建议：
+- 指针传递增加逃逸负担：传值会拷贝整个对象，而指针只会拷贝指针地址，对应的对象一直是同一个，传指针可以有效减少值的拷贝。但是会导致内存分配逃逸到堆中，增加GC负担。在对象频繁创建和删除的场景下，传递指针导致的 GC 开销可能会严重影响性能。
+    - **对于需要修改原对象值，或占用内存比较大的结构体，选择传指针**
+    - **只读的占用内存较小的结构体，直接传值能够获得更好的性能**
+
+___
+
+- 参考：[go内存管理](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/);[Go逃逸分析](https://geektutu.com/post/hpg-escape-analysis.html);[10分钟掌握golang内存管理机制](https://zhuanlan.zhihu.com/p/523215127)
+
 ### 03 2 个 interface 可以比较吗 ？
 ### 04 2 个 nil 可能不相等吗？
 ### 05 简述 Go 语言GC(垃圾回收)的工作原理
+
 ### 06 函数返回局部变量的指针是否安全？
+
 ### 07 非接口非接口的任意类型 T() 都能够调用 *T 的方法吗？反过来呢？
+
 
 ## 并发编程
 
