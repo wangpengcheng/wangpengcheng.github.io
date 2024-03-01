@@ -609,13 +609,62 @@ ___
 
 - 参考：[go内存管理](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/);[Go逃逸分析](https://geektutu.com/post/hpg-escape-analysis.html);[10分钟掌握golang内存管理机制](https://zhuanlan.zhihu.com/p/523215127)
 
-### 03 2 个 interface 可以比较吗 ？
+### 03 2 个 interface 可以比较吗？
+- 可以：go interface 内部实现包含了类型`T` 和值`v`。可进行比较，相等时存在如下情况
+1. 均为nil(v和T都处于unset状态)
+2. 类型相同，并且对应的值相等
+interface底层使用2个struct表示的：eface和iface，其实际类型定义如下：
+
+```go
+// runtime/runtime2.go
+// 空数据类型指针--不带方法
+type eface struct {
+	_type *_type  // 类型指针
+	data  unsafe.Pointer // 数据值指针
+}
+
+// runtime/runtime2.go
+// 非空接口--带方法
+type iface struct {
+    tab  *itab          // 对应的虚拟函数表
+    data unsafe.Pointer //指向原始数据指针
+}
+```
+
+```go
+package main
+
+type TestStruct struct{}
+
+// Go 语言的接口类型不是任意类型
+// 这里进行了类型转换，将类型转换为了*TestStruct类型
+// 包含了*TestStruct的类型信息
+func NilOrNot(v interface{}) bool {
+	return v == nil
+}
+
+func main() {
+	var s *TestStruct
+	fmt.Println(s == nil)      // #=> true
+	fmt.Println(NilOrNot(s))   // #=> false
+}
+
+$ go run main.go
+true
+false
+```
+
+___ 
+
+- 参考: [深入理解Go语言(01): interface源码分析](https://www.cnblogs.com/jiujuan/p/12653806.html);[golang之interface接口源码解析](https://github.com/friendlyhank/toBeTopgopher/blob/master/golang/source/golang%E4%B9%8Binterface%E6%8E%A5%E5%8F%A3%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.md);[go语言接口](https://github.com/friendlyhank/toBeTopgopher/blob/master/golang/source/golang%E4%B9%8Binterface%E6%8E%A5%E5%8F%A3%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.md)
+
+
 ### 04 2 个 nil 可能不相等吗？
 ### 05 简述 Go 语言GC(垃圾回收)的工作原理
 
 ### 06 函数返回局部变量的指针是否安全？
 
-### 07 非接口非接口的任意类型 T() 都能够调用 *T 的方法吗？反过来呢？
+### 07 非接口的任意类型 T() 都能够调用 *T 的方法吗？反过来呢？
 
 
 ## 并发编程
@@ -662,7 +711,7 @@ ___
 
 ### 2. go channel 的底层实现原理 （数据结构）
 
-### 3. nil. 关闭的 channel. 有数据的 channel，再进行读. 写. 关闭会怎么样？（各类变种题型）
+### 3. 关闭的 channel. 有数据的 channel，再进行读. 写. 关闭会怎么样？（各类变种题型）
 
 ### 4. 向 channel 发送数据和从 channel 读数据的流程是什么样的？
 
