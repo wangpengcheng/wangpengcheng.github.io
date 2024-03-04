@@ -259,7 +259,8 @@ where temp.CNT >= 3
 ```sql
 
 ## 直接使用别名进行简单计算即可
-SELECT *
+SELECT DISTINCT
+    l1.Num AS ConsecutiveNums
 FROM
     Logs l1,
     Logs l2,
@@ -270,7 +271,6 @@ WHERE
     AND l1.Num = l2.Num
     AND l2.Num = l3.Num
 ;
-
 # 作者：LeetCode
 # 链接：https://leetcode.cn/problems/consecutive-numbers/
 # 来源：力扣（LeetCode）
@@ -1559,6 +1559,126 @@ WHERE
 
 #作者：力扣官方题解
 #链接：https://leetcode.cn/problems/sales-person/solutions/2366337/xiao-shou-yuan-by-leetcode-solution-wg7i/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+### [601.体育馆的人流量](https://leetcode.cn/problems/human-traffic-of-stadium/description/)
+
+表：Stadium
+```
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| visit_date    | date    |
+| people        | int     |
++---------------+---------+
+```
+visit_date 是该表中具有唯一值的列。
+每日人流量信息被记录在这三列信息中：序号 (id)、日期 (visit_date)、 人流量 (people)
+每天只有一行记录，日期随着 id 的增加而增加
+ 
+
+编写解决方案找出每行的人数大于或等于 100 且 id 连续的三行或更多行记录。
+
+返回按 visit_date 升序排列 的结果表。
+
+查询结果格式如下所示。
+
+ 
+
+示例 1:
+
+输入：
+Stadium 表:
+```
++------+------------+-----------+
+| id   | visit_date | people    |
++------+------------+-----------+
+| 1    | 2017-01-01 | 10        |
+| 2    | 2017-01-02 | 109       |
+| 3    | 2017-01-03 | 150       |
+| 4    | 2017-01-04 | 99        |
+| 5    | 2017-01-05 | 145       |
+| 6    | 2017-01-06 | 1455      |
+| 7    | 2017-01-07 | 199       |
+| 8    | 2017-01-09 | 188       |
++------+------------+-----------+
+```
+输出：
+```
++------+------------+-----------+
+| id   | visit_date | people    |
++------+------------+-----------+
+| 5    | 2017-01-05 | 145       |
+| 6    | 2017-01-06 | 1455      |
+| 7    | 2017-01-07 | 199       |
+| 8    | 2017-01-09 | 188       |
++------+------------+-----------+
+```
+解释：
+id 为 5、6、7、8 的四行 id 连续，并且每行都有 >= 100 的人数记录。
+请注意，即使第 7 行和第 8 行的 visit_date 不是连续的，输出也应当包含第 8 行，因为我们只需要考虑 id 连续的记录。
+不输出 id 为 2 和 3 的行，因为至少需要三条 id 连续的记录。
+
+- 提交解答：
+
+```sql
+# 直接使用连表查询
+# Write your MySQL query statement below
+SELECT DISTINCT l1.*
+FROM
+    Stadium l1,
+    Stadium l2,
+    Stadium l3
+WHERE
+    l1.people >= 100
+    AND l2.people >= 100
+    AND l3.people >= 100
+    AND (
+        ( l1.id+1 = l2.id AND l3.id = l1.id + 2 ) 
+        OR ( l1.id+1 = l2.id AND l3.id = l1.id - 1 ) 
+        OR ( l1.id-1 = l2.id AND l3.id = l1.id - 2 )
+    )
+ORDER BY visit_date;
+
+```
+
+- 优质解答：
+
+```sql
+# Write your MySQL query statement below
+# 使用了group by 直接进行了去重
+select s1.*
+from stadium s1, stadium s2, stadium s3
+where(
+    (s1.id + 1 = s2.id and s1.id + 2 = s3.id) or
+    (s1.id - 1 = s2.id and s1.id + 1 = s3.id) or
+    (s1.id - 1 = s2.id and s1.id - 2 = s3.id)) and 
+    s1.people >= 100 and s2.people >= 100 and s3.people >= 100
+group by s1.id
+```
+
+- 官方题解：
+
+```sql
+select distinct t1.*
+from stadium t1, stadium t2, stadium t3
+where t1.people >= 100 and t2.people >= 100 and t3.people >= 100
+and
+(
+	  (t1.id - t2.id = 1 and t1.id - t3.id = 2 and t2.id - t3.id =1)  -- t1, t2, t3
+    or
+    (t2.id - t1.id = 1 and t2.id - t3.id = 2 and t1.id - t3.id =1) -- t2, t1, t3
+    or
+    (t3.id - t2.id = 1 and t2.id - t1.id =1 and t3.id - t1.id = 2) -- t3, t2, t1
+)
+order by t1.id
+;
+
+#作者：LeetCode
+#链接：https://leetcode.cn/problems/human-traffic-of-stadium/solutions/50428/ti-yu-guan-de-ren-liu-liang-by-leetcode/
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
