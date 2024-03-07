@@ -827,7 +827,72 @@ func main() {
 ## 并发编程
 
 ### 01 无缓冲的 channel 和有缓冲的 channel 的区别？
+- 无缓冲channel: 发送方将阻塞该信道，直到接收方从该信道收到数据为止，接收方同样需要阻塞该信号，直到发送方将数据发送到该信道中为止
+- 有缓冲channel: 信号再存在缓冲中，在缓冲区用尽的情况下阻塞
+
+可以用于进行协程交替打印字符串
+
+```go
+ch1 := make(chan struct{})
+ch2 := make(chan struct{})
+var wg sync.WaitGroup
+wg.Add(2)
+
+go func() {
+   defer wg.Done()
+   for i := 1; i <= 10; i += 2 {
+      <-ch1
+      fmt.Println(i)
+      ch2 <- struct{}{}
+   }
+   <-ch1
+}()
+
+go func() {
+   defer wg.Done()
+   for i := 2; i <= 10; i += 2 {
+      <-ch2
+      fmt.Println(i)
+      ch1 <- struct{}{}
+}
+
+ch1 <- struct{}{}
+// 等待协程执行完毕
+wg.Wait()
+```
+
+___
+
+- 参考: [面试题 - 两个协程交替打印奇偶数（内含三种方法）](https://ayang.ink/go_%E9%9D%A2%E8%AF%95%E9%A2%98-%E4%B8%A4%E4%B8%AA%E5%8D%8F%E7%A8%8B%E4%BA%A4%E6%9B%BF%E6%89%93%E5%8D%B0%E5%A5%87%E5%81%B6%E6%95%B0%E5%86%85%E5%90%AB%E4%B8%89%E7%A7%8D%E6%96%B9%E6%B3%95/);[golang两个协程交替打印](https://juejin.cn/post/7209319092515635261);[Golang两个协程交替输出](https://studygolang.com/articles/35057?fr=sidebar)
+
 ### 02 什么是协程泄露(Goroutine Leak)？
+- 定义：协程创建后长时间不释放，并且还在不断的创建新的协程，最终导致内存耗尽，程序崩溃。
+- 原因：导致协程泄漏的主要场景有以下几种：
+    - 缺少接收器/缺少发送器，导致对应线程阻塞，无法正常进行退出
+    - 
+
+```go
+// 缺少接收器导致死锁
+func query() int {
+	ch := make(chan int)
+	for i := 0; i < 1000; i++ {
+		go func() { ch <- 0 }()
+	}
+	return <-ch
+}
+
+func queryTest() {
+	for i := 0; i < 4; i++ {
+		query()
+		fmt.Printf("goroutines: %d\n", runtime.NumGoroutine())
+	}
+}
+// goroutines: 1001
+// goroutines: 2000
+// goroutines: 2999
+// goroutines: 3998
+```
+
 ### 03 Go 可以限制运行时操作系统线程的数量吗？
 
 ## 代码输出

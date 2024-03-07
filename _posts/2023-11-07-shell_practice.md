@@ -990,8 +990,6 @@ solution_1
 
 ### [SHELL15 去掉不需要的单词](https://www.nowcoder.com/practice/838a3acde92c4805a22ac73ca04e503b?tpId=195&rp=1&ru=%2Fexam%2Foj&qru=%2Fexam%2Foj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=&judgeStatus=&tags=&title=&gioEnter=menu)
 
-- []()
-- []()
 
 - 提交解答：
 
@@ -1056,7 +1054,84 @@ function solution_999() {
 solution_1
 ```
 
+### [shell16 判断输入的是否为IP地址](https://www.nowcoder.com/practice/ad7b6dbfab2a4267a9991110c57aa64f?tpId=195&tqId=39425&rp=1&ru=/exam/company&qru=/exam/company&sourceUrl=%2Fexam%2Fcompany&difficulty=undefined&judgeStatus=undefined&tags=&title=)
 
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+# 主要思路：1. 先用grep 查找是否规范 2. 用awk 判断数字范围是否合法
+function is_vailable_ip() {
+    local originStr filterStr
+    originStr=$1
+    filterStr=$(echo $originStr | grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+    # 1. 检查输入是否合法
+    if [[ "$originStr" = "$filterStr" ]]; then
+        #2. 检查数字是否合法
+        local awkRes
+        awkRes=$(echo $originStr | awk -F . '$1<=255&&
+            $2<=255&&
+            $3<=255&&
+            $4<=255 {
+                print "yes"
+            }')
+        if [[ "$awkRes" = "yes"  ]]; then
+            echo "yes"
+        else
+            echo "no"
+        fi
+    else 
+        echo "error"
+    fi
+}
+
+while read line; do
+    is_vailable_ip $line 
+done < nowcoder.txt
+```
+
+- 优质解答：
+
+```bash
+#!/bin/bash
+while read line
+do 
+    # 先进行字符串分割
+    arr=(${line//./ })
+    if [ ${#arr[*]} -ne 4 ];then
+        printf "error\n"
+    else
+        # 遍历子字符串
+        for((i=0;i<${#arr[*]};i++))
+            do
+                # 检查是否有超过255的数
+                [ ${arr[${i}]} -gt 255 ] && printf "no\n" && break
+            done
+        # 符合条件输出yes
+        [ $i == 4 ] && printf "yes\n"
+    fi
+done < nowcoder.txt
+
+```
+
+- 优质解答2：
+
+```bash
+#!/bin/bash
+ip_re='^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$'
+while read line;do
+    if [[ $line =~ ^([0-9]+\.){3}([0-9]+)$ ]];then
+        if [[ $line =~ $ip_re ]];then
+            echo 'yes'
+        else
+            echo 'no'
+        fi
+    else
+        echo 'error'
+    fi
+done < ./nowcoder.txt
+```
 
 ## shell 日常脚本收集
 

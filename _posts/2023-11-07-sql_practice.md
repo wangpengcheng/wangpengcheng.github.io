@@ -1682,3 +1682,142 @@ order by t1.id
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [608. 树节点](https://leetcode.cn/problems/tree-node/description/)
+
+- [MySQL 的CASE WHEN 语句使用说明](https://blog.csdn.net/helloxiaozhe/article/details/78124138)
+
+表：Tree
+```
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| id          | int  |
+| p_id        | int  |
++-------------+------+
+```
+
+id 是该表中具有唯一值的列。
+该表的每行包含树中节点的 id 及其父节点的 id 信息。
+给定的结构总是一个有效的树。
+ 
+
+树中的每个节点可以是以下三种类型之一：
+
+"Leaf"：节点是叶子节点。
+"Root"：节点是树的根节点。
+"lnner"：节点既不是叶子节点也不是根节点。
+编写一个解决方案来报告树中每个节点的类型。
+
+以 任意顺序 返回结果表。
+
+结果格式如下所示。
+
+ 
+
+示例 1：
+
+
+输入：
+
+```
+Tree table:
++----+------+
+| id | p_id |
++----+------+
+| 1  | null |
+| 2  | 1    |
+| 3  | 1    |
+| 4  | 2    |
+| 5  | 2    |
++----+------+
+```
+
+输出：
+
+```
++----+-------+
+| id | type  |
++----+-------+
+| 1  | Root  |
+| 2  | Inner |
+| 3  | Leaf  |
+| 4  | Leaf  |
+| 5  | Leaf  |
++----+-------+
+```
+
+解释：
+节点 1 是根节点，因为它的父节点为空，并且它有子节点 2 和 3。
+节点 2 是一个内部节点，因为它有父节点 1 和子节点 4 和 5。
+节点 3、4 和 5 是叶子节点，因为它们有父节点而没有子节点。
+示例 2：
+
+
+输入：
+
+```
+Tree table:
++----+------+
+| id | p_id |
++----+------+
+| 1  | null |
++----+------+
+```
+
+输出：
+
+```
++----+-------+
+| id | type  |
++----+-------+
+| 1  | Root  |
++----+-------+
+```
+
+解释：如果树中只有一个节点，则只需要输出其根属性。
+
+- 提交解答
+
+```sql
+# 主要思路
+# 统计节点所有的子节点数目，与父节点数目
+SELECT A.id, IF(A.p_count=0, "Root",IF(s_count > 0,"Inner","Leaf") ) AS  type  
+FROM 
+(
+ SELECT id, COUNT(p_id) AS p_count  FROM TREE GROUP BY id
+) A LEFT JOIN 
+(
+    SELECT p_id  AS id, COUNT(id) AS s_count FROM TREE WHERE p_id >=0 GROUP BY p_id
+) B ON A.id = B.id;
+
+```
+
+- 优质解答：
+
+```sql
+select id,case when p_id is null then 'Root' 
+when id not in (select distinct p_id from Tree where p_id is not null) then 'Leaf'
+else 'Inner' end type
+from Tree 
+
+
+```
+
+- 官方题解：
+
+```sql
+SELECT
+    atree.id,
+    IF(ISNULL(atree.p_id),
+        'Root',
+        IF(atree.id IN (SELECT p_id FROM tree), 'Inner','Leaf')) Type
+FROM
+    tree atree
+ORDER BY atree.id
+
+#作者：LeetCode
+#链接：https://leetcode.cn/problems/tree-node/solutions/23160/shu-jie-dian-by-leetcode/
+#来源：力扣（LeetCode）
+#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
