@@ -868,8 +868,9 @@ ___
 ### 02 什么是协程泄露(Goroutine Leak)？
 - 定义：协程创建后长时间不释放，并且还在不断的创建新的协程，最终导致内存耗尽，程序崩溃。
 - 原因：导致协程泄漏的主要场景有以下几种：
-    - 缺少接收器/缺少发送器，导致对应线程阻塞，无法正常进行退出
-    - 
+    - 缺少接收器/缺少发送器:，导致对应线程阻塞，无法正常进行退出
+    - 死锁(dead lock):两个或两个以上的协程在执行过程中，由于竞争资源或者由于彼此通信而造成阻塞，这种情况下，也会导致协程被阻塞，不能退出。
+  - 无限循环(infinite loops): 为了避免网络等问题，采用了无限重试的方式，发送 HTTP 请求，直到获取到数据。那如果 HTTP 服务宕机，永远不可达，导致协程不能退出，发生泄漏
 
 ```go
 // 缺少接收器导致死锁
@@ -891,22 +892,305 @@ func queryTest() {
 // goroutines: 2000
 // goroutines: 2999
 // goroutines: 3998
+
+
+// 这里死循环请求
+func request(url string, wg *sync.WaitGroup) {
+    i := 0
+    for {
+        if _, err := http.Get(url); err == nil {
+            // write to db
+            break
+        }
+        i++
+        if i >= 3 {
+            break
+        }
+        time.Sleep(time.Second)
+    }
+    wg.Done()
+}
+
+func waitTest() {
+    var wg sync.WaitGroup
+    for i := 0; i < 1000; i++ {
+        wg.Add(1)
+        go request(fmt.Sprintf("https://127.0.0.1:8080/%d", i), &wg)
+    }
+    wg.Wait()
+}
 ```
+___
+
+- 参考：[什么是协程泄露(Goroutine Leak)？](https://zhuanlan.zhihu.com/p/383138313);[Golang http请求忘记调用resp.Body.Close()而导致的协程泄漏问题](https://blog.csdn.net/qq_37102984/article/details/129326866)
 
 ### 03 Go 可以限制运行时操作系统线程的数量吗？
 
+- 可以；可以使用环境变量 GOMAXPROCS 或 runtime.GOMAXPROCS(num int) 设置，例如：
+
+```go
+runtime.GOMAXPROCS(1) // 限制同时执行Go代码的操作系统线程数为 1
+```
+从官方文档的解释可以看到，GOMAXPROCS 限制的是同时执行用户态 Go 代码的操作系统线程的数量，但是对于被系统调用阻塞的线程数量是没有限制的。GOMAXPROCS 的默认值等于 CPU 的逻辑核数，同一时间，一个核只能绑定一个线程，然后运行被调度的协程。因此对于 CPU 密集型的任务，若该值过大，例如设置为 CPU 逻辑核数的 2 倍，会增加线程切换的开销，降低性能。对于 I/O 密集型应用，适当地调大该值，可以提高 I/O 吞吐率。
+
+___
+
+- 参考：[Golang 在 runtime 中的知识点有哪些？](https://www.zhihu.com/question/584554235/answer/3033310978?utm_id=0);[万字长文深入浅出 Golang Runtime](https://zhuanlan.zhihu.com/p/95056679?from=groupmessage);[go-runtime](https://pkg.go.dev/runtime)
+
 ## 代码输出
 ### 变量与常量
+
+1. 下面代码的输出是：
+
+```go
+func main() {
+	const (
+		a, b = "golang", 100
+		d, e
+		f bool = true
+		g
+	)
+	fmt.Println(d, e, g)
+}
+// golang 100 true
+
+```
+在同一个 const group 中，如果常量定义与前一行的定义一致，则可以省略类型和值。编译时，会按照前一行的定义自动补全。即等价于：
+
+```go
+func main() {
+    const (
+        a, b = "golang", 100
+        d, e = "golang", 100
+        f bool = true
+        g bool = true
+    )
+    fmt.Println(d, e, g)
+}
+```
+
+2. 下列代码的输出是：
+
+```go
+
+func main() {
+    const N = 100
+    var x int = N
+
+    const M int32 = 100
+    var y int = M
+    fmt.Println(x, y)
+}
+
+// 编译失败：cannot use M (type int32) as type int in assignment
+```
+
+Go 语言中，常量分为无类型常量和有类型常量两种，const N = 100，属于无类型常量，赋值给其他变量时，如果字面量能够转换为对应类型的变量，则赋值成功，例如，var x int = N。但是对于有类型的常量 const M int32 = 100，赋值给其他变量时，需要类型匹配才能成功，所以显示地类型转换：`var y int = int(M)`
+
+3. 下列代码的输出是：
+
+```go
+
+func main() {
+    var a int8 = -1
+    var b int8 = -128 / a
+    fmt.Println(b)
+}
+// -128
+```
+
+int8 能表示的数字的范围是 [-2^7, 2^7-1]，即 [-128, 127]。-128 是无类型常量，转换为 int8，再除以变量 -1，结果为 128，常量除以变量，结果是一个变量。**变量转换时允许溢出**，符号位变为1，转为补码后恰好等于 -128。
+对于有符号整型，最高位是是符号位，计算机用补码表示负数。补码 = 原码取反加一。
+
+```txt
+-1 :  11111111
+00000001(原码)    11111110(取反)    11111111(加一)
+-128：    
+10000000(原码)    01111111(取反)    10000000(加一)
+
+-1 + 1 = 0
+11111111 + 00000001 = 00000000(最高位溢出省略)
+-128 + 127 = -1
+10000000 + 01111111 = 11111111
+
+```
+- **正数以原码形式存在，负数以补码形式存在()**
+- **正数最高位为0，负数最高位为1**
+- **最高位为1的需要当作补码转换为负数**
+
+4. 下列代码的输出是：
+
+```go
+func main() {
+    const a int8 = -1
+    var b int8 = -128 / a
+    fmt.Println(b)
+}
+```
+
+编译失败：constant 128 overflows int8
+
+-128 和 a 都是常量，在编译时求值，-128 / a = 128，两个常量相除，结果也是一个常量，常量类型转换时不允许溢出，因而编译失败。
+
+___
+
+- 参考：[负数在计算机中的储存方式](https://zhuanlan.zhihu.com/p/129361870)
+
+
 ### 作用域
+
+下面的代码输出是
+
+```go
+func main() {
+    var err error
+    if err == nil {
+        err := fmt.Errorf("err")
+        fmt.Println(1, err)
+    }
+    if err != nil {
+        fmt.Println(2, err)
+    }
+}
+// 1 err
+```
+
+`:=` 表示声明并赋值，`=` 表示仅赋值。
+
+变量的作用域是大括号，因此在第一个 `if` 语句 `if err == nil` 内部重新声明且赋值了与外部变量同名的局部变量 `err`。对该局部变量的赋值不会影响到外部的 `err`。因此第二个 `if` 语句 `if err != nil` 不成立。所以只打印了 `1 err`。
+
+
 ### defer延迟调用
 
+1. 下面的代码输出是
+
+```go
+type T struct{}
+
+func (t T) f(n int) T {
+    fmt.Print(n)
+    return t
+}
+
+func main() {
+    var t T
+    defer t.f(1).f(2)
+    fmt.Print(3)
+}
+// 132
+```
+
+
+
+defer 延迟调用时，需要保存函数指针和参数，因此链式调用的情况下，除了最后一个函数/方法外的函数/方法都会在调用时直接执行。也就是说 t.f(1) 直接执行，然后执行 fmt.Print(3)，最后函数返回时再执行 .f(2)，因此输出是 132。-- **语法解析，将defer看作一个函数，函数指针和参数，由最后一个决定**
+
+2. 下面的代码输出是
+
+```go
+
+package main
+
+import "fmt"
+
+func f(n int) {
+    // defer 执行语句与函数，在开始时就确定
+    // 这里n进行了值拷贝，输出为1
+    defer fmt.Println(n)
+    n += 100
+}
+
+func f3(n *int) {
+    // 这里*n一开始输入就确定了
+    // 输出为3
+    defer fmt.Println(*n)
+    n += 100
+}
+
+func f2(n int) {
+    // 设置输出为最终的n
+    // 因此n输出为102
+    defer func() {
+        fmt.Println(n)
+    }()
+    // 这里直接输出n
+    // n 在设置时就确定了，因此为2
+    defer func(n int ) {
+        fmt.Println(n)
+    }(n)
+    // 设置参数为n指针，最终输出为n的引用值
+    // 102
+    defer func(n *int ) {
+        fmt.Println(*n)
+    }(&n)
+    n += 100
+
+}
+
+func main() {
+    f(1)
+    f2(2)
+    a := 3
+    f3(&a)
+}
+
+// 1  
+// 102
+// 2
+// 102
+// 3
+```
+
+defer 语句执行时，会将需要延迟调用的函数和参数保存起来，也就是说，执行到 defer 时，参数 n(此时等于1) 已经被保存了。因此后面对 n 的改动并不会影响延迟函数调用的结果。
+
+3. 下列代码的输出是：
+
+```go
+
+func main() {
+    n := 1
+    if n == 1 {
+        defer fmt.Println(n)
+        n += 100
+    }
+    fmt.Println(n)
+}
+// 101
+// 1
+```
+先打印 101，再打印 1。defer 的作用域是函数，而不是代码块，因此 if 语句退出时，defer 不会执行，而是等 101 打印后，整个函数返回时，才会执行。
 
 
 ## 基础
 
 ### 1. golang 中 make 和 new 的区别？（基本必问）
 
+1. 作用不同：
+    - new: 根据传入的类型分配一片内存空间并返回指向这片内存空间的指针
+    - make: 初始化内置的数据结构，也就是我们在前面提到的切片、哈希表和 Channel，并不负责变量的产生
+2. 返回值不同：new 返回的是类型的指针，make返回类型的引用
+3. 使用范围不同：
+    - new：用于制定类型`T` 如`struct` 类的初始化
+    - make: 只能用于 slice，map，channel
+
+___
+
+
+- 参考：[Go make 和 new 的区别](https://sanyuesha.com/2017/07/26/go-make-and-new/);[5.5 make 和 new](https://draveness.me/golang/docs/part2-foundation/ch05-keyword/golang-make-and-new/)
+
 ### 2. 数组和切片的区别 （基本必问）
+
+相同点：
+- 都是顺序存储的数据结构
+
+不同点：
+1. 长度定义不同：数组是一个长度固定的数据类型，其长度在定义时就已经确定，不能动态改变；切片是一个长度可变的数据类型，其长度在定义时可以为空，也可以指定一个初始长度。
+2. 内存空间分配方式不同：数组的内存空间是在定义时分配的，其大小是固定的；切片的内存空间是在运行时动态分配的，其大小是可变的，在添加时进行[自动扩容](https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-array-and-slice/#324-%E8%BF%BD%E5%8A%A0%E5%92%8C%E6%89%A9%E5%AE%B9)
+3. 操作变更不同：当数组作为函数参数时，函数操作的是数组的一个副本，不会影响原始数组(写时拷贝)；当切片作为函数参数时，函数操作的是切片的引用，会影响原始切片。
+4. 容量不同：切片还有容量的概念，它指的是分配的内存空间。
+
+___
+
+- 参考：[GO中数组与切片的区别](http://www.hangdaowangluo.com/archives/1938);[go数组](https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-array/);[Go 语言数组和切片的区别](https://www.51cto.com/article/750465.html);[数组和切片有什么异同](https://golang.design/go-questions/slice/vs-array/)
 
 ### 3. for range 的时候它的地址会发生变化么？
 
