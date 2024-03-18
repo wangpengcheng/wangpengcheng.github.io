@@ -1194,16 +1194,114 @@ ___
 
 ### 3. for range 的时候它的地址会发生变化么？
 
+for range 时**地址不会发生变化**，range 会产生一个临时变量，将数组/切片/map 中的值进行拷贝复制，然后进行操作。因此地址不会发生变化，也不应该在range 中对对象进行操作。如果需要修改其值，应当使用指针进行修改，并重新赋值回写。
+
+```go
+package main
+
+import "fmt"
+
+type girl struct {
+	Name string
+	Age int
+}
+
+func main() {
+	gl := make(map[string]*girl)
+	studs := []girl{
+		{Name: "Lili", Age: 23},
+		{Name: "Lucy", Age: 24},
+		{Name: "Han Mei", Age: 21},
+	}
+
+	for _, v := range studs {
+        fmt.Printf("%s addr: %v\n", v.Name, &v.Age)
+		gl[v.Name] = &v
+	}
+
+	for mk, mv := range gl {
+		fmt.Println(mk, "=>", mv.Age)
+	}
+}
+// main.go
+// Lili addr: 0xc0000a4028
+// Lili => 21
+// Lucy addr: 0xc0000a4028
+// Lucy => 21
+// Han Mei addr: 0xc0000a4028
+// Han Mei => 21
+
+```
+
+
+
+
 ### 4. go defer，多个 defer 的顺序，defer 在什么时机会修改返回值？
+
+defer 按照栈的顺序，先入后出。按照定义顺序逆序执行。defer 在返回值定义后，最终return 之前修改返回值
 
 ### 5. uint 类型溢出
 
+uint 最大值为 2^31-1 当期超过最大值时，会从最小值开始循环。为了防止溢出可以采用以下方案：
+1.  使用更大的数据类型：例如，如果你正在使用uint32，你可以尝试升级到uint64。这将提供更大的值范围，从而减少溢出的可能性。
+2. 添加溢出检查：在每次运算之后，你可以检查结果是否小于任一操作数（假设我们只在正数上进行操作）。如果是这样，那么就发生了溢出。
+3. 使用 math/big 包：对于非常大的数值，你也可以考虑使用 math/big 包中的 Int 类型。这个类型可以处理任意大小的数值，但是运算速度会慢一些。
+
 ### 6. 介绍 rune 类型
+
+rune 类型是go 针对字符集产生的特殊类型，基本定义为int32 别名，长度为4个字节，可以任意字符值。用于解决多字符集编码问题(utf-8)
+
+![字符编码](https://mmbiz.qpic.cn/mmbiz_png/rJDC5vuwJCNoUJI5HH4uiaAYjK4vIgnu7W7h9Y0LezHISIzDTxDCE6FVVxzUb6gefUYo2X5mraBO4p9uiaK0QRuA/640?wx_fmt=png)
+
+rune 类型只是一种名称叫法，表示用来处理长度大于 1 字节（ 8 位）、不超过 4 字节（ 32 位）的字符类型。但万变不离其宗，我们使用函数时，无论传入参数的是原始字符串还是 rune，最终都是对字节进行处理。
+
+
+___
+
+- 参考：[理解go中rune数据类型](https://zhuanlan.zhihu.com/p/137339284);[详解 Go 中的 rune 类型](https://www.cnblogs.com/cheyunhua/p/16007219.html)
+
 
 ### 7. golang 中解析 tag 是怎么实现的？反射原理是什么？
 
 ### 8. 调用函数传入结构体时，应该传值还是指针？ （Golang 都是传值）
 
+传入的是值，golang都是值传递，即便是指针，也进行了一次值拷贝
+
+### 9. go 空结构体为啥内存为0
+
+这个是go的编译时优化，因为空结构不包含任何字段，因此不能容纳任何数据。如果空结构不包含任何数据，则无法确定两个结构{} 值是否不同。它们实际上是可替代的
+
+空结构体主要有以下几个特点：
+- 零内存占用
+- 地址相同
+- 无状态
+
+使用场景：
+- 实现 Set 集合类型
+- 用于通道信号
+- 作为方法接收器
+
+```go
+// /go/src/runtime/malloc.go
+// base address for all 0-byte allocations
+var zerobase uintptr
+
+func mallocgc(size uintptr, typ *_type, needzero bool) unsafe.Pointer {
+   
+    ······
+
+    if size == 0 {
+   
+       return unsafe.Pointer(&zerobase)
+    }
+    ······
+```
+
+根据 malloc.go 源码的部分内容，当要分配的对象大小 size 为 0 时，会返回指向 zerobase 的指针。zerobase 是一个用于分配零字节对象的基准地址，它不占用任何实际的内存空间。
+
+___
+
+- 参考：[Go空结构体:零内存的魔力](https://developer.aliyun.com/article/1230762);[翻译||总结-Go语言中的空结构体(The empty struct)](https://nemo.cool/955.html)
 
 ## context相关
 
