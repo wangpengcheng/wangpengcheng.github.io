@@ -32,6 +32,7 @@ _参考链接:_
 - [Go安全指南](https://github.com/Tencent/secguide/blob/main/Go%E5%AE%89%E5%85%A8%E6%8C%87%E5%8D%97.md)
 - [Go 编码规范建议](https://cloud.tencent.com/developer/article/1911268)
 - [Go语言高性能编程](https://geektutu.com/post/hpg-escape-analysis.html)
+- [Go语言设计与实现](https://draveness.me/golang/)
 
 ## 基础语法
 
@@ -1263,6 +1264,38 @@ ___
 
 ### 7. golang 中解析 tag 是怎么实现的？反射原理是什么？
 
+- tag实现： golang 中的tag 是通过反射进行解析实现的，tag解析方法如下：
+
+```go
+func main() {
+    type User struct {
+        Name string `testTag:"name"`
+        Age int `testTag:"age"`
+    }
+    v := refect.Valueof(user)
+    t := v.Type()
+    for i:=0; i < t.NumField(); i++ {
+        field := t.Fieid(i)
+        tagName :=  field.Tag.Get("testTag")
+        fieldVal := v.FieldByName(field.Name)
+        fmt.Printf("tagName %v val %v", tagName, fieldVal)
+    }
+}
+```
+- 反射原理：通过接口的隐式转换将普通类型转换为interface{}，在将interface{}转换为反射类型来实现，通过反射基础类型操作，实现各种复杂操作。
+
+![反射流程](https://pic3.zhimg.com/v2-e0bb3510209442e76b2a244cec85b3fa_r.jpg)
+
+- 反射三定律：
+    - Golang对象可以转换成反射对象
+    - 反射对象可以转换成Golang对象
+    - 可寻址的reflect对象可以更新值
+
+___
+
+- 参考：[go反射原理](https://draveness.me/golang/docs/part2-foundation/ch04-basic/golang-reflect/);[Golang反射原理详解](https://zhuanlan.zhihu.com/p/382424874);[go语言如何实现发射](https://golang.design/go-questions/stdlib/reflect/how/)
+
+
 ### 8. 调用函数传入结构体时，应该传值还是指针？ （Golang 都是传值）
 
 传入的是值，golang都是值传递，即便是指针，也进行了一次值拷贝
@@ -1306,6 +1339,156 @@ ___
 ## context相关
 
 ### 1. context 结构是什么样的？
+context 是go 定义的官方上下文接口，其本质是一个标准接口定义如下
+
+```go
+// context/context.go
+type Context interface {
+	// Deadline returns the time when work done on behalf of this context
+	// should be canceled. Deadline returns ok==false when no deadline is
+	// set. Successive calls to Deadline return the same results.
+	Deadline() (deadline time.Time, ok bool)
+
+	// Done returns a channel that's closed when work done on behalf of this
+	// context should be canceled. Done may return nil if this context can
+	// never be canceled. Successive calls to Done return the same value.
+	// The close of the Done channel may happen asynchronously,
+	// after the cancel function returns.
+	//
+	// WithCancel arranges for Done to be closed when cancel is called;
+	// WithDeadline arranges for Done to be closed when the deadline
+	// expires; WithTimeout arranges for Done to be closed when the timeout
+	// elapses.
+	//
+	// Done is provided for use in select statements:
+	//
+	//  // Stream generates values with DoSomething and sends them to out
+	//  // until DoSomething returns an error or ctx.Done is closed.
+	//  func Stream(ctx context.Context, out chan<- Value) error {
+	//  	for {
+	//  		v, err := DoSomething(ctx)
+	//  		if err != nil {
+	//  			return err
+	//  		}
+	//  		select {
+	//  		case <-ctx.Done():
+	//  			return ctx.Err()
+	//  		case out <- v:
+	//  		}
+	//  	}
+	//  }
+	//
+	// See https://blog.golang.org/pipelines for more examples of how to use
+	// a Done channel for cancellation.
+	Done() <-chan struct{}
+
+	// If Done is not yet closed, Err returns nil.
+	// If Done is closed, Err returns a non-nil error explaining why:
+	// Canceled if the context was canceled
+	// or DeadlineExceeded if the context's deadline passed.
+	// After Err returns a non-nil error, successive calls to Err return the same error.
+	Err() error
+
+	// Value returns the value associated with this context for key, or nil
+	// if no value is associated with key. Successive calls to Value with
+	// the same key returns the same result.
+	//
+	// Use context values only for request-scoped data that transits
+	// processes and API boundaries, not for passing optional parameters to
+	// functions.
+	//
+	// A key identifies a specific value in a Context. Functions that wish
+	// to store values in Context typically allocate a key in a global
+	// variable then use that key as the argument to context.WithValue and
+	// Context.Value. A key can be any type that supports equality;
+	// packages should define keys as an unexported type to avoid
+	// collisions.
+	//
+	// Packages that define a Context key should provide type-safe accessors
+	// for the values stored using that key:
+	//
+	// 	// Package user defines a User type that's stored in Contexts.
+	// 	package user
+	//
+	// 	import "context"
+	//
+	// 	// User is the type of value stored in the Contexts.
+	// 	type User struct {...}
+	//
+	// 	// key is an unexported type for keys defined in this package.
+	// 	// This prevents collisions with keys defined in other packages.
+	// 	type key int
+	//
+	// 	// userKey is the key for user.User values in Contexts. It is
+	// 	// unexported; clients use user.NewContext and user.FromContext
+	// 	// instead of using this key directly.
+	// 	var userKey key
+	//
+	// 	// NewContext returns a new Context that carries value u.
+	// 	func NewContext(ctx context.Context, u *User) context.Context {
+	// 		return context.WithValue(ctx, userKey, u)
+	// 	}
+	//
+	// 	// FromContext returns the User value stored in ctx, if any.
+	// 	func FromContext(ctx context.Context) (*User, bool) {
+	// 		u, ok := ctx.Value(userKey).(*User)
+	// 		return u, ok
+	// 	}
+	Value(key any) any
+}
+
+```
+
+go 官方包中提供了默认的emptyCtx 进行常规使用
+
+```go
+type emptyCtx int
+// 执行deadline
+func (*emptyCtx) Deadline() (deadline time.Time, ok bool) {
+	return
+}
+
+// 执行相关操作
+func (*emptyCtx) Done() <-chan struct{} {
+	return nil
+}
+
+// 对应错误信息
+func (*emptyCtx) Err() error {
+	return nil
+}
+
+// 查询对应值
+func (*emptyCtx) Value(key any) any {
+	return nil
+}
+
+// 字符串
+func (e *emptyCtx) String() string {
+	switch e {
+	case background:
+		return "context.Background"
+	case todo:
+		return "context.TODO"
+	}
+	return "unknown empty Context"
+}
+
+var (
+	background = new(emptyCtx)
+	todo       = new(emptyCtx)
+)
+
+// Background returns a non-nil, empty Context. It is never canceled, has no
+// values, and has no deadline. It is typically used by the main function,
+// initialization, and tests, and as the top-level Context for incoming
+// requests.
+func Background() Context {
+	return background
+}
+
+```
+
 
 ### 2. context 使用场景和用途
 
