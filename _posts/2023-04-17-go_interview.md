@@ -1336,6 +1336,17 @@ ___
 
 - 参考：[Go空结构体:零内存的魔力](https://developer.aliyun.com/article/1230762);[翻译||总结-Go语言中的空结构体(The empty struct)](https://nemo.cool/955.html)
 
+### 10 能说说uintptr和unsafe.Pointer的区别吗？
+
+- unsafe.Pointer还会被gc追踪而uintptr不会；
+- uintptr是整形而unsafe.Pointer是指针类型，uintptr可以和任何类型的整形互转，unsafe.Pointer可以和任何类型的指针互转，然后它们俩之间可以互转。
+
+
+___
+
+参考：[GO 普通指针&unsafe.Pointer&uintptr](https://mp.weixin.qq.com/s?__biz=MzkzODY1MDQyMA==&mid=2247483656&idx=1&sn=1cc955dbf2b2a25fe93d55b6a14406db&chksm=c2fdbf53f58a36450086724482507d0f7bcf6cc204fb95b98e8a6ce5aed6c2b88b649073728b&token=1922909448&lang=zh_CN#rd);[知乎-uintptr和unsafe.Pointer区别](https://www.zhihu.com/question/584325156)
+
+
 ## context相关
 
 ### 1. context 结构是什么样的？
@@ -1490,7 +1501,10 @@ func Background() Context {
 ```
 
 
+
 ### 2. context 使用场景和用途
+
+
 
 ## channel相关
 
