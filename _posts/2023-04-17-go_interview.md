@@ -99,6 +99,7 @@ ___
 - defer作用：defer 函数作用在空return之前。返回值无命名是会生成不同的临时变量。避免异常
 
 ```go
+
 func add1(x, y int) (z int) {
     { // 不能在一个级别，引发 "z redeclared in this block" 错误。
         var z = x + y
@@ -1504,17 +1505,239 @@ func Background() Context {
 
 ### 2. context 使用场景和用途
 
+context 主要用于协程之间进行数据传递和信号发送，基于此的主要使用场景和用途如下：
 
+1. 上下文传递数据：函数之间的值传递
+2. 超时控制：http 定时器等超时控制、IO 耗时操作控制超时
+
+```go
+func httpRequest(ctx context.Context) {
+	for {
+		// 处理http请求
+		select {
+		case <- ctx.Done():
+			fmt.Println("Request timed out")
+			return
+		case <- time.After(time.Second):
+			fmt.Println("Loading...")
+		}
+	}
+}
+
+func main() {
+	fmt.Println("start TestTimeoutContext")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 3)
+	defer cancel()
+	httpRequest(ctx)
+	time.Sleep(time.Second * 5)
+}
+
+//start TestTimeoutContext
+//Loading...
+//Loading...
+//Request timed out
+```
+
+
+3. 信号发送(取消控制) 
+- 控制子协程退出：goroutine发送取消信号，保证自己这个逻辑中发散出去的goroutine全部成功取消
+
+
+```go
+
+func gen(ctx context.Context) <-chan int {
+	ch := make(chan int)
+	go func() {
+		var n int
+		for {
+			select {
+			case ch <- n:
+				n++
+				time.Sleep(time.Second)
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	return ch
+}
+
+func main() {
+	// 创建一个Cancel context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	for n := range gen(ctx) {
+		fmt.Println(n)
+		if n == 5 {
+			// 达到要求之后触发cancel
+			cancel()
+			break
+		}
+	}
+}
+//0
+//1
+//2
+//3
+//4
+//5
+```
+
+___
+
+- 参考：[Golang Context的使用场景](https://juejin.cn/post/7140872374534012964)
 
 ## channel相关
 
 ### 1. channel 是否线程安全？锁用在什么地方？
 
+- channel 是线程安全的：
+    - 设计需要：channel 本身设定为golang 中多协程通信语法糖，使用场景就是多线程，为了保证数据的一致性，必须实现线程安全。
+    - 设计实现：底层实现中`hchan` 使用`mutex`互斥锁保证数据读写安全， 在对循环数组buf中的数据进行入队和出队操作时，必须先获取互斥锁，才能操作channel数据。同时使用堆上内存共享，保证通信高效性
+- go 中的锁分为：
+    - sync.Mutex (互斥锁)：只包含`lock()`与`unlock`的基础互斥锁
+    - sync.RWMutex (读写锁):针对读多写少的环境进行。包含`RLock()/RUnlock()`(读锁)、`Lock()/Unlock()`(写锁方法)
+    - sync.Map(安全锁)：并发map安全锁
+    - sync.WaitGroup(删栏)：用`Add(int)/Done()` 用于增加持有次数。`Wait()` 进行持有等待 
+___
+
+参考：[go笔记记录——channel](https://blog.csdn.net/qq_52563729/article/details/126093532);[Go中的三种锁包括:互斥锁,读写锁,sync.Map的安全的锁.](https://www.kancloud.cn/yuankejishu/golang/2785000)
+
 ### 2. go channel 的底层实现原理 （数据结构）
+
+Go中的channel是一个队列，遵循先进先出的原则，负责协程之间的通信(Go语言提倡不要通过共享内存来通信，而要通过通信来实现内存共享，CSP(CommunicatingSequentiall Process)并发模型，就是通过goroutine和channel来实现的)
+
+通过var声明或者make函数创建的channel变量是一个存储在函数栈帧上的指针，占用8个字节，指向堆上的hchan结构体
+
+
+![](https://img-blog.csdnimg.cn/4c5a4b62c9dd4522abeae054e11456f1.png)
+
+
+底层数据结构如下：
+
+```go
+type hchan struct {
+	qcount   uint           // 队列中的总元素个数
+	dataqsiz uint           // 环形队列大小，即可存放元素的个数
+	buf      unsafe.Pointer // 环形队列指针
+	elemsize uint16 //每个元素的大小
+	closed   uint32 //标识关闭状态
+	elemtype *_type // 元素类型
+	sendx    uint   // 发送索引，元素写入时存放到队列中的位置
+	recvx    uint   // 接收索引，元素从队列的该位置读出
+	recvq    waitq  // 等待读消息的goroutine队列
+	sendq    waitq  // 等待写消息的goroutine队列
+
+	// lock protects all fields in hchan, as well as several
+	// fields in sudogs blocked on this channel.
+	//
+	// Do not change another G's status while holding this lock
+	// (in particular, do not ready a G), as this can deadlock
+	// with stack shrinking.
+	lock mutex //互斥锁，chan不允许并发读写
+}
+
+type waitq struct {
+	first *sudog
+	last  *sudog
+}
+
+// sudog represents a g in a wait list, such as for sending/receiving
+// on a channel.
+//
+// sudog is necessary because the g ↔ synchronization object relation
+// is many-to-many. A g can be on many wait lists, so there may be
+// many sudogs for one g; and many gs may be waiting on the same
+// synchronization object, so there may be many sudogs for one object.
+//
+// sudogs are allocated from a special pool. Use acquireSudog and
+// releaseSudog to allocate and free them.
+type sudog struct {
+	// The following fields are protected by the hchan.lock of the
+	// channel this sudog is blocking on. shrinkstack depends on
+	// this for sudogs involved in channel ops.
+
+	g *g
+
+	next *sudog
+	prev *sudog
+	elem unsafe.Pointer // data element (may point to stack)
+
+	// The following fields are never accessed concurrently.
+	// For channels, waitlink is only accessed by g.
+	// For semaphores, all fields (including the ones above)
+	// are only accessed when holding a semaRoot lock.
+
+	acquiretime int64
+	releasetime int64
+	ticket      uint32
+
+	// isSelect indicates g is participating in a select, so
+	// g.selectDone must be CAS'd to win the wake-up race.
+	isSelect bool
+
+	// success indicates whether communication over channel c
+	// succeeded. It is true if the goroutine was awoken because a
+	// value was delivered over channel c, and false if awoken
+	// because c was closed.
+	success bool
+
+	parent   *sudog // semaRoot binary tree
+	waitlink *sudog // g.waiting list or semaRoot
+	waittail *sudog // semaRoot
+	c        *hchan // channel
+}
+```
+
+___
+
+- 参考：[channel 底层的数据结构是什么](https://golang.design/go-questions/channel/struct/)
+
 
 ### 3. 关闭的 channel. 有数据的 channel，再进行读. 写. 关闭会怎么样？（各类变种题型）
 
+在Go的并发模型中，关闭channel是为了告诉接收者，发送者没有更多的数据要发送了。因此，一旦channel被关闭，就意味着不能再向其发送新的数据。这种约定帮助程序员在处理并发逻辑时，能够更好地理解数据流的生命周期。
+
+- 关闭的channel：
+    - 读：无异常，如果在关闭前，通道内部有元素，会正确读到元素的值；如果关闭前通道无元素，则会读取到通道内元素类型对应的零值。range 操作可能会导致死锁错误
+    - 写/关闭：panic
+
+- 有数据channel:
+    - 读：正常读取到数据
+    - 写/关闭：panic
+
+___
+
+- 参考：[《Go题库·2》对已经关闭的channel进行读写操作会发生什么?](https://studygolang.com/topics/15595);[对已经关闭的的chan进行读写，会怎么样？为什么？](https://www.iamshuaidi.com/23380.html)
+
 ### 4. 向 channel 发送数据和从 channel 读数据的流程是什么样的？
+
+- 发送数据：
+    1. 若等待接收队列 recvq 不为空，则缓冲区中无数据或无缓冲区，将直接从 recvq 取出 G ，并把数据写入，最后把该 G 唤醒，结束发送过程。
+    2. 若缓冲区中有空余位置，则将数据写入缓冲区，结束发送过程。
+    3. 若缓冲区中没有空余位置，则将发送数据写入 G，将当前 G 加入 sendq ，进入睡眠，等待被读 goroutine 唤醒。
+
+![进行数据写入](https://golang.design/go-questions/channel/assets/2.png)
+
+- 读取数据：
+    1. 若等待发送队列 sendq 不为空，且没有缓冲区，直接从 sendq 中取出 G ，把 G 中数据读出，最后把 G 唤醒，结束读取过程；
+    2. 如果等待发送队列 sendq 不为空，说明缓冲区已满，从缓冲区中首部读出数据，把 G 中数据写入缓冲区尾部，把 G 唤醒，结束读取过程；
+    3. 如果缓冲区中有数据，则从缓冲区取出数据，结束读取过程；
+    4. 将当前 goroutine 加入 recvq ，进入睡眠，等待被写 goroutine 唤醒；
+
+- 关闭 channel
+关闭 channel 时会将 recvq 中的 G 全部唤醒，，本该写入 G 的数据位置为 nil。将 sendq 中的 G 全部唤醒，但是这些 G 会 panic。
+
+panic 出现的场景还有：
+- 关闭值为 nil 的 channel
+- 关闭已经关闭的 channel
+- 向已经关闭的 channel 中写数据
+
+
+___
+
+- 参考：[从 channel 接收数据的过程是怎样的](https://golang.design/go-questions/channel/recv/);[向 channel 发送数据的过程是怎样的](https://golang.design/go-questions/channel/send/);[Go 语言 chan 实现原理，彻底搞懂 chan 读写机制](https://xie.infoq.cn/article/49526fb0dde758d663dfe0cd0)
+
 
 ## map相关
 
@@ -1530,6 +1753,8 @@ func Background() Context {
 
 ### 6. map 的数据结构是什么？是怎么实现扩容？
 
+
+
 ## GMP相关
 
 ### 1. 什么是 GMP？（必问）
@@ -1539,6 +1764,8 @@ func Background() Context {
 ### 3. 抢占式调度是如何抢占的？
 
 ### 4. M 和 P 的数量问题？
+
+
 
 ## 锁相关
 
@@ -1552,6 +1779,8 @@ func Background() Context {
 
 ### 5. goroutine 的自旋占用资源如何解决
 
+
+
 ## 并发相关
 
 ### 1. 怎么控制并发数？
@@ -1559,6 +1788,8 @@ func Background() Context {
 ### 2. 多个 goroutine 对同一个 map 写会 panic，异常是否可以用 defer 捕获？
 
 ### 3. 如何优雅的实现一个 goroutine 池（百度. 手写代码）
+
+
 
 ## GC相关
 
@@ -1569,6 +1800,8 @@ func Background() Context {
 ### 3. GC 中 stw 时机，各个阶段是如何解决的？ （百度）
 
 ### 4. GC 的触发时机？
+
+
 
 ## 内存相关
 
