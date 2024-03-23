@@ -1805,6 +1805,10 @@ type hmap struct {
 }
 ```
 
+- 扩容过程
+在向 map 插入新 key 的时候，会进行条件检测，符合下面这 2 个条件，就会触发扩容：
+- 装载因子超过阈值，源码里定义的阈值是 6.5。
+- overflow 的 bucket 数量过多：当 B 小于 15，也就是 bucket 总数 2^B 小于 2^15 时，如果 overflow 的 bucket 数量超过 2^B；当 B >= 15，也就是 bucket 总数 2^B 大于等于 2^15，如果 overflow 的 bucket 数量超过 2^15。
 
 
 ___
