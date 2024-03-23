@@ -1599,6 +1599,7 @@ ___
     - sync.RWMutex (读写锁):针对读多写少的环境进行。包含`RLock()/RUnlock()`(读锁)、`Lock()/Unlock()`(写锁方法)
     - sync.Map(安全锁)：并发map安全锁
     - sync.WaitGroup(删栏)：用`Add(int)/Done()` 用于增加持有次数。`Wait()` 进行持有等待 
+
 ___
 
 参考：[go笔记记录——channel](https://blog.csdn.net/qq_52563729/article/details/126093532);[Go中的三种锁包括:互斥锁,读写锁,sync.Map的安全的锁.](https://www.kancloud.cn/yuankejishu/golang/2785000)
@@ -1743,17 +1744,72 @@ ___
 
 ### 1. map 使用注意的点，并发安全？
 
+1. map为引用类型，需要注意底层数据变换：如果两个map同时指向一个底层，那么一个map的变动会影响到另一个map
+2. 初始化：map 默认为nil,需要使用make进行初始化，对nil map进行任何添加元素的操作都会触发运行时错误（panic）。因此，使用前必须先创建map，使用make函数，例如：m := make(map[string]int)。
+3. map的键必须可比较： map的键可以是任何可以用==或!=操作符比较的类型：如字符串，整数，浮点数，复数，布尔等。但是，slice，map，和function类型不可以作为map的键，因为这些类型不能使用==或!=操作符进行比较。
+4. map在使用过程中不保证遍历顺序：map的遍历结果顺序可能会不一样，所以在需要顺序的场合，要自行处理数据并排序。map底层使用hash桶进行数据存储，扩容过程中不保证数据有效性。不能边遍历，边修改key
+5. 非线程安全：map进行的所有操作，包括读取，写入，删除，都是不安全的，也就是说，如果你在一个goroutine中修改map，同时在另一个goroutine中读取map，可能会触发“concurrent map read and map write”的错误。需要使用锁或者sync.Map 进行数据操作
+
+___
+
+- 参考：[请说一下Golang map 使用注意的点，以及是否并发安全？](https://www.iamshuaidi.com/23354.html)
+
 ### 2. map 循环是有序的还是无序的？
+
+- 无序的：无序有两个关键点：
+ 1. map扩容无序性：map 在扩容后，会发生 key 的搬迁，原来落在同一个 bucket 中的 key，搬迁后，有些 key 就要远走高飞了（bucket 序号加上了 2^B）。而遍历的过程，就是按顺序遍历 bucket，同时按顺序遍历 bucket 中的 key。搬迁后，key 的位置发生了重大的变化，有些 key 飞上高枝，有些 key 则原地不动。这样，遍历 map 的结果就不可能按原来的顺序了。
+ 2. map 遍历随机性：遍历 map 时，并不是固定地从 0 号 bucket 开始遍历，每次都是从一个随机值序号的 bucket 开始遍历，并且是从这个 bucket 的一个随机序号的 cell 开始遍历。这样，即使你是一个写死的 map，仅仅只是遍历它，也不太可能会返回一个固定序列的 key/value 对了
+
 
 ### 3. map 中删除一个 key，它的内存会释放么？
 
+- 不会：仅仅修改可用标记，不会真正释放内存。只有真正进行删除后，才会进行内存的释放
+
+___
+
+- 参考：[map 的删除过程是怎样的](https://qcrao91.gitbook.io/go/map/map-de-shan-chu-guo-cheng-shi-zen-yang-de);[面试官：map删除元素会释放内存吗](https://juejin.cn/post/7195528153905184829);[Go删除Map对内存的影响](https://www.mofan.life/2022/11/14/Go/Go%E5%88%A0%E9%99%A4Map%E5%AF%B9%E5%86%85%E5%AD%98%E7%9A%84%E5%BD%B1%E5%93%8D/)
+
+
 ### 4. 怎么处理对 map 进行并发访问？有没有其他方案？ 区别是什么？
+
+1. 使用锁：使用RWLock 或者Mutex锁进行读写访问控制
+2. 使用sync.Map线程安全锁:
+3. 分片加锁：将这个 map 分成 n 块，每个块之间的读写操作都互不干扰，从而降低冲突的可能性。
+
+___
+
+- 参考：[实现map并发安全的三种方式](https://blog.csdn.net/weixin_43973689/article/details/127986224);[【Golang】 关于Go 并发之三种线程安全的 map](https://www.cnblogs.com/chenpingzhao/p/16322422.html)
 
 ### 5. nil map 和空 map 有何不同？
 
+- nil map: 未初始化的map,不能进行读写操作
+- 空map：已经初始化的map。只是没有数据，可以正常读写。
+
 ### 6. map 的数据结构是什么？是怎么实现扩容？
 
+- map数据结构--hmap
+Golang的map就是使用哈希表作为底层实现，map 实际上就是一个指针，指向hmap结构体。其主要数据结构如下：
 
+```go
+type hmap struct {
+  count     int              // 存储的键值对数目
+  flags     uint8            // 状态标志（是否处于正在写入的状态等）
+  B         uint8            // 桶的数目 2^B
+  noverflow uint16           // 使用的溢出桶的数量
+  hash0     uint32           // 生成hash的随机数种子
+
+  buckets    unsafe.Pointer  // bucket数组指针，数组的大小为2^B（桶）
+  oldbuckets unsafe.Pointer  // 扩容阶段用于记录旧桶用到的那些溢出桶的地址
+  nevacuate  uintptr         // 记录渐进式扩容阶段下一个要迁移的旧桶编号
+  extra *mapextra            // 指向mapextra结构体里边记录的都是溢出桶相关的信息
+}
+```
+
+
+
+___
+
+- 参考：[map 的扩容过程是怎样的](https://qcrao91.gitbook.io/go/map/map-de-kuo-rong-guo-cheng-shi-zen-yang-de);[进阶】Golang中map的数据结构是什么？是怎么实现扩容？](https://www.getcoder.cn/archives/-jin-jie-golang-zhong-map-de-shu-ju-jie-gou-shi-shen-me--shi-zen-me-shi-xian-kuo-rong-);[Go｜map底层实现、扩容规则、特性](https://blog.csdn.net/qq_44577070/article/details/129770410)
 
 ## GMP相关
 
