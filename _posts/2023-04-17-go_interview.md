@@ -1784,17 +1784,21 @@ ___
 
 - nil map: 未初始化的map,不能进行读写操作
 - 空map：已经初始化的map。只是没有数据，可以正常读写。
+- map初始化注意点：
+    - 希表中的元素数量少于或者等于 25 个时，编译器会将字面量初始化的结构体转换成对应代码，直接一次加入到hash表中
+    - 超过25个：创建两个数组存储键和值，通过循环进行加入
+
 
 ### 6. map 的数据结构是什么？是怎么实现扩容？
 
-- map数据结构--hmap
+#### map数据结构--hmap
 Golang的map就是使用哈希表作为底层实现，map 实际上就是一个指针，指向hmap结构体。其主要数据结构如下：
 
 ```go
 type hmap struct {
-  count     int              // 存储的键值对数目
+  count     int              // 存储的键值对数目,调用len时直接返回此值
   flags     uint8            // 状态标志（是否处于正在写入的状态等）
-  B         uint8            // 桶的数目 2^B
+  B         uint8            // 桶的数目为 2^B
   noverflow uint16           // 使用的溢出桶的数量
   hash0     uint32           // 生成hash的随机数种子
 
@@ -1803,35 +1807,404 @@ type hmap struct {
   nevacuate  uintptr         // 记录渐进式扩容阶段下一个要迁移的旧桶编号
   extra *mapextra            // 指向mapextra结构体里边记录的都是溢出桶相关的信息
 }
+
+
+//  buckets 指向的真实指针地址
+type bmap struct {
+    topbits  [8]uint8   // 高位字段，用于进行快速的hash查找
+    keys     [8]keytype  // key数组
+    values   [8]valuetype // val数组
+    pad      uintptr // 字节对齐扩充字段
+    overflow uintptr // 溢出桶指针地址
+}
+
 ```
 
-- 扩容过程
+![hash map](https://golang.design/go-questions/map/assets/0.png)
+
+
+#### 扩容实现
+
+**扩容条件**
 在向 map 插入新 key 的时候，会进行条件检测，符合下面这 2 个条件，就会触发扩容：
 - 装载因子超过阈值，源码里定义的阈值是 6.5。
 - overflow 的 bucket 数量过多：当 B 小于 15，也就是 bucket 总数 2^B 小于 2^15 时，如果 overflow 的 bucket 数量超过 2^B；当 B >= 15，也就是 bucket 总数 2^B 大于等于 2^15，如果 overflow 的 bucket 数量超过 2^15。
 
+由此引发出两种扩容方式：
+- 翻倍扩容：直接进行翻倍扩容
+- 等量扩容：创建新桶保存数据，清理溢出桶
+
+
+扩容过程的关键代码如下：
+
+```go
+
+// map扩容
+func mapassign(t *maptype, h *hmap, key unsafe.Pointer) unsafe.Pointer {
+	...
+again:
+	bucket := hash & bucketMask(h.B)
+    // 已经处于扩容
+	if h.growing() {
+        // 执行真正的扩容函数
+		growWork(t, h, bucket)
+	}
+	b := (*bmap)(add(h.buckets, bucket*uintptr(t.bucketsize)))
+	top := tophash(hash)
+
+    
+    ...
+	if !h.growing() && (overLoadFactor(h.count+1, h.B) || tooManyOverflowBuckets(h.noverflow, h.B)) {
+		hashGrow(t, h)
+		goto again
+	}
+	...
+}
+
+func growWork(t *maptype, h *hmap, bucket uintptr) {
+	// make sure we evacuate the oldbucket corresponding
+	// to the bucket we're about to use
+	evacuate(t, h, bucket&h.oldbucketmask())
+
+	// evacuate one more oldbucket to make progress on growing
+	if h.growing() {
+		evacuate(t, h, h.nevacuate)
+	}
+}
+
+// overflow buckets 太多
+func tooManyOverflowBuckets(noverflow uint16, B uint8) bool {
+	if B < 16 {
+		return noverflow >= uint16(1)<<B
+	}
+	return noverflow >= 1<<15
+}
+
+// 创建新桶内存空间
+func hashGrow(t *maptype, h *hmap) {
+	bigger := uint8(1)
+    // 检查是否为装载因子过高
+	if !overLoadFactor(h.count+1, h.B) {
+		bigger = 0
+		h.flags |= sameSizeGrow
+	}
+	oldbuckets := h.buckets
+    // 进行数据扩容
+    // 1. 创建新桶和溢出桶
+    // 2. 设置oldbuckets和buckets 值
+	// 为新桶分配内存
+    newbuckets, nextOverflow := makeBucketArray(t, h.B+bigger, nil)
+    // 扩容倍数
+	h.B += bigger
+	h.flags = flags
+    // 设置新旧桶
+	h.oldbuckets = oldbuckets
+	h.buckets = newbuckets
+	h.nevacuate = 0
+	h.noverflow = 0
+
+	h.extra.oldoverflow = h.extra.overflow
+	h.extra.overflow = nil
+	h.extra.nextOverflow = nextOverflow
+}
+
+// 进行数据桶数据迁移，将数据迁移到新桶中
+// 将一个旧桶中的数据分流到两个新桶，所以它会创建两个用于保存分配上下文的 runtime.evacDst 结构体，这两个结构体分别指向了一个新桶：
+// map 扩容函数
+func evacuate(t *maptype, h *hmap, oldbucket uintptr) {
+	// 定位老的 bucket 地址
+	b := (*bmap)(add(h.oldbuckets, oldbucket*uintptr(t.bucketsize)))
+	// 结果是 2^B，如 B = 5，结果为32
+	newbit := h.noldbuckets()
+	// key 的哈希函数
+	alg := t.key.alg
+	// 如果 b 没有被搬迁过--执行数据搬迁
+	if !evacuated(b) {
+		var (
+			// 表示bucket 移动的目标地址
+			x, y   *bmap
+			// 指向 x,y 中的 key/val
+			xi, yi int
+			// 指向 x，y 中的 key
+			xk, yk unsafe.Pointer
+			// 指向 x，y 中的 value
+			xv, yv unsafe.Pointer
+		)
+		// 默认是等 size 扩容，前后 bucket 序号不变
+		// 使用 x 来进行搬迁
+		x = (*bmap)(add(h.buckets, oldbucket*uintptr(t.bucketsize)))
+		xi = 0
+		xk = add(unsafe.Pointer(x), dataOffset)
+		xv = add(xk, bucketCnt*uintptr(t.keysize))、
+
+		// 如果不是等 size 扩容，前后 bucket 序号有变
+		// 使用 y 来进行搬迁
+		if !h.sameSizeGrow() {
+			// y 代表的 bucket 序号增加了 2^B
+			y = (*bmap)(add(h.buckets, (oldbucket+newbit)*uintptr(t.bucketsize)))
+			yi = 0
+			yk = add(unsafe.Pointer(y), dataOffset)
+			yv = add(yk, bucketCnt*uintptr(t.keysize))
+		}
+
+		// 遍历所有的 bucket，包括 overflow buckets
+		// b 是老的 bucket 地址
+		for ; b != nil; b = b.overflow(t) {
+			k := add(unsafe.Pointer(b), dataOffset)
+			v := add(k, bucketCnt*uintptr(t.keysize))
+
+			// 遍历 bucket 中的所有 cell
+			for i := 0; i < bucketCnt; i, k, v = i+1, add(k, uintptr(t.keysize)), add(v, uintptr(t.valuesize)) {
+				// 当前 cell 的 top hash 值
+				top := b.tophash[i]
+				// 如果 cell 为空，即没有 key
+				if top == empty {
+					// 那就标志它被"搬迁"过
+					b.tophash[i] = evacuatedEmpty
+					// 继续下个 cell
+					continue
+				}
+				// 正常不会出现这种情况
+				// 未被搬迁的 cell 只可能是 empty 或是
+				// 正常的 top hash（大于 minTopHash）
+				if top < minTopHash {
+					throw("bad map state")
+				}
+
+				k2 := k
+				// 如果 key 是指针，则解引用
+				if t.indirectkey {
+					k2 = *((*unsafe.Pointer)(k2))
+				}
+
+				// 默认使用 X，等量扩容
+				useX := true
+				// 如果不是等量扩容
+				if !h.sameSizeGrow() {
+					// 计算 hash 值，和 key 第一次写入时一样
+					hash := alg.hash(k2, uintptr(h.hash0))
+
+					// 如果有协程正在遍历 map
+					if h.flags&iterator != 0 {
+						// 如果出现 相同的 key 值，算出来的 hash 值不同
+						if !t.reflexivekey && !alg.equal(k2, k2) {
+							// 只有在 float 变量的 NaN() 情况下会出现
+							if top&1 != 0 {
+								// 第 B 位置 1
+								hash |= newbit
+							} else {
+								// 第 B 位置 0
+								hash &^= newbit
+							}
+							// 取高 8 位作为 top hash 值
+							top = uint8(hash >> (sys.PtrSize*8 - 8))
+							if top < minTopHash {
+								top += minTopHash
+							}
+						}
+					}
+
+					// 取决于新哈希值的 oldB+1 位是 0 还是 1
+					// 详细看后面的文章
+					useX = hash&newbit == 0
+				}
+
+				// 如果 key 搬到 X 部分
+				if useX {
+					// 标志老的 cell 的 top hash 值，表示搬移到 X 部分
+					b.tophash[i] = evacuatedX
+					// 如果 xi 等于 8，说明要溢出了
+					if xi == bucketCnt {
+						// 新建一个 bucket
+						newx := h.newoverflow(t, x)
+						x = newx
+						// xi 从 0 开始计数
+						xi = 0
+						// xk 表示 key 要移动到的位置
+						xk = add(unsafe.Pointer(x), dataOffset)
+						// xv 表示 value 要移动到的位置
+						xv = add(xk, bucketCnt*uintptr(t.keysize))
+					}
+					// 设置 top hash 值
+					x.tophash[xi] = top
+					// key 是指针
+					if t.indirectkey {
+						// 将原 key（是指针）复制到新位置
+						*(*unsafe.Pointer)(xk) = k2 // copy pointer
+					} else {
+						// 将原 key（是值）复制到新位置
+						typedmemmove(t.key, xk, k) // copy value
+					}
+					// value 是指针，操作同 key
+					if t.indirectvalue {
+						*(*unsafe.Pointer)(xv) = *(*unsafe.Pointer)(v)
+					} else {
+						typedmemmove(t.elem, xv, v)
+					}
+
+					// 定位到下一个 cell
+					xi++
+					xk = add(xk, uintptr(t.keysize))
+					xv = add(xv, uintptr(t.valuesize))
+				} else { // key 搬到 Y 部分，操作同 X 部分
+					// ……
+					// 省略了这部分，操作和 X 部分相同
+				}
+			}
+		}
+		// 如果没有协程在使用老的 buckets，就把老 buckets 清除掉，帮助gc
+		if h.flags&oldIterator == 0 {
+			b = (*bmap)(add(h.oldbuckets, oldbucket*uintptr(t.bucketsize)))
+			// 只清除bucket 的 key,value 部分，保留 top hash 部分，指示搬迁状态
+			if t.bucket.kind&kindNoPointers == 0 {
+				memclrHasPointers(add(unsafe.Pointer(b), dataOffset), uintptr(t.bucketsize)-dataOffset)
+			} else {
+				memclrNoHeapPointers(add(unsafe.Pointer(b), dataOffset), uintptr(t.bucketsize)-dataOffset)
+			}
+		}
+	}
+
+	// 更新搬迁进度
+	// 如果此次搬迁的 bucket 等于当前进度
+	if oldbucket == h.nevacuate {
+		// 进度加 1
+		h.nevacuate = oldbucket + 1
+		// Experiments suggest that 1024 is overkill by at least an order of magnitude.
+		// Put it in there as a safeguard anyway, to ensure O(1) behavior.
+		// 尝试往后看 1024 个 bucket
+		stop := h.nevacuate + 1024
+		if stop > newbit {
+			stop = newbit
+		}
+		// 寻找没有搬迁的 bucket
+		for h.nevacuate != stop && bucketEvacuated(t, h, h.nevacuate) {
+			h.nevacuate++
+		}
+		
+		// 现在 h.nevacuate 之前的 bucket 都被搬迁完毕
+		
+		// 所有的 buckets 搬迁完毕
+		if h.nevacuate == newbit {
+			// 清除老的 buckets
+			h.oldbuckets = nil
+			// 清除老的 overflow bucket
+			// 回忆一下：[0] 表示当前 overflow bucket
+			// [1] 表示 old overflow bucket
+			if h.extra != nil {
+				h.extra.overflow[1] = nil
+			}
+			// 清除正在扩容的标志位
+			h.flags &^= sameSizeGrow
+		}
+	}
+}
+
+```
+
+- 哈希在存储元素过多时会触发扩容操作，每次都会将桶的数量翻倍，扩容过程不是原子的，而是通过 runtime.growWork 增量触发的，
+- 在扩容期间访问哈希表时会使用旧桶，向哈希表写入数据时会触发旧桶元素的分流。
+- 除了这种正常的扩容之外，为了解决大量写入、删除造成的内存泄漏问题，哈希引入了 sameSizeGrow 这一机制，在出现较多溢出桶时会整理哈希的内存减少空间的占用。
+
+**扩容流程**
+1. 使用`hashGrow` 进行新buckets分配。将老buckets挂载到`oldbuckets`。读取时直接从oldbuckets进行数据读取。
+2. 写入/删除时：因为`oldbuckets`存在，触发`evacuate`开始进行数据复制--这里每次均只进行一次同搬迁
+3. 根据扩容类型：存在数据扩容时，key进行重hash，将数据和元素拷贝到新的bucket中
+4. 清除`overflow bucket`, 让其被GC回收
+5. 检查`oldbuckets`数据是否都被清除，清除完成。将`oldbuckets`设置为nil。方便进行GC回收
 
 ___
 
-- 参考：[map 的扩容过程是怎样的](https://qcrao91.gitbook.io/go/map/map-de-kuo-rong-guo-cheng-shi-zen-yang-de);[进阶】Golang中map的数据结构是什么？是怎么实现扩容？](https://www.getcoder.cn/archives/-jin-jie-golang-zhong-map-de-shu-ju-jie-gou-shi-shen-me--shi-zen-me-shi-xian-kuo-rong-);[Go｜map底层实现、扩容规则、特性](https://blog.csdn.net/qq_44577070/article/details/129770410)
+- 参考：[map 的扩容过程是怎样的](https://qcrao91.gitbook.io/go/map/map-de-kuo-rong-guo-cheng-shi-zen-yang-de);[进阶】Golang中map的数据结构是什么？是怎么实现扩容？](https://www.getcoder.cn/archives/-jin-jie-golang-zhong-map-de-shu-ju-jie-gou-shi-shen-me--shi-zen-me-shi-xian-kuo-rong-);[Go｜map底层实现、扩容规则、特性](https://blog.csdn.net/qq_44577070/article/details/129770410);[Go Map 扩容](https://draveness.me/golang/docs/part2-foundation/ch03-datastructure/golang-hashmap/#%E6%89%A9%E5%AE%B9)
 
 ## GMP相关
 
 ### 1. 什么是 GMP？（必问）
 
+GMP模型是go 调度器的核心模型，go 通过g,m,p的基础结构体实现`goroutine` 的调度。同时包含全局可运行队列（GRQ）和本地可运行队列（LRQ）。 LRQ 存储本地（也就是具体的 P）的可运行 goroutine，GRQ 存储全局的可运行 goroutine，这些 goroutine 还没有分配到具体的 P。
+
+![GMP模型](https://golang.design/go-questions/sched/assets/9.png)
+ 
+
+G：goroutine 协程，是用户态的轻量级线程。为go中为有栈协程，会保存 CPU 寄存器的值
+M: machine 表示系统线程。
+P: processor 处理器上下文用于连接G和P，数量默认等于开机器的cpu核心数，若想调小，可以通过 GOMAXPROCS 这个环境变量设置。
+
+M 会从与它绑定的 P 的本地队列获取可运行的 G，也会从 network poller 里获取可运行的 G，还会从其他 P 偷 G。
+
+其关系图片如下：
+
+![GPM关系](https://golang.design/go-questions/sched/assets/14.png)
+
+![GPM关系图](https://img.draveness.me/2020-02-02-15805792666185-go-numa-scheduler-architecture.png)
+
+___
+
+- 参考：[GPM是什么](https://golang.design/go-questions/sched/gpm/);[go 调度器](https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/);[说一下 GMP 模型的原理](https://go-interview.iswbm.com/c02/c02_07.html)
+
 ### 2. 进程. 线程. 协程有什么区别？
+
+详见：[协程与线程区别](https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#418-%E8%AF%B7%E4%BD%A0%E6%9D%A5%E8%AF%B4%E4%B8%80%E8%AF%B4%E5%8D%8F%E7%A8%8B)
 
 ### 3. 抢占式调度是如何抢占的？
 
+#### 3.1 基于协作的抢占式调度
+
+Go 语言会在分段栈的机制上实现抢占调度，利用编译器在分段栈上插入的函数，所有 Goroutine 在函数调用时都有机会进入运行时检查是否需要执行抢占。主要工作原理如下：
+
+
+1. 编译器会在调用函数前插入 `runtime.morestack`；
+2. Go 语言运行时会在垃圾回收暂停程序、系统监控发现 `Goroutine` 运行超过 10ms 时发出抢占请求 `StackPreempt`；
+3. 当发生函数调用时，可能会执行编译器插入的 `runtime.morestack`，它调用的 `runtime.newstack` 会检查 Goroutine 的 `stackguard0` 字段是否为 `StackPreempt`;
+4. 如果 `stackguard0` 是 `StackPreempt`，就会触发抢占让出当前线程；
+
+
+#### 3.2 基于信号的抢占式调度
+
+主要处理流程如下：
+
+1. 程序启动时，在 `runtime.sighandler` 中注册 `SIGURG` 信号的处理函数 `runtime.doSigPreempt`；
+2. 在触发垃圾回收的栈扫描时会调用 `runtime.suspendG` 挂起 Goroutine，该函数会执行下面的逻辑：
+    1. 将 _Grunning 状态的 Goroutine 标记成可以被抢占，即将 preemptStop 设置成 true；
+    2. 调用 runtime.preemptM 触发抢占；
+3. runtime.preemptM 会调用 runtime.signalM 向线程发送信号 SIGURG；
+4. 操作系统会中断正在运行的线程并执行预先注册的信号处理函数 runtime.doSigPreempt；
+5. runtime.doSigPreempt 函数会处理抢占信号，获取当前的 SP 和 PC 寄存器并调用runtime.sigctxt.pushCall；
+6. runtime.sigctxt.pushCall 会修改寄存器并在程序回到用户态时执行 runtime.asyncPreempt；
+7. 汇编指令 runtime.asyncPreempt 会调用运行时函数 runtime.asyncPreempt2；
+8. runtime.asyncPreempt2 会调用 runtime.preemptPark；
+9. runtime.preemptPark 会修改当前 Goroutine 的状态到 _Gpreempted 并调用 runtime.schedule 让当前函数陷入休眠并让出线程，调度器会选择其它的 Goroutine 继续执行；
+
+
+___
+
+- 参考：[抢占式调度器](https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/#%e6%8a%a2%e5%8d%a0%e5%bc%8f%e8%b0%83%e5%ba%a6%e5%99%a8);[工作窃取](https://golang.design/go-questions/sched/work-steal/);[抢占式调度](https://tiancaiamao.gitbooks.io/go-internals/content/zh/05.5.html);[抢占式调度](https://golang.design/under-the-hood/zh-cn/part2runtime/ch06sched/preemption/#682-)
+
 ### 4. M 和 P 的数量问题？
 
+M：Thread，也就是操作系统线程，go runtime 最多允许创建 10000 个操作系统线程，超过了就会抛出异常
 
+P：Processor，处理器，数量默认等于开机器的cpu核心数，若想调小，可以通过 GOMAXPROCS 这个环境变量设置。
+
+
+### 5. goroutine 调度时机有哪些?
+
+|情形|说明|
+|:---:|:---|
+|使用关键字`go`|go 创建一个新的 goroutine，Go scheduler 会考虑调度|
+|GC|由于进行 GC 的 goroutine 也需要在 M 上运行，因此肯定会发生调度。当然，Go scheduler 还会做很多其他的调度，例如调度不涉及堆访问的 goroutine 来运行。GC 不管栈上的内存，只会回收堆上的内存|
+|系统调用|当 goroutine 进行系统调用时，会阻塞 M，所以它会被调度走，同时一个新的 goroutine 会被调度上来|
+|内存同步访问|atomic，mutex，channel 操作等会使 goroutine 阻塞，因此会被调度走。等条件满足后（例如其他 goroutine 解锁了）还会被调度上来继续运行|
+
+___
+
+- 参考：[goroutine 调度时机有哪些](https://golang.design/go-questions/sched/when/)
 
 ## 锁相关
 
 ### 1. 除了 mutex 以外还有那些方式安全读写共享变量？
 
 ### 2. Go 如何实现原子操作？
+
 
 ### 3. Mutex 是悲观锁还是乐观锁？悲观锁. 乐观锁是什么？
 
