@@ -108,12 +108,11 @@ SELECT
 CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
 BEGIN
     declare a int;
-   SET a = N-1;
-  RETURN (
-    # Write your MySQL query statement below.
-   SELECT IFNULL((SELECT DISTINCT salary  FROM Employee ORDER BY salary DESC LIMIT 1 OFFSET a),NULL)
-   
-  );
+    SET a = N-1;
+    RETURN (
+        # Write your MySQL query statement below.
+    SELECT IFNULL((SELECT DISTINCT salary  FROM Employee ORDER BY salary DESC LIMIT 1 OFFSET a),NULL)
+    );
 END
 ```
 
@@ -1821,3 +1820,44 @@ ORDER BY atree.id
 #来源：力扣（LeetCode）
 #著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 ```
+
+### [ 行列转置](https://juejin.cn/post/7016984663000350728)
+
+描述：使用SQL实现最终的行列数据转置
+如：
+
+![行转列](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fe842a98af584ac8901a91aabc574c4c~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp?)
+
+
+解答方法：
+
+```sql
+# 使用group进行分组
+# 使用max 进行运算
+select 姓名 as 姓名 ,
+  max(case 课程 when '语文' then 分数 else 0 end) 语文, 
+  max(case 课程 when '数学' then 分数 else 0 end) 数学,
+  max(case 课程 when '物理' then 分数 else 0 end) 物理
+from 行列转换m  
+group by 姓名 # group 进行分组
+```
+
+优质解答：使用sql 拼接
+
+```sql
+# 声明sql
+declare @sql varchar(8000)
+# 设置初始值
+set @sql = 'select 姓名 '
+# 进行SQL拼接
+select @sql = @sql + ' , max(case 课程 when ''' + 课程 + ''' then 分数 else 0 end) [' + 课程 + ']'
+from (select distinct 课程 from 行列转换m) as a
+# 添加group by变量
+set @sql = @sql + ' from 行列转换m group by 姓名'
+# 执行函数
+exec(@sql)
+```
+
+___
+
+- 参考：[行列转置](https://youwu.today/skill/thinkinsql/pivot-unpivot/); [mysql exec](https://blog.csdn.net/weixin_42525385/article/details/113647614)
