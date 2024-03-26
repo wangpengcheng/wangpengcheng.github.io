@@ -2427,15 +2427,90 @@ ___
 
 ### 1. 怎么控制并发数？
 
+1. 使用`channel`: 使用`channel`在协程创建时进行阻塞。
+2. 使用协程池：目前有很多第三方库实现了协程池，可以很方便地用来控制协程的并发数量，如:[Jeffail/tunny](https://github.com/Jeffail/tunny),[panjf2000/ants](https://github.com/panjf2000/ants)
+
+```go
+package main
+
+import (
+	"log"
+	"time"
+
+	"github.com/Jeffail/tunny"
+)
+
+func main() {
+    // 创建一个大小为三的协程池
+    // 并定义函数
+	pool := tunny.NewFunc(3, func(i interface{}) interface{} {
+		log.Println(i)
+		time.Sleep(time.Second)
+		return nil
+	})
+    // 关闭对应协程池
+	defer pool.Close()
+    // 将参数i传递给协程池定义好的worker处理
+	for i := 0; i < 10; i++ {
+		go pool.Process(i)
+	}
+    // 等待一段时间
+	time.Sleep(time.Second * 4)
+}
+```
+3. 调整系统资源上限：
+可以直接调整对应的系统资源的上限
+- ulimit：使用 `ulimit -n 999999` 调整最大的文件句柄数
+- 虚拟内存：使用`mkswap /mnt/.swapfile` 创建交换分区，增加内存上限
+
+___
+
+- 参考：[控制协程(goroutine)的并发数量](https://geektutu.com/post/hpg-concurrency-control.html)
+
+
 ### 2. 多个 goroutine 对同一个 map 写会 panic，异常是否可以用 defer 捕获？
+
+**不能**使用defer 进行recover 捕获
+
+- go语言中的错误分为三种：
+    - error: 常用错误，直接由业务进行处理
+    - panic: 异常，数组越界、空指针等都会触发panic。也可以由业务代码主动触发。可以被recover 进行捕获
+    - fatal error : 由系统触发。这类错误一般都是跟系统资源相关的。程序无法从这类错误中恢复正常。如：fatal error 就是无法从系统申请内存。
+
+- map 并发读写会触发fatal error
+    - map会检测是否存在并发写：并发写入时 map panic 捕获意义不大，在Go 1.6 之后直接抛出fatal error
+    - 如果检测到并发写会调用runtime.throw()，无法被recover()，直接GG
+    - 如果要并发写map必须在业务层面上加锁（sync.Mutex或sync.RWMutext）或使用sync.Map等同步容器
+
+
+___
+
+- 参考: [Go 并发写map产生错误能够通过recover()恢复吗？](https://juejin.cn/post/7053109648223633438);[Go 语言 map 的并发安全问题](https://taoshu.in/go/go-map-concurrent-misue.html#google_vignette)
 
 ### 3. 如何优雅的实现一个 goroutine 池（百度. 手写代码）
 
+### 4. Go在什么情况下会panic
 
+见的有10种情况：
+
+- 数组/切片索引越界；
+- 引用空指针；
+- 除以零；
+- 向已经关闭的通道发消息；
+- 关闭一个已关闭的通道；
+- 关闭未初始化的通道；
+- 写入未初始化的map；
+- 跨协程的panic处理；
+- sync计数为负值 ：wg.Add(-1)
+
+___
+
+- 参考：[Go的Panic相关问题](https://juejin.cn/post/7308620787329384499)
 
 ## GC相关
 
 ### 1. go gc 是怎么实现的？（必问）
+
 
 ### 2. go 是 gc 算法是怎么实现的？ （得物，出现频率低）
 
