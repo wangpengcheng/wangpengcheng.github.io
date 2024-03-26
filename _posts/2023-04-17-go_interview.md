@@ -82,6 +82,7 @@ ___
     - 语义：声明+赋值，声明变量的同时进行自动赋值，中间涉及到自动推断
     - 语法：**左侧必须有新的变量生成**，否则会有语法错误
     - 使用位置：只能用于函数中，不能用于函数外
+
 ___
 
 - 参考: [Go语言学习之:=与=的区别](https://juejin.cn/post/6947897494059614215);[golang快速入门[8.2]-自动类型推断的秘密](https://zhuanlan.zhihu.com/p/115085755)
@@ -150,8 +151,11 @@ if err != nil {
 ```
 
 ### 05 什么是协程（Goroutine）
+
 Goroutine 是与其他函数或方法同时运行的函数或方法。 Goroutines 可以被认为是轻量级的线程。 与线程相比，创建 Goroutine 的开销很小。 Go应用程序同时运行数千个 Goroutine 是非常常见的做法。
+
 ___
+
 参考：[说一说协程](https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#418-%E8%AF%B7%E4%BD%A0%E6%9D%A5%E8%AF%B4%E4%B8%80%E8%AF%B4%E5%8D%8F%E7%A8%8B);[协程与线程区别](https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#418-%E8%AF%B7%E4%BD%A0%E6%9D%A5%E8%AF%B4%E4%B8%80%E8%AF%B4%E5%8D%8F%E7%A8%8B)
 
 ### 06 如何高效地拼接字符串
@@ -941,7 +945,8 @@ ___
 - 参考：[Golang 在 runtime 中的知识点有哪些？](https://www.zhihu.com/question/584554235/answer/3033310978?utm_id=0);[万字长文深入浅出 Golang Runtime](https://zhuanlan.zhihu.com/p/95056679?from=groupmessage);[go-runtime](https://pkg.go.dev/runtime)
 
 ## 代码输出
-### 变量与常量
+
+### 1. 变量与常量
 
 1. 下面代码的输出是：
 
@@ -1040,7 +1045,7 @@ ___
 - 参考：[负数在计算机中的储存方式](https://zhuanlan.zhihu.com/p/129361870)
 
 
-### 作用域
+### 2. 作用域
 
 下面的代码输出是
 
@@ -1063,7 +1068,7 @@ func main() {
 变量的作用域是大括号，因此在第一个 `if` 语句 `if err == nil` 内部重新声明且赋值了与外部变量同名的局部变量 `err`。对该局部变量的赋值不会影响到外部的 `err`。因此第二个 `if` 语句 `if err != nil` 不成立。所以只打印了 `1 err`。
 
 
-### defer延迟调用
+### 3. defer延迟调用
 
 1. 下面的代码输出是
 
@@ -2253,6 +2258,7 @@ go中的原子操作，主要是通过CAS CPU原子性指令来实现。CAS操�
 原子操作由底层硬件支持，而锁则由操作系统的调度器实现。锁应当用来保护一段逻辑，对于一个变量更新的保护，原子操作通常会更有效率，并且更能利用计算机多核的优势，如果要更新的是一个复合对象，则应当使用atomic.Value封装好的实现。
 
 __
+
 - 参考：[Go语言的原子操作atomic](https://www.cnblogs.com/ricklz/p/13648859.html)
 
 
