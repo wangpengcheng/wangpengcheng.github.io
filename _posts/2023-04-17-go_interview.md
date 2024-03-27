@@ -2495,6 +2495,239 @@ ___
 
 ### 3. 如何优雅的实现一个 goroutine 池（百度. 手写代码）
 
+线程池主要包含如下对象：
+- 线程池管理器：线程池的统一管理抽象，包含创建线程、启动线程、调配任务
+- 执行worker： 主要的工作执行线程、
+- 工作队列：待处理的函数队列，等待调度处理
+- 调度进程(非必须)：统一的调度进程，从工作队列中选取对应的任务进行处理
+
+主要处理逻辑与核心操作如下：
+
+
+1. 检查当前 Worker 队列中是否有可用的 Worker，如果有，取出执行当前的 task；
+2. 没有可用的 Worker，判断当前在运行的 Worker 是否已超过该 Pool 的容量：{是 —> 再判断工作池是否为非阻塞模式：[是 ——> 直接返回 nil，否 ——> 阻塞等待直至有 Worker 被放回 Pool]，否 —> 新开一个 Worker（goroutine）处理}；
+3. 每个 Worker 执行完任务之后，放回 Pool 的队列中等待。
+
+![核心调度流程](https://res.strikefreedom.top/static_res/blog/figures/66396519-7ed66e00-ea0c-11e9-9c1a-5ca54bbd61eb.png)
+
+
+```go
+type sig struct{}
+ 
+// 定义基础执行函数
+type f func() error
+ 
+// Pool accept the tasks from client,it limits the total
+// of goroutines to a given number by recycling goroutines.
+// 协程池
+type Pool struct {
+	// capacity of the pool.
+	capacity int32  // 支持容量
+ 
+	// running is the number of the currently running goroutines.
+	running int32  // 当前运行的数量
+ 
+	// expiryDuration set the expired time (second) of every worker.
+	expiryDuration time.Duration  // 每个worker的过期时间
+ 
+	// workers is a slice that store the available workers.
+	workers []*Worker // 运行队列
+ 
+	// release is used to notice the pool to closed itself.
+	release chan sig     // 是否释放
+ 
+	// lock for synchronous operation.
+	lock sync.Mutex // 异步锁，用于提交队列
+ 
+	once sync.Once  // 用于执行一次
+}
+
+// NewPool generates a instance of ants pool
+func NewPool(size int) (*Pool, error) {
+	return NewTimingPool(size, DefaultCleanIntervalTime)
+}
+ 
+// NewTimingPool generates a instance of ants pool with a custom timed task
+func NewTimingPool(size, expiry int) (*Pool, error) {
+	if size <= 0 {
+		return nil, ErrInvalidPoolSize
+	}
+	if expiry <= 0 {
+		return nil, ErrInvalidPoolExpiry
+	}
+    // 初始化默认pool 
+	p := &Pool{
+		capacity:       int32(size),
+		freeSignal:     make(chan sig, math.MaxInt32),
+		release:        make(chan sig, 1),
+		expiryDuration: time.Duration(expiry) * time.Second,  // 设置超时时间
+	}
+	// 启动定期清理过期worker任务，独立goroutine运行，
+	// 进一步节省系统资源
+	p.monitorAndClear()
+	return p, nil
+}
+
+// Submit submit a task to pool
+func (p *Pool) Submit(task f) error {
+	if len(p.release) > 0 {
+		return ErrPoolClosed
+	}
+	w := p.getWorker()
+    // 将任务写入到worker中
+	w.task <- task
+	return nil
+}
+
+// getWorker returns a available worker to run the tasks.
+func (p *Pool) getWorker() *Worker {
+	var w *Worker
+	// 标志变量，判断当前正在运行的worker数量是否已到达Pool的容量上限
+	waiting := false
+	// 加锁，检测队列中是否有可用worker，并进行相应操作
+	p.lock.Lock()
+	idleWorkers := p.workers
+	n := len(idleWorkers) - 1
+	// 当前队列中无可用worker
+	if n < 0 {
+		// 判断运行worker数目已达到该Pool的容量上限，置等待标志
+		waiting = p.Running() >= p.Cap()
+  
+	// 当前队列有可用worker，从队列尾部取出一个使用
+	} else {
+		w = idleWorkers[n]
+		idleWorkers[n] = nil
+		p.workers = idleWorkers[:n]
+	}
+	// 检测完成，解锁
+	p.lock.Unlock()
+	// Pool容量已满，新请求等待
+	if waiting {
+		// 利用锁阻塞等待直到有空闲worker
+		for {
+			p.lock.Lock()
+			idleWorkers = p.workers
+			l := len(idleWorkers) - 1
+			if l < 0 {
+				p.lock.Unlock()
+				continue
+			}
+			w = idleWorkers[l]
+			idleWorkers[l] = nil
+			p.workers = idleWorkers[:l]
+			p.lock.Unlock()
+			break
+		}
+	// 当前无空闲worker但是Pool还没有满，
+	// 则可以直接新开一个worker执行任务
+	} else if w == nil {
+		w = &Worker{
+			pool: p,
+			task: make(chan f, 1),
+		}
+		w.run()
+        // 运行worker数加一
+		p.incRunning()
+	}
+	return w
+}
+
+// worker 回收 
+func (p *Pool) putWorker(worker *Worker) {
+	// 写入回收时间，亦即该worker的最后一次结束运行的时间
+	worker.recycleTime = time.Now()
+	p.lock.Lock()
+	p.workers = append(p.workers, worker)
+	p.lock.Unlock()
+}
+
+// ReSize change the capacity of this pool
+func (p *Pool) ReSize(size int) {
+	if size == p.Cap() {
+		return
+	}
+	atomic.StoreInt32(&p.capacity, int32(size))
+	diff := p.Running() - size
+	if diff > 0 {
+		for i := 0; i < diff; i++ {
+			p.getWorker().task <- nil
+		}
+	}
+}
+
+// 清理过期worker
+// clear expired workers periodically.
+func (p *Pool) periodicallyPurge() {
+	heartbeat := time.NewTicker(p.expiryDuration)
+	for range heartbeat.C {
+		currentTime := time.Now()
+		p.lock.Lock()
+		idleWorkers := p.workers
+		if len(idleWorkers) == 0 && p.Running() == 0 && len(p.release) > 0 {
+			p.lock.Unlock()
+			return
+		}
+		n := 0
+		for i, w := range idleWorkers {
+			if currentTime.Sub(w.recycleTime) <= p.expiryDuration {
+				break
+			}
+			n = i
+			w.task <- nil
+			idleWorkers[i] = nil
+		}
+		n++
+		if n >= len(idleWorkers) {
+			p.workers = idleWorkers[:0]
+		} else {
+			p.workers = idleWorkers[n:]
+		}
+		p.lock.Unlock()
+	}
+}
+```
+
+worker.go 
+
+```go
+// Worker is the actual executor who runs the tasks,
+// it starts a goroutine that accepts tasks and
+// performs function calls.
+type Worker struct {
+	// pool who owns this worker.
+	pool *Pool
+ 
+	// task is a job should be done.
+	task chan f
+ 
+	// recycleTime will be update when putting a worker back into queue.
+	recycleTime time.Time
+}
+ 
+// run starts a goroutine to repeat the process
+// that performs the function calls.
+func (w *Worker) run() {
+	go func() {
+		// 循环监听任务列表，一旦有任务立马取出运行
+		for f := range w.task {
+			if f == nil {
+                // 退出goroutine，运行worker数减一
+				w.pool.decRunning()
+				return
+			}
+			f()
+			// worker回收复用
+			w.pool.putWorker(w)
+		}
+	}()
+}
+
+```
+
+___
+
+- 参考: [如何设计一个优雅的goroutine池子](https://doraemonabcd.xyz/post/ood/how-deisgn-a-goroutine-pool/#%e5%a6%82%e4%bd%95%e8%ae%be%e8%ae%a1%e4%b8%80%e4%b8%aa%e4%bc%98%e9%9b%85%e7%9a%84goroutine%e6%b1%a0%e5%ad%90);[C++ 线程池](https://wangpengcheng.github.io/2019/05/17/cplusplus_theadpool/);[高性能协程池](https://strikefreedom.top/archives/high-performance-implementation-of-goroutine-pool)
+
 ### 4. Go在什么情况下会panic
 
 见的有10种情况：
