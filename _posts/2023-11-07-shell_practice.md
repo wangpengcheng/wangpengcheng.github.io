@@ -1159,6 +1159,46 @@ function main() {
 main "$@"
 ```
 
+### [SHELL17 将字段逆序输出文件的每行](https://www.nowcoder.com/practice/e33fff83fd384a21ba67f3104fb8d646?tpId=195&tqId=39426&toPageTab=solution)
+
+- 提交解答：
+
+```bash
+#!/bin/bash
+
+
+OLD_IFS="$IFS"
+IFS=":"
+
+while read -a arr
+do
+    for (( i=${#arr[@]}-1;i>-1;i-- ))
+    do
+        echo -n "${arr[${i}]}"
+        if (( ${i} != 0 ))
+        then
+            echo -n ":"
+        fi
+    done
+    echo ""
+done < nowcoder.txt
+
+IFS="$OLD_IFS"
+```
+- 优质解答：
+
+```bash
+# NF表示一行有多少个单词,-F ":"表示按:分隔
+awk -F ":" '{ 
+        for(i=NF;i>=1;i--)
+            if (i != 1){
+                {printf $i ":"}
+            } else {
+                {print $i}
+            }
+        }' nowcoder.txt
+```
+
 
 ### 检查yum包是否安装
 
