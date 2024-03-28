@@ -2813,29 +2813,57 @@ ____
 
 ### 1. 谈谈内存泄露，什么情况下内存会泄露？怎么定位排查内存泄漏问题？
 
+**内存泄漏定义**
+
 当在Go语言中发生内存泄漏时，通常是因为程序中的某些对象在不再需要时仍然被引用，导致无法被垃圾回收器回收。这可能是因为对象被意外地保留在某个地方，比如缓存中，或者因为某些资源没有被正确释放。
 
 以下是一些可能导致内存泄漏的常见情况：
 
-1. 循环引用：如果两个对象相互引用，而且没有其他对象引用它们，那么它们将无法被垃圾回收器回收。
+1. 循环引用：如果两个对象相互引用，而且没有其他对象引用它们，那么它们将无法被垃圾回收器回收。比如两个协程共同引用对象，没有释放。
 
 2. 未关闭资源：比如文件、网络连接等资源在使用完毕后没有被正确关闭，导致资源泄漏。
 
 3. 大对象缓存：如果程序中使用了大对象缓存，而且没有合理地控制缓存的大小或者没有及时清理缓存，就会导致内存泄漏。
 
 4. Goroutine泄漏：如果创建了大量的goroutine，而且这些goroutine没有被正确管理和释放，就会导致内存泄漏。
+    - 申请过多的goroutine：例如在for循环中申请过多的goroutine来不及释放导致内存泄漏
+    - goroutine阻塞： 协程阻塞导致内存不能正常进行释放
+    - I/O问题： I/O连接未设置超时时间，导致goroutine一直在等待，代码会一直阻塞。
+    - 互斥锁未释放：goroutine无法获取到锁资源，导致goroutine阻塞
+    - 死锁：当程序死锁时其他goroutine也会阻塞
+    - waitgroup使用不当：waitgroup的Add、Done和wait数量不匹配会导致wait一直在等待。
 
+
+**内存泄漏排查**
+1. pprof排查：可以使用go 内置的pprof进行内存泄漏排查。重点检查高内存占用的路径。
+2. bcc排查工具：使用中的`memleak` 工具进行内存泄漏分析
+3. 使用valgrind：使用其中的`Memcheck` 工具，直接进行内存泄漏分析
 
 ___
 
-- 参考：[Go程序内存泄露问题快速定位](https://www.hitzhangjie.pro/blog/2021-04-14-go%E7%A8%8B%E5%BA%8F%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D/);[一些可能的内存泄漏场景](https://gfw.go101.org/article/memory-leaking.html);[No.7 一篇文章讲清楚golang内存泄漏](https://developer.aliyun.com/article/1353024)
+- 参考：[Go程序内存泄露问题快速定位](https://www.hitzhangjie.pro/blog/2021-04-14-go%E7%A8%8B%E5%BA%8F%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D/);[一些可能的内存泄漏场景](https://gfw.go101.org/article/memory-leaking.html);[No.7 一篇文章讲清楚golang内存泄漏](https://developer.aliyun.com/article/1353024);[Valgrind内存泄漏分析](https://yuanfentiank789.github.io/2018/11/01/%E7%94%A8Valgrind%E6%A3%80%E6%B5%8B%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/)
 
 
 ### 2. 知道 golang 的内存逃逸吗？什么情况下会发生内存逃逸？
 
+Go 语言中，堆内存是通过垃圾回收机制自动管理的，无需开发者指定。那么，Go 编译器怎么知道某个变量需要分配在栈上，还是堆上呢？编译器决定内存分配位置的方式，就称之为逃逸分析(escape analysis)。逃逸分析由编译器完成，作用于编译阶段。
+
+发生内存逃逸的主要情况如下：
+1. 指针逃逸：返回对象指针，导致函数内变量内存在堆上分配。
+2. interface{} 动态类型逃逸：在 Go 语言中，空接口即 interface{} 可以表示任意的类型，如果函数参数为 interface{}，编译期间很难确定其参数的具体类型，也会发生逃逸。
+3. 栈空间不足：栈空间较小，函数递归较深。容易导致栈溢出。超过一定大小的局部变量逃逸到堆上。
+4. 闭包：闭包中一个内层函数中访问到其外层函数的作用域。访问共享的变量会发生逃逸。
+
+___
+
+- 参考：[Go 逃逸分析](https://geektutu.com/post/hpg-escape-analysis.html)
 
 ### 3. 请简述 Go 是如何分配内存的？
 
+
+___
+
+- 参考：[7.1 内存分配器](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/);[go内存分配](https://golang.design/under-the-hood/zh-cn/part2runtime/ch07alloc/)
 
 ### 4. Channel 分配在栈上还是堆上？哪些对象分配在堆上，哪些对象分配在栈上？
 
