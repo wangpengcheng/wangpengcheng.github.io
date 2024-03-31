@@ -2826,13 +2826,32 @@ ____
 3. 大对象缓存：如果程序中使用了大对象缓存，而且没有合理地控制缓存的大小或者没有及时清理缓存，就会导致内存泄漏。
 
 4. Goroutine泄漏：如果创建了大量的goroutine，而且这些goroutine没有被正确管理和释放，就会导致内存泄漏。
-    - 申请过多的goroutine：例如在for循环中申请过多的goroutine来不及释放导致内存泄漏
-    - goroutine阻塞： 协程阻塞导致内存不能正常进行释放
+    - 申请过多的goroutine：例如在for循环中申请过多的goroutine来不及释放导致内存泄漏。一个 goroutine 的最低栈大小为 2KB，在高并发的场景下，对内存的消耗也是非常恐怖的
+    - goroutine阻塞： 协程阻塞导致内存不能正常进行释放。
     - I/O问题： I/O连接未设置超时时间，导致goroutine一直在等待，代码会一直阻塞。
     - 互斥锁未释放：goroutine无法获取到锁资源，导致goroutine阻塞
     - 死锁：当程序死锁时其他goroutine也会阻塞
     - waitgroup使用不当：waitgroup的Add、Done和wait数量不匹配会导致wait一直在等待。
+    - time.Ticker 是每隔指定的时间就会向通道内写数据。作为循环触发器，必须调用 stop 方法才会停止，从而被 GC 掉，否则会一直占用内存空间。
+    - 字符串的截取引发临时性的内存泄漏：
+    - 切片截取引起子切片内存泄漏：
+    - 函数数组传参引发内存泄漏：函数传参的时候用到了数组传参，且这个数组够大（我们假设数组大小为 100 万，64 位机上消耗的内存约为 800w 字节，即 8MB 内存），或者该函数短时间内被调用 N 次，那么可想而知，会消耗大量内存，对性能产生极大的影响，如果短时间内分配大量内存，而又来不及 GC，那么就会产生临时性的内存泄漏，对于高并发场景相当可怕
 
+
+```go
+
+// 字符串截取内存泄漏
+func main() {
+ var str0 = "12345678901234567890"
+ str1 := str0[:10]
+}
+
+// 切片截取引起子切片内存泄漏
+func main() {
+   var s0 = []int{0,1,2,3,4,5,6,7,8,9}
+   s1 := s0[:3]
+}
+```
 
 **内存泄漏排查**
 1. pprof排查：可以使用go 内置的pprof进行内存泄漏排查。重点检查高内存占用的路径。
@@ -2841,7 +2860,7 @@ ____
 
 ___
 
-- 参考：[Go程序内存泄露问题快速定位](https://www.hitzhangjie.pro/blog/2021-04-14-go%E7%A8%8B%E5%BA%8F%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D/);[一些可能的内存泄漏场景](https://gfw.go101.org/article/memory-leaking.html);[No.7 一篇文章讲清楚golang内存泄漏](https://developer.aliyun.com/article/1353024);[Valgrind内存泄漏分析](https://yuanfentiank789.github.io/2018/11/01/%E7%94%A8Valgrind%E6%A3%80%E6%B5%8B%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/)
+- 参考：[Go程序内存泄露问题快速定位](https://www.hitzhangjie.pro/blog/2021-04-14-go%E7%A8%8B%E5%BA%8F%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D/);[一些可能的内存泄漏场景](https://gfw.go101.org/article/memory-leaking.html);[No.7 一篇文章讲清楚golang内存泄漏](https://developer.aliyun.com/article/1353024);[Valgrind内存泄漏分析](https://yuanfentiank789.github.io/2018/11/01/%E7%94%A8Valgrind%E6%A3%80%E6%B5%8B%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/);[GO常规问题](https://xie.infoq.cn/article/1bf88b039aad3c61af144154c)
 
 
 ### 2. 知道 golang 的内存逃逸吗？什么情况下会发生内存逃逸？
@@ -2860,19 +2879,394 @@ ___
 
 ### 3. 请简述 Go 是如何分配内存的？
 
+#### 3.1 内存管理单元
+go 内存管理，主要是指 go runtime 中的堆和栈上的内存管理。本质上是自带回收机制的内存池。可以有效降低编码过程中的内存管理新智负担，提高资源利用率。主要通过4种主要内存管理单元实现。其主要内存结构如下：
+
+![内存管理单元](https://img.draveness.me/2020-02-29-15829868066479-go-memory-layout.png)
+
+- `mspan`(内存管理基本单元): 内存池单元抽象，包含多个大小为8KB内存块，和对应的Object对象大小，用于快速进行内存申请和分配。
+![对象和page大小](http://wangpengcheng.github.io/img/2024-03-31_22-33-23.png)
+- `mcache`(线程缓存):  是 Go 语言中的线程缓存，它会与线程上的处理器一一绑定，主要用来缓存用户程序申请的微小对象。包含堆对象和栈对象。无需进行锁操作
+![线程花村](https://img.draveness.me/2020-02-29-15829868066512-mcache-and-mspans.png)
+- `mcentral`(中心缓存): 内存分配器的中心缓存，与线程缓存不同，访问中心缓存中的内存管理单元需要使用互斥锁。同时内存获取时会[分为多级](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/#%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e5%8d%95%e5%85%83-1)内存查询。
+- `mheap`(堆内存):内存分配的核心结构体，Go 语言程序会将其作为全局变量存储，而堆上初始化的所有对象都由该结构体统一管理，该结构体中包含两组非常重要的字段，其中一个是全局的中心缓存列表 central，另一个是管理堆区内存区域的 arenas 以及相关字段。
+![runtime.heapArena](https://img.draveness.me/2020-02-29-15829868066531-mheap-and-memories.png)
+
+#### 3.1 内存分配
+
+go 根据对象占用内存，将其分为了对象、小对象和微对象。不同的对象由不同的层级进行内存分配。
+
+- 微对象 (0, 16B) — 先使用微型分配器，再依次尝试线程缓存、中心缓存和堆分配内存；
+- 小对象 [16B, 32KB] — 依次尝试使用线程缓存、中心缓存和堆分配内存；
+- 大对象 (32KB, +∞) — 直接在堆上分配内存；
+
+对于堆空间而言，主要分配策略如下：
+
+- Go语言源代码中「栈内存」和「堆内存」的分配都是虚拟内存，最终CPU在执行指令过程中通过内部的MMU把虚拟内存转化为物理内存。
+- Go语言编译期间会进行逃逸分析，判断并标记变量是否需要分配到堆上，比如创建Map、Slice时。
+- 栈内存分配
+    - 小于32KB的栈内存
+        - 来源优先级1：线程缓存mcache
+        - 来源优先级2：全局缓存stackpool
+        - 来源优先级3：逻辑处理器结构p.pagecache
+        - 来源优先级4：堆mheap
+    - 大于等于32KB的栈内存
+        - 来源优先级1：全局缓存stackLarge
+        - 来源优先级2：逻辑处理器结构p.pagecache
+        - 来源优先级3：堆mheap
+- 堆内存分配
+    - 微对象 0 < Micro Object < 16B
+        - 来源优先级1：线程缓存mcache.tiny
+        - 来源优先级2：线程缓存mcache.alloc
+    - 小对象 16B =< Small Object <= 32KB
+        - 来源优先级1：线程缓存mcache.alloc
+        - 来源优先级2：中央缓存mcentral
+        - 来源优先级3：逻辑处理器结构p.pagecache
+        - 来源优先级4：堆mheap
+    - 大对象 32KB < Large Object
+        - 来源优先级1：逻辑处理器结构p.pagecache
+        - 来源优先级2：堆mheap
+- 「栈内存」也来源于堆mheap
+
+![栈内存](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/08ec2fe4f9054b8295452e697a84eaa1~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp)
+
+#### 3.2 内存回收策略
+
+详见：[05 简述 Go 语言GC(垃圾回收)的工作原理](https://wangpengcheng.github.io/2023/04/17/go_interview/#05-%E7%AE%80%E8%BF%B0-go-%E8%AF%AD%E8%A8%80gc%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86)
 
 ___
 
-- 参考：[7.1 内存分配器](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/);[go内存分配](https://golang.design/under-the-hood/zh-cn/part2runtime/ch07alloc/)
+- 参考：[7.1 内存分配器](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/);[go内存分配](https://golang.design/under-the-hood/zh-cn/part2runtime/ch07alloc/);[一文彻底理解Go语言栈内存/堆内存](https://juejin.cn/post/7135670650353483783);[7.3 栈空间管理](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-stack-management/);[go垃圾收集器](https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-garbage-collector/)
+
 
 ### 4. Channel 分配在栈上还是堆上？哪些对象分配在堆上，哪些对象分配在栈上？
 
+- Channel内存分配： Channel 被设计用来实现协程间通信的组件，其作用域和生命周期不可能仅限于某个函数内部，所以 golang 直接将其分配在堆上。栈上会有对应指针，指向堆内存对象
+
+
+- Golang 中的变量只要被引用就一直会存活，存储在堆上还是栈上由内部实现决定而和具体的语法没有关系。通常情况下：
+    - 栈上：函数调用的参数、返回值以及小类型局部变量大都会被分配到栈上，这部分内存会由编译器进行管理。 无需 GC 的标记。
+    - 堆上：大对象、逃逸的变量会被分配到堆上，分配到堆上的对象。Go 的运行时 GC 就会在 后台将对应的内存进行标记从而能够在垃圾回收的时候将对应的内存回收，进而增加了开销。
+- 堆栈分配区分：默认都是在栈中进行内存分配。有两种情况会分配在堆上
+    - 栈内存不足：当栈内存不足时，会直接在堆上进行内存分配
+    - 发生逃逸：变量进过逃逸分析后发现，在栈上分配有空指针风险。需要在堆上分配
+        - 1. 指针逃逸：返回对象指针，导致函数内变量内存在堆上分配。
+        - 2. interface{} 动态类型逃逸：在 Go 语言中，空接口即 interface{} 可以表示任意的类型，如果函数参数为 interface{}，编译期间很难确定其参数的具体类型，也会发生逃逸。
+        - 3. 栈空间不足：栈空间较小，函数递归较深。容易导致栈溢出。超过一定大小的局部变量逃逸到堆上。
+        - 4. 闭包：闭包中一个内层函数中访问到其外层函数的作用域。访问共享的变量会发生逃逸。
+
+
+___
+
+- 参考：[如何判断golang变量是分配在栈（stack）上还是堆（heap）上？](https://zhuanlan.zhihu.com/p/523195006)
 
 ### 5. 介绍一下大对象小对象，为什么小对象多了会造成 gc 压力？
 
+小对象： 小于等于 32k 的对象就是，
+大对象： 大于32KB的对象
 
+一般小对象通过 mspan 分配内存；大对象则直接由 mheap 分配内存。通常小对象过多会导致 GC 三色法消耗过多的 CPU。优化思路是，减少对象分配。
+
+
+___
+
+- 参考：[整理 Golang 面试第二篇干货 13 问](https://xie.infoq.cn/article/1bf88b039aad3c61af144154c)
 
 ## 算法相关
 
 ### 标准输入问题
 - [go标准输入问题](https://www.nowcoder.com/feed/main/detail/c707c89102eb4fd4b54919546f1a26a4?sourceSSR=search)
+
+
+go 算法题目中需要手动读取程序输入。如何进行正常的标准输入获取。
+
+#### 输入获取方式：
+
+1. fmt.Scan/fmt.Scanln:直接使用Scan 可以方便快速进行多个变量的获取与赋值，但是解析较慢
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+
+    var name string
+    var age int
+
+    /*
+        使用"&"获取score变量的内存地址(即取变量内存地址的运算符)，通过键盘输入为score变量指向的内存地址赋初值。
+
+        fmt.Scan是一个阻塞的函数，如果它获取不到数据就会一直阻塞哟。
+
+        fmt.Scan可以接收多个参数，用户输入参数默认使用空格或者回车换行符分割输入设备传入的参数，直到接收所有的参数为止
+    */
+    fmt.Scan(&name, &age)
+    fmt.Println(name, age)
+
+    /*
+        和fmt.Scan功能类似，fmt.Scanln也是一个阻塞的函数，如果它获取不到数据就会一直阻塞哟。
+
+        fmt.Scanln也可以接收多个参数，用户输入参数默认使用空格分割输入设备传入的参数，遇到回车换行符就结束接收参数
+    */
+    fmt.Scanln(&name, &age)
+    fmt.Println(name, age)
+
+     /*
+        和fmt.Scanln功能类似，fmt.Scanf也是一个阻塞的函数，如果它获取不到数据就会一直阻塞哟。
+
+        其实fmt.Scanln和fmt.Scanf可都以接收多个参数，用户输入参数默认使用空格分割输入设备传入的参数，遇到回车换行符就结束接收参数
+
+        唯一区别就是可以格式化用户输入的数据类型,如下所示:
+            %s:
+                表示接收的参数会被转换成一个字符串类型，赋值给变量
+            %d:
+                表示接收的参数会被转换成一个整形类型，赋值给变量
+
+        生产环境中使用fmt.Scanln和fmt.Scanf的情况相对较少，一般使用fmt.Scan的情况较多~
+    */
+    fmt.Scanf("%s%d", &name, &age)
+    fmt.Println(name, age)
+}
+```
+
+2. bufio.NewScanner: 获取标准输入即可。但是其最大长度仅有`64 * 1024`字节，需要使用bufio.Reader
+
+```go
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+    "strconv"
+    "strings"
+)
+
+input := bufio.NewScanner(os.Stdin)
+for input.Scan() {
+    data := input.Text()
+}   
+```
+
+3.  bufio.NewReader: 使用其获取标准输入，但是输入比较原始，需要注意格式解析
+
+```go
+package main
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+var inputReader *bufio.Reader
+var input string
+var err error
+func main() {
+    inputReader = bufio.NewReader(os.Stdin)
+    fmt.Println("Please enter some input: ")
+    input, err = inputReader.ReadString('S') //func (b *Reader) ReadString(delim byte) (line string, err error) ,‘S’ 这个例子里使用S表示结束符，也可以用其它，如'\n'
+    if err == nil {
+        fmt.Printf("The input was: %s\n", input)
+    }
+}
+
+// Please enter some input:
+// abcd
+// 
+// abc
+// S
+// The input was: abcd
+//
+// abc
+// S
+```
+
+#### 常见场景
+
+1. 多行数据(不知道有几行)，每行固定个数，空格隔开
+
+```go
+package main
+
+import (
+    "fmt"
+    "io"
+)
+
+func main() {
+    var a, b int
+    for {
+        _, err := fmt.Scan(&a, &b)
+        if err == io.EOF {
+            break
+        }
+        fmt.Println(a + b)
+    }
+}
+// input
+// 1 2
+// 1 2
+// out 
+// 3
+// 3
+```
+
+2. 场景2：多行数据，第一行只有一个数字n，表示后面的行数，其他每行固定个数
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    var n, a, b int
+    fmt.Scan(&n)
+    for i := 0; i < n; i++ {
+        fmt.Scan(&a, &b)
+        fmt.Println(a + b)
+    }
+}
+```
+
+3. 场景3：输入数据有多行，每行固定个数，读取到特殊数据(如0,0)时停止
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    var a, b int
+    for {
+        fmt.Scan(&a, &b)
+        if a == 0 && b == 0 {
+            break
+        }
+        fmt.Println(a + b)
+    }
+}
+
+```
+
+4. 场景4：输入数据有多行，每行第一个数字指定当前行数据个数，读取到特殊数据时停止
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+    var n, a int
+    for {
+        fmt.Scan(&n)
+        if n == 0 {
+            break
+        }
+        sum := 0
+        for i := 0; i < n; i++ {
+            fmt.Scan(&a)
+            sum += a
+        }
+        fmt.Println(sum)
+    }
+}
+
+```
+5. 多行不定数据输入
+
+输入数据有多组, 每行表示一组输入数据。
+每行的第一个整数为整数的个数n(1 <= n <= 100)。
+接下来n个正整数。
+不知道总共有多少行数据。
+
+```go
+package main
+
+import (
+    "fmt"
+    "io"
+)
+
+func main() {
+    var n, a int
+    for {
+        // 读取首行n
+        _, err := fmt.Scan(&n)
+        if err == io.EOF {
+            break
+        }
+        sum := 0
+        for i := 0; i < n; i++ {
+            fmt.Scan(&a)
+            sum += a
+        }
+        fmt.Println(sum)
+    }
+}
+```
+
+6. 行长度不定
+输入数据有多组, 每行表示一组输入数据。
+
+每行不定有n个整数，空格隔开。(1 <= n <= 100)。
+
+```go
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+    "strconv"
+    "strings"
+)
+
+func main() {
+    // 获取输入
+    inputs := bufio.NewScanner(os.Stdin)
+    // 循环直到读取到EOF
+    for inputs.Scan() {  //每次读入一行
+        data := strings.Split(inputs.Text(), " ")  //通过空格将他们分割，并存入一个字符串切片
+        var sum int
+        for i := range data {
+            val, _ := strconv.Atoi(data[i])   //将字符串转换为int
+            sum += val
+        }
+        fmt.Println(sum)
+    }
+}
+```
+
+7. 数据
+
+输入有两行，第一行n
+
+第二行是n个字符串，字符串之间用空格隔开
+
+```go
+package main
+
+import(
+    "fmt"
+    "os"
+    "bufio"
+    "sort"
+    "strings"
+)
+ 
+func main(){
+    in := bufio.NewScanner(os.Stdin)
+    in.Scan()
+    for in.Scan(){
+        str := in.Text()
+        s := strings.Split(str, " ")
+        sort.Strings(s)  //排序
+        fmt.Println(strings.Join(s," "))  //将切片连接成字符串
+    }
+}
+
+```
+
+
+- 参考：[Golang的标准输入输出](https://www.cnblogs.com/yinzhengjie2020/p/12245290.html);[Go语言标准输入输出处理](https://zhuanlan.zhihu.com/p/551393704);[GoLang 的 bufio.NewScanner 按行读取文件的坑](https://juejin.cn/post/6844903954942263304)
