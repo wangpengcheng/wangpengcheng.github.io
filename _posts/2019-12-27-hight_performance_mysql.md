@@ -814,7 +814,6 @@ SELECT ... WHERE col <= @last_week;
 # 第 7 章 MySQL高级特性
 
 
-
 # MySQL 常用函数
 
 ## 字符串处理函数
