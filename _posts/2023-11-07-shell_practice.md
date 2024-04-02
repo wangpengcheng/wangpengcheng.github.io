@@ -1219,3 +1219,10 @@ function pkg_install_check() {
 # 确认jq 包已经安装
 pkg_install_check "jq"
 ```
+
+### 使用jq进行过滤
+- [jq解析数据](https://tallate.github.io/226416.html)
+
+```bash
+cat ./data.json |  jq '.data[] | select(.name=="aaaa")'
+```

@@ -16,3 +16,287 @@ tags:
 # 参考链接
 - [虚拟化工程师之路](https://wangpengcheng.github.io/2023/04/11/virtualization_engineer_router/)
 - [KVM虚拟化常见面试题 | 常用命令整理](https://blog.csdn.net/weixin_43313333/article/details/128904292)
+- [常用虚拟化命令](https://developer.aliyun.com/article/1072584)
+- [kvm面试题](https://engineeringinterviewquestions.com/kvm-interview-questions-answers-pdf/)
+- [20 Linux Virtualization Interview Questions and Answers](https://www.linuxtechi.com/linux-virtualization-interview-questions/)
+- [腾讯云csig虚拟化部门一面面经](https://www.nowcoder.com/feed/main/detail/2e58841b38774b048cf98a0a6d670027?sourceSSR=search)
+- [30 个 Openstack 经典面试问题和解答](https://zhuanlan.zhihu.com/p/51984152)
+
+
+# 1. kvm 常用操作
+
+## 1.1 如何修改虚拟机密码
+用户密码重设通常使用libguestfs-tools 工具集内的virt-customize命令重设
+
+```bash
+#0. 安装libguestfs-tools
+yum -y install libguestfs-tools
+#1. 确认实例已关机
+virsh  list --all | grep ${instance_name}
+
+#2.  修改其系统盘密码
+virt-customize -a /opt/${instance_name}.img --root-password password:test-123456
+
+#3. 重启登录
+virsh start ${instance_name}
+virsh console ${instance_name}
+# ctrl+']' 退出登录
+
+```
+
+___
+
+- 参考：[常用虚拟化命令](https://developer.aliyun.com/article/1072584);[常用kvm命令](https://www.cnblogs.com/mrwuzs/p/11600018.html)
+
+
+
+## 1.2 如何制作镜像
+
+
+使用官网标准镜像创建虚拟机，并进行安装。以rock-linux为例
+1. 创建数据盘
+```bash
+# 拉取最新的 Rocky 镜像
+wget -c https://download.rockylinux.org/pub/rocky/9/isos/x86_64/Rocky-9.3-x86_64-minimal.iso /tmp/
+# 创建系统盘
+qemu-img create -f qcow2  /tmp/rocky-test-disk1.qcow2 50G
+```
+
+2. 创建虚拟机
+
+```bash
+#!/bin/bash
+virt-install \
+    --name rocky-test \ # 设置名称
+    --graphics vnc,listen='0.0.0.0',port=5920 \ # 设置vnc
+    --memory=8192,maxmemory=16384 \  # 设置内存8~16GB
+    --vcpus=2,maxvcpus=4 \ # 设置cpu
+    --cdrom=/tmp/Rocky-9.3-x86_64-minimal.iso \  # 设置启动镜像
+    --disk /tmp/rocky-test-disk1.qcow2,size=50,format=qcow2 \ # 添加数据磁盘
+    --network bridge=bridge0,model=virtio \ # 设置网络为bridge0 模式
+    --hvm \
+    --virt-type kvm \ #设置虚拟化方式
+    --autostart \
+    --os-type=linux \
+    --os-variant=rocky9.3 // 这行如果报错的话可以去掉
+```
+
+3. vnc 登录安装
+前往[vnc官网](https://www.realvnc.com/en/connect/download/viewer/)，下载VNC-viewer。并使用`${宿主机地址}:5920` 进行VNC登录。成功后进行如下设置
+- 设置Time & Date (一般都是Shanghai)
+- 设置ROOT 登录密码(RootPassword)
+- 选择软件最小安装（Software Selection）
+- 设置网络和主机名
+- 设置设置安装位置并对系统盘进行分区
+- 安装完后重启
+
+4. 关闭防火墙和selinux
+
+```bash
+# 关闭防火墙
+systemctl disable firewalld.service --now
+# 关闭selinux
+vim  /etc/selinux/config
+# 设置SELINUX=disabled
+# 设置强制
+setenforce 0
+# 查询信息
+getenforce
+```
+
+5. 清除个性化设置并压缩镜像
+
+```bash
+# 清除主机个性化设置
+virt-sysprep -d rocky-test
+# 压缩镜像
+virt-sparsify --compress rocky-test.qcow2 rocky-test-02.qcow2
+```
+
+##  1.3 virsh 常用命令
+
+1. `virsh`：直接进交互模式
+2. `virsh nodeinfo`：查看KVM节点（服务器）信息
+3. `virsh list`：列出正在运行的虚拟机
+4. `virsh list --all`：列出所有虚拟机（包括未启动的）
+5. `virsh dominfo` 虚拟机名称：查看指定虚拟机的信息
+6. `virsh start` 虚拟机名称：将指定的虚拟机开机
+7. `virsh reboot` 虚拟机名称：将指定的虚拟机重启
+8. `virsh shutdown` 虚拟机名称：将指定的虚拟机正常关机
+9. `virsh destroy` 虚拟机名称：将指定的虚拟机强制关机（相当于拔电源）
+10. `virsh autostart` 虚拟机名称：将指定的虚拟机设置随KVM自动开机
+11. `virsh autostart --disable` 虚拟机名称：禁止自动开机
+12. `virsh dumpxml centos7-2 > /tmp/vm.xml`: 导出虚拟机配置
+13. `virsh console ins-xx`:进入虚拟机控制台
+14. `virt-clone -o 【原虚拟机】 -n 【新虚拟机】 -f 【新虚拟机镜像名（含路径）】`: 复制虚拟机
+15. `qemu-img info vm.img`: 查看虚拟机镜像
+16. `virsh snapshot-create vm`: 创建快照(快照包含内存信息)
+17. `virsh snapshot-list vm`: 查询虚拟机快照
+18. `virsh snapshot-create-as 【虚拟机名】 【快照名】`: 根据快照创建虚拟机
+19. `virsh snapshot-current vm`: 查询虚拟机当前快照
+20. `virsh snapshot-revert 【虚拟机名】 【快照名】`: 将虚拟机恢复至快照状态
+21. `virsh snapshot-delet vm snapshot-vm`: 创建快照
+22. `virsh pool-define-as vmdisk --type dir --target /data/vmfs`: 定义存储池与目录
+23. `virsh pool-build vmdisk`: 创建已定义的存储池([kvm存储池和存储卷](https://www.cnblogs.com/mo-xiao-tong/p/12838733.html),[KVM存储池](https://blog.51cto.com/manual/2467163),[kvm-存储池基础介绍、创建](https://www.cnblogs.com/ygbh/p/17418666.html))
+24. `virsh pool-start vmdisk`: 激活已经定义的存储池
+25. `virsh pool-autostart vmdisk`: 启动已定义存储池
+26. `virsh pool-list --all`: 查询所有存储池
+27. `virsh vol-create-as vmdisk test.qcow2 3G --format qcow2`: 在存储池中创建虚拟机存储卷
+
+## 1.4 实例创建和恢复快照
+
+```bash
+# 1. 创建快照
+virsh snapshot-create-as linux_mini new-snapshot
+# 2. 查询快照
+virsh snapshot-list linux_mini
+# 3. 使用快照恢复虚拟机
+ virsh snapshot-revert   linux_mini new-snapshot
+# 4. 查询虚拟机当前快照
+virsh snapshot-current linux_mini
+# 5. 删除快照--存在未删除快照，无法undefine实例
+virsh snapshot-delete linux_mini linux_min-snap
+```
+
+## 1.5 实例热迁移
+
+```bash
+# 迁移到目标地址
+virsh migrate <虚拟机名称> qemu+ssh://<目标主机IP地址>/system
+# 迁移并指定参数
+virsh migrate --live <虚拟机名称> qemu+ssh://<目标主机IP地址>/system
+# 查询迁移进度
+virsh domjobinfo <虚拟机名称>
+# 取消迁移
+virsh migrate-cancel <虚拟机名称>
+
+```
+
+___
+
+- 参考：[实例热迁移](https://www.cnblogs.com/sammyliu/p/4572287.html);[KVM实例热迁移](https://blog.csdn.net/Tony_stark_L/article/details/132668909)
+
+
+# 2. [腾讯云csig虚拟化部门一面面经](https://www.nowcoder.com/feed/main/detail/2e58841b38774b048cf98a0a6d670027?sourceSSR=search)
+
+## 2.1 启动一个vm的流程，libvirt,qemu,kvm分别都做了哪些工作
+
+## 2.2 虚拟内存槽memslot
+
+## 2.3 热迁移了解多少，迁移流程
+
+## 2.4 脏页迭代流程，脏页位图，脏环，pml
+
+## 2.5 gva到hpa转换过程
+
+## 2.6 ebpf简要介绍一下，介绍ebpf项目中的vm exit ，mmu page fault，halt polling
+
+## 2.7 使用ebpf技术对kvm进行观测，会对虚拟机产生性能影响吗
+
+## 2.8 KVM内存虚拟化是怎么是怎么实现的？
+追问：EPT页表如何实现
+追问：Guest通过EPT页表访问要经过多少次访存
+追问：SPT和EPT的优缺点，什么场合适合使用SPT或者EPT
+
+## 2.9 KVM中CPU虚拟化是如何实现的
+
+## 2.10 问了一下KVM和OpenStack/XEN的区别
+
+## 2.11 Docker的命名空间有哪些
+
+## 2.12 Docker的四种网络类型
+
+
+# 3. [字节二面面经](https://www.nowcoder.com/discuss/353159400808456192?sourceSSR=search)
+
+
+
+## 3.1 qemu-kvm的虚拟化过程讲一讲？
+
+## 3.2 虚拟机上硬件设备如何模拟的？
+## 3.3 vruntime和进程的优先级有什么关系？(查阅之后：虚拟运行时间 vruntime += 实际运行时间 delta_exec * NICE_0_LOAD/ 权重)
+
+## 3.4 virtio中的VM Exit状态了解吗？什么时候会出现这个状态？
+
+## 3.5 调度系统中的sched_entity知道吗？
+
+## 3.6 操作系统中的虚拟地址转换物理地址的全过程？
+## 3.7 了解内存虚拟化的影子页表，EPT技术吗？
+
+## 4. [百度一面](https://www.nowcoder.com/discuss/353154553833005056?sourceSSR=search)
+
+## 1 Linux kvm，GPU 直通，SRIOV
+## 2. CPU架构，NUAM，SMP
+## 3. Guest OS发个网络请求，到Host OS，再到硬件的过程
+## 4. CPU ***结构，是否共享
+
+# 5. [腾讯os内核虚拟化面经](https://www.nowcoder.com/discuss/538358005318930432?sourceSSR=search)
+
+# 6. [KVM 常见面试题](https://blog.csdn.net/weixin_43313333/article/details/128904292)
+
+## 1. 简单介绍一下KVM
+
+KVM是Kernel-based Virtual Machine的简称，一个开源的系统虚拟化模块，使用Linux自身的调度器进行管理，KVM的虚拟化需要硬件支持（如Intel VT技术或者AMD V技术)。是基于硬件的完全虚拟化。
+
+## 2. KVM的三个组件及作用
+
+1. KVM：内核虚拟化模块，负责CPU虚拟化与内存虚拟化
+2. qemu: 负责设备虚拟化，包含IO设备、usb设备，串口设备等
+3. libvirt: 虚拟化综合管理工具，封装kvm/qemu接口，用于快速操作虚拟机
+
+## 3. 磁盘镜像格式raw和qcow2的区别
+
+虚拟机常见的磁盘格式有如下几种:
+- qcow2(cow/qcow/qcow3): qemu 主要镜像格式。支持写复制、动态扩容、压缩、AES加密，但是读写性能相对raw较差。
+- raw: 原始数据格式，可以直接由dd命令生成。较为原始。创建时占用全部容量，不支持动态扩容，不支持快照，性能好
+- vmdk: VMware的格式，使用较少
+- 格式转换：可以使用如下命令进行格式转换
+
+```bash
+# qcow2 -> raw
+qemu-img convert -f qcow2 -O raw /var/lib/libvirt/images/centos7.0.qcow2 /var/lib/libvirt/images/centos7.0.raw
+
+# 使用StarWind V2V Image Converter 工具进行镜像格式转换
+
+```
+
+___
+
+- 参考：[虚拟磁盘镜像的存储格式](https://access.redhat.com/documentation/zh-cn/red_hat_virtualization/4.0/html/technical_reference/qcow2);[虚拟机镜像格式对比](https://www.cnblogs.com/diantong/p/11490152.html);[各种虚拟化镜像格式](https://blog.csdn.net/qq_33932782/article/details/54943854)
+
+
+## 4. 虚拟机文件中配置文件和硬盘文件分别在哪些路径下
+- 虚拟机配置文件，XML文件，位置 ：/etc/libvirt/qemu/
+- 虚拟机硬盘文件，位置：/var/lib/libvirt/images
+
+## 5. kvm虚拟机的网络配置有哪两种模式？默认使用哪一种？
+
+- NAT模式：也是用户模式，数据包由NAT方式通过主机的接口进行传送，可以访问公网，但是无法从外部访问虚拟机网络，kvm默认用的这种网络。
+- Bridge：也就是桥接模式，这种模式允许虚拟机像一个独立的主机一样拥有网络，外部的机器可以直接访问到虚拟机内部，但需要网卡支持，一般有线网卡都支持。
+
+## 6. KVM三种工作模式 
+
+1. 客户模式：执行非I/O的客户代码，虚拟机运行在这个模式下
+2. 用户模式：用户执行I/O代码，QEMU运行在这个模式下
+3. 内核模式：CPU调度和内存管理相关，KVM内核模块运行在该模式下
+
+## 7. 什么是虚拟化技术
+
+虚拟化技术是一种资源管理技术，是将计算机的各种实体资源（CPU、内存、磁盘空间、网络适配器等），予以抽象、转换后呈现出来并可供分割、组合为一个或多个电脑配置环境。
+
+## 8. kvm支持哪些虚拟磁盘格式?
+
+kvm从qemu继承了丰富的磁盘格式, 包括裸映象(raw images), 原始qemu格式(qcow), VMware格式和更多
+
+## 9. Libvirt 包含 哪3 个组件？
+
+- libvirtd: 宿主机daemon程序，用于接收和处理 API 请求；
+- virsh： 常用KVM命令管理工具
+- api库：常用的libvirt开发高级工具，如  virt-manager
+
+
+## 10. 说一下KVM虚拟化架构
+
+KVM 主要虚拟化架构如下：
+
+![kvm虚拟化架构](https://img-blog.csdnimg.cn/2f5e91fdbeb74ae7bf8a441a0c0ded14.png)
