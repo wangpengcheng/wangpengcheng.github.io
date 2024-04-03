@@ -2489,10 +2489,38 @@ ___
     - 如果检测到并发写会调用runtime.throw()，无法被recover()，直接GG
     - 如果要并发写map必须在业务层面上加锁（sync.Mutex或sync.RWMutext）或使用sync.Map等同步容器
 
+- 无法捕获的异常(throw):
+    - 内存溢出(`runtime: out of memory`): alloc调用内存不足时，直接throw
+    - map并发读写：map的并发读写也会导致throw。避免异常问题难以排查
+    - 内存耗尽(`fatal error: stack overflow`): 创建协程过多会导致内存耗尽
+    - `go nil`: go关键字会检查，传入函数，如果为nil会直接crash。
+    - 永久阻塞：go 检测出没有 goroutine 可以运行了，就会直接将程序 crash 掉
+
+```go
+func main() {
+	defer errorHandler()
+	go func() {
+		for true {
+			fmt.Println("alive")
+			time.Sleep(time.Second*1)
+			select {}
+		}
+	}()
+	<-make(chan int)
+}
+
+// fatal error: all goroutines are asleep - deadlock!
+```
+
+- 可以被捕获的异常：
+    - 数组(slice)下标越界(`index out of range`):数组下标越界时，可以正常抛出异常
+    - 空指针异常：常规的空指针异常也会可以被正常捕获
+    - 往已经close的chan中发送数据:
+    - 类型断言错误：
 
 ___
 
-- 参考: [Go 并发写map产生错误能够通过recover()恢复吗？](https://juejin.cn/post/7053109648223633438);[Go 语言 map 的并发安全问题](https://taoshu.in/go/go-map-concurrent-misue.html#google_vignette)
+- 参考: [Go 并发写map产生错误能够通过recover()恢复吗？](https://juejin.cn/post/7053109648223633438);[Go 语言 map 的并发安全问题](https://taoshu.in/go/go-map-concurrent-misue.html#google_vignette);[探究 Go 源码中 panic & recover 有哪些坑？](https://www.cnblogs.com/luozhiyun/p/15585415.html)
 
 ### 3. 如何优雅的实现一个 goroutine 池（百度. 手写代码）
 
