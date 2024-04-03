@@ -15,6 +15,9 @@ tags:
 # mysql 面经
 - [mysql面经](https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#6-%E6%95%B0%E6%8D%AE%E5%BA%93)
 - [高性能mysql](https://wangpengcheng.github.io/2019/12/27/hight_performance_mysql/)
+- [60 道 MySQL 精选面试题](https://javabetter.cn/interview/mysql-60.html)
 
 # redis面经
+
+- [12 道 Redis 精选面试题](https://javabetter.cn/interview/redis-12.html)
 

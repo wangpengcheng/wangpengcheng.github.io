@@ -15,4 +15,5 @@ tags:
 ## Kafka 死信
 
 - [Kafka 实现延迟队列、死信队列、重试队列](https://www.cnblogs.com/zhengzhaoxiang/p/13973263.html)
-
+- [18道kafka高频面试题哪些你还不会？（含答案和思维导图）](https://developer.aliyun.com/article/740170)
+- [40 道精选 Kafka 面试题](https://javabetter.cn/interview/kafka-40.html)
