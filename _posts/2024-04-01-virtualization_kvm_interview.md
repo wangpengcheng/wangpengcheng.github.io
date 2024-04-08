@@ -158,6 +158,8 @@ virsh snapshot-current linux_mini
 virsh snapshot-delete linux_mini linux_min-snap
 ```
 
+注意：存在hostdev 设备的不支持闪照
+
 ## 1.5 实例热迁移
 
 ```bash
@@ -266,6 +268,7 @@ ___
 
 
 ## 4. 虚拟机文件中配置文件和硬盘文件分别在哪些路径下
+
 - 虚拟机配置文件，XML文件，位置 ：/etc/libvirt/qemu/
 - 虚拟机硬盘文件，位置：/var/lib/libvirt/images
 
