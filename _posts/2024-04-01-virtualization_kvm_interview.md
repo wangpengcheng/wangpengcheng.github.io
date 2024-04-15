@@ -183,17 +183,42 @@ ___
 
 ## 2.1 启动一个vm的流程，libvirt,qemu,kvm分别都做了哪些工作
 
+在启动一个虚拟机的过程中，libvirt会通过调用QEMU和KVM的API来创建并启动虚拟机。具体的流程包括以下步骤：
+
+1. libvirt加载虚拟机的定义和配置信息。
+2. libvirt调用QEMU创建虚拟机的运行环境，并加载虚拟机的镜像文件。
+3. QEMU启动虚拟机，并模拟虚拟机的硬件设备。
+4. KVM管理虚拟机的内存和CPU资源，并将虚拟机的指令转换为物理主机的指令。
+
+- 参考：[libvirt官方文档](https://libvirt.org/)
+
+
 ## 2.2 虚拟内存槽memslot
+
+虚拟内存槽主要是指 kvm_memslot 是虚拟机用来组织物理内存结构的关键数据结构。
+维护了GPA到HVA的映射关系
+
+也是虚拟机内存管理的核心关键。其主要操作流程如下所示：
+
+![memslot](https://pic2.zhimg.com/80/v2-9afeb71bd8159893b268a704b0b27c99_720w.webp)
+
+
+- [一文分析Linux虚拟化KVM-Qemu分析之内存虚拟化](https://zhuanlan.zhihu.com/p/596776561)
 
 ## 2.3 热迁移了解多少，迁移流程
 
+
 ## 2.4 脏页迭代流程，脏页位图，脏环，pml
+
 
 ## 2.5 gva到hpa转换过程
 
+
 ## 2.6 ebpf简要介绍一下，介绍ebpf项目中的vm exit ，mmu page fault，halt polling
 
+
 ## 2.7 使用ebpf技术对kvm进行观测，会对虚拟机产生性能影响吗
+
 
 ## 2.8 KVM内存虚拟化是怎么是怎么实现的？
 追问：EPT页表如何实现
@@ -209,6 +234,15 @@ ___
 ## 2.12 Docker的四种网络类型
 
 
+## 2.13 IOMMU 介绍一下
+
+IOMMU 是一种硬件功能，于将输入/输出设备的内存访问隔离，以防止设备对系统内存的非法访问。这对于虚拟化环境特别有用，因为它允许虚拟机对硬件设备进行独占访问，并且不会影响到其他虚拟机。
+
+如果您正在使用虚拟化软件，并且需要为虚拟机提供独占访问硬件设备，那么您应该开启 IOMMU 功能。但是，如果您不使用虚拟化软件，或者不需要独占访问硬件设备，那么您可以不开启 IOMMU 功能。
+
+- 参考： [IOMMU](https://zhuanlan.zhihu.com/p/365408539);[IOMMU](https://blog.51cto.com/u_12891/7741285)
+
+
 # 3. [字节二面面经](https://www.nowcoder.com/discuss/353159400808456192?sourceSSR=search)
 
 
@@ -216,6 +250,7 @@ ___
 ## 3.1 qemu-kvm的虚拟化过程讲一讲？
 
 ## 3.2 虚拟机上硬件设备如何模拟的？
+
 ## 3.3 vruntime和进程的优先级有什么关系？(查阅之后：虚拟运行时间 vruntime += 实际运行时间 delta_exec * NICE_0_LOAD/ 权重)
 
 ## 3.4 virtio中的VM Exit状态了解吗？什么时候会出现这个状态？
@@ -223,13 +258,20 @@ ___
 ## 3.5 调度系统中的sched_entity知道吗？
 
 ## 3.6 操作系统中的虚拟地址转换物理地址的全过程？
+
+
 ## 3.7 了解内存虚拟化的影子页表，EPT技术吗？
 
 ## 4. [百度一面](https://www.nowcoder.com/discuss/353154553833005056?sourceSSR=search)
 
 ## 1 Linux kvm，GPU 直通，SRIOV
+
 ## 2. CPU架构，NUAM，SMP
+
+
 ## 3. Guest OS发个网络请求，到Host OS，再到硬件的过程
+
+
 ## 4. CPU ***结构，是否共享
 
 # 5. [腾讯os内核虚拟化面经](https://www.nowcoder.com/discuss/538358005318930432?sourceSSR=search)
