@@ -17,3 +17,4 @@ tags:
 ## 参考链接
 
 - [InfluxDB中文文档](https://jasper-zhang1.gitbooks.io/influxdb/content/)
+- [InfluxDB文档](https://docs.influxdata.com/influxdb/v1/concepts/glossary/)

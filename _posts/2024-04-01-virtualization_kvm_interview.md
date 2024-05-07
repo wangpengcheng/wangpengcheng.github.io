@@ -178,6 +178,77 @@ ___
 
 - 参考：[实例热迁移](https://www.cnblogs.com/sammyliu/p/4572287.html);[KVM实例热迁移](https://blog.csdn.net/Tony_stark_L/article/details/132668909)
 
+## 1.6 实例重装镜像
+
+```bash
+# 0. 关闭对应实例
+virsh shutdown ins-xxx
+# 1. 删除实例原有系统盘镜像
+mv /data/instance/ins-xxx/ldisk-xxx.qcow2 /data/instance/ins-xxx/ldisk-xxx-bak.qcow2 
+# 2. 创建新的实例系统盘
+wget -c xxxx.qcow2 /data/instance/ins-xxx/ldisk-xxx.qcow2
+# 3. 设置网卡基本信息
+sed -i '/^IPADDR=/c'IPADDR=$instanceIP ifcfg-eth0
+sed -i '/^GATEWAY=/c'GATEWAY=$gateway ifcfg-eth0
+sed -i '/^NETMASK=/c'NETMASK=$netmask ifcfg-eth0
+# 4. 将网卡配置文件拷贝到目标镜像中
+## linux
+virt-copy-in -a /data/instance/ins-xxx/ldisk-xxx.qcow2 ifcfg-eth0 /etc/sysconfig/network-scripts/
+## windows
+yum install libguestfs-winsupport.x86_64 dos2unix -y
+unix2dos ifcfg-eth0
+virt-copy-in -a "$imgPath/$diskID".qcow2 ifcfg-eth0 /"Windows"/
+
+# 5. 重新拉起实例 
+virsh define 
+```
+注意：虚拟机vnc登录，使用端口号加`:`的形式进行登录
+使用如下命令查询，实例对应的vnc端口
+```bash
+virsh vncdisplay ins-xxxx
+# :0 表示5900
+# :1 表示5901
+```
+
+## 1.6 [加载usb设备](https://www.cnblogs.com/dewan/p/16788525.html)
+
+```bash
+# 1. 查询主机对应usb
+sudo yum -y install usbutils pciutils
+lsusb 
+# Bus 001 Device 004: ID 287f:00f8
+# 2. 生成usb.xml
+sudo yum install -y virt-install
+virt-xml --build-xml --hostdev 287f:00f8,type=usb   > add-usb.xml
+#<hostdev mode="subsystem" type="usb" managed="yes">
+#  <source>
+#    <vendor id="0x287f"/>
+#    <product id="0x00f8"/>
+#  </source>
+# </hostdev>
+
+
+# 3. 进行挂载
+virsh attach-device amzn2 add-usb.xml --live
+#OPTIONS
+#    [--domain] <string>  domain name, id or uuid
+#    [--file] <string>  XML file
+#    --persistent     make live change persistent
+#    --config         affect next boot
+#    --live           affect running domain
+#    --current        affect current domain
+
+# 4. 进行移除
+virsh detach-device amzn2 add-usb.xml
+
+# 快速步骤
+# 添加
+virt-xml amzn2 --update --add-device  --hostdev 21c4:0cd1,type=usb
+# 删除
+virt-xml amzn2 --update --remove-device --hostdev 21c4:0cd1,type=usb
+```
+
+
 
 # 2. [腾讯云csig虚拟化部门一面面经](https://www.nowcoder.com/feed/main/detail/2e58841b38774b048cf98a0a6d670027?sourceSSR=search)
 
@@ -345,3 +416,11 @@ kvm从qemu继承了丰富的磁盘格式, 包括裸映象(raw images), 原始qem
 KVM 主要虚拟化架构如下：
 
 ![kvm虚拟化架构](https://img-blog.csdnimg.cn/2f5e91fdbeb74ae7bf8a441a0c0ded14.png)
+
+
+
+## 11. [virsh shutdown与destory的区别](https://blog.csdn.net/wcs_sdu/article/details/99674181)
+
+
+
+## 12. [添加USB设备](https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/6/html/virtualization_administration_guide/sect-managing_guest_virtual_machines_with_virsh-attaching_and_updating_a_device_with_virsh)

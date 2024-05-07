@@ -332,8 +332,6 @@ ___
 （重平衡）Rebalance本质上是一种协议，规定了一个Consumer Group下的所有Consumer如何达成一致，来分配订阅Topic的每个分区
 
 
-
-
 ___
 
 - 参考：[kafka重平衡](https://javabetter.cn/mq/kafka.html#%E9%87%8D%E5%B9%B3%E8%A1%A1);[Kafka重平衡机制](https://developer.aliyun.com/article/918611)

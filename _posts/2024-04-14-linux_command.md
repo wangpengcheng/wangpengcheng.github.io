@@ -18,6 +18,12 @@ sar -s 22:40:00 -e 22:43:00 -A -f sa07 | more
 tcpdump -iany host 10.225.156.67 -w 255.pcap
 ```
 
+### [`grep`命令]()
+
+```bash
+ cat ./pod.txt | grep  -E "flink|matrix"  > pod1.txt
+```
+
 ## 磁盘命令
 
 ### [`nvme`设备管理命令](https://zhuanlan.zhihu.com/p/667230252)
