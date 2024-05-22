@@ -160,6 +160,11 @@ virsh snapshot-delete linux_mini linux_min-snap
 
 注意：存在hostdev 设备的不支持闪照
 
+```bash
+error: Operation not supported: cannot migrate a domain with <hostdev mode='subsystem' type='pci'
+```
+针对这种情况需要弃盘迁移。不能支持快照和冷迁移。腾讯云也是这么玩的
+
 ## 1.5 实例热迁移
 
 ```bash
@@ -424,3 +429,27 @@ KVM 主要虚拟化架构如下：
 
 
 ## 12. [添加USB设备](https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/6/html/virtualization_administration_guide/sect-managing_guest_virtual_machines_with_virsh-attaching_and_updating_a_device_with_virsh)
+
+
+
+
+## 13. 腾讯云设备对比
+- [高IO型IT5](https://cloud.tencent.com/document/product/213/11518#IT5)
+
+```
+2.5GHz Intel® Xeon® Cascade Lake 处理器，计算性能稳定。
+搭配最新一代六通道 DDR4 内存。
+最高可支持23Gbps内网带宽，满足极高的内网传输需求。
+采用 NVMe SSD 的实例存储，提供低延迟、超高的 IOPS。
+单盘随机读性能高达65万 IOPS（4KB块大小），顺序读吞吐能力高达2.8GB/s（128KB块大小）。
+整机随机读性能高达205万 IOPS（4KB块大小），顺序读吞吐能力均高达11GB/s（128KB块大小）。
+支持关闭或开启超线程配置。
+```
+
+内部高IO
+
+```
+
+```
+
+一个机架4个机位100台
