@@ -19,6 +19,7 @@ tags:
 - [JavaGuide](https://javaguide.cn/)
 - [二哥的JVM进阶之路](https://javabetter.cn/jvm/)
 - [深入java虚拟机](https://github.com/heibaiying/Full-Stack-Notes/blob/master/notes/Java_%E8%99%9A%E6%8B%9F%E6%9C%BA.md)
+- [Minor GC、Young GC、Full GC、Old GC、Major GC、Mixed GC 一文搞懂](https://juejin.cn/post/7085174576950280200)
 
 
 ## 1. 包装类型的缓存机制了解么？
@@ -96,7 +97,43 @@ JVM 中的主要内存分步如下所示：
 
 
 ### 3.2 JVM 中的垃圾收集器
-前面讲述了JVM中的内存分步，下面就是关键的堆内存回收了，即java中的垃圾收集器。JAVA中的垃圾收集器使用了染色标记算法，进行对象染色回收
+前面讲述了JVM中的内存分步，下面就是关键的堆内存回收了，即java中的垃圾收集器。JAVA中的垃圾收集器使用了染色标记算法，进行对象染色回收。
+
+就目前来说，JVM 的垃圾收集器主要分为两大类：分代收集器和分区收集器，分代收集器的代表是 CMS，分区收集器的代表是 G1 和 ZGC，下面我们来看看这两大类的垃圾收集器([JVM垃圾收集器](https://javabetter.cn/jvm/gc-collector.html#cms))。
+
+![Java垃圾收集器](https://cdn.tobebetterjavaer.com/stutymore/gc-collector-20231227143820.png)
+
+
+#### G1收集器
+
+类似于slab伙伴系统，它将堆内存分为多个大小相等的区域（Region）(可以通过 -XX:G1HeapRegionSize=n 来设置 Region 的大小)。每个块可以分属于不同的区。使用管理器进行连接。同时设置了`Humongous` 进行大对象管理，对象大小超过50%就会放入其中。大对象可能会横跨多个`Region`来存放。
+
+![](https://cdn.tobebetterjavaer.com/stutymore/gc-collector-20231228213824.png)
+
+G1回收机制特点如下：
+- 分代：
+- 增量：
+- 并行：
+- 标记整理：
+- STW：
+
+
+G1中的GC模式如下
+
+1. Young GC(Minor GC): Eden区空间不足时触发，指对新生代区域进行回收。比较频繁
+
+2. Mixed GC: 收集整个新生代和部分老年代，只有G1有这个模式。
+当需要分配对象到 Humongous 区域或者堆内存的空间占比超过 `-XX:G1HeapWastePercent` 设置的 InitiatingHeapOccupancyPercent 值时，G1 会触发一次 concurrent marking，它的作用就是计算老年代中有多少空间需要被回收，当发现垃圾的占比达到 -XX:G1HeapWastePercent 中所设置的 G1HeapWastePercent 比例时，在下次 Young GC 后会触发一次 Mixed GC。
+
+3. Full GC(Major GC): 堆浪费百分比超过`G1HeapWastePercent`时进行full gc。收集新生代、老年代的所有对象。耗时较高，需要避免。
+
+
+![](https://cdn.tobebetterjavaer.com/stutymore/gc-collector-20231228215108.png)
+
+
+#### ZGC（The Z Garbage Collector）
+
+JDK11 推出的一款低延迟垃圾收集器，适用于大内存低延迟服务的内存管理和回收
 
 ## 为什么Survivor 有 2 个区域
 
@@ -110,7 +147,6 @@ JVM 中的主要内存分步如下所示：
 ![方法区](https://pic3.zhimg.com/v2-ff3818b561f7cc42b17f312fc2dd116a_r.jpg)
 
 - 方法区：存放方法类定义(.class)
-
 
 ## 如何进行JVM错误排查调试
 
