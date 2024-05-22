@@ -1,0 +1,1098 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>My Blog</title>
+    <description>Leaning and function with your new object.</description>
+    <link>https://wangpengcheng.github.io//</link>
+    <atom:link href="https://wangpengcheng.github.io//feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Wed, 22 May 2024 14:37:07 +0000</pubDate>
+    <lastBuildDate>Wed, 22 May 2024 14:37:07 +0000</lastBuildDate>
+    <generator>Jekyll v4.2.0</generator>
+    
+      <item>
+        <title>java面经</title>
+        <description>&lt;h1 id=&quot;java常见面经验&quot;&gt;Java常见面经验&lt;/h1&gt;
+
+&lt;h2 id=&quot;参考链接&quot;&gt;参考链接&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://javaguide.cn/&quot;&gt;JavaGuide&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://javabetter.cn/jvm/&quot;&gt;二哥的JVM进阶之路&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/heibaiying/Full-Stack-Notes/blob/master/notes/Java_%E8%99%9A%E6%8B%9F%E6%9C%BA.md&quot;&gt;深入java虚拟机&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;1-包装类型的缓存机制了解么&quot;&gt;1. 包装类型的缓存机制了解么？&lt;/h2&gt;
+
+&lt;p&gt;Java 基本数据类型的包装类型的大部分都用到了缓存机制来提升性能。Byte,Short,Integer,Long 这 4 种包装类默认创建了数值 [-128，127] 的相应类型的缓存数据，Character 创建了数值在 [0,127] 范围的缓存数据，Boolean 直接返回 True or False&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;Integer&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;40&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;Integer&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;40&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// false&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Integer i1=40 这一行代码会发生装箱，也就是说这行代码等价于 Integer i1=Integer.valueOf(40) 。因此，i1 直接使用的是缓存中的对象。而Integer i2 = new Integer(40) 会直接创建新的对象。&lt;/p&gt;
+
+&lt;p&gt;因此，答案是 false 。你答对了吗？&lt;/p&gt;
+
+&lt;p&gt;记住：&lt;strong&gt;所有整型包装类对象之间值的比较，全部使用 equals 方法比较。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;2-如何解决浮点数运算的精度丢失问题&quot;&gt;2. 如何解决浮点数运算的精度丢失问题？&lt;/h2&gt;
+
+&lt;p&gt;BigDecimal 可以实现对浮点数的运算，不会造成精度丢失。通常情况下，大部分需要浮点数精确运算结果的业务场景（比如涉及到钱的场景）都是通过 BigDecimal 来做的。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1.0&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0.9&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;0.8&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subtract&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;BigDecimal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subtract&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/* 0.1 */&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/* 0.1 */&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Objects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/* true */&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;3-jvm-gc-讲一下&quot;&gt;3. JVM GC 讲一下&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;参考链接：&lt;/em&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://javabetter.cn/jvm/gc.html#survivor-%E5%8C%BA&quot;&gt;深入理解垃圾回收机制&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://javabetter.cn/jvm/gc-collector.html#g1&quot;&gt;垃圾收集器详解&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;JVM的核心还是在于内存池和线程池&lt;/p&gt;
+
+&lt;p&gt;要了解JVM GC 关键在于以下三个点：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;JVM 中内存分步模型–内存管理是什么样子的&lt;/li&gt;
+  &lt;li&gt;JVM 中内存GC方法(内存管理模型)–怎样去回收的&lt;/li&gt;
+  &lt;li&gt;JVM 中的GC时机()–什么时候去回收&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;就从上面三个方向进行分析&lt;/p&gt;
+
+&lt;h3 id=&quot;31-jvm-中的内存分布&quot;&gt;3.1 JVM 中的内存分布&lt;/h3&gt;
+
+&lt;p&gt;JVM 中的主要内存分步如下所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://pdai.tech/images/jvm/java-jvm-overview.png&quot; alt=&quot;JVM内存分布&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;关键内存如下：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;线程内内存(线程独占)：
+    &lt;ul&gt;
+      &lt;li&gt;本地方法栈：调用外部动态链接库的对应方法栈&lt;/li&gt;
+      &lt;li&gt;程序计数器：JVM 代码解释中的程序计数器&lt;/li&gt;
+      &lt;li&gt;JVM 栈：JVM代码本身的堆栈&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;线程共享内存：
+    &lt;ul&gt;
+      &lt;li&gt;方法区：.class信息，编译代码&lt;/li&gt;
+      &lt;li&gt;堆区域(常量池静&amp;amp;态变量)&lt;/li&gt;
+      &lt;li&gt;新生区：大部分堆内存分配区域。回收频繁
+        &lt;ul&gt;
+          &lt;li&gt;Eden 区：新生对象初始分配区域，空间不足时会发起一次 Minor GC，回收大多数对象，剩余存活的移动到 From Survivor&lt;/li&gt;
+          &lt;li&gt;Survivor: Eden区和old区中间的缓冲区(黄灯)，实现预筛选，精细化管理，避免老年区被快速填满。经历16次  Minor GC 还能在新生代中存活的对象，才会被送到老年区。同时为了解决内存碎片化，使用swap清理的方式，划分为了两块内存，方便快速进行Survivor 清理。避免内存碎片化。
+            &lt;ul&gt;
+              &lt;li&gt;From Survivor: 初次移动过来的区域，清除时，直接域To Survivor 复制交换&lt;/li&gt;
+              &lt;li&gt;To Survivor: 每次GC时，将写入指针指向To, 将Eden、From中的存活对象复制到To区域，并交换两个区域。清空From&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;老年区：占据2/3的堆内存空间，只有Major GC的时候才会清理。每次清理时都会触发“STW(时停)”。大对象、长期对象(MaxTenuringThreshold)、动态年龄对象(超过Survivor一半)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://luoyoubao.gitbooks.io/jvm/content/chapter1/zhi-jie-nei-cun.html&quot;&gt;直接内存(元数据区)&lt;/a&gt;：mmap 直接内存映射区域，用于IO交互&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;32-jvm-中的垃圾收集器&quot;&gt;3.2 JVM 中的垃圾收集器&lt;/h3&gt;
+&lt;p&gt;前面讲述了JVM中的内存分步，下面就是关键的堆内存回收了，即java中的垃圾收集器。JAVA中的垃圾收集器使用了染色标记算法，进行对象染色回收&lt;/p&gt;
+
+&lt;h2 id=&quot;为什么survivor-有-2-个区域&quot;&gt;为什么Survivor 有 2 个区域&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;使用两个交替使用，保证在执行Minor GC时，Eden 对象能够正常移动到Survivor区。减少内存锁的使用，提高GC速度，用空间换时间。&lt;/li&gt;
+  &lt;li&gt;不分更多块呢？比方说分成三个、四个、五个？：Survivor 区再细分下去，每一块的空间就会比较小，容易导致 Survivor 区满，两块 Survivor 区可能是经过权衡之后的最佳方案&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;jvm方法区和元空间的关系到底是怎样的&quot;&gt;&lt;a href=&quot;https://zhuanlan.zhihu.com/p/344537168&quot;&gt;JVM方法区和元空间的关系到底是怎样的&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://pic3.zhimg.com/v2-ff3818b561f7cc42b17f312fc2dd116a_r.jpg&quot; alt=&quot;方法区&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;方法区：存放方法类定义(.class)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;如何进行jvm错误排查调试&quot;&gt;如何进行JVM错误排查调试&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://pdai.tech/images/jvm/java-jvm-debug.png&quot; alt=&quot;相关错误调试&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Wed, 22 May 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/05/22/java_interview/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/05/22/java_interview/</guid>
+        
+        <category>Java</category>
+        
+        <category>面试</category>
+        
+        <category>学习笔记</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>字节面试准备</title>
+        <description>&lt;h1 id=&quot;字节跳动面试准备&quot;&gt;字节跳动面试准备&lt;/h1&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;2024-03-11 16:04:58&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;0-面试岗位和时间&quot;&gt;0. 面试岗位和时间&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;岗位&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;地点&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;时间&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;后端研发广告&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;北京|&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt; &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;1-牛客面经总结&quot;&gt;1. 牛客面经总结&lt;/h2&gt;
+
+</description>
+        <pubDate>Thu, 25 Apr 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/04/25/bytedance_review/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/04/25/bytedance_review/</guid>
+        
+        <category>Java</category>
+        
+        <category>大厂</category>
+        
+        <category>面试</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>ES学习</title>
+        <description>&lt;h1 id=&quot;es-知识学习&quot;&gt;ES 知识学习&lt;/h1&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;2024-04-17 20:43:58&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;参考链接&quot;&gt;参考链接&lt;/h2&gt;
+
+&lt;h2 id=&quot;常见es类型和属性&quot;&gt;常见ES类型和属性&lt;/h2&gt;
+
+&lt;h2 id=&quot;es-分词器&quot;&gt;ES 分词器&lt;/h2&gt;
+
+</description>
+        <pubDate>Thu, 25 Apr 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/04/25/es_learning/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/04/25/es_learning/</guid>
+        
+        <category>es</category>
+        
+        <category>知识学习</category>
+        
+        <category>准备</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>SRE学习</title>
+        <description>&lt;h1 id=&quot;sre日常问题收集与知识学习&quot;&gt;SRE日常问题收集与知识学习&lt;/h1&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;2024-04-17 14:10:58&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;问题记录&quot;&gt;问题记录&lt;/h2&gt;
+
+&lt;h3 id=&quot;docker-启动失败&quot;&gt;docker 启动失败&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;问题描述：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;systemctl start docker&lt;/code&gt; 失败报错信息如下：
+```bash
+● docker.service - Docker Application Container Engine
+ Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; vendor preset: disabled)
+ Active: failed (Result: exit-code) since Sun 2024-04-21 13:00:00 CST; 59min ago
+   Docs: http://docs.docker.com
+Process: 37591 ExecStart=/usr/bin/dockerd-current –add-runtime docker-runc=/usr/libexec/docker/docker-runc-current –default-runtime=docker-runc –exec-opt native.cgroupdriver=systemd –userland-proxy-path=/usr/libexec/docker/docker-proxy-current –init-path=/usr/libexec/docker/docker-init-current –seccomp-profile=/etc/docker/seccomp.json $OPTIONS $DOCKER_STORAGE_OPTIONS $DOCKER_NETWORK_OPTIONS $ADD_REGISTRY $BLOCK_REGISTRY $INSECURE_REGISTRY $REGISTRIES (code=exited, status=1/FAILURE)
+ Main PID: 37591 (code=exited, status=1/FAILURE)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Apr 21 13:00:00 localhost systemd[1]: Starting Docker Application Container Engine…
+Apr 21 13:00:00 localhost dockerd-current[37591]: unable to configure the Docker daemon with file /etc/docker/daemon.json: the following directives are specified both as a flag and in the configuration file: runtimes: (from flag: [docker-runc], from file: map[nvidia:map[path:/usr/bin/nvidia-container-runtime runtimeArgs:[]]]), default-runtime: (from flag: docker-runc, from file: nvidia), exec-opts: (from flag: [native.cgroupdriver=systemd], from file: [native.cgroupdriver=systemd])
+Apr 21 13:00:00 localhost systemd[1]: docker.service: main process exited, code=exited, status=1/FAILURE
+Apr 21 13:00:00 localhost systemd[1]: Failed to start Docker Application Container Engine.
+Apr 21 13:00:00 localhost systemd[1]: Unit docker.service entered failed state.
+Apr 21 13:00:00 localhost systemd[1]: docker.service failed.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;- 原因定位：一开始是以为配置文件问题，查询后发现和线上其它主机配置文件一致。最终查看了一下docker版本。发现是docker版本为默认`1.13.1` 版本过低导致
+- 解决方法：安装最新docker即可。
+
+```bash
+# 1. 查询当前docker 版本
+docker verison 
+# Docker version 1.13.1, build 7d71120/1.13.1
+# 查询可用docker 版本 
+yum list docker-ce --showduplicates | sort -r
+# 删除旧版本docker 
+ yum remove docker  docker-common docker-selinux docker-engine
+
+# 安装新版本docker
+yum -y install docker-ce
+
+# docker pull 异常
+# Error response from daemon: unauthorized: authentication required
+# 需要重新进行身份认证
+docker login xxx:xxx 
+
+# docker 查询可用镜像
+docker search go
+
+# 拉取镜像
+docker pull xxxx
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;参考:&lt;a href=&quot;https://cloud.tencent.com/developer/article/1701451&quot;&gt;centos7安装docker &lt;/a&gt;;&lt;a href=&quot;https://www.zhihu.com/question/266021659&quot;&gt;docker-io与docker-ce的区别&lt;/a&gt;;&lt;a href=&quot;https://hujb2000.gitbooks.io/docker-flow-evolution/content/cn/basis/imagesop.html&quot;&gt;docker 常用镜像操作&lt;/a&gt;;&lt;a href=&quot;https://www.docker.org.cn/book/docker/docker-search-image-6.html&quot;&gt;docker搜索镜像&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Sun, 21 Apr 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/04/21/sre/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/04/21/sre/</guid>
+        
+        <category>SRE</category>
+        
+        <category>知识学习</category>
+        
+        <category>准备</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Linux_command</title>
+        <description>
+&lt;h1 id=&quot;linux-日常命令收集&quot;&gt;linux 日常命令收集&lt;/h1&gt;
+
+&lt;h2 id=&quot;参考链接&quot;&gt;参考链接&lt;/h2&gt;
+
+&lt;h2 id=&quot;排查命令&quot;&gt;排查命令&lt;/h2&gt;
+
+&lt;h3 id=&quot;sar日志查询命令&quot;&gt;&lt;a href=&quot;https://www.cnblogs.com/zsql/p/11628766.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sar&lt;/code&gt;日志查询命令&lt;/a&gt;&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sar &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; 22:40:00 &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; 22:43:00 &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; sa07 | more
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;tcpdump抓包&quot;&gt;&lt;a href=&quot;https://www.cnblogs.com/wongbingming/p/13212306.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tcpdump&lt;/code&gt;抓包&lt;/a&gt;&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tcpdump &lt;span class=&quot;nt&quot;&gt;-iany&lt;/span&gt; host 10.225.156.67 &lt;span class=&quot;nt&quot;&gt;-w&lt;/span&gt; 255.pcap
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;grep命令&quot;&gt;&lt;a href=&quot;&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;grep&lt;/code&gt;命令&lt;/a&gt;&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; ./pod.txt | &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt;  &lt;span class=&quot;nt&quot;&gt;-E&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;flink|matrix&quot;&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; pod1.txt
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;磁盘命令&quot;&gt;磁盘命令&lt;/h2&gt;
+
+&lt;h3 id=&quot;nvme设备管理命令&quot;&gt;&lt;a href=&quot;https://zhuanlan.zhihu.com/p/667230252&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nvme&lt;/code&gt;设备管理命令&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;此命令常用来，进行nvme设备管理&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;nvme smart-log /dev/nvme0n1&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;   nvme intel smart-log-add /dev/nvme0n1&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;kuberenetes&quot;&gt;kuberenetes&lt;/h2&gt;
+
+&lt;h3 id=&quot;kubectl&quot;&gt;kubectl&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl get pods &lt;span class=&quot;nt&quot;&gt;--all-namespaces&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-owide&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;sp4-cknode-1970
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;网络相关&quot;&gt;网络相关&lt;/h2&gt;
+
+&lt;h3 id=&quot;iptable网络防火墙&quot;&gt;&lt;a href=&quot;https://lixiangyun.gitbook.io/iptables_doc_zh_cn&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;iptable&lt;/code&gt;网络防火墙&lt;/a&gt;&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;nsenter &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt;  &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$pid&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;# 将进程pid ip table 加载到宿主机中&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;存储相关&quot;&gt;存储相关&lt;/h2&gt;
+
+&lt;h3 id=&quot;磁盘清理&quot;&gt;磁盘清理&lt;/h3&gt;
+
+&lt;p&gt;磁盘清理流程：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;df -h 查看分区使用情况&lt;/li&gt;
+  &lt;li&gt;du -sh * 逐级寻找占用空间比较大的目录&lt;/li&gt;
+  &lt;li&gt;
+    &lt;table&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td&gt;找到对应目录之后  find . -name “*.log*”-mtime +5&lt;/td&gt;
+          &lt;td&gt;xargs rm -rf&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;pref&quot;&gt;Pref&lt;/h2&gt;
+
+&lt;h3 id=&quot;基础性能调优&quot;&gt;基础性能调优&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;perf &lt;span class=&quot;nb&quot;&gt;stat&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; L1-dcache-load-misses,L1-dcache-loads,L1-dcache-stores,L1-icache-load-misses,L1-icache-loads,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses,LLC-prefetch-misses
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</description>
+        <pubDate>Sun, 14 Apr 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/04/14/linux_command/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/04/14/linux_command/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>InfluxDB学习手册</title>
+        <description>&lt;h1 id=&quot;influxdb-学习笔记&quot;&gt;InfluxDB 学习笔记&lt;/h1&gt;
+
+&lt;h2 id=&quot;参考链接&quot;&gt;参考链接&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://jasper-zhang1.gitbooks.io/influxdb/content/&quot;&gt;InfluxDB中文文档&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.influxdata.com/influxdb/v1/concepts/glossary/&quot;&gt;InfluxDB文档&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sun, 14 Apr 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/04/14/influx_db_learn/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/04/14/influx_db_learn/</guid>
+        
+        <category>数据库</category>
+        
+        <category>TSDB</category>
+        
+        <category>学习笔记</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>mysql&amp;redis面经</title>
+        <description>&lt;h1 id=&quot;mysql-面经&quot;&gt;mysql 面经&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#6-%E6%95%B0%E6%8D%AE%E5%BA%93&quot;&gt;mysql面经&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://wangpengcheng.github.io/2019/12/27/hight_performance_mysql/&quot;&gt;高性能mysql&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://javabetter.cn/interview/mysql-60.html&quot;&gt;60 道 MySQL 精选面试题&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;说一说索引失效&quot;&gt;说一说索引失效&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;查询条件包含or，可能导致索引失效&lt;/li&gt;
+  &lt;li&gt;如果字段类型是字符串，where时一定用引号括起来，否则索引失效&lt;/li&gt;
+  &lt;li&gt;like通配符可能导致索引失效。&lt;/li&gt;
+  &lt;li&gt;联合索引，查询时的条件列不是联合索引中的第一个列，索引失效。&lt;/li&gt;
+  &lt;li&gt;在索引列上使用mysql的内置函数，索引失效。&lt;/li&gt;
+  &lt;li&gt;对索引列运算（如，+、-、*、/），索引失效。&lt;/li&gt;
+  &lt;li&gt;索引字段上使用（！= 或者 &amp;lt; &amp;gt;，not in）时，可能会导致索引失效。&lt;/li&gt;
+  &lt;li&gt;索引字段上使用is null， is not null，可能导致索引失效。&lt;/li&gt;
+  &lt;li&gt;左连接查询或者右连接查询查询关联的字段编码格式不一样，可能导致索引失效。&lt;/li&gt;
+  &lt;li&gt;mysql估计使用全表扫描要比使用索引快,则不使用索引。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;参考：&lt;a href=&quot;https://juejin.cn/post/7110782362778075143&quot;&gt;MySQL索引失效的问题？&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;redis面经&quot;&gt;redis面经&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://javabetter.cn/interview/redis-12.html&quot;&gt;12 道 Redis 精选面试题&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;简单聊聊缓存雪崩穿透击穿&quot;&gt;简单聊聊缓存雪崩、穿透、击穿&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;缓存雪崩：核心缓存在同一时间点，大量过期失效，导致请求直接到数据库，导致数据库崩溃
+    &lt;ul&gt;
+      &lt;li&gt;解决方法：
+        &lt;ul&gt;
+          &lt;li&gt;过期时间随机：结合业务情况，随机设置过期时间，避免大量数据同一时间过期&lt;/li&gt;
+          &lt;li&gt;互斥加锁（限流）：使用锁机制避免并发请求，会导致吞吐量明显下降&lt;/li&gt;
+          &lt;li&gt;不设置过期：热点数据不设置过期，存在数据更新先删除再加载&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;缓存击穿：缓存击穿是指一个热点 key 过期或被删除后，导致线上原本能命中该热点 key 的请求，瞬间大量地打到数据库上，最终导致数据库被击垮。
+    &lt;ul&gt;
+      &lt;li&gt;解决方法：
+        &lt;ul&gt;
+          &lt;li&gt;梳理逻辑：找到热点数据击穿业务原因，重新明确流程，保证核心功能与流程&lt;/li&gt;
+          &lt;li&gt;加强管理：避免热点数据被删除&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;缓存穿透：客户端请求缓存和数据库中不存在的数据，导致所有的请求都打到数据库上。如果请求很多，数据库依旧会挂得明明白白。
+    &lt;ul&gt;
+      &lt;li&gt;解决方法：
+        &lt;ul&gt;
+          &lt;li&gt;参数校验：做好业务参数校验，避免直接访问数据库&lt;/li&gt;
+          &lt;li&gt;数据缓存：对访问的数据，及时放入缓存中。减轻数据库压力&lt;/li&gt;
+          &lt;li&gt;拦截限流：判断请求是否有效，降低访问缓存和数据的频率&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;业务可靠性处理：redis 缓存可用性
+    &lt;ul&gt;
+      &lt;li&gt;解决方法：
+        &lt;ul&gt;
+          &lt;li&gt;主从结构：使用redis主从+ 哨兵 或者redis集群架构。保证redis的可用性&lt;/li&gt;
+          &lt;li&gt;降低缓存依赖：结合业务场景，考虑本地缓存，降低redis压力&lt;/li&gt;
+          &lt;li&gt;业务降级：从保护下游的角度考虑，大流量下进行限流与服务降级，避免拖垮下游服务。&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;redis集群为什么是16384&quot;&gt;redis集群，为什么是16384，&lt;/h2&gt;
+
+&lt;h2 id=&quot;redis-哨兵模式选举过程会有脑裂问题么&quot;&gt;redis 哨兵模式，选举过程，会有脑裂问题么，&lt;/h2&gt;
+
+&lt;h2 id=&quot;raft算法优缺点&quot;&gt;raft算法，优缺点&lt;/h2&gt;
+
+</description>
+        <pubDate>Mon, 01 Apr 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/04/01/mysql_redis_interview/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/04/01/mysql_redis_interview/</guid>
+        
+        <category>msyql</category>
+        
+        <category>redis</category>
+        
+        <category>面试</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>zookeeper/etcd面经</title>
+        <description>&lt;h1 id=&quot;zookeeper面经&quot;&gt;zookeeper面经&lt;/h1&gt;
+
+&lt;h1 id=&quot;etcd面经&quot;&gt;etcd面经&lt;/h1&gt;
+
+&lt;h1 id=&quot;分布式事务&quot;&gt;分布式事务&lt;/h1&gt;
+</description>
+        <pubDate>Wed, 21 Feb 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/02/21/etcd_zookper_interview/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/02/21/etcd_zookper_interview/</guid>
+        
+        <category>架构</category>
+        
+        <category>中间件</category>
+        
+        <category>消息中间件</category>
+        
+        <category>zookeeper</category>
+        
+        <category>etcd</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Apache Kafka面经</title>
+        <description>&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.cnblogs.com/zhengzhaoxiang/p/13973263.html&quot;&gt;Kafka 实现延迟队列、死信队列、重试队列&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.aliyun.com/article/740170&quot;&gt;18道kafka高频面试题哪些你还不会？（含答案和思维导图）&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dunwu.github.io/bigdata-tutorial/kafka/#%F0%9F%93%96-%E5%86%85%E5%AE%B9&quot;&gt;kafka教程&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://javabetter.cn/interview/kafka-40.html&quot;&gt;40 道精选 Kafka 面试题&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;kafka-死信说一下&quot;&gt;Kafka 死信说一下&lt;/h2&gt;
+
+&lt;p&gt;死信即为消费端无法正常消费处理，为了防止其长时间滞留在分片队列中，&lt;strong&gt;将其投入到重试队列中，防止其被丢弃&lt;/strong&gt;。当超过一定重试次数后，将其投入到&lt;strong&gt;死信队列中&lt;/strong&gt;，这里的死信就可以看作消费者不能处理的消息。再比如超过既定的重试次数之后将消息投入死信队列，这里就可以将死信看作不符合处理要求的消息。
+消息进入死信队列后，需要进一步处理， (转回、导出和丢弃)&lt;/p&gt;
+
+&lt;p&gt;kafka中可以使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;enableConsumeRetry(true)&lt;/code&gt; 开启消费重试，重试多次后，再进入死信队列&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// https://kafka.apache.org/documentation/#consumerconfigs&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;Properties&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;props&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bootstrap.servers&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;localhost:9092&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;group.id&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;test-group&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;enable.auto.commit&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;false&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;key.deserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;org.apache.kafka.common.serialization.StringDeserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;value.deserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;org.apache.kafka.common.serialization.StringDeserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;KafkaConsumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;KafkaConsumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collections&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;singletonList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test-topic&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 开启消费者重试功能&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;enableConsumeRetry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Duration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;ofMillis&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 处理消息的逻辑&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;processRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// 消息处理发生错误，将自动重试&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;参考：&lt;a href=&quot;https://www.cnblogs.com/zhengzhaoxiang/p/13973263.html&quot;&gt;Kafka 实现延迟队列、死信队列、重试队列&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;kafka-分片partition说一下&quot;&gt;Kafka 分片(Partition)说一下&lt;/h2&gt;
+
+&lt;p&gt;Partition 是kafka topic 数据发送与缓存的一种分片机制，相当于多个缓冲队列，支持kafka进行水平扩容。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;定义：Topic 是一个逻辑概念，Partition 是最小的存储单元，掌握着一个 Topic 的部分数据。每个 Partition 都是一个单独的 log 文件，每条记录都以追加的形式写入。&lt;/li&gt;
+  &lt;li&gt;消息顺序：topic存在多个分片时，分片内消息有序，但是因为消息发送至分片是默认随机的，因此整体无序&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://pic4.zhimg.com/80/v2-2d4cffb01a27fae3bf480db36e6e6317_720w.webp&quot; alt=&quot;Partition &quot; /&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;消费分组：kafka使用分组的方式进行消费组分组，需要广播消费，可以创建一个只有一个分区的Topic，并让每个消费者组中的所有消费者都订阅该Topic，这样每个消费者都可以独立地接收该分区中的所有消息，从而实现消息的广播。&lt;/li&gt;
+  &lt;li&gt;优点：
+    &lt;ul&gt;
+      &lt;li&gt;提供扩展能力：把 Partition 分散开之后，Topic 就可以水平扩展。同时支持topic被多个Consumer并行消费。提升消费能力&lt;/li&gt;
+      &lt;li&gt;提供数据冗余：kafka  Partition 生成多个副本，并且把它们分散在不同的 Broker，如果一个 Broker 故障了，Consumer 可以在其他 Broker 上找到 Partition 的副本，继续获取消息。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;缺点：
+    &lt;ul&gt;
+      &lt;li&gt;增加了消息写入的复杂性与消息读取的复杂性&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;广播消费：kafka 支持广播消费模式，使用广播消费模式，将每个消费者的Group ID设置为相同的值，并将属性 enable.auto.commit 设置为 false，这样每个消费者都可以独立地接收到所有的消息。
+___&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;参考：&lt;a href=&quot;https://zhuanlan.zhihu.com/p/371886710&quot;&gt;细说 Kafka Partition 分区&lt;/a&gt;;&lt;a href=&quot;https://cloud.tencent.com/developer/article/1863356&quot;&gt;Kafka设置广播消费&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;消费堆积处理方式&quot;&gt;消费堆积处理方式&lt;/h2&gt;
+
+&lt;p&gt;消费堆积常用处理方式：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;消费者扩容：增加处理消费者的数量，加快消费速度&lt;/li&gt;
+  &lt;li&gt;实例消费者线程数增加：增加消费者线程，开启多线程消费&lt;/li&gt;
+  &lt;li&gt;适当增加topic分片数：如果topic分片数过少，导致消费者数量&amp;gt;=topic分片数。可以适当扩展增加topic分片数&lt;/li&gt;
+  &lt;li&gt;消费异常排查：是否存在异常处理，导致消息不能被正常处理&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;确认分片被消费&quot;&gt;确认分片被消费&lt;/h2&gt;
+
+&lt;p&gt;如果您想知道某个特定消息是否已被消费，您可以使用消息的偏移量来确定它的位置，然后与消费者组的当前偏移量进行比较。如果消息的偏移量小于消费者组的当前偏移量，则表示消息已被消费。&lt;/p&gt;
+
+&lt;p&gt;总的来说，Kafka 中的消息偏移量是您查看消息是否被消费的关键工具。通过使用偏移量，您可以轻松地监视消息处理情况，并确保您的消息得到了适当的处理。&lt;/p&gt;
+
+&lt;h2 id=&quot;如何获取topic主题的列表&quot;&gt;如何获取topic主题的列表&lt;/h2&gt;
+
+&lt;p&gt;可以通过如下的方式获取主题的列表&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bin/kafka-topics.sh &lt;span class=&quot;nt&quot;&gt;--list&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--zookeeper&lt;/span&gt; localhost:2181
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;生产者和消费者的命令行是什么&quot;&gt;生产者和消费者的命令行是什么？&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;生产者在主题上发布消息：
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bin/kafka-console-producer.sh &lt;span class=&quot;nt&quot;&gt;--broker-list&lt;/span&gt; 192.168.43.49:9092 &lt;span class=&quot;nt&quot;&gt;--topicHello-Kafka&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;注意这里的 IP 是 server.properties 中的 listeners 的配置。接下来每个新行就是输入一条新消息。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;消费者接受消息：
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bin/kafka-console-consumer.sh &lt;span class=&quot;nt&quot;&gt;--zookeeper&lt;/span&gt; localhost:2181 &lt;span class=&quot;nt&quot;&gt;--topicHello-Kafka&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--from-beginning&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;consumer是推还是拉&quot;&gt;consumer是推还是拉？&lt;/h2&gt;
+
+&lt;p&gt;Kafka 遵循了一种大部分消息系统共同的传统的设计：producer 将消息推送到 broker，consumer 从broker 拉取消息。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;主要的好处如下：
+    &lt;ul&gt;
+      &lt;li&gt;防止broker push过多导致consumer 崩溃：使用push方式进行消费时，当 broker 推送的速率远大于 consumer 消费的速率时，consumer 恐怕就要崩溃了。最终 Kafka 还是选取了传统的 pull 模式。&lt;/li&gt;
+      &lt;li&gt;consumer 可以自主决定是否批量的从 broker 拉取数据 ：Pull 模式下，consumer 就可以根据自己的消费能力去决定这些策略。减轻了broker消息推送的负担&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;缺点：
+    &lt;ul&gt;
+      &lt;li&gt;消费阻塞：broker中无消息时，会导致consumer不断在循环中轮询，直到新消息到达。kafka 通过 设置consumer 阻塞直到消息到达。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;讲讲-kafka-维护消费状态跟踪的方法&quot;&gt;讲讲 kafka 维护消费状态跟踪的方法&lt;/h2&gt;
+
+&lt;p&gt;Topic 被分成了若干分区，每个分区在同一时间只被一个 consumer 消费。这意味着每个分区被消费的消息在日志中的位置仅仅是一个简单的整数：offset。这样就很容易标记每个分区消费状态就很容易了，仅仅需要一个整数而已。这样消费状态的跟踪就很简单了。
+这带来了另外一个好处：consumer 可以把 offset 调成一个较老的值，去重新消费老的消息。这对传统的消息系统来说看起来有些不可思议，但确实是非常有用的，谁规定了一条消息只能被消费一次呢？消费端进行消费后会通过&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commit&lt;/code&gt; 方法确认其已经消费对应消息。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;参考：&lt;a href=&quot;http://www.linkedkeeper.com/1653.html&quot;&gt;Kafka消费循环&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;kafka消费后消息还存在吗&quot;&gt;kafka消费后消息还存在吗&lt;/h2&gt;
+
+&lt;p&gt;在Kafka中消息是以分区(Partition)的形式被保存，消息在分区中是有序且不可变的。消费者进行消费消息时，实际上只是从分区中读取消息。消费者消费后Kafka不会立即将消息从分区中移除，而是重新设置消费组的偏移量(Offset)。同组其它消费者消费时获取最新数据。&lt;strong&gt;消费者可以通过重置偏移量的方式，进行重复消费&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;kafka消息存储时间&quot;&gt;Kafka消息存储时间&lt;/h2&gt;
+
+&lt;p&gt;首先，Kafka的配置决定了消息是否会被永久保存。在Kafka的配置中，有一个参数叫做log.retention.ms，指定了消息在Kafka中的保留时间。默认情况下，这个值为7天，即Kafka中的消息会在7天后被删除。如果需要更长的消息保存时间，可以将这个值设置得更大。&lt;/p&gt;
+
+&lt;p&gt;其次，消费者消费消息的方式也会影响消息的删除。在Kafka中，有两种消费者：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;消费者组：多个消费者可以共同消费主题中的消息。当消费者组中的某个消费者消费一条消息后，这条消息并不会立刻被删除。只有当所有消费者都成功消费这条消息后，这条消息才会被删除。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;单个消费者：一个消费者独立地消费一个或多个主题中的消息。当单个消费者消费一条消息后，这条消息会立刻被删除。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;消息被消费后没有删除导致kafka存储空间占满&quot;&gt;消息被消费后，没有删除，导致Kafka存储空间占满&lt;/h2&gt;
+
+&lt;p&gt;消息被消费后，并不会被删除，只有超过老化时间，才会被删除，可以通过减少老化时间或者扩容存储空间进行解决&lt;/p&gt;
+
+&lt;h2 id=&quot;说一下主从同步&quot;&gt;说一下主从同步&lt;/h2&gt;
+
+&lt;p&gt;Kafka允许topic的分区拥有若干副本，这个数量是可以配置的，你可以为每个topci配置副本的数量。Kafka会自动在每个个副本上备份数据，所以当一个节点down掉时数据依然是可用的。
+Kafka的副本功能不是必须的，你可以配置只有一个副本，这样其实就相当于只有一份数据。&lt;/p&gt;
+
+&lt;h2 id=&quot;为什么需要消息系统mysql-不能满足需求吗&quot;&gt;为什么需要消息系统，mysql 不能满足需求吗？&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;系统解耦：允许你独立的扩展或修改两边的处理过程，只要确保它们遵守同样的接口约束。&lt;/li&gt;
+  &lt;li&gt;冗余容灾：消息队列把数据进行持久化直到它们已经被完全处理，通过这一方式规避了数据丢失风险。许多消息队列所采用的”插入-获取-删除”范式中，在把一个消息从队列中删除之前，需要你的处理系统明确的指出该消息已经被处理完毕，从而确保你的数据被安全的保存直到你使用完毕。&lt;/li&gt;
+  &lt;li&gt;扩展性：解耦处理过程，方便进行扩容&lt;/li&gt;
+  &lt;li&gt;异步&amp;amp;削峰：可以通过MQ的方式有效解决请求流量高峰的问题，将请求暂存，缓慢进行处理。避免突发请求导致后端崩溃。支持异步通信处理&lt;/li&gt;
+  &lt;li&gt;可恢复性：消息队列降低了进程间的耦合度，进行了消息暂存，支持回放和重复消费&lt;/li&gt;
+  &lt;li&gt;顺序保证：保证数据处理的顺序性&lt;/li&gt;
+  &lt;li&gt;缓冲：控制和优化数据生产以及数据处理速度，解决生产消息和消费消息的处理速度不一致的情况。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;zookeeper-对于-kafka-的作用是什么&quot;&gt;Zookeeper 对于 Kafka 的作用是什么？&lt;/h2&gt;
+
+&lt;p&gt;在 Kafka 中，它被用于提交偏移量，因此如果节点在任何情况下都失败了，它都可以从之前提交的偏移量中获取除此之外，它还执行其他活动，如: leader 检测、分布式同步、配置管理、识别新节点何时离开或连接、集群、节点实时状态等等。&lt;/p&gt;
+
+&lt;h2 id=&quot;数据传输的事务定义有哪三种&quot;&gt;数据传输的事务定义有哪三种？&lt;/h2&gt;
+
+&lt;p&gt;和 MQTT 的事务定义一样都是 3 种。&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;最多一次: 消息不会被重复发送，最多被传输一次，但也有可能一次不传输&lt;/li&gt;
+  &lt;li&gt;最少一次: 消息不会被漏发送，最少被传输一次，但也有可能被重复传输.&lt;/li&gt;
+  &lt;li&gt;精确的一次（Exactly once）: 不会漏传输也不会重复传输,每个消息都传输被一次而且仅仅被传输一次，这是大家所期望的&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;kafka-判断一个节点是否还活着有那两个条件&quot;&gt;Kafka 判断一个节点是否还活着有那两个条件？&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;节点必须可以维护和 ZooKeeper 的连接，Zookeeper 通过心跳机制检查每个节点的连接&lt;/li&gt;
+  &lt;li&gt;如果节点是个 follower,他必须能及时的同步 leader 的写操作，延时不能太久&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;kafka-与传统-mq-消息系统之间有三个关键区别&quot;&gt;Kafka 与传统 MQ 消息系统之间有三个关键区别&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;日志持久化：kafka支持持久化日志，这些日志可以被重复读取和无限期保留&lt;/li&gt;
+  &lt;li&gt;扩容灵活：Kafka 是一个分布式系统：它以集群的方式运行，可以灵活伸缩，在内部通过复制数据提升容错能力和高可用性&lt;/li&gt;
+  &lt;li&gt;顺序处理：kafka有着强大的顺序处理能力，支持实时的流式处理&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;kafka-的-ack-的三种机制&quot;&gt;kafka 的 ack 的三种机制&lt;/h2&gt;
+
+&lt;p&gt;equest.required.acks 有三个值 0 1 -1(all)&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;0:生产者不会等待 broker 的 ack，这个延迟最低但是存储的保证最弱当 server 挂掉的时候就会丢数据。&lt;/li&gt;
+  &lt;li&gt;1：服务端会等待 ack 值 leader 副本确认接收到消息后发送 ack 但是如果 leader挂掉后他不确保是否复制完成新 leader 也会导致数据丢失。&lt;/li&gt;
+  &lt;li&gt;-1(all)：服务端会等所有的 follower 的副本受到数据后才会受到 leader 发出的ack，这样数据不会丢失&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;消费者如何不自动提交偏移量由应用提交&quot;&gt;消费者如何不自动提交偏移量，由应用提交？&lt;/h2&gt;
+
+&lt;p&gt;将 auto.commit.offset 设为 false，然后在处理一批消息后 commitSync() 或者异步提交 commitAsync()&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;。。。&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;tyr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitSync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;。。。&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;消费者故障出现活锁问题如何解决&quot;&gt;消费者故障，出现活锁问题如何解决？&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;活锁定义：消费者持续发送心跳但是没有处理消息的情况。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;为了预防消费者在这种情况下一直持有分区，我们使用 max.poll.interval.ms 活跃检测机制，来进行判断消息是否被消费。当poll评率大于最大时间间隔，被判定为非活动成员，客户端将主动离开组，同时发生offset提交失败，最终表现为无法进行消息处理。&lt;strong&gt;根因在于处理时间大于活跃检测时间&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;解决方法：主要还是从消费端处理时间入手，增加
+    &lt;ul&gt;
+      &lt;li&gt;max.poll.interval.ms：增大 poll 的间隔，可以为消费者提供更多的时间去处理返回的消息（调用 poll(long)返回的消息，通常返回的消息都是一批）。缺点是此值越大将会延迟组重新平衡。&lt;/li&gt;
+      &lt;li&gt;max.poll.records：此设置限制每次调用 poll 返回的消息数，这样可以更容易的预测每次 poll 间隔要处理的最大值。通过调整此值，可以减少 poll 间隔，减少重新平衡分组的&lt;/li&gt;
+      &lt;li&gt;开启多线程处理：主线程仅仅进行消息读取，处理交给子线程。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;如何控制消费的位置&quot;&gt;如何控制消费的位置&lt;/h2&gt;
+
+&lt;p&gt;kafka 使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seek(TopicPartition, long)&lt;/code&gt;指定新的消费位置。用于查找服务器保留的最早和最新的 offset 的特殊的方法也可用（&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seekToBeginning(Collection)&lt;/code&gt; 和&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seekToEnd(Collection)&lt;/code&gt;）&lt;/p&gt;
+
+&lt;h2 id=&quot;kafka-分布式不是单机的情况下如何保证消息的顺序消费&quot;&gt;kafka 分布式（不是单机）的情况下，如何保证消息的顺序消费?&lt;/h2&gt;
+
+&lt;p&gt;kakfa 分布式的单位是 partition，同一个 partition 用一个 write ahead log 组织，所以可以保证 FIFO 的顺序。不同partition不能保证顺序性。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;生产端写入顺序性：
+    &lt;ul&gt;
+      &lt;li&gt;用户可以通过 message key 来定义,因为同一个 key 的 message 可以保证只发送到同一个 partition。只要保证message key相同，就可以生产端的顺序性。&lt;/li&gt;
+      &lt;li&gt;partition 指定：直接指定写入的partition&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;消费端消费顺序性：一个partition 中可以绑定多个消费组，统一消费组中消费者轮流进行消费。只要保证一个消费组中当前partition只有一个消费者就可以保证消费顺序性&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;kafka-的高可用机制是什么&quot;&gt;kafka 的高可用机制是什么&lt;/h2&gt;
+
+&lt;h2 id=&quot;kafka-如何减少数据丢失&quot;&gt;kafka 如何减少数据丢失&lt;/h2&gt;
+
+&lt;h3 id=&quot;kafka数据丢失&quot;&gt;kafka数据丢失&lt;/h3&gt;
+&lt;p&gt;从 Kafka 整体架构图我们可以得出有三次消息传递的过程：&lt;/p&gt;
+
+&lt;p&gt;1）Producer 端发送消息给 Kafka Broker 端。&lt;/p&gt;
+
+&lt;p&gt;2）Kafka Broker 将消息进行同步并持久化数据。&lt;/p&gt;
+
+&lt;p&gt;3）Consumer 端从 Kafka Broker 将消息拉取并进行消费。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://s8.51cto.com/oss/202204/20/a89d7813053ad2d83fd086bd9b7709395dd50a.png&quot; alt=&quot;kafka消息传递过程&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;三次传递过程中均有可能造成消息丢失，主要场景如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Producer 端消息发送失败：
+    &lt;ul&gt;
+      &lt;li&gt;网络原因：由于网络抖动导致数据根本就没发送到 Broker 端。&lt;/li&gt;
+      &lt;li&gt;数据原因：消息体太大超出 Broker 承受范围而导致 Broker 拒收消息&lt;/li&gt;
+      &lt;li&gt;ack机制原因：ack默认级别为1(leader接收成功即可)，Leader Partition 异常 Crash，Follower Partition 未进行同步数据 ACK，导致数据丢失。
+&lt;img src=&quot;https://s6.51cto.com/oss/202204/20/252af52153170a5bd54558518be0754e880519.png&quot; alt=&quot;ack机制&quot; /&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Broker端丢消息丢失：
+    &lt;ul&gt;
+      &lt;li&gt;持久化原因：broker使用异步磁盘刷入的方式，数据刷盘过程中 Broker 宕机会导致数据丢失，且选举了一个落后 Leader Partition 很多的 Follower Partition 成为新的 Leader Partition，那么落后的消息数据就会丢失。
+        &lt;ul&gt;
+          &lt;li&gt;由于 Kafka 中并没有提供「同步刷盘」的方式，所以说从单个 Broker 来看还是很有可能丢失数据的。&lt;/li&gt;
+          &lt;li&gt;kafka 通过「多 Partition （分区）多 Replica（副本）机制」已经可以最大限度的保证数据不丢失，如果数据已经写入 PageCache 中但是还没来得及刷写到磁盘，此时如果所在 Broker 突然宕机挂掉或者停电，极端情况还是会造成数据丢失。&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://s3.51cto.com/oss/202204/20/e584308437ff38bc09764442028f82332ab58a.png&quot; alt=&quot;持久化&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Consumer数据丢失：Consumer 提交 Offset异常导致数据丢失
+    &lt;ul&gt;
+      &lt;li&gt;自动提交：轮询提交，可以有效解决重复消费的问题，但是也会导致部分消息消费异常后被提交 (&lt;a href=&quot;https://segmentfault.com/q/1010000042942095&quot;&gt;kafka消费者自动提交是如何工作的？&lt;/a&gt;)&lt;/li&gt;
+      &lt;li&gt;拉取消息后「先提交 Offset，后处理消息」: 处理异常，导致消息丢失&lt;/li&gt;
+      &lt;li&gt;拉取消息后「先处理消息，在进行提交 Offset」：提交前异常，会导致业务重复消费&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://s4.51cto.com/oss/202204/20/125dee467e054202def595b57ea4ccd4db1d99.png&quot; alt=&quot;消费流程&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;解决方案&quot;&gt;解决方案&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;生产端：
+    &lt;ul&gt;
+      &lt;li&gt;异常回调：设置异常回调函数，捕获发送异常。
+        &lt;ul&gt;
+          &lt;li&gt;网络丢失：直接重试发送&lt;/li&gt;
+          &lt;li&gt;消息大小不合格：重新调整大小再发送&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;ACK 确认机制：设置&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;request.required.acks&lt;/code&gt; 为-1保证每个副本都接收到消息。同时为了防止follwer 未全部同步，Leader异常挂掉，导致的发送失败，可以设置&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;replication.factor &amp;gt;= 2&lt;/code&gt; 与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;min.insync.replicas &amp;gt; 1&lt;/code&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;img src=&quot;https://s5.51cto.com/oss/202204/20/e9c7e8a24a69cccaac65035cc6649a8ed134d8.png&quot; alt=&quot;&quot; /&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;设置重试：设置重试相关参数保证消息稳定
+        &lt;ul&gt;
+          &lt;li&gt;重试次数：设置&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;retries&lt;/code&gt; 为大于0，允许其反复重试&lt;/li&gt;
+          &lt;li&gt;重试时间间隔：增大&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;retry.backoff.ms&lt;/code&gt;(默认为100ms)，比如设置为300ms。&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;broker端：通过「多分区多副本」的方式来最大限度的保证数据不丢失。
+    &lt;ul&gt;
+      &lt;li&gt;禁止落后数据被选为leader：设置&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;unclean.leader.election.enable&lt;/code&gt; 为false,数据太多的follower被选举为leader&lt;/li&gt;
+      &lt;li&gt;增大分区副本：设置&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;replication.factor&amp;gt;=3&lt;/code&gt;增大分区副本，保证follower副本继续提供服务&lt;/li&gt;
+      &lt;li&gt;增大最少写入副本数：增大&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;min.insync.replicas&lt;/code&gt; 提升消息持久性，保证数据不丢失。(保证&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;replication.factor &amp;gt; min.insync.replicas&lt;/code&gt;, 如果相等，只要有一个副本异常 Crash 掉，整个分区就无法正常工作了，因此推荐设置成： replication.factor = min.insync.replicas +1, 最大限度保证系统可用性。)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Consumer端：确保正常消费后提交offset
+    &lt;ul&gt;
+      &lt;li&gt;强业务逻辑：保证拉取数据、业务逻辑处理、提交消费 Offset 位移信息。顺序执行&lt;/li&gt;
+      &lt;li&gt;关闭自动提交：设置参数 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;enable.auto.commit = false&lt;/code&gt;，关闭自动提交，采用手动提交位移的方式。(&lt;a href=&quot;https://blog.csdn.net/zhanglong_4444/article/details/103713757&quot;&gt;Kafka学习笔记: 自动提交&amp;amp;手动提交.&lt;/a&gt;)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;总结不丢消息的配置为：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;topic 副本数 &amp;gt;= 3&lt;/li&gt;
+  &lt;li&gt;topic &lt;a href=&quot;https://kafka.apache.org/documentation/#brokerconfigs_min.insync.replicas&quot;&gt;MinISR&lt;/a&gt; &amp;gt;= 2&lt;/li&gt;
+  &lt;li&gt;生产者 &lt;a href=&quot;https://kafka.apache.org/documentation/#producerconfigs_acks&quot;&gt;acks&lt;/a&gt; = -1 (或all)&lt;/li&gt;
+  &lt;li&gt;服务端关闭&lt;a href=&quot;https://kafka.apache.org/documentation/#brokerconfigs_unclean.leader.election.enable&quot;&gt;脏选&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;消费者 &lt;a href=&quot;https://kafka.apache.org/documentation/#consumerconfigs_auto.offset.reset&quot;&gt;auto.reset.offset&lt;/a&gt; = nearest&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;参考：&lt;a href=&quot;https://www.51cto.com/article/707006.html&quot;&gt;刨根问底: Kafka 到底会不会丢数据？&lt;/a&gt;;&lt;a href=&quot;https://www.cnblogs.com/FG123/p/10091599.html&quot;&gt;Kafka提交offset机制&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;kafka-如何避免重复消费&quot;&gt;kafka 如何避免重复消费&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;业务自行保证（容错）：消息中设置业务唯一键，遇到重复消息时直接丢弃&lt;/li&gt;
+  &lt;li&gt;手动提交（强校验）：使用手动提交方式，保证每个消息都被正确消费。&lt;/li&gt;
+  &lt;li&gt;消费控制：控制消费者提交消费偏移量的时机和方式，避免重复提交或漏提交。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://juejin.cn/post/7224677855245910075&quot;&gt;kafka避免重复消费问题&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;kafka重平衡重启服务怎么保证kafka不发生重平衡有什么方案&quot;&gt;kafka重平衡，重启服务怎么保证kafka不发生重平衡，有什么方案&lt;/h2&gt;
+
+&lt;p&gt;（重平衡）Rebalance本质上是一种协议，规定了一个Consumer Group下的所有Consumer如何达成一致，来分配订阅Topic的每个分区&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;参考：&lt;a href=&quot;https://javabetter.cn/mq/kafka.html#%E9%87%8D%E5%B9%B3%E8%A1%A1&quot;&gt;kafka重平衡&lt;/a&gt;;&lt;a href=&quot;https://developer.aliyun.com/article/918611&quot;&gt;Kafka重平衡机制&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Wed, 21 Feb 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/02/21/kafka-interview/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/02/21/kafka-interview/</guid>
+        
+        <category>架构</category>
+        
+        <category>中间件</category>
+        
+        <category>消息中间件</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>开源收集</title>
+        <description>&lt;h1 id=&quot;中间件收集&quot;&gt;中间件收集&lt;/h1&gt;
+
+&lt;p&gt;&lt;em&gt;参考链接：&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;收集常用的监控/CI&amp;amp;CD/运维/RPC中间件项目，用于快速构建新公司整体项目、拉起公司整个中间件框架&lt;/p&gt;
+
+&lt;h2 id=&quot;oa系统&quot;&gt;OA系统&lt;/h2&gt;
+
+&lt;h2 id=&quot;sre&quot;&gt;SRE&lt;/h2&gt;
+
+&lt;h3 id=&quot;堡垒机&quot;&gt;堡垒机&lt;/h3&gt;
+
+&lt;h3 id=&quot;多云管理&quot;&gt;多云管理&lt;/h3&gt;
+
+&lt;h3 id=&quot;脚本运维&quot;&gt;脚本运维&lt;/h3&gt;
+
+&lt;h2 id=&quot;devopscicd&quot;&gt;DevOps(CI&amp;amp;CD)&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Git&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.jenkins.io/zh/doc/tutorials/&quot;&gt;Jenkins&lt;/a&gt;:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;发布系统&quot;&gt;发布系统&lt;/h3&gt;
+
+&lt;h3 id=&quot;构建系统&quot;&gt;构建系统&lt;/h3&gt;
+
+&lt;h3 id=&quot;需求管理&quot;&gt;需求管理&lt;/h3&gt;
+
+&lt;h3 id=&quot;代码扫描&quot;&gt;代码扫描&lt;/h3&gt;
+
+&lt;h3 id=&quot;集成测试&quot;&gt;集成测试&lt;/h3&gt;
+
+&lt;h3 id=&quot;镜像管理&quot;&gt;镜像管理&lt;/h3&gt;
+
+&lt;h3 id=&quot;k8s&quot;&gt;K8S&lt;/h3&gt;
+
+&lt;h2 id=&quot;基础架构&quot;&gt;基础架构&lt;/h2&gt;
+&lt;h3 id=&quot;资产管理&quot;&gt;资产管理&lt;/h3&gt;
+
+&lt;h3 id=&quot;监控&quot;&gt;监控&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;cat打点：
+    &lt;ul&gt;
+      &lt;li&gt;代码：https://github.com/dianping/cat&lt;/li&gt;
+      &lt;li&gt;相关资料：&lt;a href=&quot;https://tech.meituan.com/2018/11/01/cat-in-depth-java-application-monitoring.html&quot;&gt;深度剖析开源分布式监控CAT&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;基础数据监控:
+    &lt;ul&gt;
+      &lt;li&gt;代码：https://github.com/leancloud/satori&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;配置中心&quot;&gt;配置中心&lt;/h3&gt;
+
+&lt;h3 id=&quot;rpc限流链路追踪&quot;&gt;RPC&amp;amp;限流&amp;amp;链路追踪&lt;/h3&gt;
+&lt;h4 id=&quot;注册中心&quot;&gt;注册中心&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Dubbo&lt;/li&gt;
+  &lt;li&gt;DNS&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;限流熔断&quot;&gt;限流&amp;amp;熔断&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;defender&lt;/li&gt;
+  &lt;li&gt;Sentinel&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;rpc&quot;&gt;RPC&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;BRpc/GRpc&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;链路追踪&quot;&gt;链路追踪&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;阿尔萨斯&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;认证中心&quot;&gt;认证中心&lt;/h3&gt;
+
+&lt;h3 id=&quot;函数计算faas&quot;&gt;函数计算(Faas)&lt;/h3&gt;
+
+&lt;h3 id=&quot;日志系统&quot;&gt;日志系统&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;logbug&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;网关&quot;&gt;网关&lt;/h2&gt;
+&lt;h3 id=&quot;南北向网关对外&quot;&gt;南北向网关(对外)&lt;/h3&gt;
+
+&lt;h3 id=&quot;东西向网关对内&quot;&gt;东西向网关(对内)&lt;/h3&gt;
+
+&lt;h2 id=&quot;存储&quot;&gt;存储&lt;/h2&gt;
+
+&lt;h3 id=&quot;分布式缓存&quot;&gt;分布式缓存&lt;/h3&gt;
+
+&lt;h3 id=&quot;分布式mysql&quot;&gt;分布式mysql&lt;/h3&gt;
+
+&lt;h3 id=&quot;消息中间件mq&quot;&gt;消息中间件(MQ)&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;rockMQ&lt;/li&gt;
+  &lt;li&gt;Kafka&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;分布式搜索es&quot;&gt;分布式搜索(ES)&lt;/h3&gt;
+
+&lt;h3 id=&quot;大数据存储phbasehive&quot;&gt;大数据存储(PHBase/Hive)&lt;/h3&gt;
+
+&lt;h2 id=&quot;测试&quot;&gt;测试&lt;/h2&gt;
+
+&lt;h3 id=&quot;压测&quot;&gt;压测&lt;/h3&gt;
+
+&lt;h2 id=&quot;大数据&quot;&gt;大数据&lt;/h2&gt;
+
+&lt;h3 id=&quot;flink&quot;&gt;flink&lt;/h3&gt;
+
+&lt;h2 id=&quot;安全&quot;&gt;安全&lt;/h2&gt;
+
+&lt;h3 id=&quot;安全容器&quot;&gt;安全容器&lt;/h3&gt;
+
+&lt;h3 id=&quot;数据脱敏识别&quot;&gt;数据脱敏&amp;amp;识别&lt;/h3&gt;
+
+&lt;h3 id=&quot;vpn代理&quot;&gt;VPN代理&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;openvpn&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Wed, 21 Feb 2024 00:00:00 +0000</pubDate>
+        <link>https://wangpengcheng.github.io//2024/02/21/middleware_collection/</link>
+        <guid isPermaLink="true">https://wangpengcheng.github.io//2024/02/21/middleware_collection/</guid>
+        
+        <category>架构</category>
+        
+        <category>中间件</category>
+        
+        <category>基础架构</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>
