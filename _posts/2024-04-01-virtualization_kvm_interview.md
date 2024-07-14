@@ -135,7 +135,7 @@ virt-sparsify --compress rocky-test.qcow2 rocky-test-02.qcow2
 18. `virsh snapshot-create-as 【虚拟机名】 【快照名】`: 根据快照创建虚拟机
 19. `virsh snapshot-current vm`: 查询虚拟机当前快照
 20. `virsh snapshot-revert 【虚拟机名】 【快照名】`: 将虚拟机恢复至快照状态
-21. `virsh snapshot-delet vm snapshot-vm`: 创建快照
+21. `virsh snapshot-delet vm snapshot-vm`: 删除快照
 22. `virsh pool-define-as vmdisk --type dir --target /data/vmfs`: 定义存储池与目录
 23. `virsh pool-build vmdisk`: 创建已定义的存储池([kvm存储池和存储卷](https://www.cnblogs.com/mo-xiao-tong/p/12838733.html),[KVM存储池](https://blog.51cto.com/manual/2467163),[kvm-存储池基础介绍、创建](https://www.cnblogs.com/ygbh/p/17418666.html))
 24. `virsh pool-start vmdisk`: 激活已经定义的存储池
