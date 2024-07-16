@@ -68,3 +68,21 @@ nsenter -n  -t $pid # 将进程pid ip table 加载到宿主机中
 ```bash
 perf stat -e L1-dcache-load-misses,L1-dcache-loads,L1-dcache-stores,L1-icache-load-misses,L1-icache-loads,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses,LLC-prefetch-misses
 ```
+## 内核相关
+
+### 内核模块
+
+- [内核模块管理](https://github.com/ytinirt/notes/blob/master/docs/os.md#%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97module)
+- [内核模块加载](https://blog.exsvc.cn/article/centos-module-install-remove.html)
+
+```bash
+# 1. 检查模块已被静态编译到内核中：
+grep -e ipvs -e nf_conntrack_ipv4 /lib/modules/$(uname -r)/modules.builtin
+# 2. 查询可加载内核模块
+find /lib/modules/$(uname -r) -type f -name '*.ko*'
+# 3. 加载内核模块
+insmod  /lib/modules/4.18.0-305.3.1.el8.x86_64/extra/openvswitch.ko
+# 4. 展示内核模块
+lsmod | grep openvswitch 
+
+```

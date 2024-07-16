@@ -15,3 +15,4 @@ tags:
 _参考链接：_
 
 - [virtio简介（一）—— 框架分析](https://www.cnblogs.com/edver/p/14684104.html)
+- [vdpa优化](https://vdpa-dev.gitlab.io/)
