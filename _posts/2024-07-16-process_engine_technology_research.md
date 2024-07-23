@@ -80,6 +80,7 @@ rulego核心在于推理引擎的创建与推理过程两个部分
 ruluego 解析json字符串完成规则链的初始化定义，同时完成模板上下文的初始化。从`examples/call_rest_service/call_rest_service.go`为主要入口，梳理函数调用链路如下：
 `rulego.New(创建新规则引擎)` -> `newRuleEngine(创建规则引擎对象)` -> `ruleEngine.ReloadSelf(加载规则配置)` -> `Parser.DecodeRuleChain(解码types.RuleChain对象)` -> `InitRuleChainCtx(初始化上下文)` -> 完成创建。对应关键代码分析如下：
 
+
 - `rulego.New`
 
 ```go
@@ -213,6 +214,7 @@ func (e *RuleEngine) ReloadSelf(def []byte, opts ...types.RuleEngineOption) erro
 ```
 
 - `Parser.DecodeRuleChain`
+
 ```go
 // 进行规则链解析
 // https://github.com/CNST-AK47/rulego/blob/688f5f254635ab138d9081314bbb977fd3200c97/engine/parser.go
