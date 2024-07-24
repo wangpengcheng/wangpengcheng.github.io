@@ -16,13 +16,12 @@ tags:
 
 _参考链接：_
 
-- [技术选型与调研-流程引擎(工作流引擎|BPM引擎)：Activiti、Flowable、Camunda](https://www.cnblogs.com/johnnyzen/p/18024283/business-process-engine)
+- [技术选型与调研-流程引擎(工作流引擎--BPM引擎)：Activiti、Flowable、Camunda](https://www.cnblogs.com/johnnyzen/p/18024283/business-process-engine)
 - [流程引擎架构设计](https://juejin.cn/post/7154196990199332894)
 - [如何设计一个流程引擎](https://www.woshipm.com/pd/5667099.html)
 - [fixflow中国最好的流程引擎](https://github.com/fixteam/fixflow)
 - [流程引擎比较分析](https://juejin.cn/post/7339376488028553216)
 - [规则引擎和流程引擎我该怎么理解](https://blog.csdn.net/zhanyunhuaxia/article/details/126452044)
-
 
 - [compileflow 阿里开源流程引擎](https://github.com/alibaba/compileflow)
 - [goflow 规则引擎](https://github.com/trustmaster/goflow)
