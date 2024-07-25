@@ -20,3 +20,5 @@ _参考链接：_
 - [SR-IOV是什么？性能能好到什么程度？](https://zhuanlan.zhihu.com/p/91197211)
 - [SR-IOV指南](https://feisky.gitbooks.io/sdn/content/linux/sr-iov.html)
 - [red-hat#配置SR-IOV网络](https://docs.redhat.com/zh_hans/documentation/red_hat_enterprise_linux_openstack_platform/7/html/networking_guide/sec-sr-iov#create_virtual_functions_on_the_compute_node)
+- [SR-IOV设置](https://blog.csdn.net/leoufung/article/details/121046338)
+- [sr-iov相关文档配置](https://docs.nvidia.com/networking/display/public/sol/qsg+for+high+availability+with+nvidia+enhanced+sr-iov+with+bonding+support+(vf-lag))

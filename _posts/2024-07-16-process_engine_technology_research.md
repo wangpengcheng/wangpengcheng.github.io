@@ -372,3 +372,230 @@ func InitRuleChainCtx(config types.Config, aspects types.AspectList, ruleChainDe
 ```
 
 ### 推理过程
+
+rulego的核心推理过程，从入口`RuleEngine.OnMsg`进行处理，核心处理流程如下：
+`RuleEngine.OnMsg(消息处理入口)` -> `RuleEngine.onMsgAndWait(核心消息处理)` -> `DefaultRuleContext.tellOrElse(上下文处理函数)` -> `DefaultRuleContext.tellNext(节点自处理)`-> `DefaultRuleContext.NewNextNodeRuleContext(创建节点执行上下文)` -> `Node.OnMsg(执行节点函数)` -> `DefaultRuleContext.DoOnEnd(结束执行)`
+
+- RuleEngine.onMsgAndWait(核心消息处理)
+
+```go
+// engine/engine.go
+// onMsgAndWait processes a message through the rule engine, optionally waiting for all nodes to complete.
+// It applies any provided RuleContextOptions to customize the execution context.
+// 进行核心的规则处理
+func (e *RuleEngine) onMsgAndWait(msg types.RuleMsg, wait bool, opts ...types.RuleContextOption) {
+ // 规则上下文不为空，赋值上下文
+ if e.rootRuleChainCtx != nil {
+  // Create a copy of the root context for processing the message.
+  rootCtx := e.rootRuleChainCtx.rootRuleContext.(*DefaultRuleContext)
+  // 进行复制
+  rootCtxCopy := NewRuleContext(
+   rootCtx.GetContext(),
+   rootCtx.config,
+   rootCtx.ruleChainCtx,
+   rootCtx.from,
+   rootCtx.self,
+   rootCtx.pool,
+   rootCtx.onEnd,
+   e.ruleChainPool,
+  )
+  // 设置是否为第一个
+  rootCtxCopy.isFirst = rootCtx.isFirst
+  // 设置运行时闪照
+  rootCtxCopy.runSnapshot = NewRunSnapshot(msg.Id, rootCtxCopy.ruleChainCtx, time.Now().UnixMilli())
+  // Apply the provided options to the context copy.
+  // 进行上下文设置
+  for _, opt := range opts {
+   opt(rootCtxCopy)
+  }
+  // Handle the case where the rule chain has no nodes.
+  if rootCtxCopy.ruleChainCtx.isEmpty {
+   e.onErrHandler(msg, rootCtxCopy, errors.New("the rule chain has no nodes"))
+   return
+  }
+  if rootCtxCopy.initErr != nil {
+   e.onErrHandler(msg, rootCtxCopy, rootCtxCopy.initErr)
+   return
+  }
+  // Execute start aspects and update the message accordingly.
+  // 执行启动切片
+  msg = e.onStart(rootCtxCopy, msg)
+
+  // Set up a custom end callback function.
+  customOnEndFunc := rootCtxCopy.onEnd
+  // 设置最终结尾处理函数
+  rootCtxCopy.onEnd = func(ctx types.RuleContext, msg types.RuleMsg, err error, relationType string) {
+   // Execute end aspects and update the message accordingly.
+   // 先执行引擎结束处理
+   msg = e.onEnd(rootCtxCopy, msg, err, relationType)
+   // Trigger the custom end callback if provided.
+   if customOnEndFunc != nil {
+    // 触发终结处理函数
+    customOnEndFunc(ctx, msg, err, relationType)
+   }
+
+  }
+  // Set up a custom function to be called upon completion of all nodes.
+  customFunc := rootCtxCopy.onAllNodeCompleted
+  // If waiting is required, set up a channel to synchronize the completion.
+  // 确认等待，则需要所有都执行完了，再继续
+  if wait {
+   c := make(chan struct{})
+   rootCtxCopy.onAllNodeCompleted = func() {
+    defer close(c)
+    // Execute the completion handling function.
+    e.doOnAllNodeCompleted(rootCtxCopy, msg, customFunc)
+   }
+   // Process the message through the rule chain.
+   // 优先处理接下来的
+   rootCtxCopy.TellNext(msg, rootCtxCopy.firstNodeRelationTypes...)
+   // Block until all nodes have completed.
+   <-c
+  } else {
+   // If not waiting, simply set the completion handling function.
+   // 不需要等待，直接异步执行
+   rootCtxCopy.onAllNodeCompleted = func() {
+    e.doOnAllNodeCompleted(rootCtxCopy, msg, customFunc)
+   }
+   // Process the message through the rule chain.
+   rootCtxCopy.TellNext(msg, rootCtxCopy.firstNodeRelationTypes...)
+  }
+
+ } else {
+  // Log an error if the rule engine is not initialized or the root rule chain is not defined.
+  e.Config.Logger.Printf("onMsg error.RuleEngine not initialized")
+ }
+}
+```
+
+- DefaultRuleContext.tellOrElse(节点自处理)
+
+```go
+// tellNext 通知执行子节点，如果是当前第一个节点则执行当前节点
+// 如果找不到relationTypes对应的节点，而且defaultRelationType非默认值，则通过defaultRelationType查找节点
+func (ctx *DefaultRuleContext) tellOrElse(msg types.RuleMsg, err error, defaultRelationType string, relationTypes ...string) {
+	//msgCopy := msg.Copy()
+	if ctx.isFirst {
+		// 执行自身
+		ctx.tellSelf(msg, err, relationTypes...)
+	} else {
+		if relationTypes == nil {
+			//找不到子节点，则执行结束回调
+			ctx.DoOnEnd(msg, err, "")
+		} else {
+			for _, relationType := range relationTypes {
+				//执行After aop
+				// 返回执行后的结果
+				msg = ctx.executeAfterAop(msg, err, relationType)
+				var ok = false
+				var nodes []types.NodeCtx
+				//根据relationType查找子节点列表
+				nodes, ok = ctx.getNextNodes(relationType)
+				//根据默认关系查找节点
+				if defaultRelationType != "" && (!ok || len(nodes) == 0) && !ctx.skipTellNext {
+					nodes, ok = ctx.getNextNodes(defaultRelationType)
+				}
+				if ok && !ctx.skipTellNext {
+					for _, item := range nodes {
+						tmp := item
+						//增加一个待执行的子节点
+						ctx.childReady()
+						msgCopy := msg.Copy()
+						//通知执行子节点
+						ctx.SubmitTack(func() {
+							ctx.tellNext(msgCopy, tmp, relationType)
+						})
+					}
+				} else {
+					//找不到子节点，则执行结束回调
+					ctx.DoOnEnd(msg, err, relationType)
+				}
+			}
+		}
+	}
+}
+```
+
+- DefaultRuleContext.tellNext(节点自处理)
+
+这里主要是进行核心的切片执行与AOP推理
+
+```go
+// engine/engine.go
+// 执行下一个节点
+func (ctx *DefaultRuleContext) tellNext(msg types.RuleMsg, nextNode types.NodeCtx, relationType string) {
+	defer func() {
+		//捕捉异常
+		if e := recover(); e != nil {
+			//执行After aop
+			msg = ctx.executeAfterAop(msg, fmt.Errorf("%v", e), relationType)
+			ctx.childDone()
+		}
+	}()
+	// 创建新的节点上下文
+	nextCtx := ctx.NewNextNodeRuleContext(nextNode)
+
+	//环绕aop
+	if !nextCtx.executeAroundAop(msg, relationType) {
+		return
+	}
+	// AroundAop 已经执行节点OnMsg逻辑，不再执行下面的逻辑
+	// 执行节点Msg处理函数
+	nextNode.OnMsg(nextCtx, msg)
+}
+```
+
+- JsTransformNode.OnMsg(节点执行)
+
+具体的执行由节点本身来完成，但是节点中必须使用Next函数进行切换，保证进行下一个节点。核心在于递归式的子节点函数调用与gin中的middle实现思路一致，但是随着调用链的增加，递归栈长度会逐渐加深，内存性能损耗较大，同时对重试机制，分布式step执行不友好。
+
+```go
+// OnMsg 处理消息
+func (x *JsTransformNode) OnMsg(ctx types.RuleContext, msg types.RuleMsg) {
+	// 预定义数据
+	var data interface{} = msg.Data
+	// 进行数据解析
+	if msg.DataType == types.JSON {
+		var dataMap interface{}
+		if err := json.Unmarshal([]byte(msg.Data), &dataMap); err == nil {
+			data = dataMap
+		} else {
+			data = make(map[string]interface{})
+		}
+	}
+	// 执行js数据过滤指令
+	// 获取输出
+	out, err := x.jsEngine.Execute("Transform", data, msg.Metadata.Values(), msg.Type)
+	if err != nil {
+		ctx.TellFailure(msg, err)
+	} else {
+		// 转换输出数据为map
+		formatData, ok := out.(map[string]interface{})
+		if ok {
+			// 更新msg对应值
+			if formatMsgType, ok := formatData[types.MsgTypeKey]; ok {
+				msg.Type = string2.ToString(formatMsgType)
+			}
+
+			if formatMetaData, ok := formatData[types.MetadataKey]; ok {
+				msg.Metadata = types.BuildMetadata(string2.ToStringMapString(formatMetaData))
+			}
+
+			if formatMsgData, ok := formatData[types.MsgKey]; ok {
+				// 设置新值
+				if newValue, err := string2.ToStringMaybeErr(formatMsgData); err == nil {
+					msg.Data = newValue
+				} else {
+					ctx.TellFailure(msg, err)
+					return
+				}
+			}
+			// 进行下一步的运算--这个是关键
+			ctx.TellNext(msg, types.Success)
+		} else {
+			ctx.TellFailure(msg, JsTransformReturnFormatErr)
+		}
+	}
+
+}
+```
