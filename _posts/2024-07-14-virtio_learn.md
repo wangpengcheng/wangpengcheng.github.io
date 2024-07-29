@@ -29,6 +29,7 @@ _参考链接：_
 - [devconf 19′: virtio 硬件加速](http://tech.mytrix.me/2019/05/devconf-19-virtio-%E7%A1%AC%E4%BB%B6%E5%8A%A0%E9%80%9F/)
 - [【中国Linux内核大会：arch专场】05-Virtio-GPU视频硬件加速](https://www.bilibili.com/video/BV1Te411k7JN/)
 - [virtio-gpu](https://www.qemu.org/docs/master/system/devices/virtio-gpu.html)
+- [virtio 虚拟化系列之一：从 virtio 论文开始](https://zhuanlan.zhihu.com/p/68154666)
 
 # virtio 框架介绍
 

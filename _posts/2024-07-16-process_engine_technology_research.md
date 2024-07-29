@@ -29,9 +29,10 @@ _参考链接：_
 - [rulego IoT规则引擎](https://github.com/rulego/rulego)
 - [argo-workflows github](https://github.com/argoproj/argo-workflows)
 - [Argo:云原生的工作流引擎](https://zhuanlan.zhihu.com/p/138122028)
+- [ArgoWorkflow教程(二)---流水线正确打开方式：Workflow & Template 概念模型](https://www.lixueduan.com/posts/devops/argo-workflow/02-workflow-template/)
 - [蓝鲸SOPS](https://github.com/TencentBlueKing/bk-sops)
 - [蓝鲸标准流程引擎](https://github.com/TencentBlueKing/bamboo-engine)
-
+- [Argo Workflow源码解析源码解析](https://goframe.org/pages/viewpage.action?pageId=44462821)
 
 # 背景
 
