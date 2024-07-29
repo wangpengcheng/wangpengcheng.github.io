@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="linux-日常命令收集">linux 日常命令收集</h1>
+
+<h2 id="参考链接">参考链接</h2>
+
+<h2 id="排查命令">排查命令</h2>
+
+<h3 id="sar日志查询命令"><a href="https://www.cnblogs.com/zsql/p/11628766.html"><code class="language-plaintext highlighter-rouge">sar</code>日志查询命令</a></h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sar <span class="nt">-s</span> 22\:40\:00 <span class="nt">-e</span> 22\:43\:00 <span class="nt">-A</span> <span class="nt">-f</span> sa07 | more
+</code></pre></div></div>
+
+<h3 id="tcpdump抓包"><a href="https://www.cnblogs.com/wongbingming/p/13212306.html"><code class="language-plaintext highlighter-rouge">tcpdump</code>抓包</a></h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tcpdump <span class="nt">-iany</span> host 10.225.156.67 <span class="nt">-w</span> 255.pcap
+</code></pre></div></div>
+
+<h3 id="grep命令"><a href=""><code class="language-plaintext highlighter-rouge">grep</code>命令</a></h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nb">cat</span> ./pod.txt | <span class="nb">grep</span>  <span class="nt">-E</span> <span class="s2">"flink|matrix"</span>  <span class="o">&gt;</span> pod1.txt
+</code></pre></div></div>
+
+<h2 id="磁盘命令">磁盘命令</h2>
+
+<h3 id="nvme设备管理命令"><a href="https://zhuanlan.zhihu.com/p/667230252"><code class="language-plaintext highlighter-rouge">nvme</code>设备管理命令</a></h3>
+
+<p>此命令常用来，进行nvme设备管理</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nvme smart-log /dev/nvme0n1<span class="p">;</span>   nvme intel smart-log-add /dev/nvme0n1<span class="p">;</span>
+</code></pre></div></div>
+
+<h2 id="kuberenetes">kuberenetes</h2>
+
+<h3 id="kubectl">kubectl</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl get pods <span class="nt">--all-namespaces</span> <span class="nt">-owide</span> | <span class="nb">grep </span>sp4-cknode-1970
+</code></pre></div></div>
+
+<h2 id="网络相关">网络相关</h2>
+
+<h3 id="iptable网络防火墙"><a href="https://lixiangyun.gitbook.io/iptables_doc_zh_cn"><code class="language-plaintext highlighter-rouge">iptable</code>网络防火墙</a></h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nsenter <span class="nt">-n</span>  <span class="nt">-t</span> <span class="nv">$pid</span> <span class="c"># 将进程pid ip table 加载到宿主机中</span>
+</code></pre></div></div>
+
+<h2 id="存储相关">存储相关</h2>
+
+<h3 id="磁盘清理">磁盘清理</h3>
+
+<p>磁盘清理流程：</p>
+<ul>
+  <li>df -h 查看分区使用情况</li>
+  <li>du -sh * 逐级寻找占用空间比较大的目录</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>找到对应目录之后  find . -name “<em>.log</em>”-mtime +5</td>
+          <td>xargs rm -rf</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h2 id="pref">Pref</h2>
+
+<h3 id="基础性能调优">基础性能调优</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>perf <span class="nb">stat</span> <span class="nt">-e</span> L1-dcache-load-misses,L1-dcache-loads,L1-dcache-stores,L1-icache-load-misses,L1-icache-loads,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses,LLC-prefetch-misses
+</code></pre></div></div>
+<h2 id="内核相关">内核相关</h2>
+
+<h3 id="内核模块">内核模块</h3>
+
+<ul>
+  <li><a href="https://github.com/ytinirt/notes/blob/master/docs/os.md#%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97module">内核模块管理</a></li>
+  <li><a href="https://blog.exsvc.cn/article/centos-module-install-remove.html">内核模块加载</a></li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. 检查模块已被静态编译到内核中：</span>
+<span class="nb">grep</span> <span class="nt">-e</span> ipvs <span class="nt">-e</span> nf_conntrack_ipv4 /lib/modules/<span class="si">$(</span><span class="nb">uname</span> <span class="nt">-r</span><span class="si">)</span>/modules.builtin
+<span class="c"># 2. 查询可加载内核模块</span>
+find /lib/modules/<span class="si">$(</span><span class="nb">uname</span> <span class="nt">-r</span><span class="si">)</span> <span class="nt">-type</span> f <span class="nt">-name</span> <span class="s1">'*.ko*'</span>
+<span class="c"># 3. 加载内核模块</span>
+insmod  /lib/modules/4.18.0-305.3.1.el8.x86_64/extra/openvswitch.ko
+<span class="c"># 4. 展示内核模块</span>
+lsmod | <span class="nb">grep </span>openvswitch 
+
+</code></pre></div></div>
+</body></html>
