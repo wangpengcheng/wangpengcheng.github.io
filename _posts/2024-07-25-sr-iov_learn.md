@@ -32,7 +32,8 @@ _参考链接：_
 - [Upstream how to use SF kernel vdpa device](https://github.com/Mellanox/scalablefunctions/wiki/Upstream-how-to-use-SF-kernel-vdpa-device)
 - [OVS Offload Using ASAP² Direct](https://docs.nvidia.com/networking/display/mlnxofedv531001/ovs+offload+using+asap%C2%B2+direct)
 - [Configure SR-IOV Network Virtual Functions in Linux* KVM*](https://www.intel.com/content/www/us/en/developer/articles/technical/configure-sr-iov-network-virtual-functions-in-linux-kvm.html)
-- [深入高可用架构原理与实践](https://www.thebyte.com.cn/network/linux-kernel-networking.html)
+- [深入高可用架构原理与实践--内核网络](https://www.thebyte.com.cn/network/linux-kernel-networking.html)
+- [linux 内核网络](https://docs.kernel.org/networking/switchdev.html)
 
 # SR-IOV
 

@@ -21,6 +21,7 @@ tags:
 - [20 Linux Virtualization Interview Questions and Answers](https://www.linuxtechi.com/linux-virtualization-interview-questions/)
 - [腾讯云csig虚拟化部门一面面经](https://www.nowcoder.com/feed/main/detail/2e58841b38774b048cf98a0a6d670027?sourceSSR=search)
 - [30 个 Openstack 经典面试问题和解答](https://zhuanlan.zhihu.com/p/51984152)
+- [磁盘扩容](https://yuuuuuy.top/2019/02/26/KVM%E8%99%9A%E6%8B%9F%E6%9C%BAqcow2%E7%A1%AC%E7%9B%98%E6%89%A9%E5%AE%B9/)
 
 
 # 1. kvm 常用操作

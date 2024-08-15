@@ -49,3 +49,9 @@ _参考链接:_
 - 服务质量:
     - 可靠性;安全性;性能
 
+
+
+
+# 分布式锁
+
+- [常见redis分布式锁](https://redis.io/docs/latest/develop/use/patterns/distributed-locks/)

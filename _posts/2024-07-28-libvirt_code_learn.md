@@ -21,3 +21,9 @@ _参考链接：_
 - [libvirt初始化流程分析](https://blog.csdn.net/qq_33970713/article/details/123903255)
 - [libvirt代码调用流程分析](https://qkxu.github.io/2019/11/05/libvirt%E4%BB%A3%E7%A0%81%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90.html)
 - [Libvirt Event Loop简介](https://blog.csdn.net/huang987246510/article/details/120193050)
+
+
+### qemu源码分析
+
+- [glib事件处理框架分析](https://wangzhou.github.io/glib%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90/)
+- [深入理解qemu事件循环 —— 基本框架](https://blog.csdn.net/huang987246510/article/details/90738137)
