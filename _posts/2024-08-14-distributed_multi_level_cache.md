@@ -21,7 +21,7 @@ _参考链接_：
 - [beego-cache](https://github.com/beego/beego-cache)
 - [bigcache](https://github.com/allegro/bigcache)
 - [分布式多级缓存SDK设计的思考](https://cloud.tencent.com/developer/article/2337543)
-- [实战干货 | 分布式多级缓存设计方案](https://developer.aliyun.com/article/1126957)
+- [实战干货--分布式多级缓存设计方案](https://developer.aliyun.com/article/1126957)
 - [常见缓存更新策略](https://zhuanlan.zhihu.com/p/543438986)
 - [jetcache-go多级缓存](https://juejin.cn/post/7278246015194447887)
 - [统一缓存帝国 - 实战 Spring Cache](https://www.51cto.com/article/668874.html)
@@ -35,6 +35,7 @@ _参考链接_：
 - [分布式多级缓存系统设计与实战](https://xie.infoq.cn/article/58e07307f546badafb6ac6b38)
 - [jetcache](https://github.com/alibaba/jetcache/blob/master/introduce_CN.md)
 - [使用Go设计多缓存驱动](https://cloud.tencent.com/developer/article/2171041)
+- [多缓存架构设计](https://www.cnblogs.com/crazymakercircle/p/17673609.html)
 - [gocache](http://github.com/eko/gocache)
 
 
@@ -128,7 +129,7 @@ type (
     }
 )
 ```
-其中 `Options` 使用了操作链模式，进行了依赖翻转，可以通过函数链，进行快速的参数设置，值得学习， 定义如下：
+其中 `Options` 使用了操作链模式，进行了依赖反转，可以通过函数链，进行快速的参数设置，值得学习， 定义如下：
 
 ```go
 type (
@@ -237,7 +238,9 @@ func Example_advancedUsage() {
 ```
 
 2. once 函数实现：使用once 函数进行值设置和读取。核心关键代码如下：
-```go
+
+
+```golang
 // https://github.com/mgtv-tech/jetcache-go/blob/7570bd5d950b4e016cf241b45e3536c50e49cd56/cache.go
 
 func (c *jetCache) Once(ctx context.Context, key string, opts ...ItemOption) error {
@@ -275,7 +278,7 @@ func (c *jetCache) Once(ctx context.Context, key string, opts ...ItemOption) err
 ```
 这里是整体的获取逻辑，关键在于获取失败的会自动进行重试。值查询的核心在于`getSetItemBytesOnce` 进行核心的值查询
 
-3. `getSetItemBytesOnce` 兼顾了值查询与写入，核心的处理逻辑如下：
+1. `getSetItemBytesOnce` 兼顾了值查询与写入，核心的处理逻辑如下：
 
 ```go
 func (c *jetCache) getSetItemBytesOnce(item *item) (b []byte, cached bool, err error) {
@@ -398,9 +401,10 @@ func (item *item) getValue() (any, error) {
 
 ### [gocache](https://github.com/eko/gocache)
 
+
 ### 本地缓存方案
 
-
+本地缓存直接使用内存存储即可，添加使用redis订阅发布，增加分布式同步功能。
 
 ## 核心业务处理
 
@@ -500,6 +504,7 @@ func (item *item) getValue() (any, error) {
 1. 缓存雪崩：涉及到key过期问题，应由使用方自行解决。
     - key过期时间梯度设置：将key的过期时间进行梯度设置，保证前一层的过期时间小于后一层。进行层层拦截
     - 随机过期时间：使用参数，决定是否加入随机过期时间，防止缓存雪崩。
+  
 2. 缓存穿透：
     - 多层缓存中，key 设置下层对应的miss 次数和limit_qps, 当miss 次数超过limit下一层的limit 时不再进行，下层访问：而是直接返回empty
     - 层访问qos limit: 每层设置下一层的访问与当前访问qps,  qps limit。超过此限制时，直接返回异常
@@ -513,7 +518,8 @@ func (item *item) getValue() (any, error) {
 
 
 5. 本地缓存选型：
+
 综合考虑，本地缓存选型为freecache 与ristretto 缓存
 
 6. 层级锁：
-    - 更新(删除/更新)下级缓存时，需要先拿到层级锁后再进行操作。
+    - 更新(删除/更新)下级缓存时，需要先拿到层级锁后再进行操作。避免本地线程争抢问题
