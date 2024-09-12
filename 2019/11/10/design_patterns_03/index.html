@@ -1,0 +1,2911 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>图说设计模式 学习笔记 (三) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/11/10/design_patterns_03/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F" title="设计模式">设计模式</a>
+                        
+                        <a class="tag" href="/tags/#UML" title="UML">UML</a>
+                        
+                    </div>
+                    <h1>图说设计模式 学习笔记 (三)</h1>
+                    
+                    
+                    <h2 class="subheading">图说设计模式 学习笔记 (三) 行为型模式</h2>
+                    
+                    <span class="meta">Posted by 敬方 on November 10, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-11-10 21:41:49</p>
+</blockquote>
+
+<h1 id="图说设计模式阅读笔记">图说设计模式阅读笔记</h1>
+
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://github.com/me115/design_patterns">github地址</a></li>
+  <li><a href="https://blog.csdn.net/Bing_Lee/article/details/87640606">23种设计模式C++实现</a></li>
+  <li><a href="https://design-patterns.readthedocs.io/zh_CN/latest/">图说设计模式</a></li>
+  <li><a href="https://www.jianshu.com/c/c3f6140b8315">设计模式C++实现笔记</a></li>
+  <li><a href="https://blog.csdn.net/liang19890820/article/details/66974516">C++ 设计模式</a></li>
+  <li><a href="https://github.com/Waleon/DesignPatterns">C++设计模式代码地址</a></li>
+  <li><a href="https://pan.baidu.com/disk/home#/all?path=%2FLearning_Note%2F%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E4%B9%A6%2F%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%92%8C%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86&vmode=list">设计模式(可复用面向对象的软件的基础)</a></li>
+  <li><a href="https://www.bilibili.com/video/av52251106">C++设计模式视频</a></li>
+</ul>
+
+<h1 id="行为型模式">行为型模式</h1>
+
+<h2 id="1-命令模式">1 命令模式</h2>
+
+<p>对象之间发送命令骑牛，不需要直到发送者是谁，只需要指定具体的接收请求者即可。</p>
+
+<p>命令模式可以对发送者和接收者完全解耦，发送者与接收者之间没有直接引用关系，发送请求的对象只需要知道如何发送请求，而不必知道如何完成请求。这就是命令模式的模式动机。例如Qt的信号和槽函数，来实现命令模式</p>
+
+<h3 id="12-模式定义">1.2 模式定义</h3>
+
+<p>命令模式（Command Pattern）是一种数据驱动的设计模式，它属于行为型模式。请求以命令的形式包裹在对象中，并传递给调用对象。调用对象寻找可以处理该命令的合适对象，并把该命令传给相应的对象，该对象执行命令。</p>
+
+<h3 id="13-模式结构">1.3 模式结构</h3>
+
+<p>命令模式包含如下角色：</p>
+
+<ul>
+  <li>Command: 抽象命令类；定义命令的接口，声明执行的方法。</li>
+  <li>ConcreteCommand: 具体命令类：命令接口实现对象，通常会持有接收者，并调用接收者的功能来完成命令要执行的操作。</li>
+  <li>Invoker: 调用者：要求命令对象执行请求，通常会持有命令对象，可以持有很多的命令对象。这个是客户端真正触发命令并要求命令执行相应操作的地方，也就是说相当于使用命令对象的入口。</li>
+  <li>Receiver: 接收者，真正执行命令的对象。任何类都可能成为一个接收者，只要它能够实现命令要求实现的相应功能。</li>
+  <li>Client:客户类：创建具体命令的对象，并设置其接收者;</li>
+</ul>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/Command.jpg" alt="模式结构"></p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_Command.jpg" alt="时序图"></p>
+
+<h3 id="14-代码实现和实例">1.4 代码实现和实例</h3>
+
+<p><strong>打车队列</strong>
+使用打车队列实现一个简单的命令模式队列</p>
+
+<p>command原型类，主要功能是定义命令执行的接口</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* command.h */</span>
+<span class="cp">#ifndef COMMAND_H
+#define COMMAND_H
+</span>
+<span class="n">class</span> <span class="n">Reciever</span><span class="p">;</span>
+
+<span class="c1">// 提供执行命令的接口</span>
+<span class="n">class</span> <span class="n">Command</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Command</span><span class="p">(</span><span class="n">Reciever</span> <span class="o">*</span><span class="n">reciever</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">execute</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// 执行命令</span>
+<span class="nl">protected:</span>
+    <span class="n">Reciever</span> <span class="o">*</span><span class="n">m_pReciever</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// 打车</span>
+<span class="n">class</span> <span class="n">TakeCommand</span> <span class="o">:</span> <span class="n">public</span> <span class="n">Command</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">TakeCommand</span><span class="p">(</span><span class="n">Reciever</span> <span class="o">*</span><span class="n">reciever</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">execute</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="c1">// 付款</span>
+<span class="n">class</span> <span class="n">PayCommand</span> <span class="o">:</span> <span class="n">public</span> <span class="n">Command</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">PayCommand</span><span class="p">(</span><span class="n">Reciever</span> <span class="o">*</span><span class="n">reciever</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">execute</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // COMMAND_H
+</span></code></pre></div></div>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* command.cpp */</span>
+<span class="cp">#include "command.h"
+#include "reciever.h"
+#include &lt;iostream&gt;
+</span>
+<span class="n">Command</span><span class="o">::</span><span class="n">Command</span><span class="p">(</span><span class="n">Reciever</span> <span class="o">*</span><span class="n">reciever</span><span class="p">)</span>
+    <span class="o">:</span> <span class="n">m_pReciever</span><span class="p">(</span><span class="n">reciever</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="c1">// 打车</span>
+<span class="n">TakeCommand</span><span class="o">::</span><span class="n">TakeCommand</span><span class="p">(</span><span class="n">Reciever</span> <span class="o">*</span><span class="n">reciever</span><span class="p">)</span>
+    <span class="o">:</span> <span class="n">Command</span><span class="p">(</span><span class="n">reciever</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">TakeCommand</span><span class="o">::</span><span class="n">execute</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Take command..."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">m_pReciever</span><span class="o">-&gt;</span><span class="n">takeOrder</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// 付款</span>
+<span class="n">PayCommand</span><span class="o">::</span><span class="n">PayCommand</span><span class="p">(</span><span class="n">Reciever</span> <span class="o">*</span><span class="n">reciever</span><span class="p">)</span>
+    <span class="o">:</span> <span class="n">Command</span><span class="p">(</span><span class="n">reciever</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">PayCommand</span><span class="o">::</span><span class="n">execute</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Pay command..."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">m_pReciever</span><span class="o">-&gt;</span><span class="n">receipt</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>有了 Command，就需要有对应的 Invoker 来持有命令，然后进行触发。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* invoker.h */</span>
+<span class="cp">#ifndef INVOKER_H
+#define INVOKER_H
+</span>
+<span class="cp">#include &lt;list&gt;
+#include "command.h"
+</span>
+<span class="c1">// 命令的持有者</span>
+<span class="n">class</span> <span class="n">Invoker</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Invoker</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">addCmd</span><span class="p">(</span><span class="n">Command</span> <span class="o">*</span><span class="n">cmd</span><span class="p">);</span>  <span class="c1">// 添加命令</span>
+    <span class="kt">void</span> <span class="n">deleteCmd</span><span class="p">(</span><span class="n">Command</span> <span class="o">*</span><span class="n">cmd</span><span class="p">);</span>  <span class="c1">// 删除命令</span>
+    <span class="kt">void</span> <span class="n">notify</span><span class="p">();</span>  <span class="c1">// 执行命令</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">Command</span> <span class="o">*&gt;</span> <span class="n">m_cmds</span><span class="p">;</span>  <span class="c1">// 命令队列</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // INVOKER_H
+</span></code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* invoker.cpp */</span>
+<span class="cp">#include "invoker.h"
+</span>
+<span class="n">Invoker</span><span class="o">::</span><span class="n">Invoker</span><span class="p">()</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">Invoker</span><span class="o">::</span><span class="n">addCmd</span><span class="p">(</span><span class="n">Command</span> <span class="o">*</span><span class="n">cmd</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">m_cmds</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">cmd</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">Invoker</span><span class="o">::</span><span class="n">deleteCmd</span><span class="p">(</span><span class="n">Command</span> <span class="o">*</span><span class="n">cmd</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">m_cmds</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cmd</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">Invoker</span><span class="o">::</span><span class="n">notify</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">Command</span> <span class="o">*&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">m_cmds</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">m_cmds</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">execute</span><span class="p">();</span>
+        <span class="o">++</span><span class="n">it</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>最后是 Reciever，也就是司机，用于执行命令（接单/收款）。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* reciever.h */</span>
+<span class="cp">#ifndef RECIEVER_H
+#define RECIEVER_H
+</span>
+<span class="c1">// 司机</span>
+<span class="n">class</span> <span class="n">Reciever</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">takeOrder</span><span class="p">();</span>  <span class="c1">// 接单</span>
+    <span class="kt">void</span> <span class="n">receipt</span><span class="p">();</span>  <span class="c1">// 收款</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // RECIEVER_H
+</span>
+<span class="cm">/* reciever.cpp */</span>
+<span class="cp">#include "reciever.h"
+#include &lt;iostream&gt;
+</span>
+<span class="c1">// 接单</span>
+<span class="kt">void</span> <span class="n">Reciever</span><span class="o">::</span><span class="n">takeOrder</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Take order..."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 收款</span>
+<span class="kt">void</span> <span class="n">Reciever</span><span class="o">::</span><span class="n">receipt</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Receipt..."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>主要创建和接收方法：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "invoker.h"
+#include "reciever.h"
+#include "command.h"
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Reciever</span> <span class="o">*</span><span class="n">rev</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Reciever</span><span class="p">();</span>
+    <span class="n">Command</span> <span class="o">*</span><span class="n">cmd1</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TakeCommand</span><span class="p">(</span><span class="n">rev</span><span class="p">);</span>
+    <span class="n">PayCommand</span> <span class="o">*</span><span class="n">cmd2</span> <span class="o">=</span> <span class="n">new</span> <span class="n">PayCommand</span><span class="p">(</span><span class="n">rev</span><span class="p">);</span>
+    <span class="n">Invoker</span> <span class="n">inv</span><span class="p">;</span>
+
+    <span class="n">inv</span><span class="p">.</span><span class="n">addCmd</span><span class="p">(</span><span class="n">cmd1</span><span class="p">);</span>
+    <span class="n">inv</span><span class="p">.</span><span class="n">addCmd</span><span class="p">(</span><span class="n">cmd2</span><span class="p">);</span>
+    <span class="c1">//发射信号执行函数</span>
+    <span class="n">inv</span><span class="p">.</span><span class="n">notify</span><span class="p">();</span>
+
+    <span class="n">delete</span> <span class="n">cmd1</span><span class="p">;</span>
+    <span class="n">delete</span> <span class="n">cmd2</span><span class="p">;</span>
+    <span class="n">delete</span> <span class="n">rev</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+//输出内容如下;
+
+Take command… 
+Take order… 
+Pay command… 
+Receipt…
+
+*/</span>
+
+</code></pre></div></div>
+
+<h3 id="15-优缺点">1.5 优缺点</h3>
+
+<p>优点：</p>
+
+<ul>
+  <li>降低系统的耦合度。</li>
+  <li>新的命令可以很容易地加入到系统中。</li>
+  <li>可以比较容易地设计一个命令队列和宏命令（组合命令）。</li>
+  <li>可以方便地实现对请求的Undo和Redo。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>使用命令模式可能会导致某些系统有过多的具体命令类。因为针对每一个命令都需要设计一个具体命令类，因此某些系统可能需要大量具体命令类，这将影响命令模式的使用。(qt通过函数指针和宏定义来解决了这个问题)</li>
+  <li>
+</li>
+</ul>
+
+<h3 id="16-适用环境">1.6 适用环境</h3>
+
+<ul>
+  <li>系统需要将请求调用者和请求接收者解耦，使得调用者和接收者不直接交互。</li>
+  <li>系统需要在不同的时间指定请求、将请求排队和执行请求。</li>
+  <li>系统需要支持命令的撤销(Undo)操作和恢复(Redo)操作。</li>
+  <li>系统需要将一组操作组合在一起，即支持宏命令。</li>
+</ul>
+
+<p>注意命令行的本质还是对于对象之间消息的接收和发送。</p>
+
+<h2 id="2-中介者模式">2. 中介者模式</h2>
+
+<p>在多对象的相互行为合作中，它们之间的联系和行为存在相似性，但是每个对象之间又存在独立性。系统的扩展度较低，往往需要单独为两个对象之间编写对应的接口函数；增大了系统的耦合性。</p>
+
+<p>使用中介者模式来连接不同对象之间的相似，行为对系统进行松耦合。</p>
+
+<p><strong>中介者模式（Mediator Pattern）</strong>用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。</p>
+
+<h3 id="21-模式结构">2.1 模式结构</h3>
+<p>中介者模式包含如下角色：</p>
+
+<ul>
+  <li>Mediator: 抽象中介者:为 Colleague 对象之间的通信定义接口。</li>
+  <li>ConcreteMediator: 具体中介者:实现 Mediator 接口，并需要了解和维护各个 Colleague 对象，负责协调他们之间的通信。</li>
+  <li>Colleague: 抽象同事类:定义与其他 Colleague 通信的接口。</li>
+  <li>ConcreteColleague: 具体同事类:实现 Colleague 接口，并通过 Mediator 与其他 Colleague 进行沟通。</li>
+</ul>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/Mediator.jpg" alt="中介者模式结构图"></p>
+
+<p><strong>时序图</strong></p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_Mediator.jpg" alt="时序图"></p>
+
+<h3 id="22-案例">2.2 案例</h3>
+
+<blockquote>
+  <p>房东-中介-客户</p>
+</blockquote>
+
+<p>使用中介完善房东与客户之间的相似行为。</p>
+
+<h3 id="23-代码分析">2.3 代码分析</h3>
+
+<p><strong>创建抽象中介者</strong></p>
+
+<p>中介者除了要注册参与者之外，还需要将发送者的消息传递出去。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// mediator.h</span>
+<span class="cp">#pragma once
+</span>
+<span class="cp">#include "colleague.h"
+#include &lt;list&gt;
+</span>
+<span class="n">class</span> <span class="n">IColleague</span><span class="p">;</span>
+
+<span class="c1">// 抽象中介者</span>
+<span class="n">class</span> <span class="n">IMediator</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">// 注册参与者</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">registerColleague</span><span class="p">(</span><span class="n">IColleague</span><span class="o">*</span> <span class="n">colleague</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_colleagues</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">colleague</span><span class="p">);</span> <span class="p">}</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">IColleague</span><span class="o">*&gt;&amp;</span> <span class="n">getColleagues</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_colleagues</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="c1">// 将发送者的消息发送给所有参与者</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">distributeMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">IColleague</span><span class="o">*</span> <span class="n">sender</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">IColleague</span><span class="o">*&gt;</span> <span class="n">m_colleagues</span><span class="p">;</span><span class="c1">//两边的类列表</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p><strong>创建具体中介者</strong>
+具体中介者的职责是遍历所有的参与者，将发送者的消息通知到每一个人：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_mediator.h</span>
+<span class="cp">#ifndef CONCRETE_MEDIATOR_H
+#define CONCRETE_MEDIATOR_H
+</span>
+<span class="cp">#include "mediator.h"
+</span>
+<span class="c1">// 具体中介者</span>
+<span class="n">class</span> <span class="n">ConcreteMediator</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IMediator</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">// 将发送者的消息发送给所有参与者（但不包括发送者自己）</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">distributeMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">IColleague</span><span class="o">*</span> <span class="n">sender</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span> <span class="k">const</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">IColleague</span><span class="o">*</span> <span class="n">c</span> <span class="o">:</span> <span class="n">getColleagues</span><span class="p">())</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">!=</span> <span class="n">sender</span><span class="p">)</span>  <span class="c1">// 不要将消息发送给自己</span>
+                <span class="n">c</span><span class="o">-&gt;</span><span class="n">receiveMessage</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">message</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_MEDIATOR_H
+</span></code></pre></div></div>
+<p><strong>创建抽象同事</strong>
+由于房东和租客均由同事类表示，所以既需要（房东）发送消息，又需要（租客）接收消息：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// colleague.h</span>
+<span class="cp">#pragma once
+</span>
+<span class="cp">#include "mediator.h"
+#include &lt;string&gt;
+</span>
+<span class="n">class</span> <span class="n">IMediator</span><span class="p">;</span>
+
+<span class="c1">// 抽象同事类</span>
+<span class="n">class</span> <span class="n">IColleague</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">IColleague</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">)</span> <span class="o">:</span> <span class="n">m_strName</span> <span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">getName</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_strName</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="c1">// 通过中介者，将自己的消息发布出去</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">sendMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">IMediator</span><span class="o">&amp;</span> <span class="n">mediator</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="c1">// 接收来自发送者的消息</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">receiveMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">IColleague</span><span class="o">*</span> <span class="n">sender</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">m_strName</span><span class="p">;</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+<p><strong>创建具体同事</strong>
+在内部，具体的消息发送由中介者完成:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_colleague.h</span>
+<span class="cp">#ifndef CONCRETE_COLLEAGUE_H
+#define CONCRETE_COLLEAGUE_H
+</span>
+<span class="cp">#include "colleague.h"
+#include &lt;iostream&gt;
+</span>
+<span class="c1">// 具体同事类</span>
+<span class="n">class</span> <span class="n">ConcreteColleague</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IColleague</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">using</span> <span class="n">IColleague</span><span class="o">::</span><span class="n">IColleague</span><span class="p">;</span>
+
+    <span class="c1">// 通过中介者，将自己的消息发布出去</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">sendMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">IMediator</span><span class="o">&amp;</span> <span class="n">mediator</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span> <span class="k">const</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">mediator</span><span class="p">.</span><span class="n">distributeMessage</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">message</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="c1">// 接收来自发送者的消息</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">receiveMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">IColleague</span><span class="o">*</span> <span class="n">sender</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span> <span class="k">const</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">getName</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" received the message from "</span>
+                  <span class="o">&lt;&lt;</span> <span class="n">sender</span><span class="o">-&gt;</span><span class="n">getName</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">": "</span> <span class="o">&lt;&lt;</span> <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_COLLEAGUE_H
+</span>
+</code></pre></div></div>
+
+<p><strong>创建客户端</strong></p>
+
+<p>找房啦！一旦房东将房子挂出去，中介便会通知所有需要租房的人：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "concrete_colleague.h"
+#include "concrete_mediator.h"
+</span>
+<span class="cp">#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) { if(p){delete(p); (p)=NULL;} }
+#endif
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// 房东</span>
+    <span class="n">IColleague</span> <span class="o">*</span><span class="n">landlord</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteColleague</span><span class="p">(</span><span class="s">"Tom"</span><span class="p">);</span>
+
+    <span class="c1">// 租客</span>
+    <span class="n">IColleague</span> <span class="o">*</span><span class="n">jerry</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteColleague</span><span class="p">(</span><span class="s">"Jerry"</span><span class="p">);</span>
+    <span class="n">IColleague</span> <span class="o">*</span><span class="n">tuffy</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteColleague</span><span class="p">(</span><span class="s">"Tuffy"</span><span class="p">);</span>
+
+    <span class="c1">// 中介者 - 添加租客</span>
+    <span class="n">ConcreteMediator</span> <span class="n">mediator</span><span class="p">;</span>
+    <span class="n">mediator</span><span class="p">.</span><span class="n">registerColleague</span><span class="p">(</span><span class="n">jerry</span><span class="p">);</span>
+    <span class="n">mediator</span><span class="p">.</span><span class="n">registerColleague</span><span class="p">(</span><span class="n">tuffy</span><span class="p">);</span>
+
+    <span class="c1">// 房东通过中介将消息发送出去</span>
+    <span class="n">landlord</span><span class="o">-&gt;</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">mediator</span><span class="p">,</span> <span class="s">"Xi'erqi, two bedroom house, 6000/month."</span><span class="p">);</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">jerry</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">tuffy</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+输出如下：
+
+Jerry received the message from Tom: Xi’erqi, two bedroom house, 6000/month. 
+Tuffy received the message from Tom: Xi’erqi, two bedroom house, 6000/month.
+*/</span>
+</code></pre></div></div>
+
+<h3 id="28-优缺点">2.8 优缺点</h3>
+
+<p>优点：</p>
+
+<ul>
+  <li>简化了对象之间的交互。</li>
+  <li>将各同事解耦。</li>
+  <li>减少子类生成。</li>
+  <li>可以简化各同事类的设计和实现。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>在具体中介者类中包含了同事之间的交互细节，可能会导致具体中介者类非常复杂，使得系统难以维护。</li>
+</ul>
+
+<p>该模式主要应用于MVC交媾中的控制器部分。Controller 作为一种中介者，它负责控制视图对象View和模型对象Model之间的交互。如在Struts中，Action就可以作为JSP页面与业务对象之间的中介者。</p>
+
+<p>中介者模式也应用于GUI中，在比较复杂的界面中可能存在多个界面组件之间的互交关系。</p>
+
+<h3 id="29-模式扩展">2.9 模式扩展</h3>
+
+<p>迪米特法则：中介模式中，创建一个中介者对象，将系统中有关的对象所引用的其它对象数目减少到最少，使得一个对象与其同事之间的相互作用被取代。</p>
+
+<h3 id="210-总结">2.10 总结</h3>
+<ul>
+  <li>使用中介者将需要发送的消息通过中介者进行发送。和命令模式不同的是，<strong>命令模式着重，信号前后的行为，不管具体对象；重点在于command</strong>。中介者模式主要是通过中介将消息的接收者进行同一管理，重点在与接收者。</li>
+  <li>中介者模式，使得各个对象不需要显式地相互调用</li>
+  <li>使用中介者模式可以有效的隐藏中间消息传递筛选细节。</li>
+</ul>
+
+<h2 id="3-观察者模式">3 观察者模式</h2>
+
+<p>上述模式中，需要使用明显的调用函数，来进行两个对象之间的通信，但是能否建立一种关系，使得一个对象发生改变时，自动通知其它对象，做出反映。这种模式就是观察者模式</p>
+
+<h3 id="32-模式定义">3.2 模式定义</h3>
+
+<p><strong>观察者模式(Observer Pattern)</strong>：定义对象间的一种一对多依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象皆得到通知并被自动更新。观察者模式又叫做发布-订阅（Publish/Subscribe）模式、模型-视图（Model/View）模式、源-监听器（Source/Listener）模式或从属者（Dependents）模式。</p>
+
+<p>观察者模式是一种对象行为型模式。</p>
+
+<h3 id="33-模式结构">3.3 模式结构</h3>
+<p>观察者模式包含如下角色：</p>
+
+<ul>
+  <li>Subject: 目标主题：跟踪所有观察者，并提供添加和删除观察者的接口。</li>
+  <li>ConcreteSubject: 具体目标；将有关状态存入各 ConcreteObserver 对象。当具体主题的状态发生任何更改时，通知所有观察者。</li>
+  <li>Observer: 观察者：为所有的具体观察者定义一个接口，在得到主题的通知时进行自我更新。</li>
+  <li>ConcreteObserver: 具体观察者；实现 Observer 所要求的更新接口，以便使本身的状态与主题的状态相协调。</li>
+</ul>
+
+<p>类图如下：</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/Obeserver.jpg" alt="观察者类图"></p>
+
+<p>时序图：</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_Obeserver.jpg" alt="时序图"></p>
+
+<h3 id="34-实际案例">3.4 实际案例</h3>
+
+<p>滴滴平台中，司机相当于观察者，滴滴相当于主题。</p>
+
+<h3 id="35-代码实现">3.5 代码实现</h3>
+
+<p><strong>创建抽象主题</strong>
+提供注册、注销、通知观察者的接口</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// subject.h</span>
+<span class="cp">#ifndef SUBJECT_H
+#define SUBJECT_H
+</span>
+<span class="n">class</span> <span class="n">IObserver</span><span class="p">;</span>
+
+<span class="c1">// 抽象主题</span>
+<span class="n">class</span> <span class="n">ISubject</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Attach</span><span class="p">(</span><span class="n">IObserver</span> <span class="o">*</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// 注册观察者</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Detach</span><span class="p">(</span><span class="n">IObserver</span> <span class="o">*</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// 注销观察者</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Notify</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// 通知观察者</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // SUBJECT_H
+</span></code></pre></div></div>
+<p><strong>创建具体主题</strong>
+抽象主题的具体实现，用于管理所有的观察者：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_subject.h</span>
+<span class="cp">#ifndef CONCRETE_SUBJECT_H
+#define CONCRETE_SUBJECT_H
+</span>
+<span class="cp">#include "subject.h"
+#include "observer.h"
+#include &lt;iostream&gt;
+#include &lt;list&gt;
+</span>
+<span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="c1">// 具体主题</span>
+<span class="n">class</span> <span class="n">ConcreteSubject</span> <span class="o">:</span> <span class="n">public</span> <span class="n">ISubject</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">ConcreteSubject</span><span class="p">()</span> <span class="p">{</span> <span class="n">m_fPrice</span> <span class="o">=</span> <span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">SetPrice</span><span class="p">(</span><span class="kt">float</span> <span class="n">price</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">m_fPrice</span> <span class="o">=</span> <span class="n">price</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">Attach</span><span class="p">(</span><span class="n">IObserver</span> <span class="o">*</span><span class="n">observer</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">m_observers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">observer</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">Detach</span><span class="p">(</span><span class="n">IObserver</span> <span class="o">*</span><span class="n">observer</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">m_observers</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">observer</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">Notify</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">list</span><span class="o">&lt;</span><span class="n">IObserver</span> <span class="o">*&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">m_observers</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">m_observers</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+            <span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Update</span><span class="p">(</span><span class="n">m_fPrice</span><span class="p">);</span>
+            <span class="o">++</span><span class="n">it</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="n">list</span><span class="o">&lt;</span><span class="n">IObserver</span> <span class="o">*&gt;</span> <span class="n">m_observers</span><span class="p">;</span>  <span class="c1">// 观察者列表</span>
+    <span class="kt">float</span> <span class="n">m_fPrice</span><span class="p">;</span>  <span class="c1">// 价格</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_SUBJECT_H
+</span></code></pre></div></div>
+<p><strong>创建抽象观察者</strong></p>
+
+<p>提供一个 Update() 接口，用于更新价格：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// observer.h</span>
+<span class="cp">#ifndef OBSERVER_H
+#define OBSERVER_H
+</span>
+<span class="c1">// 抽象观察者</span>
+<span class="n">class</span> <span class="n">IObserver</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Update</span><span class="p">(</span><span class="kt">float</span> <span class="n">price</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// 更新价格</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // OBSERVER_H
+</span></code></pre></div></div>
+
+<p><strong>创建具体观察者</strong></p>
+
+<p>抽象观察者的具体实现，当接收到通知后，调整对应的价格：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">// concrete_observer.h</span>
+<span class="cp">#ifndef CONCRETE_OBSERVER_H
+#define CONCRETE_OBSERVER_H
+</span>
+<span class="cp">#include "observer.h"
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+</span>
+<span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="c1">// 具体观察者</span>
+<span class="n">class</span> <span class="n">ConcreteObserver</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IObserver</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">ConcreteObserver</span><span class="p">(</span><span class="n">string</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_strName</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">Update</span><span class="p">(</span><span class="kt">float</span> <span class="n">price</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">m_strName</span> <span class="o">&lt;&lt;</span> <span class="s">" - price: "</span> <span class="o">&lt;&lt;</span> <span class="n">price</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="nl">private:</span>
+     <span class="n">string</span> <span class="n">m_strName</span><span class="p">;</span>  <span class="c1">// 名字</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_OBSERVER_H
+</span></code></pre></div></div>
+<p><strong>创建客户端</strong></p>
+
+<p>创建主题以及对应的观察者，并添加观察者并更新价格：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "concrete_subject.h"
+#include "concrete_observer.h"
+</span>
+<span class="cp">#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) { if(p){delete(p); (p)=NULL;} }
+#endif
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// 创建主题、观察者</span>
+    <span class="n">ConcreteSubject</span> <span class="o">*</span><span class="n">pSubject</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteSubject</span><span class="p">();</span>
+    <span class="n">IObserver</span> <span class="o">*</span><span class="n">pObserver1</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteObserver</span><span class="p">(</span><span class="s">"Jack Ma"</span><span class="p">);</span>
+    <span class="n">IObserver</span> <span class="o">*</span><span class="n">pObserver2</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteObserver</span><span class="p">(</span><span class="s">"Pony"</span><span class="p">);</span>
+
+    <span class="c1">// 注册观察者</span>
+    <span class="n">pSubject</span><span class="o">-&gt;</span><span class="n">Attach</span><span class="p">(</span><span class="n">pObserver1</span><span class="p">);</span>
+    <span class="n">pSubject</span><span class="o">-&gt;</span><span class="n">Attach</span><span class="p">(</span><span class="n">pObserver2</span><span class="p">);</span>
+
+    <span class="c1">// 更改价格，并通知观察者</span>
+    <span class="n">pSubject</span><span class="o">-&gt;</span><span class="n">SetPrice</span><span class="p">(</span><span class="mi">12</span><span class="p">.</span><span class="mi">5</span><span class="p">);</span>
+    <span class="n">pSubject</span><span class="o">-&gt;</span><span class="n">Notify</span><span class="p">();</span>
+
+    <span class="c1">// 注销观察者</span>
+    <span class="n">pSubject</span><span class="o">-&gt;</span><span class="n">Detach</span><span class="p">(</span><span class="n">pObserver2</span><span class="p">);</span>
+    <span class="c1">// 再次更改状态，并通知观察者</span>
+    <span class="n">pSubject</span><span class="o">-&gt;</span><span class="n">SetPrice</span><span class="p">(</span><span class="mi">15</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">pSubject</span><span class="o">-&gt;</span><span class="n">Notify</span><span class="p">();</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">pObserver1</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">pObserver2</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">pSubject</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+输出如下：
+Jack Ma - price: 12.5 
+Pony - price: 12.5 
+Jack Ma - price: 15
+
+ */</span>
+</code></pre></div></div>
+<p>它和中介者模式的重要区别在于，使用subject代替了中介者的connect；实现了<strong>不同类的1对多</strong>的消息监听和传递；重点在于<strong>消息</strong>。但是中介者模式是<strong>同一类中多对多的</strong>；重点在于对象。命令模式基本上是<strong>一对一的且重点在命令</strong>；<strong>上述都是针对客户端的实现来说的</strong></p>
+
+<h3 id="38-优缺点">3.8 优缺点</h3>
+
+<p>优点：</p>
+
+<ul>
+  <li>观察者和被观察者是抽象耦合的</li>
+  <li>建立一套触发机制</li>
+  <li>实现表示层与逻辑层的分离，并定义了稳定的消息更新传递机制</li>
+  <li>观察者模式支持广播通信。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>如果一个被观察者对象有很多的直接和间接的观察者，将所有的观察者都通知到会花费很多时间。</li>
+  <li>如果在观察者和观察目标之间有循环依赖的话，观察目标会触发它们之间进行循环调用，可能导致系统崩溃。</li>
+  <li>观察者模式没有相应的机制让观察者知道所观察的目标对象是怎么发生变化的，而仅仅只是知道观察目标发生了变化。</li>
+</ul>
+
+<h3 id="39-适用情况">3.9 适用情况</h3>
+
+<ul>
+  <li>一个抽象模型有两个方面，其中一个方面依赖于另一个方面。将这些方面封装在独立的对象中使它们可以各自独立地改变和复用。</li>
+  <li>一个对象的改变将导致其他一个或多个对象也发生改变，而不知道具体有多少对象将发生改变，可以降低对象之间的耦合度。</li>
+  <li>一个对象必须通知其他对象，而并不知道这些对象是谁。</li>
+  <li>需要在系统中创建一个触发链，A对象的行为将影响B对象，B对象的行为将影响C对象……，可以使用观察者模式创建一种链式触发机制。</li>
+</ul>
+
+<h3 id="310-模式应用">3.10 模式应用</h3>
+
+<p>观察者模式在软件开发中应用非常广泛，如某电子商务网站可以在执行发送操作后给用户多个发送商品打折信息，某团队战斗游戏中某队友牺牲将给所有成员提示等等，凡是涉及到一对一或者一对多的对象交互场景都可以使用观察者模式。</p>
+
+<h3 id="311-模式扩展">3.11 模式扩展</h3>
+
+<p>MVC模式是一种架构模式，它包含三个角色：模型(Model)，视图(View)和控制器(Controller)。观察者模式可以用来实现MVC模式，观察者模式中的观察目标就是MVC模式中的模型(Model)，而观察者就是MVC中的视图(View)，控制器(Controller)充当两者之间的中介者(Mediator)。当模型层的数据发生改变时，视图层将自动改变其显示内容。</p>
+
+<h2 id="4-状态模式">4 状态模式</h2>
+
+<p>类中存在状态成员变量，来描述对象中不同状态的变化；状态模式就是监听不同对象的状态变化的情况并，做出反映。从客户端来说，主要的状态变化和消息传递，都是直接封装在相似对象类中；不是观察者模式直接将消息类化，也不是中介者模式，使用中介者来管理链接。而是直接使用环境类，来进行状态的改变。当对象根据其内部状态改变其行为时，将使用状态设计模式。</p>
+
+<h3 id="42-模式定义">4.2 模式定义</h3>
+
+<p>状态模式(State Pattern) ：允许一个对象在其内部状态改变时改变它的行为，对象看起来似乎修改了它的类。其别名为状态对象(Objects for States)，状态模式是一种对象行为型模式。</p>
+
+<h3 id="43-模式结构">4.3 模式结构</h3>
+
+<ul>
+  <li>Context（上下文）：定义一个与 Client 交互的接口。它维护对 ConcreteState 对象的引用，可以用该对象来定义当前状态。</li>
+  <li>State（抽象状态）：定义接口，来声明每个 ConcreteState 应该做什么。</li>
+  <li>ConcreteState（具体状态）：为 State 中定义的方法提供实现。</li>
+</ul>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/State.jpg" alt="状态类图"></p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_State.jpg" alt="状态模式时序图"></p>
+
+<h3 id="44-案例分析">4.4 案例分析</h3>
+
+<blockquote>
+  <p>交通信号灯
+交通信号灯的不同状态，是进行交通规则管制的关键。</p>
+</blockquote>
+
+<p>可以看到，交通信号灯的状态流：红灯 -&gt; 绿灯 -&gt; 黄灯。不同的状态是程序的关键。</p>
+
+<h3 id="45-代码实现">4.5 代码实现</h3>
+
+<h4 id="451-创建上下文">4.5.1 创建上下文</h4>
+<p>上下文由 TrafficLights 表示，该类有一个 IState 变量，在构造中被初始化为 RedLight（红灯）：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// context.h</span>
+<span class="cp">#ifndef CONTEXT_H
+#define CONTEXT_H
+</span>
+<span class="cp">#include "concrete_state.h"
+</span>
+<span class="c1">// 交通信号灯</span>
+<span class="n">class</span> <span class="n">TrafficLights</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">TrafficLights</span><span class="p">()</span> <span class="p">{</span> <span class="n">m_pState</span> <span class="o">=</span> <span class="n">new</span> <span class="n">RedLight</span><span class="p">(</span><span class="n">this</span><span class="p">);</span> <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">SetState</span><span class="p">(</span><span class="n">IState</span><span class="o">*</span> <span class="n">state</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_pState</span> <span class="o">=</span> <span class="n">state</span><span class="p">;</span> <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">Request</span><span class="p">()</span> <span class="p">{</span> <span class="n">m_pState</span><span class="o">-&gt;</span><span class="n">Handle</span><span class="p">();</span> <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="n">IState</span><span class="o">*</span> <span class="n">m_pState</span><span class="p">;</span><span class="c1">//state关键成员</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONTEXT_H
+</span></code></pre></div></div>
+<p><strong>注意： 在上下文提供的方法中，实际上使用的是 IState 的相应方法。</strong></p>
+
+<h4 id="452-state">4.5.2 state</h4>
+<p><strong>创建抽象状态</strong></p>
+
+<p>IState 有一个 Handle() 接口，用于改变状态：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// state.h</span>
+<span class="cp">#ifndef STATE_H
+#define STATE_H
+</span>
+<span class="c1">// 信号灯的状态</span>
+<span class="n">class</span> <span class="n">IState</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Handle</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="cp">#endif // STATE_H
+</span></code></pre></div></div>
+<p><strong>创建具体状态</strong></p>
+
+<p>具体的状态有三个 - 红灯、绿灯、黄灯：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_state.h</span>
+<span class="cp">#ifndef CONCRETE_STATE_H
+#define CONCRETE_STATE_H
+</span>
+<span class="cp">#include "state.h"
+</span>
+<span class="n">class</span> <span class="n">TrafficLights</span><span class="p">;</span>
+
+<span class="c1">// 红灯</span>
+<span class="n">class</span> <span class="n">RedLight</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IState</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">RedLight</span><span class="p">(</span><span class="n">TrafficLights</span><span class="o">*</span> <span class="n">context</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Handle</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+
+<span class="nl">private:</span>
+    <span class="n">TrafficLights</span><span class="o">*</span> <span class="n">m_pContext</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// 绿灯</span>
+<span class="n">class</span> <span class="n">GreenLight</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IState</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">GreenLight</span><span class="p">(</span><span class="n">TrafficLights</span><span class="o">*</span> <span class="n">context</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Handle</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+
+<span class="nl">private:</span>
+    <span class="n">TrafficLights</span><span class="o">*</span> <span class="n">m_pContext</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// 黄灯</span>
+<span class="n">class</span> <span class="n">YellowLight</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IState</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">YellowLight</span><span class="p">(</span><span class="n">TrafficLights</span><span class="o">*</span> <span class="n">context</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Handle</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+<span class="nl">private:</span>
+    <span class="n">TrafficLights</span><span class="o">*</span> <span class="n">m_pContext</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="cp">#endif // CONCRETE_STATE_H
+</span></code></pre></div></div>
+<p>它们所提供的方法有对上下文对象的引用，并且能够改变它的状态：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_state.cpp</span>
+<span class="cp">#include "concrete_state.h"
+#include "context.h"
+#include &lt;iostream&gt;
+</span>
+<span class="c1">// 红灯</span>
+<span class="n">RedLight</span><span class="o">::</span><span class="n">RedLight</span><span class="p">(</span><span class="n">TrafficLights</span><span class="o">*</span> <span class="n">context</span><span class="p">)</span> <span class="o">:</span> <span class="n">m_pContext</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{}</span>
+
+<span class="kt">void</span> <span class="n">RedLight</span><span class="o">::</span><span class="n">Handle</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Red Light"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">m_pContext</span><span class="o">-&gt;</span><span class="n">SetState</span><span class="p">(</span><span class="n">new</span> <span class="n">GreenLight</span><span class="p">(</span><span class="n">m_pContext</span><span class="p">));</span>
+    <span class="n">delete</span> <span class="n">this</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 绿灯</span>
+<span class="n">GreenLight</span><span class="o">::</span><span class="n">GreenLight</span><span class="p">(</span><span class="n">TrafficLights</span><span class="o">*</span> <span class="n">context</span><span class="p">)</span> <span class="o">:</span> <span class="n">m_pContext</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{}</span>
+
+<span class="kt">void</span> <span class="n">GreenLight</span><span class="o">::</span><span class="n">Handle</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Green Light"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">m_pContext</span><span class="o">-&gt;</span><span class="n">SetState</span><span class="p">(</span><span class="n">new</span> <span class="n">YellowLight</span><span class="p">(</span><span class="n">m_pContext</span><span class="p">));</span>
+    <span class="n">delete</span> <span class="n">this</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 黄灯</span>
+<span class="n">YellowLight</span><span class="o">::</span><span class="n">YellowLight</span><span class="p">(</span><span class="n">TrafficLights</span><span class="o">*</span> <span class="n">context</span><span class="p">)</span> <span class="o">:</span> <span class="n">m_pContext</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="p">{}</span>
+
+<span class="kt">void</span> <span class="n">YellowLight</span><span class="o">::</span><span class="n">Handle</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Yellow Light"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">m_pContext</span><span class="o">-&gt;</span><span class="n">SetState</span><span class="p">(</span><span class="n">new</span> <span class="n">RedLight</span><span class="p">(</span><span class="n">m_pContext</span><span class="p">));</span>
+    <span class="n">delete</span> <span class="n">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h4 id="453-创建客户端">4.5.3 创建客户端</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "context.h"
+#include &lt;iostream&gt;
+#include &lt;windows.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//交通灯</span>
+    <span class="n">TrafficLights</span> <span class="n">tl</span><span class="p">;</span>
+
+    <span class="k">enum</span> <span class="n">TLState</span> <span class="p">{</span><span class="n">Red</span><span class="p">,</span> <span class="n">Green</span><span class="p">,</span> <span class="n">Yellow</span><span class="p">};</span>
+
+    <span class="n">TLState</span> <span class="n">state</span> <span class="o">=</span> <span class="n">Red</span><span class="p">;</span>  <span class="c1">// 初始状态为红灯</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// 总次数</span>
+    <span class="kt">int</span> <span class="n">seconds</span><span class="p">;</span>  <span class="c1">// 秒数</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// 表示一个完整的状态流（红灯-&gt;绿灯-&gt;黄灯）已经完成</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"**********"</span> <span class="o">&lt;&lt;</span> <span class="s">"Session "</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="s">"**********"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+        <span class="c1">// 根据当前状态来设置持续时间，红灯（6秒）、绿灯（4秒）、黄灯（2秒）</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="n">Red</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">seconds</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">Green</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="n">Green</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">seconds</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">Yellow</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="n">Yellow</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">seconds</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">Red</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// 休眠</span>
+        <span class="n">Sleep</span><span class="p">(</span><span class="n">seconds</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span>
+
+        <span class="n">tl</span><span class="p">.</span><span class="n">Request</span><span class="p">();</span>
+        <span class="n">i</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+//输出如下：
+*****Session 1***** 
+Red Light 
+Green Light 
+Yellow Light 
+*****Session 2***** 
+Red Light 
+Green Light 
+Yellow Light 
+*****Session 3***** 
+Red Light 
+Green Light 
+Yellow Light 
+*****Session n***** 
+*/</span>
+</code></pre></div></div>
+<h3 id="48-优缺点">4.8 优缺点</h3>
+
+<p>优点：</p>
+
+<ul>
+  <li>封装了转换规则。；枚举了可能的状态，避免了未定义行为</li>
+  <li>很容易添加状态来支持额外的行为。</li>
+  <li>在状态模式中，对象的行为是其状态中函数的结果，并且在运行时根据状态改变行为，这就消除了对 switch/case 或 if/else 条件逻辑的依赖。</li>
+  <li>可以提高内聚性，因为状态特定的行为被聚合到具体的类中，这些类被放在代码中的一个位置。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>使用状态模式，必然会增加系统中类和对象的个数。</li>
+  <li>由于状态模式的结构与实现较为复杂，一旦使用不当，将会导致程序结构和代码的混乱。</li>
+  <li>若要添加新的状态，则需要修改负责转换的源代码，否则无法转换到新增的状态，而且修改某个状态的行为也要修改源代码。</li>
+</ul>
+
+<h3 id="49-适用环境">4.9 适用环境</h3>
+
+<ul>
+  <li>对象的行为依赖于它的状态（属性）并且可以根据它的状态改变而改变它的相关行为。</li>
+  <li>代码中包含大量与对象状态有关的条件语句，这些条件语句的出现，会导致代码的可维护性和灵活性变差，不能方便地增加和删除状态，使客户类与类库之间的耦合增强。在这些条件语句中包含了对象的行为，而且这些条件对应于对象的各种状态。</li>
+</ul>
+
+<h3 id="410-模式应用">4.10 模式应用</h3>
+
+<p>在游戏或者业务办理流程中，文件和人物存在多个状态；尚未办理；正在办理；正在批示；正在审核；已经完成等；这些状态非常重要，此时应该适用状态模式，以状态为中心。<strong>总体来说，对象的状态就是程序的核心，程序需要建立单独的状态类</strong></p>
+
+<h2 id="5-策略模式">5 策略模式</h2>
+
+<p>完成任务，往往根据不同的条件和要求，使用不同的策略，例如对于目标检测，使用深度相机和双目相机都能进行目标的检测和识别，但是针对不同的输入需要进行模块的设计来进行策略的修改。为了解决这些问题，可以定义一些独立的类来封装不同的算法，每一个类封装一个具体的算法，在这里，每一个封装算法的类我们都可以称之为策略(Strategy)，为了保证这些策略的一致性，一般会用一个抽象的策略类来做算法的定义，而具体每种算法则对应于一个具体策略类。</p>
+
+<h3 id="51-模式定义">5.1 模式定义</h3>
+
+<p><strong>策略模式(Strategy Pattern)</strong>：定义一系列算法，将每一个算法封装起来，并让它们可以相互替换。策略模式让算法独立于使用它的客户而变化，也称为政策模式(Policy)。</p>
+
+<p>策略模式是一种对象行为型模式。</p>
+
+<h3 id="53-模式结构">5.3 模式结构</h3>
+
+<ul>
+  <li>Context（环境角色）：持有一个对 Strategy 的引用，最终给客户端调用。</li>
+  <li>Strategy（抽象策略）：定义了一个公共接口，让不同的算法以不同的方式来实现。通过这个接口，Context 可以调用不同的算法。</li>
+  <li>ConcreteStrategy（具体策略）：实现 Strategy 定义的接口，提供具体算法的实现。</li>
+</ul>
+
+<p><strong>结构图：</strong></p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/Strategy.jpg" alt="策略模式结构图"></p>
+
+<p><strong>时序图：</strong></p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_Strategy.jpg" alt="策略模式时序图"></p>
+
+<h3 id="54-案例分析">5.4 案例分析</h3>
+
+<p>对于出行，有不同的出行方式，每一种出行方式都是一种具体的策略。如何选择需要根据成本、便利和时间之间的权衡。</p>
+
+<h3 id="54-代码实现">5.4 代码实现</h3>
+
+<h4 id="541-创建抽象策略">5.4.1 创建抽象策略</h4>
+
+<p>抽象策略由 IStrategy 表示，它提供了一个 Travel() 接口，用于提供出行方式：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// strategy.h</span>
+<span class="cp">#ifndef STRATEGY_H
+#define STRATEGY_H
+</span>
+<span class="c1">// 出行策略</span>
+<span class="n">class</span> <span class="n">IStrategy</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">//关键出行方式</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Travel</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="cp">#endif // STRATEGY_H
+</span></code></pre></div></div>
+<h4 id="542-创建具体策略">5.4.2 创建具体策略</h4>
+
+<p>有三种具体的策略可供选择，骑自行车、开车、坐火车：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_strategy.h</span>
+<span class="cp">#ifndef CONCRETE_STRATEGY_H
+#define CONCRETE_STRATEGY_H
+</span>
+<span class="cp">#include "strategy.h"
+#include &lt;iostream&gt;
+</span>
+<span class="c1">// 骑自行车</span>
+<span class="n">class</span> <span class="n">BikeStrategy</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IStrategy</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Travel</span><span class="p">()</span> <span class="n">override</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Travel by bike"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// 开车</span>
+<span class="n">class</span> <span class="n">CarStrategy</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IStrategy</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Travel</span><span class="p">()</span> <span class="n">override</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Travel by car"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// 坐火车</span>
+<span class="n">class</span> <span class="n">TrainStrategy</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IStrategy</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Travel</span><span class="p">()</span> <span class="n">override</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Travel by train"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_STRATEGY_H
+</span></code></pre></div></div>
+<h4 id="543-创建环境角色">5.4.3 创建环境角色</h4>
+
+<p>环境角色对外提供了一个Travel接口，最终由客户端调用。在内部，它最终调用的是IStrategy的相应方法：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// context.h</span>
+<span class="cp">#ifndef CONTEXT_H
+#define CONTEXT_H
+</span>
+<span class="cp">#include "strategy.h"
+</span>
+<span class="n">class</span> <span class="n">Context</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Context</span><span class="p">(</span><span class="n">IStrategy</span> <span class="o">*</span><span class="n">strategy</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_pStrategy</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">;</span> <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">Travel</span><span class="p">()</span> <span class="p">{</span> <span class="n">m_pStrategy</span><span class="o">-&gt;</span><span class="n">Travel</span><span class="p">();</span> <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="n">IStrategy</span> <span class="o">*</span><span class="n">m_pStrategy</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONTEXT_H
+</span></code></pre></div></div>
+<h4 id="544-创建客户端">5.4.4 创建客户端</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "context.h"
+#include "concrete_strategy.h"
+</span>
+<span class="cp">#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) { if(p){delete(p); (p)=NULL;} }
+#endif
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// 创建不同的策略</span>
+    <span class="n">IStrategy</span> <span class="o">*</span><span class="n">bike</span> <span class="o">=</span> <span class="n">new</span> <span class="n">BikeStrategy</span><span class="p">();</span>
+    <span class="n">IStrategy</span> <span class="o">*</span><span class="n">car</span> <span class="o">=</span> <span class="n">new</span> <span class="n">CarStrategy</span><span class="p">();</span>
+    <span class="n">IStrategy</span> <span class="o">*</span><span class="n">train</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TrainStrategy</span><span class="p">();</span>
+
+    <span class="c1">//创建策略上下文</span>
+
+    <span class="n">Context</span> <span class="o">*</span><span class="n">bikeContext</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Context</span><span class="p">(</span><span class="n">bike</span><span class="p">);</span>
+    <span class="n">Context</span> <span class="o">*</span><span class="n">carContext</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Context</span><span class="p">(</span><span class="n">car</span><span class="p">);</span>
+    <span class="n">Context</span> <span class="o">*</span><span class="n">trainContext</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Context</span><span class="p">(</span><span class="n">train</span><span class="p">);</span>
+    <span class="c1">//执行策略</span>
+
+    <span class="n">bikeContext</span><span class="o">-&gt;</span><span class="n">Travel</span><span class="p">();</span>
+    <span class="n">carContext</span><span class="o">-&gt;</span><span class="n">Travel</span><span class="p">();</span>
+    <span class="n">trainContext</span><span class="o">-&gt;</span><span class="n">Travel</span><span class="p">();</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">bike</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">car</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">train</span><span class="p">);</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">bikeContext</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">carContext</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">trainContext</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+输出如下：
+
+Travel by bike 
+Travel by car 
+Travel by train
+
+*/</span>
+</code></pre></div></div>
+<h3 id="56-模式分析">5.6 模式分析</h3>
+
+<ul>
+  <li>策略模式是一个比较容易理解和使用的设计模式，策略模式是对算法的封装，将算法的责任和算法本身分隔开，将其委派给不同的对象管理。</li>
+  <li>策略角色的选择主要由客户端决定</li>
+  <li>策略模式仅仅封装算法，算法是选择由客户端来决定。</li>
+</ul>
+
+<h3 id="58-优缺点">5.8 优缺点</h3>
+
+<p>优点：</p>
+
+<ul>
+  <li>各自使用封装的算法，可以很容易地引入新的算法来满足相同的接口。</li>
+  <li>由于实现的是同一个接口，所以策略之间可以自由切换。</li>
+  <li>Strategy 使客户端能够选择所需的算法，而无需使用 switch/case 或 if/else 语句。</li>
+  <li>算法的细节完全封装在 Strategy 类中，因此，可以在不影响 Context 类的情况下更改算法的实现。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>客户端必须知道所有的策略，了解它们之间的区别，以便适时选择恰当的算法。</li>
+  <li>策略模式将造成产生很多策略类，可以通过使用享元模式在一定程度上减少对象的数量。</li>
+</ul>
+
+<h3 id="59-适用场景">5.9 适用场景</h3>
+
+<ul>
+  <li>多个类有不同的表现形式，每种表现形式可以独立成单独的算法。</li>
+  <li>需要在不同情况下使用不同的算法，以后算法可能还会增加。</li>
+  <li>对客户端隐藏具体算法的实现细节，彼此完全独立。</li>
+</ul>
+
+<h2 id="6-模板方法模式">6 模板方法模式</h2>
+
+<p><strong>模版方法模式（Template Method Pattern）</strong>:定义一个操作中算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。</p>
+
+<h3 id="61-模板结构">6.1 模板结构</h3>
+
+<ul>
+  <li>抽象类（AbstractClass）：定义抽象的原语操作，具体的子类将重定义它们以实现一个算法的各步骤。主要是实现一个模板方法，定义一个算法的骨架。该模板方法不仅调用原语操作，也调用定义在 AbstractClass 或其他对象中的操作。</li>
+  <li>具体类（ConcreteClass）：实现原语操作以完成算法中与特定子类相关的步骤。</li>
+</ul>
+
+<p>结构模式如下：</p>
+
+<p><img src="https://img-blog.csdn.net/20180228180146301?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMTAxMjkzMg==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="模板方法结构模式"></p>
+
+<h3 id="62-案例分析">6.2 案例分析</h3>
+
+<blockquote>
+  <p>招聘会。
+不同的公司招聘流程基本相同，</p>
+
+  <p>都含有“宣讲会 -&gt; 接收简历 -&gt; 面试 -&gt; 发放 Offer”；这些固定的流程</p>
+
+  <p>不同公司的细节不同，可以使用模板类来减少代码的重用与设计</p>
+</blockquote>
+
+<h3 id="63-代码实现">6.3 代码实现</h3>
+
+<h4 id="631-创建抽象类">6.3.1 创建抽象类</h4>
+
+<p>抽象类由 Company 表示，它提供了一套固定的模板方法 Recruit()，用于标准化算法的骨架：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// abstract_class.h</span>
+<span class="cp">#ifndef ABSTRACT_CLASS_H
+#define ABSTRACT_CLASS_H
+</span>
+<span class="cp">#include &lt;iostream&gt;
+</span>
+<span class="c1">// 公司</span>
+<span class="n">class</span> <span class="n">Company</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">Company</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="c1">// 校园招聘</span>
+    <span class="kt">void</span> <span class="n">Recruit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"---------- Begin ----------"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">CareerTalk</span><span class="p">();</span>
+        <span class="n">ReceiveResume</span><span class="p">();</span>
+        <span class="n">Interview</span><span class="p">();</span>
+        <span class="n">Offer</span><span class="p">();</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"---------- End ----------"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// 宣讲会</span>
+    <span class="kt">void</span> <span class="n">CareerTalk</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Delivery"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// 接收简历</span>
+    <span class="kt">void</span> <span class="n">ReceiveResume</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Receive Resume"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// 面试</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Interview</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="c1">// 发放 Offer</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Offer</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // ABSTRACT_CLASS_H
+</span></code></pre></div></div>
+<p><strong>注意：</strong>相同的行为 CareerTalk() 和 ReceiveResume() 有默认实现，不同的行为 Interview() 和 Offer() 采用“占位符”方式，需要由具体公司来实现。</p>
+
+<h4 id="632-创建具体类">6.3.2 创建具体类</h4>
+
+<p>具体公司有两个 - Alibaba、Tencent，它们的面试、录用方式不同：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_class.h</span>
+<span class="cp">#ifndef CONCRETE_CLASS_H
+#define CONCRETE_CLASS_H
+</span>
+<span class="cp">#include "abstract_class.h"
+#include &lt;iostream&gt;
+</span>
+<span class="c1">// 阿里</span>
+<span class="n">class</span> <span class="n">Alibaba</span> <span class="o">:</span> <span class="n">public</span> <span class="n">Company</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Interview</span><span class="p">()</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"First interview -&gt; Second interview -&gt; Third interview"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Offer</span><span class="p">()</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"30W"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// 腾讯</span>
+<span class="n">class</span> <span class="n">Tencent</span> <span class="o">:</span> <span class="n">public</span> <span class="n">Company</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Interview</span><span class="p">()</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"First interview -&gt; Second interview"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Offer</span><span class="p">()</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"25W"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_CLASS_H
+</span></code></pre></div></div>
+<h4 id="533-创建客户端">5.3.3 创建客户端</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "concrete_class.h"
+</span>
+<span class="cp">#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) { if(p){delete(p); (p)=NULL;} }
+#endif
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// 阿里校招</span>
+    <span class="n">Company</span> <span class="o">*</span><span class="n">alibaba</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Alibaba</span><span class="p">();</span>
+    <span class="n">alibaba</span><span class="o">-&gt;</span><span class="n">Recruit</span><span class="p">();</span>
+
+    <span class="c1">// 腾讯校招</span>
+    <span class="n">Company</span> <span class="o">*</span><span class="n">tencent</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Tencent</span><span class="p">();</span>
+    <span class="n">tencent</span><span class="o">-&gt;</span><span class="n">Recruit</span><span class="p">();</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">tencent</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">alibaba</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+输出结果;
+
+———- Begin ———- 
+Delivery 
+Receive Resume 
+First interview -&gt; Second interview -&gt; Third interview 
+30W 
+———- End ———- 
+———- Begin ———- 
+Delivery 
+Receive Resume 
+First interview -&gt; Second interview 
+25W 
+———- End ———-
+————————————————
+
+*/</span>
+</code></pre></div></div>
+
+<h3 id="68-优缺点">6.8 优缺点</h3>
+<p>优点：</p>
+
+<ul>
+  <li>在父类中形式化地定义一个算法，而由其子类实现细节的处理，在子类实现详细的处理算法时并不会改变算法中步骤的执行次序。</li>
+  <li>模板方法模式是一种代码复用技术，在类库设计中尤为重要，它提取了类库中的公共行为，将公共行为放在父类中，而通过其子类来实现不同的行为，它鼓励我们恰当使用继承来实现代码复用。</li>
+  <li>可实现一种反向控制结构，通过子类覆盖父类的钩子方法来决定某一特定步骤是否需要执行。</li>
+  <li>在模板方法模式中，可以通过子类来覆盖父类的基本方法，不同的子类可以提供基本方法的不同实现，更换和增加新的子类很方便，符合单一职责原则和开闭原则。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>需要为每一个基本方法的不同实现提供一个子类，如果父类中可变的基本方法太多，将会导致类的个数增加，系统更加庞大，设计也更加抽象，此时，可结合桥接模式来进行设计。</li>
+</ul>
+
+<h3 id="69-使用场景">6.9 使用场景</h3>
+
+<ul>
+  <li>对一些复杂的算法进行分割，将算法中固定不变的部分设计为模板方法和父类具体方法，而一些可变的细节由子类实现。</li>
+  <li>各子类中公共的行为应被提取出来并集中到一个公共父类中，以避免代码重复。</li>
+  <li>需要通过子类来决定父类算法中某个步骤是否执行，实现子类对父类的反向控制。</li>
+</ul>
+
+<h2 id="7-备忘录模式">7 备忘录模式</h2>
+
+<p><strong>备忘录模式（Memento Pattern）</strong>：在不破坏封装的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态，这样可以在以后将对象恢复到原先保存的状态。</p>
+
+<h3 id="72-模式结构">7.2 模式结构</h3>
+
+<p>基本成员如下：</p>
+
+<ul>
+  <li>Originator（发起人）：负责创建一个 Memento，以记录当前时刻自身的内部状态，并可以使用 Memento 恢复内部状态。Originator 可以根据需要决定 Memento 储存自己的哪些内部状态。</li>
+  <li>Memento（备忘录）：负责存储 Originator 对象的内部状态，并可以防止 Originator 以外的其他对象访问备忘录。</li>
+  <li>Caretaker（管理者）：负责管理 Memento，但不能对 Memento 的内容进行访问或者操作。</li>
+</ul>
+
+<p>模式结构图：</p>
+
+<p><img src="https://img-blog.csdn.net/20180208175956201?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMTAxMjkzMg==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="模式结构图"></p>
+
+<h3 id="73-案例分析">7.3 案例分析</h3>
+
+<blockquote>
+  <p>月光宝盒 - 让时光倒流</p>
+
+  <p>备忘录模式提供了时光倒流的机制，将一个对象某个时刻的状态进行备份，当用户后悔（需要返回之前的状态）时，可以把备份调用出来！</p>
+</blockquote>
+
+<h3 id="74-代码实现">7.4 代码实现</h3>
+
+<h4 id="741-创建备忘录">7.4.1 创建备忘录</h4>
+
+<p>穿越至某一时刻，这个时刻指具体的日期时间，用 DateTime 表示，并为其提供相应的 setter 和 getter 方法：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// memento.h</span>
+<span class="cp">#ifndef MEMENTO_H
+#define MEMENTO_H
+</span>
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+</span>
+<span class="c1">// 日期时间</span>
+<span class="n">class</span> <span class="n">DateTime</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">DateTime</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="o">:</span> <span class="n">m_dateTime</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="kt">void</span> <span class="n">SetDateTime</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">dt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">m_dateTime</span> <span class="o">=</span> <span class="n">dt</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">GetDateTime</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">m_dateTime</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">m_dateTime</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="cp">#endif // MEMENTO_H
+</span></code></pre></div></div>
+<h4 id="742-创建发起人">7.4.2 创建发起人</h4>
+<p>Life 用于创建 DateTime，以记录当前的日期时间，并可以使用 DateTime 进行恢复：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// originator.h</span>
+<span class="cp">#ifndef ORIGINATOR_H
+#define ORIGINATOR_H
+</span>
+<span class="cp">#include "memento.h"
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+</span>
+<span class="c1">// 一生</span>
+<span class="n">class</span> <span class="n">Life</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">SetDateTime</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">dt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Set date time to "</span> <span class="o">&lt;&lt;</span> <span class="n">dt</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">m_dateTime</span> <span class="o">=</span> <span class="n">dt</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// 仅用于打印</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">GetDateTime</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">m_dateTime</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 恢复日期时间</span>
+    <span class="kt">void</span> <span class="n">SetMemento</span><span class="p">(</span><span class="n">DateTime</span> <span class="o">*</span><span class="n">dt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">m_dateTime</span> <span class="o">=</span> <span class="n">dt</span><span class="o">-&gt;</span><span class="n">GetDateTime</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 创建日期时间</span>
+    <span class="n">DateTime</span> <span class="o">*</span><span class="n">CreateMemento</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">new</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">m_dateTime</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">m_dateTime</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="cp">#endif // ORIGINATOR_H
+</span></code></pre></div></div>
+<h4 id="743-创建管理者">7.4.3 创建管理者</h4>
+<p>这是时光倒流的关键，通过 PandoraBox，至尊宝才可以弥补遗憾：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// care_taker.h</span>
+<span class="cp">#ifndef CARE_TAKER_H
+#define CARE_TAKER_H
+</span>
+<span class="cp">#include "originator.h"
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+</span>
+<span class="c1">// 月光宝盒</span>
+<span class="n">class</span> <span class="n">PandoraBox</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">PandoraBox</span><span class="p">(</span><span class="n">Life</span> <span class="o">*</span><span class="n">life</span><span class="p">)</span>
+        <span class="o">:</span> <span class="n">m_pLife</span><span class="p">(</span><span class="n">life</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="o">~</span><span class="n">PandoraBox</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m_history</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">delete</span> <span class="n">m_history</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">m_history</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 保存备份</span>
+    <span class="kt">void</span> <span class="n">Save</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Save ..."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;;</span>
+        <span class="n">m_history</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">m_pLife</span><span class="o">-&gt;</span><span class="n">CreateMemento</span><span class="p">());</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 穿越至上一时刻</span>
+    <span class="kt">void</span> <span class="n">Undo</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Undo ..."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;;</span>
+        <span class="n">m_pLife</span><span class="o">-&gt;</span><span class="n">SetMemento</span><span class="p">(</span><span class="n">m_history</span><span class="p">.</span><span class="n">back</span><span class="p">());</span>
+        <span class="n">m_history</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="n">Life</span> <span class="o">*</span><span class="n">m_pLife</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">DateTime</span> <span class="o">*&gt;</span> <span class="n">m_history</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CARE_TAKER_H
+</span></code></pre></div></div>
+<h4 id="744-创建客户端">7.4.4 创建客户端</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "originator.h"
+#include "care_taker.h"
+</span>
+<span class="cp">#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) { if(p){delete(p); (p)=NULL;} }
+#endif
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//创建状态发起人</span>
+    <span class="n">Life</span> <span class="o">*</span><span class="n">life</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Life</span><span class="p">();</span>
+    <span class="n">PandoraBox</span> <span class="o">*</span><span class="n">box</span> <span class="o">=</span> <span class="n">new</span> <span class="n">PandoraBox</span><span class="p">(</span><span class="n">life</span><span class="p">);</span>
+
+    <span class="c1">// 设置并保存一个历史时间</span>
+    <span class="n">life</span><span class="o">-&gt;</span><span class="n">SetDateTime</span><span class="p">(</span><span class="s">"2000/10/01 00\:00\:00"</span><span class="p">);</span>
+    <span class="n">box</span><span class="o">-&gt;</span><span class="n">Save</span><span class="p">();</span>
+
+    <span class="c1">// 设置并保存一个历史时间</span>
+    <span class="n">life</span><span class="o">-&gt;</span><span class="n">SetDateTime</span><span class="p">(</span><span class="s">"2010/10/01 00\:00\:00"</span><span class="p">);</span>
+    <span class="n">box</span><span class="o">-&gt;</span><span class="n">Save</span><span class="p">();</span>
+
+    <span class="c1">// 设置一个历史时间</span>
+    <span class="n">life</span><span class="o">-&gt;</span><span class="n">SetDateTime</span><span class="p">(</span><span class="s">"2018/10/01 00\:00\:00"</span><span class="p">);</span>
+
+    <span class="c1">// 穿越--更改状态</span>
+    <span class="n">box</span><span class="o">-&gt;</span><span class="n">Undo</span><span class="p">();</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Actual date time is "</span> <span class="o">&lt;&lt;</span> <span class="n">life</span><span class="o">-&gt;</span><span class="n">GetDateTime</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+    <span class="c1">// 再次穿越</span>
+    <span class="n">box</span><span class="o">-&gt;</span><span class="n">Undo</span><span class="p">();</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Actual date time is "</span> <span class="o">&lt;&lt;</span> <span class="n">life</span><span class="o">-&gt;</span><span class="n">GetDateTime</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">life</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">box</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+输出如下：
+
+Set date time to 2000/10/01 00\:00\:00 
+Save … 
+Set date time to 2010/10/01 00\:00\:00 
+Save … 
+Set date time to 2018/10/01 00\:00\:00 
+Undo … 
+Actual date time is 2010/10/01 00\:00\:00 
+Undo … 
+Actual date time is 2000/10/01 00\:00\:00
+
+*/</span>
+
+</code></pre></div></div>
+
+<h3 id="78-优缺点">7.8 优缺点</h3>
+
+<p>优点：</p>
+
+<ul>
+  <li>提供了一种状态恢复机制，使用户能够方便地回到某个历史的状态。</li>
+  <li>实现了信息的封装，使得用户不需要关心状态的保存细节。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>如果 Originator 对象很大，那么 Memento 对象也会很大，这势必会占用较大的存储空间，而且每保存一次都需要消耗一定的系统资源。</li>
+</ul>
+
+<h3 id="79-适用场景">7.9 适用场景</h3>
+
+<ul>
+  <li>保存一个对象在某一个时刻的全部（或部分）状态，这样在以后需要时便能够恢复到先前的状态，实现撤销操作。</li>
+  <li>防止外界对象破坏一个对象历史状态的封装性，避免将对象历史状态的实现细节暴露给外界对象。</li>
+</ul>
+
+<h2 id="8-职责链模式">8 职责链模式</h2>
+
+<p><strong>职责链模式</strong>（Chain of Responsibility Pattern）：使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。将这些对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止。</p>
+
+<h3 id="81-模式结构">8.1 模式结构</h3>
+
+<p>UML结构图：</p>
+
+<p><img src="https://img-blog.csdn.net/20180116180244435?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGlhbmcxOTg5MDgyMA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="UML结构图"></p>
+
+<ul>
+  <li>Handler（抽象处理者）：定义了处理请求所需的接口。</li>
+  <li>ConcreteHandler（具体处理者）：处理自己负责的请求，如果无法处理，则将请求传递给与之保持联系的后继者（即：successor）。</li>
+  <li>Client（客户端）：请求的发起者，将访问 Handler 来处理它。</li>
+</ul>
+
+<h3 id="83-案例分析">8.3 案例分析</h3>
+
+<blockquote>
+  <p>请假 - 流程处理</p>
+
+  <p>工作人员请假流程处理：</p>
+
+  <p>链中的处理者可以对请求作出响应或者将其传递给上级。每个处理者都有自己的一套规则，而这套规则是他们可以批准的。审批流程：经理（1 天及以下） -&gt; 总监（3 天及以下） -&gt; 总裁（7 天为界限）</p>
+</blockquote>
+
+<h3 id="84-代码实现">8.4 代码实现</h3>
+
+<h4 id="841-创建抽象处理者">8.4.1 创建抽象处理者</h4>
+<p>抽象处理者除了提供一个处理请假的接口之外，还有哦一个关键的后继者定义，这样就可以构建一条链：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// handler.h</span>
+<span class="cp">#ifndef HANDLER_H
+#define HANDLER_H
+</span>
+<span class="cp">#include &lt;iostream&gt;
+</span>
+<span class="c1">// 抽象处理者</span>
+<span class="n">class</span> <span class="n">IHandler</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">IHandler</span><span class="p">()</span> <span class="p">{</span> <span class="n">m_pSuccessor</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">IHandler</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="kt">void</span> <span class="n">SetSuccessor</span><span class="p">(</span><span class="n">IHandler</span> <span class="o">*</span><span class="n">successor</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_pSuccessor</span> <span class="o">=</span> <span class="n">successor</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">HandleRequest</span><span class="p">(</span><span class="kt">float</span> <span class="n">days</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="nl">protected:</span>
+    <span class="n">IHandler</span> <span class="o">*</span><span class="n">m_pSuccessor</span><span class="p">;</span>  <span class="c1">// 后继者,用来表示处理者链</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // HANDLER_H
+</span>
+</code></pre></div></div>
+<h4 id="842-创建具体处理者">8.4.2 创建具体处理者</h4>
+
+<p>具体处理者包含 Manager、Director、CEO，它们的实现基本相同，只是批准的天数不一样：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_handler.h</span>
+<span class="cp">#ifndef CONCRETE_HANDLER_H
+#define CONCRETE_HANDLER_H
+</span>
+<span class="cp">#include "handler.h"
+</span>
+<span class="c1">// 经理</span>
+<span class="n">class</span> <span class="n">Manager</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IHandler</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Manager</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="o">~</span><span class="n">Manager</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">HandleRequest</span><span class="p">(</span><span class="kt">float</span> <span class="n">days</span><span class="p">)</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Manager 批准了 "</span> <span class="o">&lt;&lt;</span> <span class="n">days</span> <span class="o">&lt;&lt;</span> <span class="s">" 天假"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">m_pSuccessor</span><span class="o">-&gt;</span><span class="n">HandleRequest</span><span class="p">(</span><span class="n">days</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// 总监</span>
+<span class="n">class</span> <span class="n">Director</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IHandler</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Director</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="o">~</span><span class="n">Director</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">HandleRequest</span><span class="p">(</span><span class="kt">float</span> <span class="n">days</span><span class="p">)</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Director 批准了 "</span> <span class="o">&lt;&lt;</span> <span class="n">days</span> <span class="o">&lt;&lt;</span> <span class="s">" 天假"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">m_pSuccessor</span><span class="o">-&gt;</span><span class="n">HandleRequest</span><span class="p">(</span><span class="n">days</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// 总裁</span>
+<span class="n">class</span> <span class="n">CEO</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IHandler</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">CEO</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="o">~</span><span class="n">CEO</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">HandleRequest</span><span class="p">(</span><span class="kt">float</span> <span class="n">days</span><span class="p">)</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"CEO 批准了 "</span> <span class="o">&lt;&lt;</span> <span class="n">days</span> <span class="o">&lt;&lt;</span> <span class="s">" 天假"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"给你放长假，以后不用来上班啦！"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_HANDLER_H
+</span></code></pre></div></div>
+<p><strong>注意： 由于 CEO 位于最高层（处于链的末尾），所以请求到此结束，不会继续向下传递。</strong></p>
+<h4 id="843-创建客户端">8.4.3 创建客户端</h4>
+
+<p>开始请假，说出你的理由：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "concrete_handler.h"
+</span>
+<span class="cp">#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) { if(p){delete(p); (p)=NULL;} }
+#endif
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">IHandler</span> <span class="o">*</span><span class="n">manager</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Manager</span><span class="p">();</span>
+    <span class="n">IHandler</span> <span class="o">*</span><span class="n">director</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Director</span><span class="p">();</span>
+    <span class="n">IHandler</span> <span class="o">*</span><span class="n">ceo</span> <span class="o">=</span> <span class="n">new</span> <span class="n">CEO</span><span class="p">();</span>
+
+    <span class="c1">// 职责链：经理 -&gt; 总监 -&gt; 总裁</span>
+    <span class="n">manager</span><span class="o">-&gt;</span><span class="n">SetSuccessor</span><span class="p">(</span><span class="n">director</span><span class="p">);</span>
+    <span class="n">director</span><span class="o">-&gt;</span><span class="n">SetSuccessor</span><span class="p">(</span><span class="n">ceo</span><span class="p">);</span>
+
+    <span class="n">manager</span><span class="o">-&gt;</span><span class="n">HandleRequest</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">manager</span><span class="o">-&gt;</span><span class="n">HandleRequest</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="n">manager</span><span class="o">-&gt;</span><span class="n">HandleRequest</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+    <span class="n">manager</span><span class="o">-&gt;</span><span class="n">HandleRequest</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">manager</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">director</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">ceo</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+输出如下:
+Manager 批准了 1 天假 
+Director 批准了 2 天假 
+CEO 批准了 5 天假 
+给你放长假，以后不用来上班啦！
+*/</span>
+
+</code></pre></div></div>
+
+<h3 id="86-优缺点">8.6 优缺点</h3>
+
+<h4 id="861-优点">8.6.1 优点</h4>
+
+<ul>
+  <li>降低耦合度，将请求的发送者和接收者解耦。</li>
+  <li>简化了对象，使得对象不需要知道链的结构。</li>
+  <li>增强给对象指派职责的灵活性，通过改变链内的成员或者调整它们的次序来动态改变职责。</li>
+  <li>增加新的具体处理者很方便，无须修改原有代码，只需要在客户端重新建链即可。</li>
+</ul>
+
+<h4 id="862-缺点">8.6.2 缺点</h4>
+
+<ul>
+  <li>由于没有明确的接收者，所以无法保证请求一定会被处理（可能直到链的末端都得不到处理，也可能因为链没有配置正确而得不到处理。）</li>
+  <li>对于较长的职责链来说，请求可能涉及到多个处理对象，这将会使系统性能受到一定影响，而且不利于代码调试。</li>
+  <li>如果建链不当，可能会造成循环调用，这将导致系统陷入死循环。</li>
+</ul>
+
+<h3 id="87-适用场景">8.7 适用场景</h3>
+
+<ul>
+  <li>有多个对象可以处理同一请求，具体哪个对象处理由运行时刻自动确定。客户端只负责提交请求，而无须关心请求的处理对象是谁以及它是如何处理的。</li>
+  <li>在不明确指定接受者的情况下，向多个对象中的一个提交一个请求。</li>
+  <li>可动态指定一组对象处理请求，客户端可以动态创建职责链来处理请求，还可以改变链中处理者之间的先后次序。</li>
+</ul>
+
+<h2 id="9-访问者模式">9 访问者模式</h2>
+
+<p><strong>访问者模式</strong>（Visitor Pattern）表示一个作用于某对象结构中的各元素的操作，它使你可以在不改变各元素类的前提下定义作用于这些元素的新操作。</p>
+
+<h3 id="92-模式结构">9.2 模式结构</h3>
+
+<ul>
+  <li>Vistor（访问者）：为对象结构中每一个 ConcreteElement 声明一个 visit() 操作，从这个操作的名称或参数类型可以清楚知道需要访问的具体元素的类型。</li>
+  <li>ConcreteVisitor（具体访问者）：实现每个由 Visitor 声明的操作。</li>
+  <li>Element（元素）：定义一个 accept() 操作，它通常以一个 Vistor 作为参数。</li>
+  <li>ConcreteElement（具体元素）：实现 accept() 操作，通过调用 Visitor 的 visit() 方法来实现对元素的访问。</li>
+  <li>ObjectStructure（对象结构）：能够枚举它的元素，同时提供一个高层的接口，以允许访问者访问它的元素。</li>
+</ul>
+
+<p><strong>UML图</strong></p>
+
+<p><img src="https://img-blog.csdn.net/20180224180336621?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMTAxMjkzMg==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="访问模式UML图"></p>
+
+<h3 id="93-案例分析">9.3 案例分析</h3>
+
+<blockquote>
+  <p>古城西安 - 访问记</p>
+
+  <p>在访问西安时，访问者会参观各个景点。对于景点来说，无论访问者是谁，它们都是不变的。而作为访问者，不同角色的访问方式也不尽相同，游客只负责旅游 - 吃喝玩乐，而清洁工则需要打扫卫生、清理垃圾。</p>
+
+  <p>这里，游客和清洁工是具体访问者，兵马俑、钟楼等景点是具体元素，西安这座城市是结构对象。</p>
+</blockquote>
+
+<h3 id="94-代码实现">9.4 代码实现</h3>
+
+<h4 id="941-创建访问者">9.4.1 创建访问者</h4>
+
+<p>访问者需要为每个景点都提供一个访问方法：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// visitor.h</span>
+<span class="cp">#ifndef VISITOR_H
+#define VISITOR_H
+</span>
+<span class="n">class</span> <span class="n">BellTower</span><span class="p">;</span>
+<span class="n">class</span> <span class="n">TerracottaWarriors</span><span class="p">;</span>
+
+<span class="c1">// 访问者</span>
+<span class="n">class</span> <span class="n">IVisitor</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">IVisitor</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Visit</span><span class="p">(</span><span class="n">BellTower</span> <span class="o">*</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="c1">//根据地点的不同，访问的执行方法也不同</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Visit</span><span class="p">(</span><span class="n">TerracottaWarriors</span> <span class="o">*</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // VISITOR_H
+</span></code></pre></div></div>
+<h4 id="942-创建元素">9.4.2 创建元素</h4>
+<p>景点中定义了一个 Accept() 接口，用于接受访问者的访问：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// element.h</span>
+<span class="cp">#ifndef ELEMENT_H
+#define ELEMENT_H
+</span>
+<span class="n">class</span> <span class="n">IVisitor</span><span class="p">;</span>
+
+<span class="c1">// 地方</span>
+<span class="n">class</span> <span class="n">IPlace</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">IPlace</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Accept</span><span class="p">(</span><span class="n">IVisitor</span> <span class="o">*</span><span class="n">visitor</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // ELEMENT_H
+</span></code></pre></div></div>
+
+<h4 id="943-创建具体元素">9.4.3 创建具体元素</h4>
+
+<p>具体元素有两个 - 钟楼、兵马俑，它们实现了 Accept() 方法：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// concrete_element.h</span>
+<span class="cp">#ifndef CONCRETE_ELEMENT_H
+#define CONCRETE_ELEMENT_H
+</span>
+<span class="cp">#include "element.h"
+#include "visitor.h"
+#include &lt;iostream&gt;
+</span>
+<span class="c1">// 钟楼</span>
+<span class="n">class</span> <span class="n">BellTower</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IPlace</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Accept</span><span class="p">(</span><span class="n">IVisitor</span> <span class="o">*</span><span class="n">visitor</span><span class="p">)</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Bell Tower is accepting visitor."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">visitor</span><span class="o">-&gt;</span><span class="n">Visit</span><span class="p">(</span><span class="n">this</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// 兵马俑</span>
+<span class="n">class</span> <span class="n">TerracottaWarriors</span> <span class="o">:</span> <span class="n">public</span> <span class="n">IPlace</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Accept</span><span class="p">(</span><span class="n">IVisitor</span> <span class="o">*</span><span class="n">visitor</span><span class="p">)</span> <span class="n">override</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Terracotta Warriors is accepting visitor."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">visitor</span><span class="o">-&gt;</span><span class="n">Visit</span><span class="p">(</span><span class="n">this</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // CONCRETE_ELEMENT_H
+</span></code></pre></div></div>
+<p><strong>注意： 在 Accept() 方法中，通过调用 Visitor 的 visit() 方法（以当前对象为参数）来实现对景点的访问。</strong></p>
+
+<h4 id="944-创建对象结构">9.4.4 创建对象结构</h4>
+
+<p>添加景点，并为每一个景点添加访问者：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// object_structure.h</span>
+<span class="cp">#ifndef OBJECT_STRUCTURE_H
+#define OBJECT_STRUCTURE_H
+</span>
+<span class="cp">#include "element.h"
+#include &lt;list&gt;
+</span>
+<span class="c1">// 城市（西安）</span>
+<span class="n">class</span> <span class="n">City</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">Attach</span><span class="p">(</span><span class="n">IPlace</span> <span class="o">*</span><span class="n">place</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">m_places</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">place</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">Detach</span><span class="p">(</span><span class="n">IPlace</span> <span class="o">*</span><span class="n">place</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">m_places</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">place</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">Accept</span><span class="p">(</span><span class="n">IVisitor</span> <span class="o">*</span><span class="n">visitor</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// 为每一个 element 设置 visitor，进行对应的操作</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">IPlace</span><span class="o">*&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">m_places</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">m_places</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+            <span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Accept</span><span class="p">(</span><span class="n">visitor</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">IPlace</span> <span class="o">*&gt;</span> <span class="n">m_places</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="cp">#endif // OBJECT_STRUCTURE_H
+</span></code></pre></div></div>
+
+<h4 id="945-创建客户端">9.4.5 创建客户端</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// main.cpp</span>
+<span class="cp">#include "concrete_visitor.h"
+#include "object_structure.h"
+</span>
+<span class="cp">#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) { if(p){delete(p); (p)=NULL;} }
+#endif
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">City</span> <span class="o">*</span><span class="n">city</span> <span class="o">=</span> <span class="n">new</span> <span class="n">City</span><span class="p">();</span>
+
+    <span class="c1">// 景点 - 钟楼、兵马俑</span>
+    <span class="n">IPlace</span> <span class="o">*</span><span class="n">bellTower</span> <span class="o">=</span> <span class="n">new</span> <span class="n">BellTower</span><span class="p">();</span>
+    <span class="n">IPlace</span> <span class="o">*</span><span class="n">warriors</span> <span class="o">=</span> <span class="n">new</span> <span class="n">TerracottaWarriors</span><span class="p">();</span>
+
+    <span class="c1">// 访问者 - 游客、清洁工</span>
+    <span class="n">IVisitor</span> <span class="o">*</span><span class="n">tourist</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Tourist</span><span class="p">();</span>
+    <span class="n">IVisitor</span> <span class="o">*</span><span class="n">cleaner</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Cleaner</span><span class="p">();</span>
+
+    <span class="c1">// 添加景点</span>
+    <span class="n">city</span><span class="o">-&gt;</span><span class="n">Attach</span><span class="p">(</span><span class="n">bellTower</span><span class="p">);</span>
+    <span class="n">city</span><span class="o">-&gt;</span><span class="n">Attach</span><span class="p">(</span><span class="n">warriors</span><span class="p">);</span>
+
+    <span class="c1">// 接受访问</span>
+    <span class="n">city</span><span class="o">-&gt;</span><span class="n">Accept</span><span class="p">(</span><span class="n">tourist</span><span class="p">);</span>
+    <span class="n">city</span><span class="o">-&gt;</span><span class="n">Accept</span><span class="p">(</span><span class="n">cleaner</span><span class="p">);</span>
+
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">cleaner</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">tourist</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">warriors</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">bellTower</span><span class="p">);</span>
+    <span class="n">SAFE_DELETE</span><span class="p">(</span><span class="n">city</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+输出如下：
+Bell Tower is accepting visitor. 
+I’m visiting the Bell Tower! 
+Terracotta Warriors is accepting visitor. 
+I’m visiting the Terracotta Warriors! 
+Bell Tower is accepting visitor. 
+I’m cleaning up the garbage of Bell Tower! 
+Terracotta Warriors is accepting visitor. 
+I’m cleaning up the garbage of Terracotta Warriors!
+*/</span>
+
+</code></pre></div></div>
+
+<h3 id="95-优缺点">9.5 优缺点</h3>
+
+<h4 id="951-优点">9.5.1 优点</h4>
+
+<ul>
+  <li>增加新的访问操作很方便。使用访问者模式，增加新的访问操作就意味着增加一个新的具体访问者类，实现简单，无须修改源代码，符合“开闭原则”。</li>
+  <li>将有关元素对象的访问行为集中到一个访问者对象中，而不是分散在一个个的元素类中。类的职责更加清晰，有利于对象结构中元素对象的复用，相同的对象结构可以供多个不同的访问者访问。</li>
+  <li>让用户能够在不修改现有元素类层次结构的情况下，定义作用于该层次结构的操作。</li>
+</ul>
+
+<h4 id="952-缺点">9.5.2 缺点</h4>
+
+<ul>
+  <li>增加新的元素类困难。每增加一个新的元素类都意味着要在访问者中增加一个新的操作，并在每一个具体访问者类中增加相应的具体操作，这违背了“开闭原则”的要求。</li>
+  <li>破坏封装。访问者模式要求访问者对象访问并调用每一个元素对象的操作，这意味着元素对象有时候必须暴露一些自己的内部操作和内部状态，否则无法供访问者访问。</li>
+</ul>
+
+<h4 id="96-适用场景">9.6 适用场景</h4>
+
+<ul>
+  <li>一个对象结构包含多个类型的对象，希望对这些对象实施一些依赖其具体类型的操作。在访问者中针对每一种具体的类型都提供了一个访问操作，不同类型的对象可以有不同的访问操作。</li>
+  <li>需要对一个对象结构中的对象进行很多不同的并且不相关的操作，而需要避免让这些操作“污染”这些对象的类，也不希望在增加新操作时修改这些类。访问者模式使得我们可以将相关的访问操作集中起来定义在访问者类中，对象结构可以被多个不同的访问者类所使用，将对象本身与对象的访问操作分离。</li>
+  <li>对象结构中对象对应的类很少改变，但经常需要在此对象结构上定义新的操作。</li>
+</ul>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/11/10/design_patterns_02/" data-toggle="tooltip" data-placement="top" title="图说设计模式 学习笔记 (二)">
+                        Previous<br>
+                        <span>图说设计模式 学习笔记 (二)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/11/10/unix_network_programming_01/" data-toggle="tooltip" data-placement="top" title="UNIX网络编程 学习笔记 (一)">
+                        Next<br>
+                        <span>UNIX网络编程 学习笔记 (一)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>virtio学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2024/07/14/virtio_learn/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化">虚拟化</a>
+                        
+                        <a class="tag" href="/tags/#virtio" title="virtio">virtio</a>
+                        
+                        <a class="tag" href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记">学习笔记</a>
+                        
+                    </div>
+                    <h1>virtio学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">virtio 基础学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on July 14, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://www.cnblogs.com/edver/p/14684104.html">virtio简介（一）—— 框架分析</a></li>
+  <li><a href="http://docs.oasis-open.org/virtio/virtio/v1.0/virtio-v1.0.html">VIRTIO官网</a></li>
+  <li><a href="https://vdpa-dev.gitlab.io/">vdpa优化</a></li>
+  <li><a href="https://docs.kernel.org/driver-api/virtio/virtio.html">linux-virtio</a></li>
+  <li><a href="https://wiki.libvirt.org/Virtio.html">libvirt-virtio</a></li>
+  <li><a href="https://www.sdnlab.com/26199.html">详解：VirtIO Networking 虚拟网络设备实现架构</a></li>
+  <li><a href="https://www.openeuler.org/zh/blog/xinleguo/2020-11-23-Virtio_Net_Technology.html">Virtio-Net 技术分析</a></li>
+  <li><a href="https://nxw.name/2022/virtio-networking-virtio-net-vhost-net">Virtio Networking: virtio-net 和 vhost-net</a></li>
+  <li><a href="https://cloud.tencent.com/developer/article/2436757">vdpa设备驱动代码分析</a></li>
+  <li><a href="https://www.cnblogs.com/xinghuo123/p/12872026.html">linux设备驱动(4)bus详解</a></li>
+  <li><a href="https://ssdxiao.github.io/linux/2017/03/20/Virtio-Balloon.html">Virtio-Balloon超详细分析</a></li>
+  <li><a href="https://www.ctyun.cn/developer/article/551950058917957">有关virtio_blk的介绍及FPGA的实现一</a></li>
+  <li><a href="http://tech.mytrix.me/2019/05/devconf-19-virtio-%E7%A1%AC%E4%BB%B6%E5%8A%A0%E9%80%9F/">devconf 19′: virtio 硬件加速</a></li>
+  <li><a href="https://www.bilibili.com/video/BV1Te411k7JN/">【中国Linux内核大会：arch专场】05-Virtio-GPU视频硬件加速</a></li>
+  <li><a href="https://www.qemu.org/docs/master/system/devices/virtio-gpu.html">virtio-gpu</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/68154666">virtio 虚拟化系列之一：从 virtio 论文开始</a></li>
+  <li><a href="https://github.com/yifengyou/learn-kvm?tab=readme-ov-file">QEMU KVM学习笔记</a></li>
+</ul>
+
+<h1 id="virtio-框架介绍">virtio 框架介绍</h1>
+
+<h1 id="virtio源码分析以vhost-net为例">virtio源码分析(以vhost-net为例)</h1>
+
+<ul>
+  <li><a href="https://blog.csdn.net/Phoenix_zxk/article/details/132819619">vhost-net–动手使用vhost-net</a></li>
+  <li><a href="https://blog.csdn.net/Phoenix_zxk/article/details/132839437">vhost-user–亲身体验 vhost-user：热烈欢迎 DPDK</a></li>
+  <li><a href="https://movetobe.github.io/computer_system/computer_networking/cloud_networking/virtio/virtio_env.html">OVS+DPDK的VIRTIO后端进行网络端口管理，Libvirt+Qemu+Kvm进行虚拟机管理</a></li>
+  <li><a href="https://blog.csdn.net/youzhangjing_/article/details/128685039">深入解析Linux虚拟化KVM-Qemu分析之virtio设备</a></li>
+  <li><a href="https://cloud.tencent.com/developer/article/1989612">虚拟化硬件加速-vdpa</a></li>
+</ul>
+
+<h2 id="libvirt创建vhost-net网卡">libvirt创建vhost-net网卡</h2>
+
+<h2 id="qemu-vhost网卡创建">qemu vhost网卡创建</h2>
+
+<h2 id="gust-驱动源码分析">gust 驱动源码分析</h2>
+
+<h2 id="host-驱动源码分析">host 驱动源码分析</h2>
+
+<h1 id="virtio-驱动实战">virtio 驱动实战</h1>
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/qq_41596356/article/details/128538073">qemu virtio设备模拟与初始化流程</a></li>
+  <li><a href="https://ctf-wiki.org/pwn/virtualization/qemu/environment/build-qemu-dev/">编写 QEMU 模拟设备</a></li>
+  <li><a href="https://www.qemu.org/docs/master/devel/virtio-backends.html">qemu官方指导手册</a></li>
+</ul>
+
+<h2 id="virtio-net-网络驱动">virtio net 网络驱动</h2>
+
+<p>在 QEMU 中创建一个自定义的 virtio-net 设备涉及到对 VirtIO 规范的实现，以及与 QEMU 的设备模型适配。以下是实现自定义 virtio-net 设备的基本步骤。</p>
+
+<ul>
+  <li>
+    <ol>
+      <li>环境准备
+确保你拥有 QEMU 的开发环境，并获取 QEMU 源代码。
+        <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>git clone https://git.qemu.org/git/qemu.git
+<span class="nb">cd </span>qemu
+</code></pre></div>        </div>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>创建自定义设备文件</li>
+    </ol>
+  </li>
+</ul>
+
+<p>在 hw/virtio/ 目录下创建一个新的文件，假设命名为 virtio_net_custom.c。可以参考 virtio-net.c 的实现。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># include "qemu/osdep.h"  
+# include "hw/virtio/virtio.h"  
+# include "net/net.h"  
+# include "hw/virtio/virtio-net.h"  
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VirtioNetCustom</span> <span class="p">{</span>  
+    <span class="n">VirtIOContainer</span> <span class="n">virtio</span><span class="p">;</span>  
+    <span class="n">NetClientState</span> <span class="o">*</span><span class="n">nc</span><span class="p">;</span> <span class="c1">// 网络客户端  </span>
+<span class="p">}</span> <span class="n">VirtioNetCustom</span><span class="p">;</span>  
+
+<span class="c1">// 设备的重置逻辑  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">virtio_net_custom_reset</span><span class="p">(</span><span class="n">VirtioNetCustom</span> <span class="o">*</span><span class="n">dev</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="c1">// 适当重置设备状态  </span>
+<span class="p">}</span>  
+
+<span class="c1">// 实现 VirtIO 设备的 Realize 方法  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">virtio_net_custom_realize</span><span class="p">(</span><span class="n">VirtIODevice</span> <span class="o">*</span><span class="n">vdev</span><span class="p">,</span> <span class="n">Error</span> <span class="o">**</span><span class="n">errp</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">VirtioNetCustom</span><span class="o">*</span><span class="n">dev</span> <span class="o">=</span> <span class="n">VIRTIO_NET_CUSTOM</span><span class="p">(</span><span class="n">vdev</span><span class="p">);</span>  
+
+    <span class="c1">// ... 初始化网络接口，设置相关参数等 ...  </span>
+    
+    <span class="n">dev</span><span class="o">-&gt;</span><span class="n">nc</span> <span class="o">=</span> <span class="n">net_client_init</span><span class="p">(</span><span class="s">"custom-net"</span><span class="p">,</span> <span class="p">...);</span> <span class="c1">// 初始化网络客户端  </span>
+<span class="p">}</span>  
+
+<span class="c1">// 在 virtio_net_custom_realize 函数中  </span>
+<span class="c1">// 这里设置转发给本机网卡</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">virtio_net_custom_realize</span><span class="p">(</span><span class="n">VirtIODevice</span> <span class="o">*</span><span class="n">vdev</span><span class="p">,</span> <span class="n">Error</span> <span class="o">**</span><span class="n">errp</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">VirtioNetCustom</span> <span class="o">*</span><span class="n">dev</span> <span class="o">=</span> <span class="n">VIRTIO_NET_CUSTOM</span><span class="p">(</span><span class="n">vdev</span><span class="p">);</span>  
+    
+    <span class="c1">// 创建虚拟网络客户端，指向物理网卡  </span>
+    <span class="n">dev</span><span class="o">-&gt;</span><span class="n">nc</span> <span class="o">=</span> <span class="n">net_client_init</span><span class="p">(</span><span class="s">"tap"</span><span class="p">,</span> <span class="cm">/* 你的 tap 设备名称或其他参数 */</span><span class="p">);</span>  
+    
+    <span class="c1">// 如果需要，设置网络参数，例如 IP 地址等  </span>
+    <span class="c1">// net_client_set_ip(dev-&gt;nc, "192.168.0.2");  </span>
+    
+    <span class="c1">// 设置回调以处理进出的网络流量  </span>
+    <span class="n">net_client_set_receive_func</span><span class="p">(</span><span class="n">dev</span><span class="o">-&gt;</span><span class="n">nc</span><span class="p">,</span> <span class="n">receive_packet</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>  
+    <span class="n">net_client_set_send_func</span><span class="p">(</span><span class="n">dev</span><span class="o">-&gt;</span><span class="n">nc</span><span class="p">,</span> <span class="n">send_packet</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>  
+<span class="p">}</span>  
+
+<span class="c1">// 处理接收到的网络包  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">receive_packet</span><span class="p">(</span><span class="n">NetClientState</span> <span class="o">*</span><span class="n">nc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">VirtioNetCustom</span> <span class="o">*</span><span class="n">dev</span> <span class="o">=</span> <span class="n">container_of</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">VirtioNetCustom</span><span class="p">,</span> <span class="n">nc</span><span class="p">);</span>  
+    
+    <span class="c1">// 将接收到的数据包发送到 VirtIO 设备  </span>
+    <span class="n">virtio_net_send</span><span class="p">(</span><span class="n">dev</span><span class="o">-&gt;</span><span class="n">virtio</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>  
+<span class="p">}</span>  
+
+<span class="c1">// 发送网络包的实现  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">send_packet</span><span class="p">(</span><span class="n">NetClientState</span> <span class="o">*</span><span class="n">nc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">len</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="c1">// 直接从你的 VirtIO 设备转发包到物理网卡或将其发送出去  </span>
+    <span class="c1">// 实际发送包的逻辑取决于如何配置与物理网卡的连接  </span>
+<span class="p">}</span>  
+
+<span class="c1">// 处理 VirtIO 请求  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">virtio_net_custom_handle</span><span class="p">(</span><span class="n">VirtIODevice</span> <span class="o">*</span><span class="n">vdev</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">VirtioNetCustom</span> <span class="o">*</span><span class="n">dev</span> <span class="o">=</span> <span class="n">VIRTIO_NET_CUSTOM</span><span class="p">(</span><span class="n">vdev</span><span class="p">);</span>  
+    <span class="c1">// 处理网络请求  </span>
+<span class="p">}</span>  
+
+<span class="c1">// 定义 VirtIO 设备的属性  </span>
+<span class="k">static</span> <span class="n">Property</span> <span class="n">virtio_net_custom_properties</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>  
+    <span class="c1">// 添加设备属性  </span>
+    <span class="p">{</span> <span class="cm">/*sentinel*/</span> <span class="p">}</span>  
+<span class="p">};</span>  
+
+<span class="c1">// 自动化注册设备  </span>
+<span class="k">static</span> <span class="k">const</span> <span class="n">VirtIODeviceInfo</span> <span class="n">virtio_net_custom_info</span> <span class="o">=</span> <span class="p">{</span>  
+    <span class="p">.</span><span class="n">base</span> <span class="o">=</span> <span class="p">{</span>  
+        <span class="p">.</span><span class="n">init</span> <span class="o">=</span> <span class="n">virtio_net_custom_realize</span><span class="p">,</span>  
+        <span class="p">.</span><span class="n">reset</span> <span class="o">=</span> <span class="n">virtio_net_custom_reset</span><span class="p">,</span>  
+    <span class="p">},</span>  
+    <span class="p">.</span><span class="n">props</span> <span class="o">=</span> <span class="n">virtio_net_custom_properties</span>  
+<span class="p">};</span>  
+
+<span class="c1">// 设备类别初始化  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">virtio_net_custom_class_init</span><span class="p">(</span><span class="n">ObjectClass</span> <span class="o">*</span><span class="n">oc</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">VirtIODeviceClass</span> <span class="o">*</span><span class="n">k</span> <span class="o">=</span> <span class="n">VIRTIO_DEVICE_CLASS</span><span class="p">(</span><span class="n">oc</span><span class="p">);</span>  
+    <span class="n">k</span><span class="o">-&gt;</span><span class="n">handle</span> <span class="o">=</span> <span class="n">virtio_net_custom_handle</span><span class="p">;</span>  
+<span class="p">}</span>  
+
+<span class="c1">// 注册设备类型  </span>
+<span class="k">static</span> <span class="n">TypeInfo</span> <span class="n">virtio_net_custom_type</span> <span class="o">=</span> <span class="p">{</span>  
+    <span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">"virtio-net-custom"</span><span class="p">,</span>  
+    <span class="p">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">TYPE_VIRTIO_DEVICE</span><span class="p">,</span>  
+    <span class="p">.</span><span class="n">instance_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">VirtioNetCustom</span><span class="p">),</span>  
+    <span class="p">.</span><span class="n">class_init</span> <span class="o">=</span> <span class="n">virtio_net_custom_class_init</span><span class="p">,</span>  
+<span class="p">};</span>  
+
+<span class="c1">// 设备初始化  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">virtio_net_custom_register</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">type_register_static</span><span class="p">(</span><span class="o">&amp;</span><span class="n">virtio_net_custom_type</span><span class="p">);</span>  
+<span class="p">}</span>  
+
+<span class="n">type_init</span><span class="p">(</span><span class="n">virtio_net_custom_register</span><span class="p">);</span>  
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <ol>
+      <li>更新构建系统
+确保你的新设备文件被包含在编译中：
+在 hw/virtio/Makefile.objs 中添加：</li>
+    </ol>
+  </li>
+</ul>
+
+<p>obj-y += virtio_net_custom.o</p>
+<ul>
+  <li>
+    <ol>
+      <li>编译 QEMU
+在 QEMU 根目录下编译：
+        <div class="language-plaintext highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>./configure  
+make
+</code></pre></div>        </div>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>添加你的为你的自定义设备添加后端TAP设备</li>
+    </ol>
+  </li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>ip tuntap add dev tap0 mode tap  
+<span class="nb">sudo </span>ip <span class="nb">link set </span>dev tap0 up  
+<span class="nb">sudo </span>dhclient tap0  <span class="c"># 获取 IP 地址（可选） </span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <ol>
+      <li>运行 QEMU 使用自定义设备
+使用以上命令启动你的自定义设备：
+        <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>qemu-system-x86_64 <span class="nt">-device</span> virtio-net-custom,netdev<span class="o">=</span>net0 <span class="nt">-netdev</span> tap,id<span class="o">=</span>net0,packets<span class="o">=</span>on  
+</code></pre></div>        </div>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>调试和测试
+使用调试工具（如 GDB）检查你的设备逻辑，确保功能符合预期。你可以在实现代码中添加日志来帮助诊断问题。</li>
+    </ol>
+  </li>
+</ul>
+
+<p>小结
+上面的步骤提供了创建一个自定义 virtio-net 设备的基本框架。具体实现细节会依据你的需求而有所不同，可以参考 QEMU 现有的 virtio-net 设备实现来获取更多信息和示例。此外，确保了解 VirtIO 规范，以便正确处理网络协议和设备虚拟化的相关内容。</p>
+
+<h3 id="qemu-自定义设备插件">qemu 自定义设备插件</h3>
+
+<p>自定义虚拟设备是 QEMU 插件开发中的一个重要用途，它允许开发者创建和集成新的硬件设备模拟。下面是一个关于如何通过 QEMU 插件自定义虚拟设备的简要指南，包括步骤示例。</p>
+
+<p>步骤概述
+环境准备：确保您已经安装了 QEMU 和对应的开发工具。
+创建插件结构：定义插件的基本结构，包括入口文件和设备功能代码。
+实现设备功能：使用 QEMU 的设备 API 进行设备的实现。
+编译和运行：将插件编译成共享库并在 QEMU 中加载。</p>
+
+<ol>
+  <li>环境准备
+确保安装了 QEMU 和相关的开发工具：
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>qemu qemu-system-x86 qemu-utils build-essential  
+</code></pre></div>    </div>
+  </li>
+  <li>创建插件结构
+创建一个新的目录用于您的插件，随后创建一个 C 文件来实现您的虚拟设备。例如，创建名为 my_device.c 的文件。</li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir </span>my_qemu_plugin  
+<span class="nb">cd </span>my_qemu_plugin  
+<span class="nb">touch </span>my_device.c  
+</code></pre></div></div>
+
+<ol>
+  <li>实现设备功能
+在 my_device.c 中，定义一个简单的虚拟设备，例如一个简单的字符设备。下面是代码示例：</li>
+</ol>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># include &lt;qemu/plugin.h&gt;  
+# include &lt;hw/char/serial.h&gt;  
+# include &lt;hw/hw.h&gt;  
+# include &lt;hw/qdev-properties.h&gt;  
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">MyDevice</span> <span class="p">{</span>  
+    <span class="n">DeviceState</span> <span class="n">parent_obj</span><span class="p">;</span>  
+    <span class="cm">/*设备特定的状态变量*/</span>  
+<span class="p">}</span> <span class="n">MyDevice</span><span class="p">;</span>  
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">my_device_realize</span><span class="p">(</span><span class="n">DeviceState</span> <span class="o">*</span><span class="n">dev</span><span class="p">,</span> <span class="n">Error</span> <span class="o">**</span><span class="n">errp</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">MyDevice</span><span class="o">*</span><span class="n">my_dev</span> <span class="o">=</span> <span class="n">DO_UPCAST</span><span class="p">(</span><span class="n">MyDevice</span><span class="p">,</span> <span class="n">parent_obj</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>  
+    <span class="c1">// 设备初始化代码  </span>
+<span class="p">}</span>  
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">my_device_class_init</span><span class="p">(</span><span class="n">ObjectClass</span> <span class="o">*</span><span class="n">oc</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">DeviceClass</span> <span class="o">*</span><span class="n">dc</span> <span class="o">=</span> <span class="n">DEVICE_CLASS</span><span class="p">(</span><span class="n">oc</span><span class="p">);</span>  
+    <span class="n">dc</span><span class="o">-&gt;</span><span class="n">realize</span> <span class="o">=</span> <span class="n">my_device_realize</span><span class="p">;</span>  
+    <span class="n">dc</span><span class="o">-&gt;</span><span class="n">desc</span> <span class="o">=</span> <span class="s">"My Custom Device"</span><span class="p">;</span>  
+<span class="p">}</span>  
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">my_device_register</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="k">static</span> <span class="n">TypeInfo</span> <span class="n">my_device_info</span> <span class="o">=</span> <span class="p">{</span>  
+        <span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">"my_device"</span><span class="p">,</span>  
+        <span class="p">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">TYPE_DEVICE</span><span class="p">,</span>  
+        <span class="p">.</span><span class="n">instance_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">MyDevice</span><span class="p">),</span>  
+        <span class="p">.</span><span class="n">class_init</span> <span class="o">=</span> <span class="n">my_device_class_init</span><span class="p">,</span>  
+    <span class="p">};</span>  
+
+    <span class="n">type_register_static</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_device_info</span><span class="p">);</span>  
+<span class="p">}</span>  
+
+<span class="c1">// 插件初始化  </span>
+<span class="n">QEMU_PLUGIN_EXPORT</span> <span class="kt">void</span> <span class="nf">plugin_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">my_device_register</span><span class="p">();</span>  
+<span class="p">}</span>  
+</code></pre></div></div>
+<p>3.1 监控插件：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;qemu/plugin.h&gt;  
+#include &lt;qemu/monitor.h&gt;  
+</span>
+<span class="c1">// 定义自定义监控命令的回调函数  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">my_monitor_command</span><span class="p">(</span><span class="n">Monitor</span> <span class="o">*</span><span class="n">mon</span><span class="p">,</span> <span class="k">const</span> <span class="n">QDict</span> <span class="o">*</span><span class="n">qdict</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="c1">// 在这里实现你需要的监控逻辑，例如输出虚拟机状态  </span>
+    <span class="n">monitor_printf</span><span class="p">(</span><span class="n">mon</span><span class="p">,</span> <span class="s">"Custom Status: VM is running</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  
+<span class="p">}</span>  
+
+<span class="c1">// 定义监控命令  </span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">my_monitor_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">qmp_register_command</span><span class="p">(</span><span class="s">"my_custom_command"</span><span class="p">,</span>  
+                         <span class="n">my_monitor_command</span><span class="p">,</span>  
+                         <span class="n">QMP_NO_FLAGS</span><span class="p">,</span>  
+                         <span class="s">"Show custom VM status"</span><span class="p">);</span>  
+<span class="p">}</span>  
+
+<span class="c1">// 插件初始化  </span>
+<span class="n">QEMU_PLUGIN_EXPORT</span> <span class="kt">void</span> <span class="nf">plugin_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="n">my_monitor_init</span><span class="p">();</span>  
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>编译插件
+创建一个 Makefile 来编译插件：</li>
+</ol>
+
+<p>CC = gcc<br>
+CFLAGS = -fPIC -shared -o my_device_plugin.so my_device.c <code class="language-plaintext highlighter-rouge">pkg-config --cflags --libs qemu</code><br>
+运行 make 命令进行编译：</p>
+
+<p>make</p>
+<ol>
+  <li>在 QEMU 中加载插件
+使用 -plugin 选项在 QEMU 启动时加载插件，并添加参数以创建您的虚拟设备。例如：</li>
+</ol>
+
+<p>qemu-system-x86_64 -machine type=my_device,accel=kvm -plugin ./my_device_plugin.so</p>
+<ol>
+  <li>
+    <p>测试和调试
+您可以在 QEMU 内部测试新设备的功能，借助 QEMU 的调试工具和日志输出。</p>
+  </li>
+  <li>
+    <p>进一步开发
+设备功能扩展：可以继续扩展您设备的功能，例如添加接口、处理数据、实现 IRQ 线等。
+更复杂的设备：可以参考 QEMU 中已有的设备实现，学习更复杂的设备逻辑。
+参考资料</p>
+  </li>
+</ol>
+
+<ul>
+  <li><a href="https://www.qemu.org/docs/master/">QEMU Documentation</a></li>
+  <li><a href="https://wiki.qemu.org/Documentation/Networking">QEMU Device Model API</a></li>
+  <li><a href="https://wiki.qemu.org/Documentation/Contribute/Plugins">QEMU Plugin Development</a></li>
+</ul>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2024/07/14/ovs_learn/" data-toggle="tooltip" data-placement="top" title="ovs/ovn 学习笔记">
+                        Previous<br>
+                        <span>ovs/ovn 学习笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2024/07/16/process_engine_technology_research/" data-toggle="tooltip" data-placement="top" title="流程引擎技术调研">
+                        Next<br>
+                        <span>流程引擎技术调研</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>4月15华为笔试笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2020/04/21/huawei_bishi_note/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E5%AE%9E%E4%B9%A0%E7%AC%94%E8%AF%95" title="实习笔试">实习笔试</a>
+                        
+                        <a class="tag" href="/tags/#%E7%AE%97%E6%B3%95%E8%AE%B0%E5%BD%95" title="算法记录">算法记录</a>
+                        
+                        <a class="tag" href="/tags/#%E7%AD%94%E6%A1%88%E8%A7%A3%E6%9E%90" title="答案解析">答案解析</a>
+                        
+                    </div>
+                    <h1>4月15华为笔试笔记</h1>
+                    
+                    
+                    <h2 class="subheading">4月15华为笔试笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on April 21, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="4月15华为笔试笔记">4月15华为笔试笔记</h1>
+
+<h1 id="1-明日之星选举投票">1. 明日之星选举投票</h1>
+
+<p><img src="https://wangpengcheng.github.io/img/huwei-2020-04-15-01.jpg" alt="华为笔试题1"></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+主要思路:
+使用uordered_map统计，并使用vector存储相同数量的名字；
+最后进行排序即可
+注意输入的格式错误
+Tom,Lily,Tom,Lucy,Lucy,Jack,Tomy,Tomy,To,To
+
+*/</span>
+
+
+<span class="cp">#include &lt;cmath&gt;
+#include &lt;cctype&gt;
+#include &lt;cstring&gt;
+#include &lt;sstream&gt;
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+#include &lt;queue&gt;
+#include &lt;unordered_map&gt;
+#include &lt;unordered_set&gt;
+#include &lt;algorithm&gt;
+#include &lt;thread&gt;
+#include &lt;mutex&gt;
+#include &lt;condition_variable&gt;
+#include &lt;future&gt;
+#include &lt;cstdint&gt;
+#include &lt;climits&gt;
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="c1">//关闭流输出</span>
+<span class="k">static</span> <span class="k">auto</span> <span class="n">static_lambda</span> <span class="o">=</span> <span class="p">[]()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">sync_with_stdio</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="p">.</span><span class="n">tie</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}();</span>
+<span class="k">class</span> <span class="nc">Solution</span><span class="p">{</span>
+<span class="nl">public:</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">GetMaxName</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">names</span><span class="p">){</span>
+          <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">;</span>
+          <span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">name_count</span><span class="p">;</span>
+          <span class="c1">//统计数目</span>
+          <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">names</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+              <span class="k">if</span><span class="p">(</span><span class="n">name_count</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">names</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="o">==</span><span class="n">name_count</span><span class="p">.</span><span class="n">end</span><span class="p">()){</span>
+                  <span class="n">name_count</span><span class="p">[</span><span class="n">names</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+              <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                  <span class="o">++</span><span class="n">name_count</span><span class="p">[</span><span class="n">names</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)];</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="kt">int</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+          <span class="k">for</span><span class="p">(</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span><span class="o">=</span><span class="n">name_count</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span><span class="n">it</span><span class="o">!=</span><span class="n">name_count</span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="o">++</span><span class="n">it</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="o">==</span><span class="n">max_count</span><span class="p">){</span>
+                <span class="n">string</span> <span class="n">temp_string</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">);</span>
+                <span class="n">res</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">temp_string</span><span class="p">);</span>
+            <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="o">&gt;</span><span class="n">max_count</span><span class="p">){</span>
+                <span class="n">string</span> <span class="n">temp_string</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">);</span>
+                <span class="n">max_count</span><span class="o">=</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+                <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">res</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+                    <span class="n">res</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+                <span class="p">}</span>
+                <span class="n">res</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">temp_string</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+          
+          <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+       <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">bool</span> <span class="nf">CheckName</span><span class="p">(</span><span class="n">string</span> <span class="n">temp_str</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">temp_str</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span> <span class="c1">//检查是否为空串</span>
+        <span class="c1">//检查第一个字母是否正确</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">temp_str</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">&lt;=</span><span class="sc">'Z'</span><span class="o">&amp;&amp;</span><span class="n">temp_str</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">&gt;=</span><span class="sc">'A'</span><span class="p">)){</span>
+            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="p">}</span>
+                <span class="c1">//检查是否正确</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">temp_str</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">((</span><span class="n">temp_str</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&lt;=</span><span class="sc">'z'</span><span class="o">&amp;&amp;</span><span class="n">temp_str</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;=</span><span class="sc">'a'</span><span class="p">)){</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]){</span>
+    <span class="n">Solution</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">org_str</span><span class="p">;</span>
+    <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">org_str</span><span class="p">;</span>
+    <span class="c1">//处理输入和输出，生成对应的名字序列</span>
+    <span class="kt">int</span> <span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">right</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">is_input_error</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">names</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(;</span><span class="n">right</span><span class="o">&lt;</span><span class="n">org_str</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">right</span><span class="p">){</span>
+        <span class="c1">//检查是否为分割符</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">org_str</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">right</span><span class="p">)</span><span class="o">==</span><span class="sc">','</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">string</span> <span class="n">temp_str</span><span class="o">=</span><span class="n">org_str</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="o">-</span><span class="n">left</span><span class="p">);</span>
+            <span class="c1">//cout&lt;&lt;temp_str&lt;&lt;endl;</span>
+            <span class="c1">//非法输入</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">CheckName</span><span class="p">(</span><span class="n">temp_str</span><span class="p">)){</span>
+                <span class="n">names</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">temp_str</span><span class="p">);</span>
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="n">is_input_error</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="c1">//在这里跳过‘,’</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">right</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">//获取最后的名字</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">right</span><span class="o">&gt;</span><span class="n">left</span><span class="p">){</span>
+        <span class="n">string</span> <span class="n">temp_str</span><span class="o">=</span><span class="n">org_str</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">org_str</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="n">left</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">CheckName</span><span class="p">(</span><span class="n">temp_str</span><span class="p">)){</span>
+            <span class="n">names</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">temp_str</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">is_input_error</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="c1">//    for(auto temp:names){</span>
+ <span class="c1">//       cout&lt;&lt;temp&lt;&lt;endl;</span>
+ <span class="c1">//   }</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">is_input_error</span><span class="o">||</span><span class="n">names</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"error.0001"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="k">auto</span> <span class="n">res</span><span class="o">=</span><span class="n">a</span><span class="p">.</span><span class="n">GetMaxName</span><span class="p">(</span><span class="n">names</span><span class="p">);</span>
+        <span class="n">sort</span><span class="p">(</span><span class="n">res</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">res</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">res</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="2-输入-关键字-匹配字符串">2. 输入 关键字 匹配字符串</h2>
+
+<p>输出：匹配值</p>
+
+<p>XXXX XXXX［key=0x12，mask=0xf0，val=0x55］</p>
+
+<p>空格前XXXX是关键字，空格后是关键字加［］以及里面的一些匹配值。规则1中括号前的关键字（也就是字符串中的关键字）要与给出的关键字一致，字母大小也要一样，规则2 “=”后面的匹配值必须是是16进制的数</p>
+
+<p>如果关键字不匹配，也就是字符串中的关键字和给出的不一致，匹配失败，输出FAIL</p>
+
+<p>例子：输入</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">read read</span>［key<span class="o">=</span>0x12，mask<span class="o">=</span>0xf0，val<span class="o">=</span>0x55］read_wo［key<span class="o">=</span>0x15，mask<span class="o">=</span>0xf0，val<span class="o">=</span>0x23］read［key<span class="o">=</span>0x92，mask<span class="o">=</span>0xf0，val<span class="o">=</span>0x51］
+</code></pre></div></div>
+<p>注意：除了关键字read（第一个read）外，没有空格，那个看上去有空格是因为中括号的原因。</p>
+
+<p>输出：</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0x12 0xf0 0x55
+
+0x92 0xf0 0x51
+</code></pre></div></div>
+<p>字符串匹配，c++没有字符串分割函数写起来真的有点操蛋，几个规则要读懂，但是最后总算AC了。代码相当丑陋。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+作者：求份offer压压惊
+链接：https://www.nowcoder.com/discuss/409150?type=0&order=0&pos=37&page=1&channel=-1
+来源：牛客网
+*/</span>
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="n">string</span> <span class="n">keyword</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">inform</span><span class="p">;</span>
+    <span class="c1">//获取关键字和inform字符串</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">keyword</span> <span class="o">&gt;&gt;</span> <span class="n">inform</span><span class="p">){</span>
+        <span class="c1">//元素集合字符串</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">items</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">pre</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="c1">//将元素添加到items中</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">inform</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">inform</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">']'</span><span class="p">){</span>
+                <span class="n">items</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">inform</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">pre</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="n">pre</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span>
+                <span class="n">pre</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">){</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"FAIL"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">addr</span><span class="p">;</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">mask</span><span class="p">;</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">val</span><span class="p">;</span>
+        <span class="c1">//遍历查找关键字符串的值</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">items</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">find</span><span class="p">(</span><span class="s">"addr="</span><span class="p">)</span> <span class="o">!=</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">npos</span><span class="p">){</span>
+                <span class="c1">//获取值开始的坐标</span>
+                <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">find</span><span class="p">(</span><span class="s">"addr="</span><span class="p">)</span> <span class="o">+</span> <span class="mi">5</span><span class="p">;</span>
+                <span class="c1">//检查是否为16进制</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'0'</span><span class="p">)</span>
+                    <span class="k">continue</span><span class="p">;</span>
+                <span class="c1">//获取addr子字符串</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'x'</span> <span class="o">||</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'X'</span><span class="p">){</span>
+                    <span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">;</span>
+                    <span class="k">for</span><span class="p">(;</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">','</span><span class="p">;</span> <span class="n">cnt</span><span class="o">++</span><span class="p">);</span>
+                    <span class="n">addr</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">cnt</span><span class="o">-</span><span class="n">start</span><span class="p">));</span>
+                <span class="p">}</span> <span class="k">else</span><span class="p">{</span>
+                    <span class="k">continue</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span> <span class="k">else</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="c1">//查找mask</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">find</span><span class="p">(</span><span class="s">"mask="</span><span class="p">)</span> <span class="o">!=</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">npos</span><span class="p">){</span>
+                <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">find</span><span class="p">(</span><span class="s">"mask="</span><span class="p">)</span> <span class="o">+</span> <span class="mi">5</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'0'</span><span class="p">)</span>
+                    <span class="k">continue</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'x'</span> <span class="o">||</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'X'</span><span class="p">){</span>
+                    <span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">;</span>
+                    <span class="k">for</span><span class="p">(;</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">','</span><span class="p">;</span> <span class="n">cnt</span><span class="o">++</span><span class="p">);</span>
+                    <span class="n">mask</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">cnt</span><span class="o">-</span><span class="n">start</span><span class="p">));</span>
+                <span class="p">}</span> <span class="k">else</span>
+                    <span class="k">continue</span><span class="p">;</span>
+            <span class="p">}</span> <span class="k">else</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="c1">//查找val</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">find</span><span class="p">(</span><span class="s">"val="</span><span class="p">)</span> <span class="o">!=</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">npos</span><span class="p">){</span>
+                <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">find</span><span class="p">(</span><span class="s">"val="</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'0'</span><span class="p">)</span>
+                    <span class="k">continue</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'x'</span> <span class="o">||</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'X'</span><span class="p">){</span>
+                    <span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">;</span>
+                    <span class="k">for</span><span class="p">(;</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">cnt</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">']'</span><span class="p">;</span> <span class="n">cnt</span><span class="o">++</span><span class="p">);</span>
+                    <span class="n">val</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">cnt</span><span class="o">-</span><span class="n">start</span><span class="p">));</span>
+                <span class="p">}</span> <span class="k">else</span>
+                    <span class="k">continue</span><span class="p">;</span>
+            <span class="p">}</span> <span class="k">else</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="c1">//遍历字符串查找第一个name,即匹配的名称</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'['</span><span class="p">){</span>
+                    <span class="n">name</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="p">));</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="kt">bool</span> <span class="n">has</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="c1">//检查keywor是否在name集合中，在就输出集合对应的值。</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="n">name</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">m</span><span class="o">++</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">==</span> <span class="n">keyword</span><span class="p">){</span>
+                <span class="n">has</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+                <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">addr</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">mask</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span> <span class="o">&lt;&lt;</span> <span class="n">val</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">has</span> <span class="o">==</span> <span class="nb">false</span><span class="p">){</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"FAIL"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="3-栈的内存空间的调用">3. 栈的内存空间的调用</h2>
+
+<p>一个树到顶到叶子结点的距离，DFS，输入不知道说这个结点没有栈空间，不知道位置是有数字还是没有数字。最后70%难顶。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/huwei-2020-04-15-03.jpg" alt=""></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+作者：QK康哥在此
+链接：https://www.nowcoder.com/discuss/409137
+来源：牛客网
+
+*/</span>
+
+<span class="cp">#include&lt;iostream&gt;
+#include&lt;vector&gt;
+#include&lt;map&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">R</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">NA</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="c1">//全局变量，记录最大值</span>
+<span class="kt">int</span> <span class="n">max_le</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="c1">//记录调用函数队列</span>
+<span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">mp</span><span class="p">;</span>
+<span class="c1">//记录函数和栈空间大小</span>
+<span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">mp1</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">dfs</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">vis</span><span class="p">,</span><span class="kt">int</span> <span class="n">le</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//如果没有子函数调用</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">mp</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">size</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">max_le</span><span class="o">=</span><span class="n">max</span><span class="p">(</span><span class="n">max_le</span><span class="p">,</span><span class="n">le</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">mp</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">size</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+        	<span class="c1">//获取子函数值</span>
+            <span class="n">a</span><span class="o">=</span><span class="n">mp</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+        	<span class="n">b</span><span class="o">=</span><span class="n">mp1</span><span class="p">[</span><span class="n">a</span><span class="p">];</span>
+        	<span class="c1">//产生越界直接返回</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">){</span>
+                <span class="n">NA</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+        	<span class="c1">//检查节点是否访问过，是则存在环路；直接返回</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">vis</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">{</span>
+                    <span class="n">R</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+                    <span class="k">return</span> <span class="p">;</span>
+            <span class="p">}</span>
+        	<span class="c1">//将节点设置为访问过</span>
+            <span class="n">vis</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+        	<span class="c1">//再次深度遍历</span>
+            <span class="n">dfs</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">vis</span><span class="p">,</span><span class="n">le</span><span class="o">+</span><span class="n">b</span><span class="p">);</span>
+        	<span class="c1">//检查是否存在环路</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">R</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">;</span>
+        	<span class="c1">//更改访问标志位</span>
+            <span class="n">vis</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">n</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="c1">//访问数组</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vis</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="c1">//被调用函数个数</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">;</span>
+    <span class="c1">//记录函数调用关系</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">m</span><span class="o">&lt;</span><span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//函数编号和栈空间大小</span>
+        <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">a</span><span class="o">&gt;&gt;</span><span class="n">b</span><span class="p">;</span>
+        <span class="n">mp1</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">=</span><span class="n">b</span><span class="p">;</span>
+        <span class="c1">//将其调用函数，</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">v</span><span class="p">[</span><span class="n">m</span><span class="p">];</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+            <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">b</span><span class="p">;</span>
+            <span class="n">mp</span><span class="p">[</span><span class="n">a</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">m</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//对每个节点进行深度遍历</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">vis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+            <span class="n">dfs</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">vis</span><span class="p">,</span><span class="n">mp1</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">R</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="n">vis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="c1">//如果产生环路。输出对应信息</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">R</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"R"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">else</span>
+    <span class="p">{</span>   
+        <span class="k">if</span><span class="p">(</span><span class="n">NA</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span>
+        	<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"NA"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//输出最大值</span>
+        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">max_le</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">"pause"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/04/21/server_use_note/" data-toggle="tooltip" data-placement="top" title="实验室服务器使用说明">
+                        Previous<br>
+                        <span>实验室服务器使用说明</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2020/04/21/java_learning_start_01/" data-toggle="tooltip" data-placement="top" title="java简单学习笔记(一)">
+                        Next<br>
+                        <span>java简单学习笔记(一)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

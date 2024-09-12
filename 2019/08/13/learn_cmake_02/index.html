@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>cmake 学习笔记 (二) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/08/13/learn_cmake_02/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#MakeFile" title="MakeFile">MakeFile</a>
+                        
+                        <a class="tag" href="/tags/#cmake" title="cmake">cmake</a>
+                        
+                    </div>
+                    <h1>cmake 学习笔记 (二)</h1>
+                    
+                    
+                    <h2 class="subheading">cmake 学习笔记 (二)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on August 13, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-8-14 13:01:45</p>
+</blockquote>
+
+<h1 id="cmake-工程入门指南">CMake 工程入门指南</h1>
+
+<h2 id="cmake官方教程">CMake官方教程</h2>
+
+<p><a href="https://cmake.org/cmake-tutorial/">cmake官方教程</a></p>
+
+<p>这篇文章是官方教程的翻译</p>
+
+<h2 id="1-一个简单的起点">1 一个简单的起点</h2>
+
+<p>最简单的工程就是将一些源文件编译为可执行程序。对于简单工程来说，只需要在CMakeList.txt添加2行内容即可。这就是我们这个教程的起点，CMakeLists.txt文件内容如下：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 2.6<span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span>Tutorial<span class="p">)</span>
+<span class="nb">add_executable</span><span class="p">(</span>Tutorial tutorial.cxx<span class="p">)</span>
+</code></pre></div></div>
+
+<p>注意：CMake文件中命令是不区分大小写的，但是变量是区分大小写的，这个例子中CMakeLists.txt文件中都使用小写字母。源文件”tutorial.cxx”用来计算一个数的平方根，它的第一个版本非常简单，如下所示：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// A simple program that computes the square root of a number</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;math.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="s">"Usage: %s number</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="kt">double</span> <span class="n">inputValue</span> <span class="o">=</span> <span class="n">atof</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+  <span class="kt">double</span> <span class="n">outputValue</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">inputValue</span><span class="p">);</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="s">"The square root of %g is %g</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+          <span class="n">inputValue</span><span class="p">,</span> <span class="n">outputValue</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="12-添加版本号和配置头文件">1.2 添加版本号和配置头文件</h3>
+
+<p>我们添加的第一个特性就是为我们的可执行程序和工程提供一个版本号.你可以在源代码中写入版本号,然而在CMakeLists.txt中提供(版本号)更灵活.修改CMakeLists.txt增加一个版本号,内容如下：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 2.6<span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span>Tutorial<span class="p">)</span>
+<span class="c1"># The version number.</span>
+<span class="nb">set</span> <span class="p">(</span>Tutorial_VERSION_MAJOR 1<span class="p">)</span>
+<span class="nb">set</span> <span class="p">(</span>Tutorial_VERSION_MINOR 0<span class="p">)</span>
+ 
+<span class="c1"># configure a header file to pass some of the CMake settings</span>
+<span class="c1"># to the source code</span>
+<span class="nb">configure_file</span> <span class="p">(</span>
+  <span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_SOURCE_DIR</span><span class="si">}</span><span class="s2">/TutorialConfig.h.in"</span>
+  <span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="si">}</span><span class="s2">/TutorialConfig.h"</span>
+  <span class="p">)</span>
+ 
+<span class="c1"># add the binary tree to the search path for include files</span>
+<span class="c1"># so that we will find TutorialConfig.h</span>
+<span class="nb">include_directories</span><span class="p">(</span><span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+ 
+<span class="c1"># add the executable</span>
+<span class="nb">add_executable</span><span class="p">(</span>Tutorial tutorial.cxx<span class="p">)</span>
+
+</code></pre></div></div>
+<p>因为配置文件将会被写入到二进制树当中，我们需要把这个目录添加到头文件路径当中。我们接着创建一个”TutorialConfig.h.in”文件，内容如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// the configured options and settings for Tutorial
+
+#define Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@
+#define Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@
+
+</code></pre></div></div>
+
+<p>当CMake配置这个头文件是，”@Tutorial_VERSION_MAJOR@”和”@Tutorial_VERSION_MINOR@”的值将会被CMakeLists.txt文件中的值替换。下一步我们修改”tutorial.cxx”来包含配置头文件来使用版本号。修改后的代码如下:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// A simple program that computes the square root of a number
+
+#include &lt;stdio.h&gt;
+
+#include &lt;stdlib.h&gt;
+
+#include &lt;math.h&gt;
+
+#include "TutorialConfig.h"
+ 
+int main (int argc, char *argv[])
+{
+  if (argc &lt; 2)
+    {
+    fprintf(stdout,"%s Version %d.%d\n",
+            argv[0],
+            Tutorial_VERSION_MAJOR,
+            Tutorial_VERSION_MINOR);
+    fprintf(stdout,"Usage: %s number\n",argv[0]);
+    return 1;
+    }
+  double inputValue = atof(argv[1]);
+  double outputValue = sqrt(inputValue);
+  fprintf(stdout,"The square root of %g is %g\n",
+          inputValue, outputValue);
+  return 0;
+}
+
+</code></pre></div></div>
+<p>上面代码最主要的修改就是包含了TutorialConfig.h头文件，并且打印出版本号。</p>
+
+<h2 id="2-添加一个库">2 添加一个库</h2>
+
+<p>现在我们为我们的工程添加一个库。这个库包含了自己实现的一个用来计算数的平方根函数。应用程序可以使用这个库来计算平方根，而不是使用编译器提供的标准库。教程里我们会把这个库放到一个叫做”MathFunctions”的子文件夹中。它包含一个只有一行内容的CMakeLists.txt文件：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add_library(MathFunctions mysqrt.cxx)
+</code></pre></div></div>
+
+<p>源文件”mysqrt.cxx”有一个叫做mysqrt的函数，它跟编译器提供的sqrt函数类似。为了使用这个新库，我们要在顶层的CMakeLists.txt中添加”add_subdirectory”调用,以便使这个库能够被编译到.我们还需要添加另外一个包含文件夹以便找到包含在头文件”MathFunctions/MathFunctions.h”中的函数原型.最后把新库添加到应用程序当中,在顶层的CMakeLists.txt文件中添加如下内容:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>include_directories ("${PROJECT_SOURCE_DIR}/MathFunctions")
+add_subdirectory (MathFunctions) 
+ 
+# add the executable
+add_executable (Tutorial tutorial.cxx)
+target_link_libraries (Tutorial MathFunctions)
+
+</code></pre></div></div>
+
+<p><strong>注意:这里需要自己手动在MathFunctions文件夹里添加”mysqrt.cxx”和”MathFunctions.h”文件,这2个文件里的代码可以参考文章最后提供的附件</strong></p>
+
+<p>现在让我们把MathFunctions库做成可选的.当然在这个教程的工程中这个操作有点多余.但是在你的其他工程中,多数情况会有大量的依赖第三方的库文件.添加一个可选库,需要在最高层的CMakeLists.txt文件中添加一些内容:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># should we use our own math functions?
+
+option (USE_MYMATH  
+        "Use tutorial provided math implementation" ON) 
+
+</code></pre></div></div>
+
+<p>这个USE_MYMATH将会显示在CMake GUI当中,并且默认值为ON,这个设置将会被保存到CACHE当中,所以用户每次打开工程时不必重新配置.下一步需要做一些修改,以便使MathFunctions库参与编译和链接.这个修改是在顶层的CMakeLists.txt文件中,内容如下:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># add the MathFunctions library?</span>
+<span class="c1">#</span>
+<span class="nb">if</span> <span class="p">(</span>USE_MYMATH<span class="p">)</span>
+  <span class="nb">include_directories</span> <span class="p">(</span><span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_SOURCE_DIR</span><span class="si">}</span><span class="s2">/MathFunctions"</span><span class="p">)</span>
+  <span class="nb">add_subdirectory</span> <span class="p">(</span>MathFunctions<span class="p">)</span>
+  <span class="nb">set</span> <span class="p">(</span>EXTRA_LIBS <span class="si">${</span><span class="nv">EXTRA_LIBS</span><span class="si">}</span> MathFunctions<span class="p">)</span>
+<span class="nb">endif</span> <span class="p">(</span>USE_MYMATH<span class="p">)</span>
+ 
+<span class="c1"># add the executable</span>
+<span class="nb">add_executable</span> <span class="p">(</span>Tutorial tutorial.cxx<span class="p">)</span>
+<span class="nb">target_link_libraries</span> <span class="p">(</span>Tutorial  <span class="si">${</span><span class="nv">EXTRA_LIBS</span><span class="si">}</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<p>通过配置USB_MYMATH来决定是否编译和使用MathFunctions.注意上面的”EXTRA_LIBS”变量是用来收集每一个可选库的,以便他们链接到可执行程序中.这是一个保持大项目工程可选库清洁的通用方法.相应的源代码修改是很直观的,如下:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// A simple program that computes the square root of a number</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;math.h&gt;
+</span>
+<span class="cp">#include "TutorialConfig.h"
+</span>
+<span class="cp">#ifdef USE_MYMATH
+#include "MathFunctions.h"
+#endif
+</span> 
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="s">"%s Version %d.%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">Tutorial_VERSION_MAJOR</span><span class="p">,</span>
+            <span class="n">Tutorial_VERSION_MINOR</span><span class="p">);</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="s">"Usage: %s number</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+ 
+  <span class="kt">double</span> <span class="n">inputValue</span> <span class="o">=</span> <span class="n">atof</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+ 
+<span class="cp">#ifdef USE_MYMATH
+</span>  <span class="kt">double</span> <span class="n">outputValue</span> <span class="o">=</span> <span class="n">mysqrt</span><span class="p">(</span><span class="n">inputValue</span><span class="p">);</span>
+<span class="cp">#else
+</span>  <span class="kt">double</span> <span class="n">outputValue</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">inputValue</span><span class="p">);</span>
+<span class="cp">#endif
+</span> 
+  <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span><span class="s">"The square root of %g is %g</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+          <span class="n">inputValue</span><span class="p">,</span> <span class="n">outputValue</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<p>在源文件中,我们也使用了USE_MYMATH,CMake通过修改配置文件TutorialConfig.h.in配置文件来为源文件这个提供支持,添加内容如下:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#cmakedefine USE_MYMATH
+</span></code></pre></div></div>
+
+<h2 id="3-安装和测试">3 安装和测试</h2>
+
+<p>下一步我们将为我们的工程添加安装规则和测试.安装规则相当简单,为了安装MathFunctions库和头文件,我们需要在MathFunctions文件夹的CMakeLists.txt文件中,添加如下内容:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nb">install</span> <span class="p">(</span>TARGETS MathFunctions DESTINATION bin<span class="p">)</span>
+<span class="nb">install</span> <span class="p">(</span>FILES MathFunctions.h DESTINATION include<span class="p">)</span>
+</code></pre></div></div>
+
+<p>对于应用程序,需要在最顶层的CMakeLists.txt文件中安装可执行程序和配置头文件.</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># add the install targets</span>
+<span class="nb">install</span> <span class="p">(</span>TARGETS Tutorial DESTINATION bin<span class="p">)</span>
+<span class="nb">install</span> <span class="p">(</span>FILES <span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="si">}</span><span class="s2">/TutorialConfig.h"</span>        
+         DESTINATION include<span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>注意:上面这几行内容,需要添加在如下代码之后,否则编译会报错,提示找不到”Tutorial”</strong></p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># add the executable</span>
+<span class="nb">add_executable</span> <span class="p">(</span>Tutorial tutorial.cxx<span class="p">)</span>
+<span class="nb">target_link_libraries</span> <span class="p">(</span>Tutorial  <span class="si">${</span><span class="nv">EXTRA_LIBS</span><span class="si">}</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>这就是所有要做的.到这里你应该可以构建这个教程了,然后输入”make install”(或则使用IDE编译出INSTALL目标),它将安装适当的头文件,库,和可执行程序.CMake变量”CMAKE_INSTALL_PREFIX”用来决定这些文件将被安装的根路径.添加测试也是很简单的.在顶层的CMakeLists.txt文件中添加一些简单的测试,来确认应用程序工作正常.</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nb">include</span><span class="p">(</span>CTest<span class="p">)</span>
+
+<span class="c1"># does the application run</span>
+<span class="nb">add_test</span> <span class="p">(</span>TutorialRuns Tutorial 25<span class="p">)</span>
+
+<span class="c1"># does it sqrt of 25</span>
+<span class="nb">add_test</span> <span class="p">(</span>TutorialComp25 Tutorial 25<span class="p">)</span>
+<span class="nb">set_tests_properties</span> <span class="p">(</span>TutorialComp25 PROPERTIES PASS_REGULAR_EXPRESSION <span class="s2">"25 is 5"</span><span class="p">)</span>
+
+<span class="c1"># does it handle negative numbers</span>
+<span class="nb">add_test</span> <span class="p">(</span>TutorialNegative Tutorial -25<span class="p">)</span>
+<span class="nb">set_tests_properties</span> <span class="p">(</span>TutorialNegative PROPERTIES PASS_REGULAR_EXPRESSION <span class="s2">"-25 is 0"</span><span class="p">)</span>
+
+<span class="c1"># does it handle small numbers</span>
+<span class="nb">add_test</span> <span class="p">(</span>TutorialSmall Tutorial 0.0001<span class="p">)</span>
+<span class="nb">set_tests_properties</span> <span class="p">(</span>TutorialSmall PROPERTIES PASS_REGULAR_EXPRESSION <span class="s2">"0.0001 is 0.01"</span><span class="p">)</span>
+
+<span class="c1"># does the usage message work?</span>
+<span class="nb">add_test</span> <span class="p">(</span>TutorialUsage Tutorial<span class="p">)</span>
+<span class="nb">set_tests_properties</span> <span class="p">(</span>TutorialUsage PROPERTIES PASS_REGULAR_EXPRESSION <span class="s2">"Usage:.*number"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>在构建完成之后需要运行”ctest”命令来运行上面的测试.第一个测试用例用来确保应用程序是否有段错误,crash,返回值非0.这个是一个简单的CTest测试.接下来的几个测试都是利用”PASS_REGULAR_EXPRESSION”测试属性来验证输出是否包含特定字符串.在这个例子当中验证平方根计算是否正确,以及当输入错误信息时候输出使用信息.如果你希望添加更多测试来测试不同的输入值,你可以考虑创建一个宏像如下这样:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">#define a macro to simplify adding tests, then use it</span>
+<span class="nb">macro</span> <span class="p">(</span>do_test arg result<span class="p">)</span>
+  <span class="nb">add_test</span> <span class="p">(</span>TutorialComp<span class="si">${</span><span class="nv">arg</span><span class="si">}</span> Tutorial <span class="si">${</span><span class="nv">arg</span><span class="si">}</span><span class="p">)</span>
+  <span class="nb">set_tests_properties</span> <span class="p">(</span>TutorialComp<span class="si">${</span><span class="nv">arg</span><span class="si">}</span>
+    PROPERTIES PASS_REGULAR_EXPRESSION <span class="si">${</span><span class="nv">result</span><span class="si">}</span><span class="p">)</span>
+<span class="nb">endmacro</span> <span class="p">(</span>do_test<span class="p">)</span>
+
+<span class="c1"># do a bunch of result based tests</span>
+<span class="nf">do_test</span> <span class="p">(</span>25 <span class="s2">"25 is 5"</span><span class="p">)</span>
+<span class="nf">do_test</span> <span class="p">(</span>-25 <span class="s2">"-25 is 0"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>do_test的每一次调用,就会有一次测试被添加到工程当中,测试的名字、输入、结果,基于传递的参数.</p>
+
+<h2 id="4-添加系统检测">4 添加系统检测</h2>
+
+<p>下一步让我们考虑添加一些代码到我们的工程,以支持目标平台没有的特性.在这个例子当中,我们将添加一些代码来验证目标平台是否具有log和exp函数.当然几乎所有的平台都有这些函数,教程假设一下这种少数情况.如果平台有log函数,那么我们在mysqrt函数中用它来计算输出.第一步我们利用CheckFunctionExists.cmake宏测试这些函数是否有效,在顶层CMakeLists.txt文件中添加如下内容:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># does this system provide the log and exp functions?</span>
+<span class="nb">include</span> <span class="p">(</span>CheckFunctionExists<span class="p">)</span>
+<span class="nf">check_function_exists</span> <span class="p">(</span>log HAVE_LOG<span class="p">)</span>
+<span class="nf">check_function_exists</span> <span class="p">(</span>exp HAVE_EXP<span class="p">)</span>
+
+</code></pre></div></div>
+
+<p>接着我们修改”TutorialConfig.h.in”来定义那些CMake在平台上查找到的值,修改如下:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+// does the platform provide exp and log functions?
+<span class="c1">#cmakedefine HAVE_LOG</span>
+<span class="c1">#cmakedefine HAVE_EXP</span>
+</code></pre></div></div>
+
+<p>在使用log和exp之前,确定他们是否被定义,是非常重要的.在CMake中,配置文件的命令会立刻使用目前的配置.最后在mysqrt函数中,我们可以提供一个基于log和exp函数的实现,代码如下:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+// if we have both log and exp then use them
+#if defined (HAVE_LOG) &amp;&amp; defined (HAVE_EXP)
+  result = exp(log(x)*0.5);
+#else // otherwise use an iterative approach
+  . . .
+</code></pre></div></div>
+
+<p><strong>注意:这里需要在”mysqrt.cxx”文件里添加头文件#include “TutorialConfig.h”,否则找不到定义的宏</strong></p>
+
+<h2 id="5-添加生成一个通用的文件">5 添加/生成一个通用的文件</h2>
+
+<p>这一节我们将演示如何添加一个源文件到一个应用程序当中.在这个例子当中,我们将会创建一个已经计算好的平方根表,它作为构建过程的一部分,并且编译进我们的应用程序.为了实现这个功能,我们需要一个程序来生成这个表.在MathFunctions子文件夹中我们添加一个叫做MakeTable.cxx的文件,它的内容如下:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// A simple program that builds a sqrt table </span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;math.h&gt;
+</span> 
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">result</span><span class="p">;</span>
+ 
+  <span class="c1">// make sure we have enough arguments</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+ 
+  <span class="c1">// open the output file</span>
+  <span class="kt">FILE</span> <span class="o">*</span><span class="n">fout</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s">"w"</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">fout</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+ 
+  <span class="c1">// create a source file with a table of square roots</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span><span class="s">"double sqrtTable[] = {</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span><span class="s">"%g,</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">result</span><span class="p">);</span>
+    <span class="p">}</span>
+ 
+  <span class="c1">// close the table with a zero</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="n">fout</span><span class="p">,</span><span class="s">"0};</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="n">fclose</span><span class="p">(</span><span class="n">fout</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>注意,这个表格是用C++代生成的,并且文件的名字是通过该程序的运行参数传入的.下一步就是添加一个适当的命令到MathFunctions的CMakeLists.txt文件来构建MakeTable应用程序,然后在构建过程中运行它.完成这些操作,我们需要添加如下命令:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># first we add the executable that generates the table</span>
+<span class="nb">add_executable</span><span class="p">(</span>MakeTable MakeTable.cxx<span class="p">)</span>
+ 
+<span class="c1"># add the command to generate the source code</span>
+<span class="nb">add_custom_command</span> <span class="p">(</span>
+  OUTPUT <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span>/Table.h
+  COMMAND MakeTable <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span>/Table.h
+  DEPENDS MakeTable
+  <span class="p">)</span>
+ 
+<span class="c1"># add the binary tree directory to the search path for </span>
+<span class="c1"># include files</span>
+<span class="nb">include_directories</span><span class="p">(</span> <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span> <span class="p">)</span>
+ 
+<span class="c1"># add the main library</span>
+<span class="nb">add_library</span><span class="p">(</span>MathFunctions mysqrt.cxx <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span>/Table.h  <span class="p">)</span>
+</code></pre></div></div>
+
+<p>首先,可执行程序MakeTable像所有可执行程序一样被添加.接着我们添加一些命令来让MakeTable生成Table.h.然后我们让CMake知道mysqrt.cxx依赖于生成的Table.h.这需要为MathFunctions库把生成的Table.h文件添加到源文件列表当中,我们还需要添加当前的二进制文件夹添加到include文件夹列表当中,以便Table.h文件可以被mysqrt.cxx找到并包含.当工程被构建时,它将会先构建MakeTable可执行程序.它将运行MakeTable来生成Table.h文件.最后,它编译包含了Table.h文件的mysqrt.cxx来生成MathFunctions库.为了达到这个目的,顶层的CMakeLists.txt需要添加如下代码:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nb">cmake_minimum_required</span> <span class="p">(</span>VERSION 2.6<span class="p">)</span>
+<span class="nb">project</span> <span class="p">(</span>Tutorial<span class="p">)</span>
+<span class="nb">include</span><span class="p">(</span>CTest<span class="p">)</span>
+ 
+<span class="c1"># The version number.</span>
+<span class="nb">set</span> <span class="p">(</span>Tutorial_VERSION_MAJOR 1<span class="p">)</span>
+<span class="nb">set</span> <span class="p">(</span>Tutorial_VERSION_MINOR 0<span class="p">)</span>
+ 
+<span class="c1"># does this system provide the log and exp functions?</span>
+<span class="nb">include</span> <span class="p">(</span><span class="si">${</span><span class="nv">CMAKE_ROOT</span><span class="si">}</span>/Modules/CheckFunctionExists.cmake<span class="p">)</span>
+ 
+<span class="nf">check_function_exists</span> <span class="p">(</span>log HAVE_LOG<span class="p">)</span>
+<span class="nf">check_function_exists</span> <span class="p">(</span>exp HAVE_EXP<span class="p">)</span>
+ 
+<span class="c1"># should we use our own math functions</span>
+<span class="nb">option</span><span class="p">(</span>USE_MYMATH 
+  <span class="s2">"Use tutorial provided math implementation"</span> ON<span class="p">)</span>
+ 
+<span class="c1"># configure a header file to pass some of the CMake settings</span>
+<span class="c1"># to the source code</span>
+<span class="nb">configure_file</span> <span class="p">(</span>
+  <span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_SOURCE_DIR</span><span class="si">}</span><span class="s2">/TutorialConfig.h.in"</span>
+  <span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="si">}</span><span class="s2">/TutorialConfig.h"</span>
+  <span class="p">)</span>
+ 
+<span class="c1"># add the binary tree to the search path for include files</span>
+<span class="c1"># so that we will find TutorialConfig.h</span>
+<span class="nb">include_directories</span> <span class="p">(</span><span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+ 
+<span class="c1"># add the MathFunctions library?</span>
+<span class="nb">if</span> <span class="p">(</span>USE_MYMATH<span class="p">)</span>
+  <span class="nb">include_directories</span> <span class="p">(</span><span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_SOURCE_DIR</span><span class="si">}</span><span class="s2">/MathFunctions"</span><span class="p">)</span>
+  <span class="nb">add_subdirectory</span> <span class="p">(</span>MathFunctions<span class="p">)</span>
+  <span class="nb">set</span> <span class="p">(</span>EXTRA_LIBS <span class="si">${</span><span class="nv">EXTRA_LIBS</span><span class="si">}</span> MathFunctions<span class="p">)</span>
+<span class="nb">endif</span> <span class="p">(</span>USE_MYMATH<span class="p">)</span>
+ 
+<span class="c1"># add the executable</span>
+<span class="nb">add_executable</span> <span class="p">(</span>Tutorial tutorial.cxx<span class="p">)</span>
+<span class="nb">target_link_libraries</span> <span class="p">(</span>Tutorial  <span class="si">${</span><span class="nv">EXTRA_LIBS</span><span class="si">}</span><span class="p">)</span>
+ 
+<span class="c1"># add the install targets</span>
+<span class="nb">install</span> <span class="p">(</span>TARGETS Tutorial DESTINATION bin<span class="p">)</span>
+<span class="nb">install</span> <span class="p">(</span>FILES <span class="s2">"</span><span class="si">${</span><span class="nv">PROJECT_BINARY_DIR</span><span class="si">}</span><span class="s2">/TutorialConfig.h"</span>        
+         DESTINATION include<span class="p">)</span>
+ 
+<span class="c1"># does the application run</span>
+<span class="nb">add_test</span> <span class="p">(</span>TutorialRuns Tutorial 25<span class="p">)</span>
+ 
+<span class="c1"># does the usage message work?</span>
+<span class="nb">add_test</span> <span class="p">(</span>TutorialUsage Tutorial<span class="p">)</span>
+<span class="nb">set_tests_properties</span> <span class="p">(</span>TutorialUsage
+  PROPERTIES 
+  PASS_REGULAR_EXPRESSION <span class="s2">"Usage:.*number"</span>
+  <span class="p">)</span>
+ 
+ 
+<span class="c1">#define a macro to simplify adding tests</span>
+<span class="nb">macro</span> <span class="p">(</span>do_test arg result<span class="p">)</span>
+  <span class="nb">add_test</span> <span class="p">(</span>TutorialComp<span class="si">${</span><span class="nv">arg</span><span class="si">}</span> Tutorial <span class="si">${</span><span class="nv">arg</span><span class="si">}</span><span class="p">)</span>
+  <span class="nb">set_tests_properties</span> <span class="p">(</span>TutorialComp<span class="si">${</span><span class="nv">arg</span><span class="si">}</span>
+    PROPERTIES PASS_REGULAR_EXPRESSION <span class="si">${</span><span class="nv">result</span><span class="si">}</span>
+    <span class="p">)</span>
+<span class="nb">endmacro</span> <span class="p">(</span>do_test<span class="p">)</span>
+ 
+<span class="c1"># do a bunch of result based tests</span>
+<span class="nf">do_test</span> <span class="p">(</span>4 <span class="s2">"4 is 2"</span><span class="p">)</span>
+<span class="nf">do_test</span> <span class="p">(</span>9 <span class="s2">"9 is 3"</span><span class="p">)</span>
+<span class="nf">do_test</span> <span class="p">(</span>5 <span class="s2">"5 is 2.236"</span><span class="p">)</span>
+<span class="nf">do_test</span> <span class="p">(</span>7 <span class="s2">"7 is 2.645"</span><span class="p">)</span>
+<span class="nf">do_test</span> <span class="p">(</span>25 <span class="s2">"25 is 5"</span><span class="p">)</span>
+<span class="nf">do_test</span> <span class="p">(</span>-25 <span class="s2">"-25 is 0"</span><span class="p">)</span>
+<span class="nf">do_test</span> <span class="p">(</span>0.0001 <span class="s2">"0.0001 is 0.01"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>TutorialConfig.h.in包含如下内容:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">// the configured options and settings for Tutorial</span>
+<span class="cp">#define Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@
+#define Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@
+#cmakedefine USE_MYMATH
+</span> 
+<span class="c1">// does the platform provide exp and log functions?</span>
+<span class="cp">#cmakedefine HAVE_LOG
+#cmakedefine HAVE_EXP
+</span></code></pre></div></div>
+
+<p>MathFunctions文件夹中的CMakeLists.txt文件,内容如下:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># first we add the executable that generates the table</span>
+<span class="nb">add_executable</span><span class="p">(</span>MakeTable MakeTable.cxx<span class="p">)</span>
+<span class="c1"># add the command to generate the source code</span>
+<span class="nb">add_custom_command</span> <span class="p">(</span>
+  OUTPUT <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span>/Table.h
+  DEPENDS MakeTable
+  COMMAND MakeTable <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span>/Table.h
+  <span class="p">)</span>
+<span class="c1"># add the binary tree directory to the search path </span>
+<span class="c1"># for include files</span>
+<span class="nb">include_directories</span><span class="p">(</span> <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span> <span class="p">)</span>
+ 
+<span class="c1"># add the main library</span>
+<span class="nb">add_library</span><span class="p">(</span>MathFunctions mysqrt.cxx <span class="si">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="si">}</span>/Table.h<span class="p">)</span>
+ 
+<span class="nb">install</span> <span class="p">(</span>TARGETS MathFunctions DESTINATION bin<span class="p">)</span>
+<span class="nb">install</span> <span class="p">(</span>FILES MathFunctions.h DESTINATION include<span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="6-构建一个安装器">6 构建一个安装器</h2>
+
+<p>接着假设我们想把工程发布给其他人使用.我们希望提供不同平台的二进制文件和源文件.这里与我们之前在第三步中的安装有一些不同,那时我们安装我们已经从源代码构建出来的二进制文件.在这个例子中,我们将构建一个安装包,它支持二进制安装,以及cygwin、 debian、RPMs等工具的包管理特性.为了实现这个功能,我们会使用CPack来创建平台相关的安装包.我们需要在顶层的CMakeLists.txt文件中的最后添加一些代码,内容如下:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># build a CPack driven installer package</span>
+<span class="nb">include</span> <span class="p">(</span>InstallRequiredSystemLibraries<span class="p">)</span>
+<span class="nb">set</span> <span class="p">(</span>CPACK_RESOURCE_FILE_LICENSE  
+     <span class="s2">"</span><span class="si">${</span><span class="nv">CMAKE_CURRENT_SOURCE_DIR</span><span class="si">}</span><span class="s2">/License.txt"</span><span class="p">)</span>
+<span class="nb">set</span> <span class="p">(</span>CPACK_PACKAGE_VERSION_MAJOR <span class="s2">"</span><span class="si">${</span><span class="nv">Tutorial_VERSION_MAJOR</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">set</span> <span class="p">(</span>CPACK_PACKAGE_VERSION_MINOR <span class="s2">"</span><span class="si">${</span><span class="nv">Tutorial_VERSION_MINOR</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">include</span> <span class="p">(</span>CPack<span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>官方教程中没有License.txt文件,所有要手动在顶层目录下添加一个”License.txt”文件</strong></p>
+
+<p>以上就是我们所有要做的.以包含InstallRequiredSystemLibraries为开始.这个模块将包含工程在目前平台上所需要的所有运行时库.接着我们设置一些CPack变量,包括我们保存license的地方,工程的版本信息.版本信息就是用了我们教程中之前设置的变量值.最后我们包含CPake模块,它将使用这些变量和一些系统的其他属性来设置安装包.</p>
+
+<p>下一步是以通常的方法构建工程,然后在CPack上运行它.为了构建二进制发行包,你需要运行如下命令:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cpack --config CPackConfig.cmake
+
+</code></pre></div></div>
+
+<p>为了创建一个源文件发行包，需要运行：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+cpack --config CPackSourceConfig.cmake
+</code></pre></div></div>
+<p>注意:这里的2条命令需要在构建工程的目录下运行!</p>
+
+<h2 id="7-添加对dashboard支持">7 添加对Dashboard支持</h2>
+
+<p>将我们的测试结果添加到Dashboard上是非常容易的.在教程的前面步骤当中我们已经为我们的工程定义了一些测试.我们只需要运行这些测试,并且提交他们到一个dashboard上.为了支持dashboard我们需要在顶层的CMakeLists.txt文件中包含CTest模块。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># enable dashboard scripting
+include (CTest)
+</code></pre></div></div>
+
+<p>我们还需要创建一个CTestConfig.cmake文件，用来为dashboard指定工程名字</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+set (CTEST_PROJECT_NAME "Tutorial")
+</code></pre></div></div>
+
+<p>CTest运行时将读取这个文件.你可以在你的工程中运行CMake来生成一个简单的dashboard,进入构建目录下,然后执行”ctest -D Experimental”,将会把你的dashboard结果上传到Kitware’s工程dashboard上.</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/08/13/learn_cmake/" data-toggle="tooltip" data-placement="top" title="cmake 学习笔记(一)">
+                        Previous<br>
+                        <span>cmake 学习笔记(一)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/08/13/essay_reading_list_01/" data-toggle="tooltip" data-placement="top" title="文集补校(一)">
+                        Next<br>
+                        <span>文集补校(一)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

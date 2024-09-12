@@ -1,0 +1,3528 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="c">C++</h1>
+<h1 id="已看">已看</h1>
+<ul>
+  <li>南京场，招银网络科技面经：https://www.nowcoder.com/discuss/125087
+    <ul>
+      <li>一面:基础技术
+        <ul>
+          <li>手写简单的一个线程:
+            <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="cp">#include &lt;iostream&gt;
+</span>  <span class="cp">#include&lt;thread&gt;
+</span>  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+  <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">demo</span><span class="p">([](){</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"hello"</span><span class="p">;});</span>
+  <span class="n">demo</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+  <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"主线程执行"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div>            </div>
+          </li>
+          <li>手写多个线程按顺序执行
+            <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="cp">#include &lt;iostream&gt;
+</span>  <span class="cp">#include&lt;thread&gt;
+</span>  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+  <span class="n">mutex</span> <span class="n">m</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+  <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">demo</span><span class="p">([](){</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"hello"</span><span class="p">;});</span>
+  <span class="n">demo</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+  <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">demo2</span><span class="p">([](){</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"hello"</span><span class="p">;});</span>
+  <span class="n">demo2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+  <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"主线程执行"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div>            </div>
+            <p>```cpp
+  #include <iostream>
+  #include<thread>
+  #include <mutex>
+  #include<condition_variable>
+  using namespace std;
+  mutex mutex_;
+  condition_variable convar;
+  void threa1(){
+  cout &lt;&lt; "threa1" &lt;&lt; endl;
+  convar.notify_one();
+  }
+  void threa2(){
+  unique_lock<mutex> lc(mutex_);
+  convar.wait(lc);
+  cout &lt;&lt; "thre2" &lt;&lt;endl;
+  }</mutex></condition_variable></mutex></thread></iostream></p>
+          </li>
+        </ul>
+
+        <p>int main(){
+      std::thread demo2(threa2);
+      std::thread demo1(threa1);
+      demo1.join();
+      demo2.join();
+      cout « “主线程执行” « endl;
+      return 0;
+  }</p>
+        <div class="language-plaintext highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  - 手写一定区间的随机数
+  ```cpp
+  #include &lt;stdlib.h&gt;
+  #include &lt;time.h&gt;
+  srand(time(0));
+  cout &lt;&lt; rand()%10 &lt;&lt;endl;
+</code></pre></div>        </div>
+        <ul>
+          <li>给个序列，告知快排一次之后的序列</li>
+          <li>手写两个链表合并
+            <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="kt">void</span> <span class="nf">merge</span><span class="p">(</span><span class="n">ListNode</span><span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="n">ListNode</span><span class="o">*</span> <span class="n">b</span><span class="p">,</span> <span class="n">ListNode</span><span class="o">*</span> <span class="n">c</span><span class="p">){</span>
+  <span class="n">ListNode</span> <span class="o">**</span> <span class="n">pre</span><span class="o">=&amp;</span><span class="n">c</span><span class="p">;</span>
+  <span class="k">while</span><span class="p">(</span><span class="n">a</span> <span class="o">&amp;&amp;</span> <span class="n">b</span><span class="p">){</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="o">-&gt;</span><span class="n">val</span><span class="o">&gt;</span><span class="n">b</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">)</span> <span class="o">*</span><span class="n">pre</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span> <span class="n">pre</span> <span class="o">=</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">a</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+      <span class="k">else</span> <span class="o">*</span><span class="n">pre</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span> <span class="n">pre</span> <span class="o">=</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">b</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span><span class="n">pre</span><span class="o">=</span><span class="n">a</span><span class="p">;</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">*</span><span class="n">pre</span><span class="o">=</span><span class="n">b</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div>            </div>
+          </li>
+          <li>手写n<em>n矩阵中2</em>2的小正方形最大值</li>
+        </ul>
+      </li>
+      <li>二面
+        <ul>
+          <li>扫码登录整个流程</li>
+          <li>序列中有一个数出现次数超过了三分之一次，如何快速找到
+            <ul>
+              <li>对于超出<code class="language-plaintext highlighter-rouge">1/n</code>的都可以消去法进行计算, 一次消去n个不同的元素, 剩下的就是了</li>
+              <li>参考: <a href="https://blog.csdn.net/xuqingict/article/details/40181155">算法之找出数组中出现次数大于n/m的元素</a>
+</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>深信服面筋回馈牛油：https://www.nowcoder.com/discuss/119868
+    <ul>
+      <li>字典树: <a href="https://blog.csdn.net/qq_31964727/article/details/80862805">字典树详解</a>
+</li>
+      <li>什么是字典树?
+        <ul>
+          <li>首先字典树是一种数据结构,用于处理大量字符串. 优点在于利用字符串的公共前缀,在存储时节约存储空间,并在查询时最大限度的减少无谓的字符串比较.</li>
+        </ul>
+      </li>
+      <li>字典树有什么用?
+        <ul>
+          <li>以最节约空间的方式存储大量字符串, 且存好后是有序的; 因为是有序的,故而字典树不仅可用于大量字符串的存储,还可用于大量字符串的排序.</li>
+          <li>快速查询某字符串s在字典树中是否已存在,甚至出现过几次; 因为当字典树预处理好之后,查询字符串s在当前的出现情况的效率为strlen(s),异常高效,故而常用于搜索引擎等.</li>
+        </ul>
+      </li>
+      <li>字典树实现思路
+        <ul>
+          <li>首先我们已经知道了字典树是一种数据结构,而一个数据结构的重点就在于:
+            <ul>
+              <li>怎么有规则的把数据存储下来</li>
+              <li>怎么有规则的去高效的得到自己需要的数据</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>跳表: <a href="https://blog.csdn.net/jinjiniao1/article/details/97246033">跳表</a>
+        <ul>
+          <li>跳表(skip list) 对应的是平衡树(AVL Tree)，是一种 插入/删除/搜索 都是 O(log n) 的数据结构。</li>
+          <li>它最大的优势是原理简单、容易实现、方便扩展、效率更高。因此在一些热门的项目里用来替代平衡树，如 redis, leveldb 等。</li>
+          <li>因此跳表（skip list）表示，我们就不强制要求 1:2 了，一个节点要不要被索引，建几层的索引，都在节点插入时由抛硬币决定。</li>
+          <li>当然，虽然索引的节点、索引的层数是随机的，为了保证搜索的效率，要大致保证每层的节点数目与上节的结构相当。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>深信服霸面：https://www.nowcoder.com/discuss/116845
+    <ul>
+      <li>手写memcopy
+        <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="kt">void</span> <span class="o">*</span><span class="nf">my_memcpy_byte</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">dst</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+  <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">dst</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="n">src</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+  <span class="kt">char</span> <span class="o">*</span> <span class="n">pdst</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">dst</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">*</span> <span class="n">psrc</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">src</span><span class="p">;</span>
+  <span class="c1">// 还不如全部都是用尾插法, 这样对所有情况都适用!</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">pdst</span> <span class="o">&gt;</span> <span class="n">psrc</span> <span class="o">&amp;&amp;</span> <span class="n">pdst</span> <span class="o">&lt;</span> <span class="n">psrc</span> <span class="o">+</span> <span class="n">n</span><span class="p">)</span> <span class="c1">// 如果出现内存覆盖,则尾使用尾拷贝</span>
+  <span class="p">{</span>
+      <span class="n">pdst</span> <span class="o">=</span> <span class="n">pdst</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="n">psrc</span> <span class="o">=</span> <span class="n">psrc</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">--</span><span class="p">)</span>
+          <span class="o">*</span><span class="n">pdst</span><span class="o">--</span> <span class="o">=</span> <span class="o">*</span><span class="n">psrc</span><span class="o">--</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+  <span class="p">{</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">--</span><span class="p">)</span>
+          <span class="o">*</span><span class="n">pdst</span><span class="o">++</span> <span class="o">=</span> <span class="o">*</span><span class="n">psrc</span><span class="o">++</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">dst</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div>        </div>
+      </li>
+      <li>进程间通信: 管道, socket, 系统IPC(信号, 信号量, 消息队列, 共享内存)</li>
+      <li>
+        <p>在TCP报文的画出三次握手的全过程。</p>
+      </li>
+      <li>一道智力题：100层楼，有两个玻璃球，有唯一一层，从该楼层及以下楼层扔下玻璃球不会碎，从该楼层以上扔玻璃球会碎，请用用两个玻璃球找出该层（最小的时间复杂度）。
+        <ul>
+          <li>始终维持k次, 然后求k</li>
+          <li><a href="https://blog.csdn.net/coolws123/article/details/22998879"> 百度面试题 100层楼丢玻璃球问题</a></li>
+        </ul>
+      </li>
+      <li>手写
+        <ul>
+          <li>删除s1中s2出现过的字符；</li>
+          <li>双向链表创建删除等；</li>
+          <li>给一个文件，合理匹配大括号小括号和中括号； // 使用栈来进行匹配</li>
+        </ul>
+      </li>
+      <li>MYSQL：创建一个表吧，三行三列。
+        <ul>
+          <li>创建表
+            <div class="language-sql highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">t_student</span><span class="p">(</span>
+  <span class="n">id</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span> <span class="c1">-- id</span>
+  <span class="n">student_name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="c1">-- 姓名</span>
+  <span class="n">age</span> <span class="nb">INT</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>  <span class="c1">-- 年龄</span>
+  <span class="n">sex</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="c1">-- 性别</span>
+  <span class="n">birthday</span> <span class="nb">DATE</span><span class="p">,</span> <span class="c1">-- 生日</span>
+  <span class="n">tel</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="c1">-- 电话号码</span>
+  <span class="p">)</span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="p">;</span>
+</code></pre></div>            </div>
+          </li>
+          <li>插入行
+            <div class="language-sql highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="c1">-- 单行</span>
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">t_student</span> <span class="k">VALUES</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nv">"张三"</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="s1">'男'</span><span class="p">,</span><span class="s1">'2018-05-28'</span><span class="p">,</span><span class="s1">'18125864478'</span><span class="p">);</span>
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">t_student</span><span class="p">(</span><span class="n">student_name</span><span class="p">,</span><span class="n">age</span><span class="p">,</span><span class="n">sex</span><span class="p">,</span><span class="n">birthday</span><span class="p">,</span><span class="n">tel</span><span class="p">)</span> 
+  <span class="k">VALUES</span><span class="p">(</span><span class="nv">"王五"</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="s1">'男'</span><span class="p">,</span><span class="s1">'2007-05-28'</span><span class="p">,</span><span class="s1">'18215864478'</span><span class="p">);</span>  
+  <span class="c1">-- 多行</span>
+  <span class="c1">-- 只要每条INSERT语句中的列名和次序相同，也可以使用单条INSERT语句有多组值，每组值用一对圆括号括起来，用逗号分隔：</span>
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">t_student</span><span class="p">(</span><span class="n">student_name</span><span class="p">,</span><span class="n">age</span><span class="p">,</span><span class="n">sex</span><span class="p">,</span><span class="n">birthday</span><span class="p">,</span><span class="n">tel</span><span class="p">)</span> 
+  <span class="k">VALUES</span><span class="p">(</span><span class="nv">"钱七"</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="s1">'男'</span><span class="p">,</span><span class="s1">'2007-05-28'</span><span class="p">,</span><span class="s1">'18215864478'</span><span class="p">),</span> <span class="p">(</span><span class="nv">"李八"</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="s1">'男'</span><span class="p">,</span><span class="s1">'2006-05-28'</span><span class="p">,</span><span class="s1">'18215864478'</span><span class="p">);</span>
+</code></pre></div>            </div>
+            <div class="language-sql highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">stu</span><span class="p">(</span>
+  <span class="n">id</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span> 
+  <span class="n">name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+  <span class="p">)</span><span class="n">ENGIN</span><span class="o">=</span><span class="n">InnoDB</span><span class="p">;</span>
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">stu</span> <span class="k">VALUES</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nv">"33"</span><span class="p">);</span>
+  <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">stu</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+  <span class="k">VALUES</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nv">"TT"</span><span class="p">),</span> <span class="k">VALUES</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nv">"TT"</span><span class="p">);</span>
+</code></pre></div>            </div>
+          </li>
+        </ul>
+      </li>
+      <li>ARP用来做什么？滑动窗口是?那个值代表什么意思？</li>
+      <li>linux网络编程熟悉吗？UNIX网络编程那本书你看过吗？</li>
+      <li>那好我来考考你：服务器端，接收多个客户端发来的数据，如何接收？</li>
+      <li>参考: <a href="https://blog.csdn.net/qq_41026740/article/details/83099707">Linux—-网络编程(TCP网络通信服务器客户端编程流程与其循环实现)</a>
+</li>
+    </ul>
+  </li>
+  <li>深信服C++开发 一、二、HR面：https://www.nowcoder.com/discuss/116694
+  1) 如何用数组实现链表的功能？
+      - (数组中存放一个结构体，一个表示数据，另外一个表示其下一个节点在数组中的index，以便于快速插入删除)
+  3) linux下有哪些信号?
+          - 参考: <a href="https://blog.csdn.net/pmt123456/article/details/53544295">SIGINT、SIGQUIT、 SIGTERM、SIGSTOP区别</a>
+              - 常见信号
+  | 信号英文名 | 信号数字表述 | 信号中文说明                      |
+  | ———- | ———— | ———————————|
+  | SIGHUP     | 1            | 挂断控制终端或进程                |
+  | SIGINT     | 2            | 终止进程                          |
+  | SIGQUIT    | 3            | 终止进程并阐述dump文件            |
+  | SIGKILL    | 9            | 强制终止进程                      |
+  | SIGALARM   | 15           | 系统调用alarm超时后产生，终止进程 |
+  | SIGTERM    | 16           | 终止进程                          |
+  | SIGCHLD    | 18           | 子进程死，默认忽略该信号          |
+  | SIGCONT    | 19           | 恢复进程执行，默认忽略该信号      |
+  | SIGSTOP    | 20           | 终止进程                          |
+      - 信号的来源
+          - 非法内存
+          - 硬件故障
+          - 键盘
+          - 信号的处理方式:
+          - 默认：如果是系统默认的话，那就会终止这个进程
+          - 忽略：信号来了我们不处理，装作没看到   SIGKILL  SIGSTOP 不能忽略
+          - 捕获并处理
+          - 信号和中断的区别
+          - <a href="https://blog.csdn.net/qq_38619183/article/details/83097475">信号使用 信号和中断区别  linux  signal </a>
+          - <a href="https://blog.csdn.net/weixin_31916083/article/details/90242575">linux信号机制</a>
+  4) https中的pipeline?
+          - 多个相同请求的时候一次返回(在一次tcp连接中完成多次请求)
+          - <a href="https://www.cnblogs.com/diantao/p/5336859.html">HTTP Pipeline</a>
+  5) 函数指针的作用?
+          - 指针, 类型由函数的返回值和参数列表决定
+          - 可以通过函数指针实现函数调用, 
+          - 可以用作形参进行传递
+          - 通过函数指针可以把函数调用者和背调函数分开, 函数调用者不需要知道具体是哪个函数被调用, 它只需要知道背调函数具有某种特定的返回值和形参列表即可
+  6) 如何实现一个非定长的结构体? 
+          - 在标准C和C++中，长度为0的数组是被禁止使用的。
+          - 不过在GNUC中，存在一个非常奇怪的用法，那就是长度为0的数组，比如Array[0];
+          - 这个特性是不可移植的
+          - 注意长度为0的数组, 并不是指针, 因为它不占用内存空间, 可以后期自己分配空间, 它应该是表示一个偏移量
+          - 长度为0的数组(a[0])
+          - <a href="https://blog.csdn.net/tjcwt2011/article/details/80824505">struct中长度为0的数组用途与原理</a>
+</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="k">struct</span> <span class="nc">line</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
+        <span class="kt">char</span> <span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">};</span>
+     
+    <span class="c1">//...ommit code here</span>
+        <span class="p">{</span>
+            <span class="k">struct</span> <span class="nc">line</span> <span class="o">*</span><span class="n">thisline</span>
+            <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">line</span> <span class="o">*</span><span class="p">)</span> <span class="n">malloc</span> <span class="p">(</span><span class="k">sizeof</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">line</span><span class="p">)</span> <span class="o">+</span><span class="n">this_length</span><span class="p">);</span>
+            <span class="n">thisline</span><span class="o">-&gt;</span><span class="n">length</span> <span class="o">=</span> <span class="n">this_length</span><span class="p">;</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>7) strcpy实现方法及其缺点，strncpy？
+8) 野指针？
+9) linux io和标准io区别？
+	- 主要区别：
+        - 系统IO：不带缓冲机制，系统IO可以操作普通文件与驱动文件
+        - 标准IO：带缓冲机制，标准IO只可以操作普通文件。提供多种的格式的输入输出如(字符串、整形)
+        - 参考: [Linux中的系统IO与标准IO](https://blog.csdn.net/laifengyuan1/article/details/86620421)
+10) http网址访问过程，get post区别？
+- 二面:
+    - 谈谈io复用，select？
+        - fdset, fdzero
+    - 谈谈项目***享内存实现方法？
+    - linux下编译调试方法，如何调试内存泄露问题？
+        - 首先命令行工具: ps -aux (VSZ值)
+        - 静态代码分析工具: BEAM
+        - 动态分析工具: valgrind
+        - [Linux平台中调试C/C++内存泄漏方法](https://www.jianshu.com/p/c78c7c2535f1)
+    - 给几百万个网址，如何高效找出特定网址是否在其中?
+        - (布隆过滤器)布隆过滤器优缺点，如何解决其缺点？
+        - [详解布隆过滤器的原理、使用场景和注意事项](https://www.jianshu.com/p/2104d11ee0a2)
+        - [布隆过滤器及优缺点](https://blog.csdn.net/baidu_37964071/article/details/79873090)
+        - 什么是布隆过滤器
+            - 本质上布隆过滤器是一种数据结构，比较巧妙的概率型数据结构（probabilistic data structure），特点是`高效地插入和查询(不能删除)`，可以用来告诉你 “某样东西一定不存在或者可能存在”。
+            - 相比于传统的 List、Set、Map 等数据结构，它更高效、占用空间更少，但是缺点是其返回的结果是概率性的，而不是确切的。
+        - 实现原理
+            - bit 数组(如果想实现删除,就不能使用bit了)
+            - 多个哈希函数族
+    - 给一容量较大非法单词词典，如何判断某输入中是否有非法单词?
+- 建立字典树--实现一次遍历就可做出判断
+</code></pre></div></div>
+
+<ul>
+  <li>深信服面经(中秋居然还面试，牛逼。。。)：https://www.nowcoder.com/discuss/116689
+    <ul>
+      <li>画堆排序过程，复杂度分析。
+        <ul>
+          <li>首先构建大顶堆</li>
+          <li>然后将堆堆顶元素与末尾元素进行交换，使末尾元素最大。</li>
+          <li>然后继续调整堆</li>
+          <li><a href="https://www.cnblogs.com/chengxiao/p/6129630.html">图解排序算法(三)之堆排序</a></li>
+        </ul>
+      </li>
+      <li>画平衡二叉树建立过程。
+        <ul>
+          <li>二叉查找树
+            <ul>
+              <li>如果插入的数据比当前的节点大，并且节点的右子树为空，那么直接把当前的值插入到当前右子节点，如果不为空的话，那么递归查找右子树的位置，</li>
+              <li>同理如果插入的数据比节点小，并且节点的左子树为空，那么直接把值插入到节点的左节点，如果不为空，递归遍历节点的左子树，寻找插入的位置</li>
+            </ul>
+          </li>
+          <li>平衡调转: <a href="https://blog.csdn.net/qq_24336773/article/details/81712866">平衡二叉树(树的旋转)</a>
+            <ul>
+              <li>LL型调整: A的左孩子B, B的左孩子插入导致不平衡
+                <ul>
+                  <li>B调整为根</li>
+                  <li>A调整为B的右节点</li>
+                  <li>然后将BR-&gt;AL</li>
+                </ul>
+              </li>
+              <li>RR型调整: A的右孩子B, B的右孩子插入导致不平衡
+                <ul>
+                  <li>把B调转为根结点</li>
+                  <li>把A调转为B的左节点</li>
+                  <li>然后将BL-&gt;AR</li>
+                </ul>
+              </li>
+              <li>LR型调整: A的左孩子B, B的右孩子插入, C为新插入节点
+                <ul>
+                  <li>把C调转为新根</li>
+                  <li>把A调整为C的右根, B调整为C的左节点</li>
+                  <li>CL-&gt;BR, CR-&gt;AL</li>
+                </ul>
+              </li>
+              <li>RL型调整:
+                <ul>
+                  <li>把C调转为新根</li>
+                  <li>把A调整为C的左根, B调整为C的右节点</li>
+                  <li>CL-&gt;AR, CR-&gt;BL</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>画红黑树构造过程。
+        <ul>
+          <li>首先搜素树插入</li>
+          <li>然后红黑树调整
+            <ul>
+              <li>此节点作为根节点或, 直接把本节点变成黑色</li>
+              <li>如果被插节点为黑色, 不用做</li>
+              <li>然后就是被插节点为红色:
+                <ul>
+                  <li>叔叔节点是红色
+                    <ul>
+                      <li>(01) 将“父节点”设为黑色。</li>
+                      <li>(02) 将“叔叔节点”设为黑色。</li>
+                      <li>(03) 将“祖父节点”设为“红色”。</li>
+                      <li>(04) 将“祖父节点”设为“当前节点”(红色节点)；即，之后继续对“当前节点”进行操作。</li>
+                    </ul>
+                  </li>
+                  <li>叔叔节点是黑色，且当前节点是其父节点的右孩子
+                    <ul>
+                      <li>(01) 将“父节点”作为“新的当前节点”。</li>
+                      <li>(02) 以“新的当前节点”为支点进行左旋。</li>
+                      <li>(03) 继续对“当前节点”进行操作。</li>
+                    </ul>
+                  </li>
+                  <li>叔叔节点是黑色，且当前节点是其父节点的左孩子
+                    <ul>
+                      <li>(01) 将“父节点”设为“黑色”。</li>
+                      <li>(02) 将“祖父节点”设为“红色”。</li>
+                      <li>(03) 以“祖父节点”为支点进行右旋。</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>虚析构作用。
+        <ul>
+          <li>防止内存泄漏</li>
+        </ul>
+      </li>
+      <li>什么叫重载，继承，隐藏。
+        <ul>
+          <li>参数重载</li>
+          <li>继承/重写/覆盖</li>
+          <li>隐藏</li>
+        </ul>
+      </li>
+      <li>什么函数不能声明为virtual。
+        <ul>
+          <li>静态函数</li>
+          <li>inline函数</li>
+          <li>构造函数</li>
+        </ul>
+      </li>
+      <li>extern C的作用。</li>
+      <li>讲一下快排。
+        <ul>
+          <li>采用分治策略，一次排序后，将数据划分为两半，一半比某一个数小，另一半比某个数大。</li>
+          <li>然后利用递归，完成对数组的排序。</li>
+        </ul>
+      </li>
+      <li>算法题，O(n)内旋转字符串。</li>
+      <li>算法题，文件中有大量数字，排序并保存到结果文件中。</li>
+      <li>memcpy的实现。</li>
+      <li>TCP快重传。</li>
+    </ul>
+  </li>
+  <li>深信服C++面经 攒人品：https://www.nowcoder.com/discuss/116634
+    <ul>
+      <li>一面（30分钟）
+        <ul>
+          <li>sizeof 各种基本类型 结构体 类</li>
+          <li>继承和多态
+            <ul>
+              <li>继承
+                <ul>
+                  <li>子类拥有父类的所有属性和方法，子类对象可以当做父类对象使用；</li>
+                  <li>子类可以拥有父类没有的属性和方法；</li>
+                </ul>
+              </li>
+              <li>多塔
+                <ul>
+                  <li>静态多态</li>
+                  <li>动态多态</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>栈在实际编程的时候有哪些应用场景(深度搜索)</li>
+          <li>广搜用什么数据结构(queue, 队列)</li>
+          <li>浮点数判断是否相等</li>
+          <li>手写代码
+            <ul>
+              <li>字符串反转 有时间和空间复杂度限制
+                <ul>
+                  <li>reverse()</li>
+                </ul>
+              </li>
+              <li>字符串循环移位
+                <ul>
+                  <li>面试官让优化复杂度 没想出来(要用到上一题的字符串反转)</li>
+                </ul>
+              </li>
+              <li>统计一篇英文文章出现频率最高的十个单词
+                <ul>
+                  <li>TOP K问题(建堆 make_heap, pop_heap)</li>
+                  <li><a href="https://leetcode-cn.com/problems/top-k-frequent-elements/">347. 前 K 个高频元素</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>new和malloc</li>
+        </ul>
+      </li>
+      <li>二面（40分钟）
+        <ul>
+          <li>1.聊了将近20分钟项目</li>
+          <li>3.给了一张题表 面试官直接点题目号让我回答上面的问题 点了四个问题 都是比较简单的问题 概率 斐波那契数</li>
+          <li>4.问笔试编程题的一三题，木板那道说了自己的思路有把另外一个老哥用栈解法的思路说一遍，第三题比较简单</li>
+          <li>5.实现strcpy，要考虑内存重叠和特殊情况处理</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>2018深信服C++面经：https://www.nowcoder.com/discuss/116569
+    <ul>
+      <li>Q：象棋中马从一个位置跳到另一个位置的最少步数</li>
+      <li>
+        <p>A：手写BFS</p>
+      </li>
+      <li>Q：一次可以上一层台阶，也可以上两层台阶，到第N层有多少种走法</li>
+      <li>
+        <p>A：F[N]=F[N-1]+F[N-2] (动态规划问题)</p>
+      </li>
+      <li>Q：一分钟内经过公交车的概率为p，求三分钟内有公交车经过的概率</li>
+      <li>
+        <p>A：P=1-(1-p)^3</p>
+      </li>
+      <li>Q：strcpy和memcpy的区别</li>
+      <li>
+        <p>A：复制的内容不同，strcpy无需指定长度，遇到’\0’为止</p>
+      </li>
+      <li>Q：那strncpy呢？</li>
+      <li>
+        <p>A：我没用过</p>
+      </li>
+      <li>Q：你怎么判断两个struct相等？</li>
+      <li>
+        <p>A:我会选择重载==运算符，逐一比较成员变量是否相等</p>
+      </li>
+      <li>Q：那能不能用内存比较memcmp来判断呢？</li>
+      <li>
+        <p>A：不能，涉及字节对齐，可能有内存间隙，这里的值是随机的</p>
+      </li>
+      <li>Q：进程间的通信有哪些方式？</li>
+      <li>
+        <p>A：管道、有名管道、（信号、信号量、）共享内存、消息队列、socket</p>
+      </li>
+      <li>Q：epoll和select/poll的区别</li>
+      <li>A：
+        <ul>
+          <li>epoll是实现I/O多路复用的一种方法,有水平触发（level trigger，LT，默认)和边缘触发（edge trigger，ET）两种工作模式，区别在于两种模式的返回就绪状态的时间不同。水平触发和select/poll的方式一样</li>
+        </ul>
+      </li>
+      <li>水平触发
+        <ul>
+          <li>读：缓冲内容不为空返回读就绪</li>
+          <li>写：缓冲区还不满返回写就绪</li>
+        </ul>
+      </li>
+      <li>边缘触发
+        <ul>
+          <li>读：
+            <ul>
+              <li>缓冲区由不可读变为可读</li>
+              <li>新数据到达，缓冲区中待读数据变多时</li>
+            </ul>
+          </li>
+          <li>写：
+            <ul>
+              <li>当缓冲区由不可写变为可写</li>
+              <li>当有旧数据被发送走，即缓冲区中的内容变少的时候</li>
+            </ul>
+          </li>
+          <li>epoll之所以高效，是因为epoll将用户关心的文件描述符放到内核里的一个事件表中，而不是像select/poll每次调用都需要重复传入文件描述符集或事件集。比如当一个事件发生（比如说读事件），epoll无须遍历整个被侦听的描述符集，只要遍历那些被内核IO事件异步唤醒而加入就绪队列的描述符集合就行了。</li>
+        </ul>
+      </li>
+      <li>Q：在TCP连接中，服务端的socket要做哪些？</li>
+      <li>
+        <p>A：socket-&gt;bind-&gt;listen-&gt;accept-&gt;send/recv</p>
+      </li>
+      <li>Q：堆和栈的区别？</li>
+      <li>
+        <p>A：堆是一颗二叉树、栈是一个单向进出的线性结构</p>
+      </li>
+      <li>Q：堆排序和快排的区别？</li>
+      <li>A：快排的思想是分治，每次选择当前范围的第一个数作为标杆，然后再将这个范围的所有比它小的数放到他左边，大的放到他右边，由这个标杆的现在位置划分出两个范围，分别对这两个范围的数再重复这样的*作，直到范围大小为1</li>
+      <li>
+        <p>堆排序则是在建堆的时候保证堆顶最小，然后每次取堆顶</p>
+      </li>
+      <li>下面应该是面试官自己出的一些题目</li>
+      <li>Q:XML是什么结构？</li>
+      <li>
+        <p>A:树</p>
+      </li>
+      <li>Q：用过正则表达式吗？写一个32位IP地址的正则
+        <ul>
+          <li>
+            <table>
+              <tbody>
+                <tr>
+                  <td>200-255: 2(5[0-4]</td>
+                  <td>[0-4]\d)</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>0-100: [0-1]?\d{1,2}</li>
+        </ul>
+      </li>
+      <li>Q：进程和线程的区别？</li>
+      <li>A：这个没背，只回答上了几句话</li>
+    </ul>
+  </li>
+  <li>百度三面面经：https://www.nowcoder.com/discuss/136247
+    <ul>
+      <li>一面
+        <ul>
+          <li>new/delete和malloc/free的区别</li>
+          <li>vector的结构？vector拷贝时发生什么
+            <ul>
+              <li>拷贝
+                <ul>
+                  <li>元素的拷贝:
+                    <ul>
+                      <li>对于没有拷贝构造函数的元素(用户未定义, 编译器也没有合成默认够构造函数), 直接使用memcopy</li>
+                      <li>对于对于有拷贝构造函数的元素, 使用拷贝构造函数进行拷贝</li>
+                    </ul>
+                  </li>
+                  <li>关于内存的问题: 对于拷贝构造构造或则赋值运算时, 新生成的vector的capacity恰好等于元素个数, 意味着插入查找一定会发生内存迁移</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>一个数组，只有一个数字出现奇数次，其余数字出现偶数次，如何得到这个数字？如果出现奇数次的数字有2个呢？
+            <ul>
+              <li>对于一个数直接异或</li>
+              <li>对于两个数首先全部异或, 然后得到的结果为两个值得异或结果,</li>
+              <li>然后找到异或结果二进制表示为1的那一位, 意味着在这两个数在这一位上是不同的, 所以我们把数组按照这一位拆分为两个数组进行异或</li>
+              <li><a href="https://blog.csdn.net/weixin_34341117/article/details/92789765">一组数中，只有两个数只出现了奇数次，其他所有数都是成对出现的，请找出那两个数…</a></li>
+            </ul>
+          </li>
+          <li>给定一个ip地址，编码使得ip和32位整数呈双射关系
+            <ul>
+              <li>a.b.c.d</li>
+              <li>int t =0;</li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>t</td>
+                      <td colspan="2">= (int)a</td>
+                      <td colspan="2">(int)b«8</td>
+                      <td colspan="2">(int)c«16</td>
+                      
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+            </ul>
+          </li>
+          <li>50个红球50个蓝球，放到2个袋子里，从两个袋子各取1个球，让2个都是红球的概率最大，怎么放
+            <ul>
+              <li>两个箱子概率是1/2，选中某个箱子后又有选择的是不是红球的概率，</li>
+              <li>所以最大概率就是一个红球放在一个箱子里，其余的99个球全放到另一个箱子。</li>
+              <li>这样抓到红球的概率=0.5+0.5*（49/99）约等于0.75，这样为最大概率。</li>
+              <li>这样两个都是红球的概率=1*(49/99)=大概约等于0.5</li>
+            </ul>
+          </li>
+          <li>进程和线程的区别</li>
+          <li>时间复杂度为O(nlogn)的排序算法有哪些？简述快速排序的过程
+            <ul>
+              <li>归并排序,时间复杂度O(nlogn), 空间复杂度o(n)
+                <ul>
+                  <li>分治的思想, 按空间位置划分</li>
+                  <li>将数组按照选定值得前一半和后一半划分</li>
+                  <li>然后在前一半中继续迭代, 后一半中继续迭代</li>
+                  <li>然后将两段合并为有序的段(合并过程需要额外的空间)</li>
+                </ul>
+              </li>
+              <li>快速排序,时间复杂度O(nlogn), 空间复杂度o(1)
+                <ul>
+                  <li>分治的思想, 按值划分</li>
+                  <li>将大于选定值得分为一段, 将小于等于该值得分为后一段,</li>
+                  <li>然后在前一段/后一段中继续划分</li>
+                </ul>
+              </li>
+              <li><a href="https://www.cnblogs.com/zpchya/p/10775866.html">排序—时间复杂度为O(nlogn)的两种排序算法</a></li>
+            </ul>
+          </li>
+          <li>C++内存分布</li>
+          <li>重载和重写的区别
+            <ul>
+              <li>静态多态</li>
+              <li>动态多态</li>
+            </ul>
+          </li>
+          <li>Linux下删除同一文件夹下所有满足条件的文件
+            <ul>
+              <li><code class="language-plaintext highlighter-rouge">rm -rf $(find ./ -name 'test*')</code></li>
+            </ul>
+          </li>
+          <li>介绍项目</li>
+        </ul>
+      </li>
+      <li>二面
+        <ul>
+          <li>1个32位无符号整数，计算二进制格式下有多少个1，不通过循环怎么做</li>
+          <li><code class="language-plaintext highlighter-rouge">bitset&lt;32&gt;m(a); m.count</code></li>
+          <li>cmake和makefile的区别
+            <ul>
+              <li>make工具就根据makefile中的命令进行编译和链接的, 但是规则编写比较麻烦,尤其是项目较大的时候</li>
+              <li>cmake是一个输出makefile的工具, 它的配置文件时cmakelist, 规则还比较简单, 一般都是用它来配置项目的编译</li>
+            </ul>
+          </li>
+          <li>简述cmake到可执行文件的过程
+            <ul>
+              <li>cmake根据cmakelist, 生成makefile</li>
+              <li>make根据makefile生成exe和库文件</li>
+            </ul>
+          </li>
+          <li>进程和线程的区别</li>
+          <li>git pull和git fetch的区别
+            <ul>
+              <li>git fetch是将远程主机的最新内容拉到本地，用户在检查了以后决定是否合并到工作本机分支中。</li>
+              <li>git pull 则是将远程主机的最新内容拉下来后直接合并，即：git pull = git fetch + git merge，这样可能会产生冲突，需要手动解决。</li>
+            </ul>
+          </li>
+          <li>用数据结构模拟浏览器前进后退的操作
+            <ul>
+              <li>栈结构, 后进先出</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>三面
+        <ul>
+          <li>2g物理内存，new一个3g的数组时发生什么？
+            <ul>
+              <li><a href="http://www.sohu.com/a/139709634_467784">在物理内存为1G的计算机中能否malloc(1.2G)？</a></li>
+              <li>首先, 常见系统都是支持虚拟内存机制的, 而不是直接使用物理内存</li>
+              <li>其次, new最终会调用malloc进行内存分配, malloc分配内存时大于128k会在文件映射区分配内存, 并且分配的时候, 是分配虚拟内存空间, 而不是物理内存.</li>
+              <li>当访问数组时, 如果物理页不存在则触发缺页中断, 由操作系统负责根据外存地址将数据加载如内存中, 如果内存已满, 则会触发缺页置换(fifo, lru, lfu)</li>
+            </ul>
+          </li>
+          <li>平衡二叉树的特性，红黑树的特性，判断是否为平衡二叉树
+            <ul>
+              <li>平衡二叉树
+                <ul>
+                  <li>每个节点最多2个子节点</li>
+                  <li>左子树的键值小于根的键值，右子树的键值大于根的键值。</li>
+                  <li>任何节点的两个子树的高度最大差为1</li>
+                </ul>
+              </li>
+              <li>红黑树
+                <ul>
+                  <li>除了平衡二叉树外</li>
+                  <li>每个节点非红即黑</li>
+                  <li>根结点为黑, 叶子结点为黑</li>
+                  <li>每个红节点的子节点一定位黑</li>
+                  <li>任意一个节点到它的叶子节点的所有路径拥有相同的黑色节点</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>虚函数和纯虚函数</li>
+          <li>智能指针如何实现</li>
+          <li>学过操作系统吗？学过网络吗？没有</li>
+          <li>进程和线程的区别，多线程和多进程的优缺点</li>
+          <li>介绍项目亮点</li>
+          <li>A-H中选3个字母，可以重复，求组合数: <code class="language-plaintext highlighter-rouge">8*8*8</code>
+</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>百度凉径：https://www.nowcoder.com/discuss/126809
+    <ul>
+      <li>先问项目，把其中一个项目用编程把重要地方实现出来，然后把里面的进程和线程关系理清楚，最好通过图形进行说明一下</li>
+      <li>进程之间怎么信息共享，相互通信，本人太渣，只回答出两个</li>
+      <li>问有没有用过shrink_to_fit，说一下作用，为什么用
+        <ul>
+          <li>收缩容器的实际内存空间收缩为现在的真是内存空间, 也就是让capacity()和size()返回值相等</li>
+        </ul>
+      </li>
+      <li>线程与线程之间怎么通信，用的什么机制
+        <ul>
+          <li>临界区</li>
+          <li>互斥锁</li>
+          <li>信号量</li>
+          <li>信号</li>
+        </ul>
+      </li>
+      <li>虚函数的两种情形下怎么用，为什么用虚函数</li>
+      <li>手撕代码
+        <ul>
+          <li>第一个字符串比较，利用三种方法写的，面试官比较喜欢第三种，说挺好</li>
+          <li>第二个是链表，用了4种方法，第四种是在面试官的提醒下完成的。</li>
+          <li>第三个回溯法，本人对回溯法没有了解太深，写的代码太麻烦，想不出第二种</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>度小满金融面经：https://www.nowcoder.com/discuss/115577
+    <ul>
+      <li>一面：
+        <ul>
+          <li>1.进程与区别</li>
+          <li>2.3次握手与各个状态</li>
+          <li>3.DNS解析过程
+            <ul>
+              <li>本地到本域名dns, 使用递归查询</li>
+              <li>如果本域名dns不能找到, 则它作为客户端使用迭代查询</li>
+            </ul>
+          </li>
+          <li>4.ARP解析过程
+            <ul>
+              <li>首先查找自身ARP缓存表</li>
+              <li>如果没有, 则向直连设备发送一个广播报文, 寻找目标ip</li>
+              <li>接受者收到之后会进行检查, 如果发现自己是目标, 则以单播的形式将自身mac地址给广播发送者</li>
+            </ul>
+          </li>
+          <li>5.事务特性
+            <ul>
+              <li>ACID; 原子性, 一致性, 独立性, 持久性</li>
+            </ul>
+          </li>
+          <li>6.算法：
+            <ul>
+              <li>一个字符串中{}  [ ]  ()匹配问题，好像是leecode上面的~</li>
+              <li>stack计算</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>二面：
+        <ul>
+          <li>1.TCP ,UDP
+            <ul>
+              <li>TCP面向连接, 通信前需要建立连接, 为一对一通信</li>
+              <li>UDP无连接, 可以一对多通信</li>
+              <li>TCP有流量控制, 拥塞控制, 序号, 确认和重传机制, 其为可靠传输, 无差错, 无丢失, 按序到达</li>
+              <li>UDP为尽最大努力传输, 不保证可靠新</li>
+              <li>TCP报文长度为动态报文长度, 可以合并和拆分, 头部为20字节</li>
+              <li>UDP报文无拆分, 不合并, 首部8字节</li>
+            </ul>
+          </li>
+          <li>2.Linux命令，延伸：netstat，top，free -m 都显示了什么有什么含义？
+            <ul>
+              <li>top 监控linux系统状况, cpu,内存等</li>
+              <li>netstat 查看内核访问网络相关信息的进程, 还提供TCP链接, tcp,udp监听等功能</li>
+              <li>free -m 查看内存, m表示按m为单位显示</li>
+            </ul>
+          </li>
+          <li>3.进程间通讯，你用过什么？</li>
+          <li>4.文件系统，文件名和文件权限是存在一块的吗？
+            <ul>
+              <li>不是,,,</li>
+              <li>（innode不存文件名，存权限，访问日期，指向数据的指针等等）</li>
+            </ul>
+          </li>
+          <li>5.一个文件的md5码会因为该文件名而更改吗？
+            <ul>
+              <li>md5加密只跟数据区相关,按照LINUX的储存形式上说就是, 文件名和inode的改动不会引起md5发生变化</li>
+            </ul>
+          </li>
+          <li>6.从网上下载的各种 .ios软件包会改变md5码吗？
+            <ul>
+              <li>只要数据没变,就不会</li>
+            </ul>
+          </li>
+          <li>7.a,b两个文件，a文件存url，有1亿行。b文件存域名，有 1万行。  要求：找出a中不在b文件中的？时间复杂度是多少？  没有内存限制。
+            <ul>
+              <li>可以尝试使用布隆过滤器, 但是可能会存在找不全的问题, 因为布隆过滤器是基于概率的, 复杂度为O(k), k为哈希函数的个数</li>
+              <li>hash + 字典树,</li>
+              <li>回答：1.先提取a文件的url中的域名（这个不会，是用awk吗？）2.hash+字典树</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>三面：
+        <ul>
+          <li>1.DNS解析过程</li>
+          <li>2.输入url的过程，知道的协议都说说，IP路由选路，ARP等等</li>
+          <li>3.有查看过三次握手中socket状态吗？就是书本上的那些状态有看过吗？</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>百度三面面经，攒人品！！！：https://www.nowcoder.com/discuss/114896
+    <ul>
+      <li>一面：
+        <ul>
+          <li>编写shell脚本  查看一个文件，大小大于10M就删除，否则打印内容
+            <ul>
+              <li>rm -rf <code class="language-plaintext highlighter-rouge">ls -al | awk {'if($5&gt;10*1024){print $NF}'}</code>
+</li>
+            </ul>
+          </li>
+          <li>core dump，出现段错误的原因
+            <ul>
+              <li>访问非法地址空间(不存在地址, 受保护地址)</li>
+              <li>试图修改只读数据</li>
+            </ul>
+          </li>
+          <li>哈希表 如何实现 冲突解决
+            <ul>
+              <li>一个是线性表(vector)</li>
+              <li>一个是桶(单链表)</li>
+              <li>开链法(其他解决方案: 开放寻址法)</li>
+            </ul>
+          </li>
+          <li>hash table用什么实现，最差插入时间复杂度o(1)
+            <ul>
+              <li>用开链法实现的</li>
+            </ul>
+          </li>
+          <li>函数值传递一个百万个元素的vector会怎么样？为什么?
+            <ul>
+              <li>值传递?</li>
+              <li>会存在大量的拷贝构造, 极大的浪费内存, 而且应该会栈溢出</li>
+            </ul>
+          </li>
+          <li>c 内存分布?</li>
+          <li>一个二维地图，每个格子有不同分数，求机器人从左下到右上的最大分数的路径。
+            <ul>
+              <li>动态规划</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>二面
+        <ul>
+          <li>求一个数组逆序对
+            <ul>
+              <li>并归排序, 交换的就是它!</li>
+            </ul>
+          </li>
+          <li>三次握手四次挥手的状态字，为什么3次，为什么4次</li>
+          <li>求最大连续子数组
+            <ul>
+              <li>状态转换: 当前状态 = max(前面状态+当前值, 当前值);</li>
+            </ul>
+          </li>
+          <li>一次完整的http链接过程，应用层到数据链路层，越详细越好</li>
+          <li>http https区别</li>
+          <li>设计模式的了解，
+            <ul>
+              <li>单例模式, 懒汉模式, 饿汉模式</li>
+            </ul>
+          </li>
+          <li>数据库。。不太会，谢谢  介绍了b树，b 树，和一些数据库设计优化方法， 具体怎么做。。不
+            <ul>
+              <li>B树:
+                <ul>
+                  <li>每个节点中的关键字都按照从小到大的顺序排列，每个关键字的左子树中的所有关键字都小于它，而右子树中的所有关键字都大于它。</li>
+                  <li>所有叶子节点都位于同一层，或者说根节点到每个叶子节点的长度都相同。</li>
+                  <li>每个节点都存有索引和数据，也就是对应的key和value</li>
+                  <li>(m阶)根节点的关键字数量范围：1 &lt;= k &lt;= m-1，非根节点的关键字数量范围：m/2 &lt;= k &lt;= m-1</li>
+                </ul>
+              </li>
+              <li>B+树: <a href="https://blog.csdn.net/qq_26222859/article/details/80631121">b+树图文详解</a>
+                <ul>
+                  <li>有k个子树的中间节点包含有k个元素(B树中是k-1个元素)，每个元素不保存数据，只用来索引，所有数据都保存在叶子节点。</li>
+                  <li>所有的中间节点元素都同时存在于子节点，在子节点元素中是最大(或最小)元素。</li>
+                  <li>所有的叶子结点中包含了全部元素的信息，及指向含这些元素记录的指针，且叶子结点本身依关键字的大小自小而大顺序链接。</li>
+                </ul>
+              </li>
+              <li>平衡二叉树:
+                <ul>
+                  <li>查询二叉树</li>
+                  <li>平衡(每个节点的子树高度差不超过1)</li>
+                  <li>插入删除都是log(N),但是旋转会牺牲掉log(N)的性能,但是相对于搜索二叉树而言已经好很多了</li>
+                </ul>
+              </li>
+              <li>红黑树:
+                <ul>
+                  <li>红黑</li>
+                  <li>跟为黑, 叶子为黑</li>
+                  <li>红有黑子</li>
+                  <li>每个节点到子节点的路径拥有相同搞得黑色节点</li>
+                  <li>插入删除都是log(N), 而且每次旋转都是1-3次, 不会很多, 是非常稳定个快速的</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>死锁，死锁预防，死锁避免，死锁检测
+            <ul>
+              <li>死锁检查:
+                <ul>
+                  <li>方法一: 维护进程等待表和资源分配表</li>
+                  <li>方法二: 进程回退法, 为每个进程记录一下中间节点, 当进程发生死锁让这些死锁的进程都回退一下重新执行, 原理为, 死锁是偶发的, 重新跑一下可能不会死锁了</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>进程同步
+            <ul>
+              <li>信号量</li>
+              <li>信号</li>
+              <li>管程</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>三面
+        <ul>
+          <li>算法 最小生成树</li>
+          <li>cpu调度
+            <ul>
+              <li>非抢占式的先来先服务算法（FCFS）</li>
+              <li>非抢占式的最短作业优先（SJF）</li>
+              <li>最短剩余时间优先（SRTN）</li>
+              <li>最高相应比优先算法（HRRN）</li>
+            </ul>
+          </li>
+          <li>成员函数的前后const</li>
+          <li>算法 最短路径</li>
+          <li>会多线程吗？  不会谢谢，介绍了多线程的同步方式，和多进程的区别，进程，线程区别</li>
+          <li>算法 快排topk
+            <ul>
+              <li>分治思想, 按照值分为两半, 然后把两半再来划分</li>
+            </ul>
+          </li>
+          <li>虚拟内存和物理内存的区别</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>百度C++面试 一/二面 面经：https://www.nowcoder.com/discuss/113601
+    <ul>
+      <li>一面：
+        <ul>
+          <li>2、进程线程区别？</li>
+          <li>谈谈项目中的多线程和线程池？</li>
+          <li>3、linux下如何快速将文件每行倒序输出？shell或者编程都行，说了下python和c++实现方法，结果人考的是tac命令
+            <ul>
+              <li>cat 顺序输出, tac逆序输出, cat -n 显示行号</li>
+              <li>head 从头开始, tail</li>
+              <li>最狠的是! 用awk逆序输出
+                <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="p">{</span>
+  <span class="n">line</span><span class="p">[</span><span class="n">NR</span><span class="p">]</span> <span class="o">=</span> <span class="err">$</span><span class="mi">0</span><span class="p">}</span>
+  <span class="n">END</span> <span class="p">{</span>
+      <span class="n">i</span> <span class="o">=</span> <span class="n">NR</span>
+      <span class="k">while</span><span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">print</span> <span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+          <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+</code></pre></div>                </div>
+              </li>
+              <li><a href="https://blog.csdn.net/bytxl/article/details/48135311">tac命令以及各种linux文件查看命令</a></li>
+            </ul>
+          </li>
+          <li>
+            <p>4、手撕代码-输出字符串中最长的回文子串长度？写完了不会优化</p>
+
+            <ul>
+              <li>用状态法, 先找到可能会有回文的地方, 然后进行扩张</li>
+            </ul>
+          </li>
+          <li>5、TCP-UDP区别？
+      - 面向连接, 一对一, 一对多
+      - 可靠性(无差错, 无重复, 按序到达), 流量控制, 拥塞控制, 序号, 确和重传
+      - 动态报文长度, 合并和拆分报文, | 保留边界
+      - T头20, U头8</li>
+          <li>描述四次挥手过程，以及timewait、closewait？
+            <ul>
+              <li>closing</li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>客户端发送 SYN</td>
+                      <td>SYN_send</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>服务器收到 syn, 回复ack+syn</td>
+                      <td>syn_recv</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>客户端收到ack+syn, 回复 ack</td>
+                      <td>establish</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>服务器收到 ack</td>
+                      <td>establish</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>客户端发送 fin</td>
+                      <td>fin_wait_1</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>服务器收到 fin, 回复ack</td>
+                      <td>close_wait</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>客户端收到 ack</td>
+                      <td>fin_wait_2</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>服务器发送 fin</td>
+                      <td>last_ack</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>客户端收到 fin, 回复 ack</td>
+                      <td>time_wait</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>服务器收到 ack</td>
+                      <td>close</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li>还有一个客户端可服务器同时发送fin, 则进入closing</li>
+            </ul>
+          </li>
+          <li>timewait过程如果出现过多, 拥塞或者网络不稳定导致很多非正常数据该如何解决？
+            <ul>
+              <li>设置内核配置文件完成: <code class="language-plaintext highlighter-rouge">/etc/sysctl.conf</code>
+                <ul>
+                  <li><code class="language-plaintext highlighter-rouge">net.ipv4.tcp_tw_reuse=1</code></li>
+                  <li><code class="language-plaintext highlighter-rouge">net.ipv4.tcp_tw_recycle=1</code></li>
+                  <li><code class="language-plaintext highlighter-rouge">net.ipv4.tcp_fin_timeout</code></li>
+                  <li>参考: <a href="https://www.cnblogs.com/dadonggg/p/8778318.html">解决TIME_WAIT过多造成的问题</a>
+</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>linux下如何查看特定端口有多少tcp连接？
+            <ul>
+              <li>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>netstate -ant</td>
+                      <td>grep ‘80’</td>
+                      <td>wc -l</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              <li><a href="https://www.cnblogs.com/EasonJim/p/8098532.html">Linux查看某个端口的连接数</a></li>
+            </ul>
+          </li>
+          <li>6、手撕sql查询排序？</li>
+          <li>如何通过索引优化该sql？</li>
+          <li>谈谈Innodb中b+树？myisam和Innodb中b树有什么区别？</li>
+          <li>7、了解数据结构？图如何表示？图广度遍历用什么结构？
+            <ul>
+              <li>邻接矩阵(nxn), 关联矩阵(可能大于nxn)</li>
+              <li>广度遍历一般用队列queue</li>
+            </ul>
+          </li>
+          <li>8、是否熟悉docker镜像制作？了解docker-compose？
+            <ul>
+              <li>部署, 建立依赖, 尤其是数据库和应用</li>
+              <li>docker-compose up -d</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>二面：
+        <ul>
+          <li>2、谈谈你熟悉的项目，项目遇到了哪些难点？</li>
+          <li>3、char (<em>p) [] 、char *p[]、char (</em>p)()的区别？
+            <ul>
+              <li>[]的优先级高于*</li>
+              <li>第一个数指针指向一个char数组</li>
+              <li>第二个是素组, 存放的是char*</li>
+              <li>第三个是函数指针, 返回值为char, 空参数列表</li>
+            </ul>
+          </li>
+          <li>4、熟悉设计模式？手写下单例模式？</li>
+          <li>
+            <p>5、手撕代码int atoi(char *str)？</p>
+
+            <ul>
+              <li>注意开头的负号和空格</li>
+            </ul>
+          </li>
+          <li>6、谈谈web上访问网址的过程？
+            <ul>
+              <li>说说DNS如何找到ip和port的？若本地和局域网查找不到，如何向上层查找(DNS服务迭代查询和递归查询的流程)？</li>
+              <li>谈到socket通信，说说握手过程，为何三次握手？</li>
+              <li>谈到get、post了，get和post的原理和区别？</li>
+              <li>直到http和http2区别？
+                <ul>
+                  <li>1.HTTP2使用的是二进制传送，HTTP1.X是文本(字符串)传送。</li>
+                  <li>2.HTTP2支持多路复用</li>
+                  <li>3.HTTP2头部压缩</li>
+                  <li>4.HTTP2支持服务器推送</li>
+                  <li>参考: <a href="https://blog.csdn.net/zq_king/article/details/80319847">HTTP2与HTTP1.1的区别</a>
+</li>
+                </ul>
+              </li>
+              <li>熟悉https，https中加密实在哪一过程进行了？
+                <ul>
+                  <li>首先三次握手之后有一个ssl握手,协商密钥, 以后非明文传输</li>
+                  <li>说说ssl加密原理？
+                    <ul>
+                      <li>客户端发送 hello</li>
+                      <li>服务器恢复 hello,自己的证书</li>
+                      <li>客户端验证证书, 并生成客户端会话密钥</li>
+                      <li>客户端发送 自己的公钥,客户端会话密钥公钥; 使用服务器公钥加密</li>
+                      <li>服务器使用自己的私钥解密, 然后生成服务器回话密钥</li>
+                      <li>服务器发送 服务器回话密钥, 使用客户端公钥加密</li>
+                      <li>参考: <a href="https://blog.csdn.net/qq_32998153/article/details/80022489">HTTPS的加密过程</a>
+</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>7、说说select、poll、epoll区别？</li>
+          <li>8、熟悉句柄么？程序执行后句柄如何处理，如何修改可打开句柄数量？
+            <ul>
+              <li>句柄始于系统资源, 用完之后一定要关闭, 不然也算是资源泄露</li>
+              <li>临时修改: ulimit -n xxx</li>
+              <li>永久修改: /etc/sercurity/limits.conf
+                <div class="language-plaintext highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  soft　　nofile　　65536
+  hard　　nofile　　65536
+  // 将最大句柄数改为 65536
+</code></pre></div>                </div>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <p>9、数组存中在一个大于n/2次的数，如何以最优方法查找它？</p>
+
+            <ul>
+              <li>用消除法, 用map保存点, 当map中的关键字大于两个时删除,最终剩下的即是</li>
+            </ul>
+          </li>
+          <li>10、用栈实现队列，用队列实现栈？
+            <ul>
+              <li>栈变队: 双栈法(负负得正)</li>
+              <li>队变栈: 双队法</li>
+            </ul>
+          </li>
+          <li>
+            <p>11、如何设计一个高并发的分布式服务器？</p>
+
+            <ul>
+              <li>reactor模型</li>
+            </ul>
+          </li>
+          <li>12、64匹马、8赛道，知识多少轮比赛找出速度最快的4匹马？（在提示下优化到12次，最优解为10或者11次）</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>百度一面二面经历（体验极差）：https://www.nowcoder.com/discuss/112003
+    <ul>
+      <li>
+        <ol>
+          <li>首先是3次握手（已经被问过n多次）。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>然后是select，epoll，但是问的很隐晦，大致是在问我TCP接收到报文后内核和上层报文之间怎么交换，但是刚开始没太听懂他在说什么，所以我重复问了一下，但是他自己却把过程说了出来，可能是因为本人是本科生，他觉得我不知道相关知识的缘故吧。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>问了一下流量控制，还是很隐晦，当时大概问的是“一个服务器有很多TCP连接，然后某一时刻他可能来不及处理接受到的数据，这时候该怎么办？”。坦白说刚开始听到我是比较懵B的，但是仔细想过之后发现这好像就是流量控制，所以很流利的回答了流量控制，顺道说了一下原理。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>然后问了一点有关操作系统方面的知识，shell命令。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>开始数据结构，首先是哈希解决冲突的办法。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>用拉链法设计一个哈希类，要求把链换成STL中的map。（手写代码），写完之后他说不是线程安全的，让改一下。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>开始问map那点破事。</li>
+        </ol>
+      </li>
+      <li>二面（体验极差，估计是挂了）：其实也够倒霉的，本来我投的是C++/Php，但是二面来面我那哥们是个搞云端产品的。</li>
+      <li>
+        <ol>
+          <li>向一个文科生解释一下指针和引用的差别。。。。。。（我表示很无语，但是一时紧张有却时想不到什么好的解释）。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>再解释一下对象和类。。。。。。（和上面一样，不知道从何入手）。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>开始了算法，先问我二叉树学过吗，然后让我设计一个节点，再然后让我比较两棵树是否相同（手写代码）。现在我才明白，大概是在考我用递归怎么遍历树，我当时写的居然是以按层遍历的方式去遍历树，然后两棵树逐个节点作对比。</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>让我反转一个字符串。。。。。。（手写代码）。</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li>百度一面凉面面经：https://www.nowcoder.com/discuss/111058
+    <ul>
+      <li>D：拿出一张白纸，多路归并排序知道吧，怎么做</li>
+      <li>先内部排序,然后还用堆排序</li>
+      <li>D：top K知道吧，大根堆还是小根堆，是不是都可以</li>
+      <li>默认是大根堆, 结果为顺序(虽然出堆是逆序的,但是出堆结果存在最后)</li>
+      <li>D：C、c++什么区别</li>
+      <li>…</li>
+      <li>D：内核是吧，讲下文件系统实现吧</li>
+      <li>inode区和数据区</li>
+      <li>D：那你讲下进程、内存管理你比较熟悉的</li>
+      <li>其实应该是进程中的内存管理,也就是c/c++体系的内存管理</li>
+      <li>D：讲下进程间通信</li>
+      <li>…</li>
+      <li>D：读写锁知道吧，写个多个读者读，阻塞写者的实现。</li>
+      <li>D: SQL了解吧，能写语句吗
+        <div class="language-sql highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="n">CREATE_TABLE</span> <span class="n">demo</span><span class="p">(</span>
+  <span class="n">id</span> <span class="nb">INT</span> <span class="k">NO</span> <span class="k">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span> 
+  <span class="n">name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+  <span class="p">)</span>
+</code></pre></div>        </div>
+      </li>
+      <li>D：讲下关系型数据库和K-V数据库的特点
+        <ul>
+          <li>就是关系数据库和键值对数据库的特点</li>
+          <li>关系数据库
+            <ul>
+              <li>有点:
+                <ul>
+                  <li>关系数据库历史悠久, 技术成熟</li>
+                  <li>关系数据库是基于表的, 重复储存少, 数据更新方便</li>
+                  <li>强一致性</li>
+                </ul>
+              </li>
+              <li>缺点:
+                <ul>
+                  <li>处理大量数据的读写有一定障碍(解决方案为: 主从模式, 主数据库负责写, 从数据库负责度)</li>
+                  <li>表结构更改较难, 扩展性较差</li>
+                  <li>查询较慢(很难针对简单查询快速返回)</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>键值对数据库
+            <ul>
+              <li>优点
+                <ul>
+                  <li>成本低, 开源的多</li>
+                  <li>查询速度</li>
+                  <li>数据库储存形式</li>
+                  <li>扩展性</li>
+                </ul>
+              </li>
+              <li>缺点
+                <ul>
+                  <li>不支持sql生态</li>
+                  <li>不提供强一致性, 只能保证最终一致性</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>区别
+            <ul>
+              <li>关系型数据库局域ACID(原子性, 一致性, 独立性, 持久性)模型, 非关系型数据库支持CAP(一致性, 可用性, 分区容忍性)模型</li>
+              <li>储存形式: 关系型数据库基于表, 修改不方便, 不便于扩展; 非关系数据库支持多种形式的储存, 例如键值对, 图 等,扩展性较强</li>
+              <li>数据一致性: 非关系型数据库强调最终一致性, 关系型数据库强调强一致性</li>
+            </ul>
+          </li>
+          <li><img src="http://wangpengcheng.github.io/img/%E7%89%9B%E5%AE%A2%E5%AE%9E%E6%88%98/%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E9%9D%9E%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E7%89%B9%E6%80%A7%E4%BB%A5%E5%8F%8A%E5%90%84%E8%87%AA%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9.png" alt="关系型数据库和非关系型数据库的特性以及各自的优缺点"></li>
+        </ul>
+      </li>
+      <li>D：行吧，说下TCP三次握手</li>
+      <li>D：为什么三次不是两次</li>
+      <li>D：行吧，做几个算法,树的深度怎么求</li>
+      <li>D：宽度呢</li>
+      <li>D：用c肯定指针熟吧，写个链表倒转</li>
+    </ul>
+  </li>
+  <li>百度一面：https://www.nowcoder.com/discuss/109958
+    <ul>
+      <li>一面
+        <ul>
+          <li>
+            <ol>
+              <li>1G内存，4G url，求重复的url
+                <ul>
+                  <li>布隆过滤器(可能会有漏, 看设计得好不好了, 适合超大规模), 或则hash+字典树</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>手写二分</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>Linux命令，find，grep，ps，netstat…
+                <ul>
+                  <li>find: 支持模糊操作</li>
+                  <li>grep: 文件内查找, 支持正则表达式</li>
+                  <li>awk:</li>
+                  <li>sed:</li>
+                  <li>cat</li>
+                  <li>tac:</li>
+                  <li>head:</li>
+                  <li>tail:</li>
+                  <li>ps: 进程状态</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>Python的tuple
+                <ul>
+                  <li>元组, C++11中也有了</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>C 与Cpp的区别
+                <ul>
+                  <li>…</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>const/define
+                <ul>
+                  <li>首先是预编译阶段实现, 编译阶段生效</li>
+                  <li>define可以实现更为丰富的逻辑</li>
+                  <li>const定义的是变量, define只是宏替换, 会储存在代码区</li>
+                  <li>作用域不同, const全域, const 变量自身与</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>C语言内存布局</li>
+            </ol>
+          </li>
+        </ul>
+      </li>
+      <li>1.1 面：
+        <ul>
+          <li>
+            <ol>
+              <li>Linux kvm，GPU 直通，SRIOV</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>CPU架构，NUAM，SMP</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>Guest OS发个网络请求，到Host OS，再到硬件的过程</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>CPU ***结构，是否共享</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>TCP握手过程，为啥三次</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>DDOS，怎么解决，如何让Server端收到ACK后在分配资源，不改变Client，不封装IP数据包
+                <ul>
+                  <li>小规模DDOS, 可以设置/etc/sysctl.conf中net.ipv4.tcp_syncookies</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>如果把访问次数过多的IP拉入黑名单，怎么实现，用什么数据结构，写个伪码</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>hash冲突怎么解决
+                <ul>
+                  <li>开链发</li>
+                  <li>开放寻址法</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>多线程操作一个hash表呢？用什么锁？
+                <ul>
+                  <li>互斥锁</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>读写锁说一下，怎么使用</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>C语言const，static</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>C语言volatile，说个应用场景</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>手写判断大小端的代码</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>C语言内存布局</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>分段分页机制</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>逻辑地址到物理地址过程</li>
+            </ol>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>来自小白的百度一面面经：https://www.nowcoder.com/discuss/109318
+    <ul>
+      <li>开始考察数据结构和算法，先让我说了一些排序算法，问我能不能手写快排</li>
+      <li>1.死锁是怎么产生的</li>
+      <li>2.有没有写过多线程？</li>
+      <li>3.调度算法有哪些？
+        <ul>
+          <li>先进先出(FIFO), 队列</li>
+          <li>最近最不经常访问(LFU), 引用排序</li>
+          <li>最近最少访问(LRU), 队列(每次访问新激或则把旧的移动到队尾)</li>
+        </ul>
+      </li>
+      <li>4.三次握手四次挥手画图解释一下</li>
+      <li>5.UDP和TCP区别
+        <ul>
+          <li>…</li>
+        </ul>
+      </li>
+      <li>6.HTTP和HTTPS介绍一下，区别是什么？
+        <ul>
+          <li>http
+            <ul>
+              <li>超文本传输协议,用于服务器往浏览器传送传输超文本的传输协议</li>
+              <li>基于tcp/ip</li>
+              <li>简单快速, 灵活, 无连接, 无状态</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>7.HTTPS的安全性是怎么实现的？
+        <ul>
+          <li>加密!</li>
+          <li>客户端发送hello给服务器</li>
+          <li>服务器发送hell+证书</li>
+          <li>客户端验证证书, 并生成客户端通信回话密钥</li>
+          <li>客户端发送 自己的公钥+客户端回话密钥公钥,使用服务器公钥加密</li>
+          <li>服务器用自己的私钥解密, 然后生成自己的服务器回话密钥</li>
+          <li>服务器发送 服务器回话密钥公钥, 使用客户端私钥加密</li>
+          <li>然后加密通信!</li>
+        </ul>
+      </li>
+      <li>8.HTTP有哪几种操作？
+        <ul>
+          <li>post, get, head</li>
+          <li>options, delete, put, connect, trace</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>秋招第一次面试-&gt;百度（c++后台岗位）https://www.nowcoder.com/discuss/90069
+    <ul>
+      <li>一面
+        <ul>
+          <li>Q：TCP三次握手和断开的完整过程</li>
+          <li>Q：为什么要等2个MSL</li>
+          <li>Q：输入 www.baidu.com 在浏览器的完整过程，越详细越好</li>
+          <li>A：LRU那种？</li>
+          <li>Q：这个怎么实现同步和互斥，怎么样去加锁</li>
+          <li>Q：c++里面的同步和互斥怎么实现的</li>
+          <li>A：mutex，条件变量之类的说了一下，消费者生产者之类的举了个例子</li>
+          <li>Q：c++里面的常量怎么定义
+            <ul>
+              <li>宏定义</li>
+              <li>const常量</li>
+              <li>enum 定义常量(注意对这玩意儿不能取地址)</li>
+              <li>constexpr 常量表达式, 也可以表达类似的效果, 表示在编译期间可以进行求值的表达式</li>
+            </ul>
+          </li>
+          <li>A：const和constexpr（这个面试官可能没见过，然后解释了一下）</li>
+          <li>Q：我主要想说宏</li>
+          <li>Q：c++的智能指针说一下，区别</li>
+          <li>Q：c++怎么实现一个函数先于main函数运行
+            <ul>
+              <li>A：用static</li>
+              <li>如果gcc编译器,还可以用__attribute((constructor)) void befor(){}</li>
+            </ul>
+          </li>
+          <li>Q：c++的static的变量的初始化顺序怎么样的</li>
+          <li>不不不, C++中引入了对象的概念,它的初始化时放在了第一次被调用时,所以是可以使用变量来初始化c++中的static的</li>
+          <li>Q：如果一个类里面呢？</li>
+          <li>Q：两个文件，两个static变量a和b，怎么让某个变量先于另外一个初始化呢？</li>
+          <li>两种方式,
+            <ul>
+              <li>一个是分别定义在两个头文件里面,并且是用定义赋值的方式,通过头文件引用顺序进行调整</li>
+              <li>另一个是定义在头文件里面,通过控制两个变量的调用顺序来控制初始化顺序</li>
+            </ul>
+          </li>
+          <li>A：使用定义的时候就赋予初始化,强行初始化.</li>
+          <li>Q：来一条设计题。百度搜索的智能提示怎么实现，输入两个字，出来一些热搜</li>
+          <li>感觉应该是哈希+字典树</li>
+          <li>A：字典树+堆吧，然后balabala（第三次。。。感觉面试官不是很满意我的答案)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>提前批面经C/C++后台开发岗位(持续更新) https://www.nowcoder.com/discuss/94734
+    <ul>
+      <li>百度一面
+        <ul>
+          <li>C++拷贝构造函数为什么传引用
+            <ul>
+              <li>值传递会调用拷贝构造函数创建副本, 而这里本来就是实现拷贝构造, 所以如果是值传递就会导致死循环.</li>
+              <li>实际上编译器也不允许循序拷贝构造函数为值传递.</li>
+            </ul>
+          </li>
+          <li>如何返回值一个类的构造和拷贝构造
+            <ul>
+              <li>应该是返回值优化吧</li>
+              <li>如果没有开启返回值优化, 只需要返回对象, 就会自动调用拷贝构造函数</li>
+              <li>如果返回值为内部构造并通过值传递的方式返回主调函数, 则编译器使用返回值优化, 避免拷贝构造函数和析构函数的调用, 具体实现方式为:</li>
+              <li>函数返回值改为void, 形参列表为返回值类型的引用, 主调函数把即将赋值的参数的引用传入背调函数, 这样就可以只调用一次构造函数.</li>
+              <li>参考:
+                <ul>
+                  <li><a href="https://www.cnblogs.com/xkfz007/articles/2506022.html">转：C++中临时对象及返回值优化</a></li>
+                  <li><a href="https://zhaostu4.github.io/2019/11/28/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E6%B7%B1%E5%BA%A6%E6%8E%A2%E7%B4%A2C++%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B/#23-%E5%91%BD%E5%90%8D%E8%BF%94%E5%9B%9E%E5%80%BC%E4%BC%98%E5%8C%96">2.3 命名返回值优化</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <p>如果声明为私有的，那么是编译时错误还是运行时错误</p>
+
+            <ul>
+              <li>编译错误</li>
+            </ul>
+          </li>
+          <li>vector越界访问下标
+            <ul>
+              <li>vector通过下标运算符进行访问, 不会进行越界检查, 如果越界会得到脏数据, 或则段错误</li>
+              <li>通过at进行访问, 会进行越界检查, 如果越界会报<code class="language-plaintext highlighter-rouge">out_of_range</code> 异常</li>
+            </ul>
+          </li>
+          <li>
+            <p>map越界访问下标</p>
+
+            <ul>
+              <li>创建这个下标对应的键值对, 值调用默认构造函数进行构造</li>
+            </ul>
+          </li>
+          <li>
+            <p>如何删除map中的奇数节点</p>
+
+            <ul>
+              <li>直接迭代删除即可, map的迭代器不会失效</li>
+            </ul>
+          </li>
+          <li>
+            <p>指针和引用的区别</p>
+
+            <ul>
+              <li>…</li>
+            </ul>
+          </li>
+          <li>C++中内存泄漏问题
+            <ul>
+              <li>概念: 在程序中申请了资源,但是在不使用时并没有释放, 导致这种资源不能再被利用,从而引起浪费, 甚至系统崩溃</li>
+              <li>分类:
+                <ul>
+                  <li>堆内存泄漏: 申请了对了堆内存未释放, 或则通过基类指针析构子类对象, 但是基类析构函数没有设置为虚函数</li>
+                  <li>内核资源泄漏: 例如打开了文件描述符未管理, 甚至僵尸进程也算是一种内存泄漏</li>
+                </ul>
+              </li>
+              <li>解决方案:
+                <ul>
+                  <li>静态代码分析: beam(这个就像编译器一样, 他会对代码进行静态分析, 给出一个报告)</li>
+                  <li>动态分析: valgrind</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>new和malloc的区别</li>
+          <li>TCP断开连接过程，timewait解释</li>
+          <li>HTTP中状态码 302(详细问) 403 400
+            <ul>
+              <li>200 正常</li>
+              <li>300 可选重定向: 服务器根据请求可执行多种操作。服务器可根据请求者来选择一项操作，或提供操作列表供其选择。</li>
+              <li>301 永久重定向: 请求的网页已被永久移动到新位置。服务器返回此响应时，会自动将请求者转到新位置。
+                <ul>
+                  <li>这是对搜索引擎最友好的一种方式, 搜索引擎会拉取新的地址</li>
+                </ul>
+              </li>
+              <li>302 临时从定向: 服务器目前正从不同位置的网页响应请求，但请求者应继续使用原有位置来进行以后的请求。会自动将请求者转到不同的位置。
+                <ul>
+                  <li>这里就有一个网址劫持相关的概念了,</li>
+                  <li>网址<code class="language-plaintext highlighter-rouge">A</code>做一个<code class="language-plaintext highlighter-rouge">302</code>重定向到网址<code class="language-plaintext highlighter-rouge">B</code>时，主机服务器的隐含意思是网址<code class="language-plaintext highlighter-rouge">A</code>随时有可能改主意，重新显示本身的内容或转向其他的地方。大部分的搜索引擎在大部分情况下，当收到<code class="language-plaintext highlighter-rouge">302</code>重定向时，一般只要去抓取目标网址就可以了，也就是说网址<code class="language-plaintext highlighter-rouge">B</code>。</li>
+                  <li>搜索引擎在遇到302转向时，百分之百的都抓取目标网址B的话，就不用担心网址URL劫持了。</li>
+                  <li>问题就在于，有的时候搜索引擎，尤其是Google，并不能总是抓取目标网址。</li>
+                  <li>为什么呢？比如说，有的时候A网址很短，但是它做了一个302重定向到B网址，而B网址是一个很长的乱七八糟的URL网址，甚至还有可能包含一些问号之类的参数。</li>
+                  <li>很自然的，A网址更加用户友好，而B网址既难看，又不用户友好。这时Google很有可能会仍然显示网址A。</li>
+                  <li>这就造成了网址URL劫持的可能性</li>
+                  <li>一个家伙网址A做一个302重定向到你的网址B，出于某种原因， Google搜索结果所显示的仍然是网址A，但是所用的网页内容却是你的网址B上的内容，这种情况就叫做网址URL劫持。当用户点进去的时候, 调转的确实网址A !!!!!.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>参考: <a href="https://blog.csdn.net/qmhball/article/details/7838989">HTTP返回码中301与302的区别</a>
+            <ul>
+              <li>304 内容未修改, 使用缓存即可</li>
+              <li>400 客户端错误</li>
+              <li>403 客户端收到请求,但是拒绝提供服务</li>
+            </ul>
+
+            <hr>
+            <ul>
+              <li>1xx 继续 – 例如, post的时候先发头, 就会回复这个</li>
+              <li>2xx 正常 – 正常, 206是分片</li>
+              <li>3xx 重定向  – 更换了地址</li>
+              <li>4xx 客户端错误 – 语法错误或则无效请求</li>
+              <li>5xx 服务器错误 – 服务器未能完成合法请求</li>
+            </ul>
+          </li>
+          <li>
+            <p>连续子数组最大和问题</p>
+
+            <ul>
+              <li>动态规划问题</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>百度二面
+        <ul>
+          <li>C++多态，虚表指针在什么时候初始化
+            <ul>
+              <li>无继承时：
+                <ul>
+                  <li>1、分配内存</li>
+                  <li>2、初始化列表之前赋值虚表指针</li>
+                  <li>3、列表初始化</li>
+                  <li>4、执行构造函数体</li>
+                </ul>
+              </li>
+              <li>有继承时：
+                <ul>
+                  <li>1、分配内存</li>
+                  <li>2、基类构造过程(按照无继承来)</li>
+                  <li>3、初始化子类虚表指针</li>
+                  <li>4、子类列表初始化</li>
+                  <li>5、执行子类构造函数体</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>参考: <a href="https://blog.csdn.net/jasonLee_lijiaqi/article/details/89073020">虚表指针初始化顺序</a>
+</li>
+          <li>
+            <p>STL库的容器底层实现</p>
+
+            <ul>
+              <li>哪个容器撒</li>
+            </ul>
+          </li>
+          <li>
+            <p>红黑树的插入效率，为什么相对平衡的红黑树比绝对平衡的AVL适用广
+  查找、插入、删除操作的最坏时间复杂度</p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>方法</th>
+                  <th>二叉查找树</th>
+                  <th>平衡二叉树</th>
+                  <th>红黑树</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>查找</td>
+                  <td>O(n)</td>
+                  <td>O(logn)</td>
+                  <td>Olog(n)</td>
+                </tr>
+                <tr>
+                  <td>插入</td>
+                  <td>O(n)</td>
+                  <td>O(logn)</td>
+                  <td>Olog(n)</td>
+                </tr>
+                <tr>
+                  <td>删除</td>
+                  <td>O(n)</td>
+                  <td>O(logn)</td>
+                  <td>Olog(n)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <ul>
+              <li>二叉查找树因可能退化成链表，故其性能最差。</li>
+              <li>平衡二叉树和红黑树是带有平衡条件的二叉查找树，故它们的效率也较高。</li>
+              <li>平衡二叉树的<code class="language-plaintext highlighter-rouge">插入/删除</code>操作带来的旋转操作可能会达到<code class="language-plaintext highlighter-rouge">logn</code>次，而红黑树的<code class="language-plaintext highlighter-rouge">插入/删除</code>操作带来的旋转操作最多为<code class="language-plaintext highlighter-rouge">2到3</code>次。</li>
+              <li>所以说，当红黑树出现的时候，平衡二叉树就只能出现在博物馆里了。</li>
+            </ul>
+          </li>
+          <li>
+            <p>即红黑树是最优选择。</p>
+          </li>
+          <li>B树和B+树的区别，B+树应用在哪?
+            <ul>
+              <li>B树
+                <ul>
+                  <li>特性
+                    <ul>
+                      <li>每个节点保存数据和索引</li>
+                      <li>所有的叶子节点处于同一层</li>
+                      <li>拥有m个子树的根节点拥有[1,m-1]个内部节点, 中间节点拥有[m/2,m-1]个内部节点</li>
+                      <li>内部顺序, 左小,右大</li>
+                    </ul>
+                  </li>
+                  <li>缺点:
+                    <ul>
+                      <li>索引和数据一起,查找的时候一次读到的索引较少</li>
+                      <li>遍历较为麻烦</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li>B+数
+                <ul>
+                  <li>特性
+                    <ul>
+                      <li>内部排序, 左小等, 右大等</li>
+                      <li>k个子树的中间节点拥有k个内部节点, 左侧的子树是最大的, 右侧的是最小的</li>
+                      <li>叶子节点同一层, 且按序链起来</li>
+                      <li>数据只储存在叶子节点, 中间节点子储存索引</li>
+                    </ul>
+                  </li>
+                  <li>正好解决了B数的两个问题</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>哈希表的哈希冲突，解决哈希冲突的几种方法
+            <ul>
+              <li>开链法</li>
+              <li>开放寻址方式</li>
+            </ul>
+          </li>
+          <li>进程间通信方式，每个都讲一下
+            <ul>
+              <li>管道</li>
+              <li>socket</li>
+              <li>系统IPC(信号量, 信号, 共享内存, 消息队列)</li>
+            </ul>
+          </li>
+          <li>网编程讲一下。
+            <ul>
+              <li>TCP
+                <ul>
+                  <li>服务器: bind, listen, accept, read(recv), write(send)</li>
+                  <li>客户端: connect, write(send), read(recv)</li>
+                </ul>
+              </li>
+              <li>UDP recvfrom, sendto</li>
+            </ul>
+          </li>
+          <li>select和epoll，epoll底层实现，数据的拷贝方式。
+            <ul>
+              <li>select 数组, 每次复制, 限制</li>
+              <li>epoll 红黑树, 不用每次复制, 中断,无限制
+                <ul>
+                  <li>水平模式</li>
+                  <li>边缘模式</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <p>求一个数开根号（二分）</p>
+
+            <ul>
+              <li>二分法和牛顿法</li>
+            </ul>
+          </li>
+          <li>讲一下timewait状态，没有timewait有什么问题</li>
+          <li>滑动窗口和拥塞窗口</li>
+          <li>慢启动和快重传</li>
+          <li>
+            <p>实现一个功能，能检测内存泄漏问题，通过一个指令输出整个进程中哪一行哪个函数申请了多少内存，按照顺序排列出来，还有总的内存数</p>
+
+            <ul>
+              <li>(!!!!!!)</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>百度三面(经理面)
+        <ul>
+          <li>谈实习工作</li>
+          <li>Linux下的内存机制</li>
+          <li>模板的分离编译</li>
+          <li>空类的大小，含有成员函数类的大小</li>
+          <li>链接过程(详细)
+            <ul>
+              <li>(!!!!) 链接过程详解 - 简书: https://www.jianshu.com/p/53ccc77abc6a</li>
+            </ul>
+          </li>
+          <li>写个string类</li>
+        </ul>
+      </li>
+      <li>阿里一面
+        <ul>
+          <li>进程、线程、协程的区别</li>
+          <li>进程创建子进程，fork详解</li>
+          <li>I/O模型介绍，细说slect和epoll。I/O多路转接阻塞?非阻塞？有什么问题?</li>
+          <li>数据库底层数据结构？说下为什么采用B+树？
+            <ul>
+              <li>遍历快, 查询索引和数据分离, 查询少IO操作</li>
+            </ul>
+          </li>
+          <li>数据库的ACID特性</li>
+          <li>数据库索引相关</li>
+          <li>知道那些非关系型数据库？
+            <ul>
+              <li>Nosql</li>
+              <li>redis</li>
+              <li>mon</li>
+            </ul>
+          </li>
+          <li>C++中struct和class区别</li>
+          <li>C语言struct和C++struct区别</li>
+          <li>如何用C语言实现C++的继承
+            <ul>
+              <li>利用函数指针访函数</li>
+              <li>在子类中,把基类放在最前面</li>
+            </ul>
+          </li>
+          <li>inline相关，虚函数可以声明为inline吗？</li>
+          <li>说下虚表的原理</li>
+          <li>多重继承的问题，详解，对比一些开源框架中使用的多重继承来说？
+            <ul>
+              <li>问题
+                <ul>
+                  <li>菱形问题</li>
+                  <li>不同基类的同名函数,导致二义性</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>了解RAII？说一下什么是RAII?应用？
+            <ul>
+              <li>资源获取即初始化</li>
+              <li>RTTI是运行时类型检查</li>
+            </ul>
+          </li>
+          <li>智能指针，share_ptr和weak_ptr,细说weak_ptr?可以用原生指针吗？
+            <ul>
+              <li>内存泄漏</li>
+            </ul>
+          </li>
+          <li>了解那些分布式组件？说下Zookeeper和HDFS，说下CAP理论
+            <ul>
+              <li>不了解, 但是知道CAP理论: 一致性, 可用性, 分区容错性</li>
+              <li>(!!!!) zookeeper, hdfs</li>
+              <li>
+<a href="https://www.jianshu.com/p/f1e785fffd4d">HDFS</a>
+                <ul>
+                  <li>HDFS特点：
+                    <ul>
+                      <li>高容错性、可构建在廉价机器上</li>
+                      <li>适合批处理</li>
+                      <li>适合大数据处理</li>
+                      <li>流式文件访问</li>
+                    </ul>
+                  </li>
+                  <li>HDFS局限：
+                    <ul>
+                      <li>不支持低延迟访问</li>
+                      <li>不适合小文件存储</li>
+                      <li>不支持并发写入</li>
+                      <li>不支持修改</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>了解哪些一致性算法
+            <ul>
+              <li>(!!!!)Raft</li>
+              <li>Paxos</li>
+            </ul>
+          </li>
+          <li>深度优先遍历和广度优先遍历的应用场景
+            <ul>
+              <li>深度优先找深度</li>
+              <li>广度优先找宽度</li>
+            </ul>
+          </li>
+          <li>项目中使用网络编程？简单说下？说下cgi？服务器采用什么结构？使用的epoll模型？
+            <ul>
+              <li>cgi</li>
+            </ul>
+          </li>
+          <li>有序的数组，其他数都出现两次，一个数只出现一次？思路(数组无序异或，数组有序采用二分)
+            <ul>
+              <li>有序? 那之间检查前后就可以了啊</li>
+              <li>无序: 异或</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="未看">未看</h2>
+<ul>
+  <li>百度 提前批C++一面 二面 三面（GG）https://www.nowcoder.com/discuss/96139
+    <ul>
+      <li>百度一面 电话面 (87分钟)
+        <ul>
+          <li>自我介绍
+            <ul>
+              <li>按照以往的套路，我都是自我介绍完直接说自己的项目，因为自己的项目已经很熟悉了。</li>
+              <li>就算问到一些不会的也能答出一二三。</li>
+              <li>可一面面试官完全不按照套路。</li>
+              <li>我准备说项目的时候直接打断了。说我们先问几个问题，等会再说项目。</li>
+            </ul>
+          </li>
+          <li>虚基类</li>
+          <li>纯虚函数</li>
+          <li>虚函数</li>
+          <li>虚函数表内存分布</li>
+          <li>虚函数中虚基类和派生类的关系</li>
+          <li>显示转换(隐式转换)</li>
+          <li>问了三个算法题 讲讲思路</li>
+          <li>学过网络和操作系统吗</li>
+          <li>三次握手，四次挥手 握手为什么是两次</li>
+          <li>讲一讲拥塞机制 和流量机制</li>
+          <li>http https 抓包工具原理</li>
+          <li>IP地址分为几类？简单说一下分类
+            <ul>
+              <li><a href="https://zhidao.baidu.com/question/560135986.html">IP地址总共分为几类？怎样区分IP地址</a></li>
+            </ul>
+          </li>
+          <li>进程通信有哪些方式</li>
+          <li>进程同步的方法</li>
+          <li>知道互斥锁吗？</li>
+          <li>他用什么来保证共享数据的安全性？</li>
+          <li>这个我说信号量，他说如果用信号量来解决，现在出现一个状况，两段进程都被标记为可以访问该共享数据，但我们的共享单元只能支撑一个进程访问。这时候怎么办？</li>
+          <li>我说用唯一标识符去处理。生成唯一标识符，这样就不会出现这种情况。</li>
+          <li>他说不对。让我回去好好看看。</li>
+          <li>回去查了一下，是原子操作。。</li>
+          <li>(这个问题问了好久)</li>
+          <li>数据库索引 索引原理 以及如何优化数据库</li>
+          <li>开始讲项目 三个项目，本科的，硕士的，以及在鹅厂的。问鹅厂的问的最细（40 min）</li>
+          <li>一面总结: 还有很多问题都忘记，面完的感觉就是，百度问的真的很全，第一次电话面超过一个小时的。不够面试官也没有在不会的问题继续难为我，我就说不会。他说没事就下一个问题了。</li>
+        </ul>
+      </li>
+      <li>百度二面 电话面 25分钟
+        <ul>
+          <li>为什么继承时基类的析构一般声明为虚函数？</li>
+          <li>虚函数与纯虚函数的区别在于</li>
+          <li>为什么构造函数不能够使虚函数</li>
+          <li>4.TCP端口扫描方式
+            <ul>
+              <li>一般有三种：
+                <ul>
+                  <li>1.通过connect: 客户端通过connect发起连接后，如果服务器处于监听状态就可以发起连接成功，否则说明端口是关闭的。优点是比较简单可靠，缺点是如果连接不成功会频繁的发包，扫描时间比较长</li>
+                  <li>2.通过SYN扫描: 向目标端口发送SYN数据帧，如果又收到SYN+ACK说明开放，如果收到RST说明关闭，在IP层实现。</li>
+                  <li>3.通过FIN扫描: 四次挥手的过程，主动结束的一方会发送FIN帧。</li>
+                </ul>
+              </li>
+              <li>参考:
+                <ul>
+                  <li><a href="https://blog.csdn.net/tuantuanlin/article/details/17422705">linux下端口扫描的实现(TCP connect、TCP SYN、TCP FIN、UDP四种方式)</a></li>
+                  <li><a href="https://blog.csdn.net/f905699146/article/details/82625597?utm_source=blogxgwz2">tcp端口扫描方式</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>5.TIME_WAIT、CLOSE_WAIT</li>
+          <li>6.守护进程</li>
+          <li>7.迭代器的++it和it++哪个好</li>
+          <li>8.开始问项目，从百度二面开始。我的项目就一直被怼，完全吹不动。说几个核心的点。</li>
+          <li>9.因为说了tars 的源码，他就基于这个源码开始问。如何去处理高并发HTTP请求？</li>
+          <li>我: 从接入层(统一接入网关，负载均衡)…..从服务层(服务细分，过载保护)…..从存储层(***,共享内存，分布式存储组件ceph)……</li>
+          <li>在服务层回答到 过载保护的时候。被打断。 他说你说的过载保护不过是在请求很多的时候去拒绝掉一部分用户。或者延时处理。那么 现在如果出现一个热点事件，百度的搜索可能会达到数十亿次，你去拒绝掉这一部分用户。那这一部分用户的用户体验怎么保证？</li>
+          <li>在存储层回答ceph 分布式存储组件的时候 被问到了映射 为什么ceph要去做三层映射？</li>
+          <li>面试官: 你有没有考虑过流量不干净的情况怎么办？ 用很简单的ddos攻击，你这个服务 我1分钟之内就能让他趴下。这个你考虑过吗？</li>
+          <li>面试官: 你这个底层本质上还是用队列做的。你有没有考虑过队列全满的情况？就是现在你的所有队列全部爆满，你根本没有办法去做请求迁移。这时候怎么处理？</li>
+          <li>虽然只面了25分钟，但是大概率知道自己过了。因为最后面试官说：你有什么问题吗。我觉得你OK。 我就问了关于他们团队的一些问题。</li>
+          <li>二面之后的三天，HR打电话过来约视频面，并说明视频面面完之后可能还要加一轮现场面。我说没问题。 后来又打电话过来，说面试官不同意视频和电话面。必须现场面。而且不报销任何路费。从深圳到北京 来回花了3000多。最后拒了。很伤很伤。</li>
+        </ul>
+      </li>
+      <li>百度三面 现场面 70分钟。
+        <ul>
+          <li>从面试开始，我就没有想过会出现这种情况。</li>
+          <li>就是自己讲完腾讯的实习项目之后。面试官直接说。你这个项目是谁让你做的。你有没有质疑过，你这个项目从方案和逻辑上就是错的？</li>
+          <li>我 : ………………………….. (从这开始心里就有一些慌了。)</li>
+          <li>面试官：我们现在假设一种情况，就是我们的服务端是很安全的，你现在多一个第三方<code class="language-plaintext highlighter-rouge">**</code>，我怎么信任你这个第三方<code class="language-plaintext highlighter-rouge">**</code>？</li>
+          <li>我：我们这个服务是对内的。即使对外，我们也可以从请求上来判定。比如相同的IP的地址我们可以从频率上去限制他的请求。不同的IP地址 我们可以去从key(这个key 是有一个失效期，只能用一次，我们将这些不干净的流量尽量拦截在接入层，不让他进入我们的网关。)</li>
+          <li>面试官： 你可能理解错了我的意思，我的意思是，限制服务端去信任客户端。你凭空多出了一个第三方***，虽然原则上确实方便了客户端的使用，但安全性怎么去保证？</li>
+          <li>我： 我们可以去做加密。Balabalabalalalalal……………</li>
+          <li>面试官： 你的意思我懂，但高并发请求如何去处理呢？</li>
+          <li>我： 从接入层(统一接入网关，负载均衡)…..从服务层(服务细分，过载保护)…..从存储层(***,共享内存，分布式存储组件ceph)……没讲完就被打断了。</li>
+          <li>面试官: 你知不知道，你现在所做的可能都是没有意义的？</li>
+          <li>我: ………………………….</li>
+          <li>面试官：因为你们的服务端，绝对已经做过了这些处理。而且比你的第三方<code class="language-plaintext highlighter-rouge">***</code>做的好。你现在的这个<code class="language-plaintext highlighter-rouge">***</code>服务极其脆弱。你为什么不把他封装成一个接口呢？而不是一个服务。</li>
+          <li>我: …………………………………………</li>
+          <li>面试官： 你这个项目其实还是有很多有意思的东西，比如你知道为什么用appid和appsecret 去换取微信那边的一个access_token权限吗？</li>
+          <li>我：我们可以类比，淘宝登陆 除了用户名和密码 我们还需要手机验证码这样的方式。</li>
+          <li>面试官： 你这个类比不对，因为淘宝登陆他现在不信任你这个用户名和密码。需要多加一个验证方式。而通过appid appsecret 他的本质是换取 而不是加</li>
+          <li>你知道为什么要换取 ，而不是加吗？为什么要这样做。而不是把appid appsecret 存到数据库里面？</li>
+          <li>我：因为存到数据库里面，不够安全。只要是存在数据库里面的密钥。都可能有被攻破的风险。而access_token是实时生成的。</li>
+          <li>面试官： 咱们又绕回来了，那你做这个第三方<code class="language-plaintext highlighter-rouge">***</code>的时候为什么用的是数据库？你既然知道access_token是实时生成的，那么就应该知道这个客户端令牌从原则上是不允许被其他人知道的，更不允许存到数据库里面。那咱们换一个问题。还是刚才，那咱们现在假设我们的服务端和数据库原则上是安全的，那么现在还是要用access_token去换取？我现在可以直接把appid和appsecret直接串起来串成一个字符串然后md5加密一下。可以这样做吗？如果不可以说出理由。</li>
+          <li>我：到这里我就懵逼了。。。。。</li>
+          <li>面试官：好，你现在去做***服务器。去请求另一个接口。如何去提高他的性能？</li>
+          <li>我：去做那边接口的服务细分，每个接口去细分，再在存储层去做一些优化……………….</li>
+          <li>面试官：现在假设不允许你动那个接口呢。比如你现在去请求一个其他公司的接口，他就是慢。他那边代码写的就是很不好。你只可以动你的***层。怎么处理？</li>
+          <li>我：多线程，分发，缓存，cdn.</li>
+          <li>面试官就照着我回答的继续细问下去。。又懵了。</li>
+          <li>后来就没问什么问题了。问了几个简单的就结束了。</li>
+          <li>总结： 三面面试官，绝对是我面到现在技术最强的一个。虽然挂了，但是面试官人很nice 指出了项目很多我都没有考虑到的问题。面试全程都在引导我去回答问题。就是不报销路费太伤了。。。从各大博客和在百度实习的同学了解到，百度的技术氛围真的很赞。秋招再努力了。与大家共勉。</li>
+          <li>最新更新：后来Hr打电话过来，说可以报销部分路费。还是很感谢Hr小姐姐和百度给我提供的这次面试机会！</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>大佬们新鲜出炉的度秘面经，了解一下~~ https://www.nowcoder.com/discuss/96056
+    <ul>
+      <li>话不多说，开始重点~~~</li>
+      <li>开始面试官做了个自我介绍，以及介绍了一下度秘事业部的情况，说实话，我是不太了解这个的。。就稀里糊涂听了听。</li>
+      <li>接着让我做自我介绍，我简单介绍了一下基本信息。</li>
+      <li>开始让我讲自己的项目。</li>
+      <li>我 balabala 讲了半天。讲完第一个面试官问我你的项目里用了 epoll ，你讲讲 epoll 与 select 区别优势。</li>
+      <li>我有 balabala 讲了半天。着重讲了一下 pselect 的 timeout 时间。可能让面试官比较感兴趣。</li>
+      <li>接着面试官又开始问我了第二个项目。（我一脸懵逼，还要问？？？）</li>
+      <li>我又 balabala 讲了讲项目。从项目背景，到项目过程，再到项目中遇到的问题。</li>
+      <li>面试官貌似对我第二个项目很感兴趣，接着我的项目又往下问。 （面试了一个 小时左右，项目问了三十分钟）。</li>
+      <li>突然话题一转，面试官问我你学校专业是哪方面，学哪些计算机相关的课程。</li>
+      <li>楼主电气专业。就讲了讲硬件方面，电力呀什么的。又讲了讲学的课程。</li>
+      <li>讲讲快速排序的思想。</li>
+      <li>我 balabala</li>
+      <li>讲讲归并排序的思想。</li>
+      <li>我 balabala</li>
+      <li>如果给你 一亿个数字，找出最大的前 20 个。（TOP K 问题）</li>
+      <li>如果我只要第二十个怎么优化。</li>
+      <li>如果给你一个文件，文件里有上亿个无序字符串，设计一个算法把上亿个字符串进行排序。接着把这个有序的字符串输入到一个新的文件当中。（内存有限制）</li>
+      <li>让我讲讲我理解的线程。</li>
+      <li>多线程对公共资源同时访问。（线程安全，同步互斥）</li>
+      <li>问我了解没了解过递归锁。</li>
+      <li>C++ 11 有没有了解，讲讲。</li>
+      <li>讲讲虚函数、纯虚函数。</li>
+      <li>你懂 java 吗？ （楼主是真的不懂。面试官也就没深问。）</li>
+      <li>一个函数返回值为 bool 类型。但是返回 true 与 false 的概率不是百分之五十对百分之五十。要求利用这个函数设计一个新函数，使得新函数的返回值的概率为 50%。
+        <ul>
+          <li><a href="https://blog.csdn.net/u011768994/article/details/79583235">随机数概率变形01概率p和1-p改变概率为二分之一</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="https://zhuanlan.zhihu.com/p/92233568">成功斩获腾讯offer，分享我的面试经历(附书籍推荐，资料分享)</a></p>
+  </li>
+  <li>
+<a href="https://www.nowcoder.com/discuss/160033?type=2">腾讯C++后台一面(40分钟)_笔经面经_牛客网</a>
+    <ul>
+      <li>const关键字？使用场景。
+        <ul>
+          <li>注意const引用, 可以绑定至右值, 做形参时允许隐式变换</li>
+        </ul>
+      </li>
+      <li>引用？有没有引用的引用？</li>
+      <li>引用和常引用？（跳过）</li>
+      <li>哪些场合常引用做得到引用做不到？传参？确定吗？
+        <ul>
+          <li>注意const引用, 可以绑定至右值, 做形参时允许隐式变换</li>
+        </ul>
+      </li>
+      <li>函数能返回引用类型吗？返回函数中的变量有问题吗？</li>
+      <li>以引用的方式安全的返回函数内的局部变量？
+        <ul>
+          <li>两种情况, 一种是堆对象</li>
+          <li>一种是引用/指针传递进来的对象</li>
+        </ul>
+      </li>
+      <li>STL用哪些库？</li>
+      <li>vector有哪些插入的方法？
+        <ul>
+          <li>insert, push_back</li>
+        </ul>
+      </li>
+      <li>1，2，3，4，5有个迭代器指向5，头部插一个0，之前那个迭代器指向哪？确定吗？
+        <ul>
+          <li>首先分为两种情况: capacity是否还有剩余空间</li>
+          <li>没有, 将会导致内存重分配, 但如果元素存在析构函数将会调用析构函数析构掉原来的对象, 如果不存在析构函数的元素, 那么依旧是可以访问的, 至少在gcc下是这样的</li>
+          <li>有, 不会导致内存重分配, 但是插入点的后续将往后挪动一个元素</li>
+          <li>迭代器失效？vector哪些操作会使迭代器失效？删除会导致吗？</li>
+        </ul>
+      </li>
+      <li>模板用的多吗？</li>
+      <li>项目介绍</li>
+      <li>Reactor模式外还有什么模式？
+        <ul>
+          <li>可以改造Reactor模式来实现Proactor模式吗？</li>
+        </ul>
+      </li>
+      <li>多线程模型</li>
+      <li>线程间通信的方式？</li>
+      <li>不加锁的方式？</li>
+      <li>ET？LT？</li>
+      <li>ET下，来了100字节，读了50字节，下次Epoll会通知你吗？</li>
+      <li>下次网卡来了50字节，还会通知吗？确定吗？</li>
+      <li>epoll加了个socket，close了epoll，会有什么问题？即没有用epoll_ctl删除，没试过。</li>
+      <li>客户端connect阻塞IO，服务端listen，sleep10000秒，客户端connect去链，客户端会不会返回成功？</li>
+      <li>此时客户端send数据，会不会成功？为什么？一直发会一直成功吗？</li>
+      <li>数据结构知道哪些？高级的数据结构</li>
+      <li>红黑树和AVL树大O一样吗？什么时候用红黑树？AVL树？既然大O一样</li>
+      <li>B树？为什么数据库相关的B树用的多，二叉树什么的用的少？</li>
+      <li>Linux操作系统怎么管理内存？
+        <ul>
+          <li>伙伴系统和slub系统</li>
+        </ul>
+      </li>
+      <li>物理4G，malloc 8G能不能成功？
+        <ul>
+          <li>如果虚拟地址空间是32位的, 8G不行, 如果是64位的可以</li>
+        </ul>
+      </li>
+      <li>每次malloc 1G，10次？</li>
+      <li>Linux上malloc怎么实现？</li>
+    </ul>
+  </li>
+  <li>
+    <p>阿里、C++三面技术面+ hr面面筋~：https://www.nowcoder.com/discuss/100946</p>
+  </li>
+  <li>
+    <p>【C/C++】阿里-面经-研发工程师（C/C++）：https://www.nowcoder.com/discuss/101607</p>
+  </li>
+  <li>
+    <p>【Java】阿里国际事务部挂经，Java岗https://www.C++nowcoder.com/discuss/96464</p>
+  </li>
+  <li>
+    <p>【后端c++】DJI+阿里巴巴ICBU一面面经（后端C++）https://www.nowcoder.com/discuss/87621</p>
+  </li>
+  <li>
+    <p>阿里-面经-研发工程师（C/C++）：https://www.nowcoder.com/discuss/101607</p>
+  </li>
+  <li>
+    <p>阿里一面面经C++，攒个人品https://www.nowcoder.com/discuss/88501</p>
+  </li>
+  <li>
+    <p>新鲜热乎的百度一面面筋(C++)，攒人品https://www.nowcoder.com/discuss/88852</p>
+  </li>
+  <li>
+    <p>阿里飞猪一面凉经https://www.nowcoder.com/discuss/94080</p>
+  </li>
+  <li>
+    <p>【C++后台开发】 阿里巴巴新零售 一面凉凉（C++后台开发）https://www.nowcoder.com/discuss/90335</p>
+  </li>
+  <li>
+    <p>华为凉经：https://www.nowcoder.com/discuss/121852</p>
+  </li>
+  <li>
+    <p>华为优招-长沙-一二面面经（感觉用处不大）https://www.nowcoder.com/discuss/96528</p>
+  </li>
+  <li>
+    <p>华为优招面经8.20 https://www.nowcoder.com/discuss/96410</p>
+  </li>
+  <li>
+    <p>【c++开发】蚂蚁金服中间件一面和二面面筋（C++开发）https://www.nowcoder.com/discuss/87810</p>
+  </li>
+  <li>
+    <p>秋招提前批面试记录小结https://www.nowcoder.com/discuss/97474</p>
+  </li>
+  <li>
+    <p>CVTE武汉面经：https://www.nowcoder.com/discuss/113462</p>
+  </li>
+  <li>
+    <p>CVTE一面二面+HR面https://www.nowcoder.com/discuss/89764</p>
+  </li>
+  <li>
+    <p>CVTE提前批c++开发一面https://www.nowcoder.com/discuss/89534</p>
+  </li>
+  <li>
+    <p>CVTE的电话两面面经https://www.nowcoder.com/discuss/91635</p>
+  </li>
+  <li>
+    <p>美团二面凉经：https://www.nowcoder.com/discuss/108186</p>
+  </li>
+  <li>
+    <p>腾讯面经(一面，二面，hr面）：https://www.nowcoder.com/discuss/118386</p>
+  </li>
+  <li>
+    <p>【C++开发】腾讯面筋https://www.nowcoder.com/discuss/89707</p>
+  </li>
+  <li>
+    <p>腾讯内推面试https://www.nowcoder.com/discuss/93770</p>
+  </li>
+  <li>
+    <p>腾讯IEG凉经https://www.nowcoder.com/discuss/96731</p>
+  </li>
+  <li>
+    <p>一脸懵逼的腾讯面试https://www.nowcoder.com/discuss/96355</p>
+  </li>
+  <li>
+    <p>腾讯云补录一面面经：https://www.nowcoder.com/discuss/140442</p>
+  </li>
+  <li>
+    <p>小米云存储面经：https://www.nowcoder.com/discuss/111718</p>
+  </li>
+  <li>
+    <p>小米面经：https://www.nowcoder.com/discuss/108813</p>
+  </li>
+  <li>
+    <p>中兴武汉面经一面：https://www.nowcoder.com/discuss/112960</p>
+  </li>
+  <li>
+    <p>vivo开发( c++)一面面经：https://www.nowcoder.com/discuss/118539</p>
+  </li>
+  <li>
+    <p>8.10 vivo C++软件开发工程师一面面经https://www.nowcoder.com/discuss/93137</p>
+  </li>
+  <li>
+    <p>金山WPS C++岗一面：https://www.nowcoder.com/discuss/118302</p>
+  </li>
+  <li>
+    <p>金山WPS，C++，二面面筋https://www.nowcoder.com/discuss/95219</p>
+  </li>
+  <li>
+    <p>金山C++研发工程师 一面https://www.nowcoder.com/discuss/96606</p>
+  </li>
+  <li>
+    <p>金山 凉经https://www.nowcoder.com/discuss/96286</p>
+  </li>
+  <li>
+    <p>wps一面面经https://www.nowcoder.com/discuss/97704</p>
+  </li>
+  <li>
+    <p>金山wps一面https://www.nowcoder.com/discuss/97425</p>
+  </li>
+  <li>
+    <p>金山WPS，C++研发工程师，一面https://www.nowcoder.com/discuss/92322</p>
+  </li>
+  <li>
+    <p>【Java】银联应用开发面经（我是Java，他们也有C++） 西安站https://www.nowcoder.com/discuss/93155</p>
+  </li>
+  <li>
+    <p>8月底的拼多多学霸批面经：https://www.nowcoder.com/discuss/112238</p>
+  </li>
+  <li>
+    <p>拼多多面经：https://www.nowcoder.com/discuss/109638</p>
+  </li>
+  <li>
+    <p>迈瑞面经–C++工程师https://www.nowcoder.com/discuss/90442</p>
+  </li>
+  <li>
+    <p>中国电信it研发中心面筋：https://www.nowcoder.com/discuss/114075</p>
+  </li>
+  <li>
+    <p>今日海康面试体验：https://www.nowcoder.com/discuss/112148</p>
+  </li>
+  <li>
+    <p>海康威视面经：https://www.nowcoder.com/discuss/111844</p>
+  </li>
+  <li>滴滴面经～回忆版：https://www.nowcoder.com/discuss/136818</li>
+</ul>
+
+<h2 id="已看-1">已看</h2>
+
+<ul>
+  <li>网易雷火平台开发工程师一面：https://www.nowcoder.com/discuss/120667
+    <ul>
+      <li>一面
+        <ul>
+          <li>
+            <ol>
+              <li>一个数组，找到top100: 堆</li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>海量url去重
+                <ul>
+                  <li>布隆过滤器, hash+字典树</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>链表中倒数第k个结点
+                <ul>
+                  <li>反向迭代器, 或则双指针</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>二叉树的镜像
+                <ul>
+                  <li>递归交换左右子树</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>老生常谈的HashMap、HashTable、ConcurrentHashMap
+                <ul>
+                  <li>(!!!!!) ConcurrentHashMap</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>TCP、UDP区别以及适用场景
+                <ul>
+                  <li>TCP:完整性要求</li>
+                  <li>UDP:实时性要求, 完整性不要求</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>实现多线程有哪些方法
+                <ul>
+                  <li>库函数:</li>
+                </ul>
+                <ul>
+                  <li>linux 有pthread</li>
+                  <li>stl 有thread
+    - stl中:</li>
+                  <li>thread</li>
+                  <li>
+<code class="language-plaintext highlighter-rouge">async和feature</code> 启动一个异步线程,返回一个结果
+                    <ul>
+                      <li>
+<code class="language-plaintext highlighter-rouge">std::launch::async</code>, 创建线程异步</li>
+                      <li>
+<code class="language-plaintext highlighter-rouge">std::launch::deferred</code>: 不创建线程</li>
+                      <li>
+<code class="language-plaintext highlighter-rouge">feature.get()</code>: 等待并取值</li>
+                      <li>
+<code class="language-plaintext highlighter-rouge">feature.wait()</code>: 等待</li>
+                    </ul>
+                  </li>
+                  <li>
+<code class="language-plaintext highlighter-rouge">promise</code>:
+                    <ul>
+                      <li>std::promise 类模板，我们能够在某个线程中给它赋值，然后我们可以在其他线程中把这个值取出来用;</li>
+                      <li>通过promise保存一个值，在将来某时刻我们通过把一个future绑定到这个promise上来得到这个绑定的值。</li>
+                      <li>
+<code class="language-plaintext highlighter-rouge">promise.set_value()</code>: 设置值</li>
+                      <li>
+<code class="language-plaintext highlighter-rouge">promise.get_future()</code>: 将promise和feature相关联, 以供异步调用</li>
+                    </ul>
+                  </li>
+                  <li>
+<code class="language-plaintext highlighter-rouge">packaged_task</code>
+                    <ul>
+                      <li>std::packaged_task是个模板类，它的模板参数是各种可调用对象；</li>
+                      <li>通过std::packaged_task来把各种可调用对象包装起来，方便将来作为线程入口函数来调用。</li>
+                      <li>packaged_task包装起来的可调用对象还可以直接调用，所以从这个角度来讲，packaged_task对象，也是一个可调用对</li>
+                      <li>还可以通过packaged_task.get_feature和feature进行关联, 以实现异步调用
+                        <ul>
+                          <li><a href="https://blog.csdn.net/u012507022/article/details/85957219">C++11 多线程 async、future、packaged_task、promise</a></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>MySQL、MongoDB区别以及适用场景（这个问题之前有先问我用过哪些数据库）
+                <ul>
+                  <li>MongoDB</li>
+                </ul>
+                <ul>
+                  <li>存储方式: 磁盘+内存(mmap映射, 和写有操作系统负责, 如果系统挂掉, 则会丢失数据), 如果内存足够的话, 很快</li>
+                  <li>C++编写, 开源, 支持RUBY，PYTHON，JAVA，C++，PHP，C# 等多种语言</li>
+                  <li>分布式, 自带GirdFS分布式文件系统(此文件系统可以存放大量小文件), 支持通过网络创建数据镜像</li>
+                  <li>NoSql, 支持丰富的查询语言, 文档储存, 类似JSON, 增加了序列化的最终为BSON(Binary-JSON), 为二进制对海量数据比较有优势, 相较于其他的Nosql系统, 它支持的的第三方工具较为丰富</li>
+                  <li>方便扩展, 事务支持较弱</li>
+                  <li>自带Fail over机制(故障转移), 自带Sharding(分区)</li>
+                  <li>弱一致性, 为了提升速度</li>
+                  <li>占用空间大
+    - MySQL</li>
+                  <li>无论数据还是索引都存放在硬盘中。到要使用的时候才交换到内存中。能够处理远超过内存总量的数据。</li>
+                  <li>关系型数据库。</li>
+                  <li>在不同的引擎上有不同的存储方式。</li>
+                  <li>查询语句是使用传统的 SQL 语句，拥有较为成熟的体系，成熟度很高。</li>
+                  <li>InnoDB支持事务, MyISAM不支持事务</li>
+                  <li>缺点就是在海量数据处理的时候效率会显著变慢。
+    - <a href="https://blog.csdn.net/CatStarXcode/article/details/79513425">MySQL、MongoDB、Redis 数据库之间的区别</a>
+</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <ol>
+              <li>MySQL有哪些存储引擎以及它们的区别和适用场景
+                <ul>
+                  <li>IndoDB:</li>
+                </ul>
+                <ul>
+                  <li>支持事务, 支持行级锁定, 支持外键</li>
+                  <li>索引(数据和索引在一起), 同一个表可以储存于多个文件类, 所以表可以无限大</li>
+                  <li>行数, 不支持FULLTEXT索引</li>
+                  <li>支持CAID特性</li>
+                  <li>迁移不方便, 需要先导出为MyIsam(不能有外键), 然后在在导入MyIsam
+    - MyIsam</li>
+                  <li>非事务</li>
+                  <li>不支持外键, 不支持行级锁定个</li>
+                  <li>索引和数据分开, 同一个表储存于同一个文件中, 所以表的大小首系统文件系统的限制</li>
+                  <li>独立于操作系统, 迁移方便</li>
+                  <li>迁移方便</li>
+                  <li>强调性能, 速度快</li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>网易互娱面经：https://www.nowcoder.com/discuss/114820
+    <ul>
+      <li>1.C++虚函数，我开始向虚函数指针和虚表那块说，中间无意中说出了自己曾经看过虚函数表在elf文件中的位置，遂停止让我介绍虚表。</li>
+      <li>
+        <p>2.开始问虚表在elf文件何处以及基本形式，答完之后开始问关于elf文件相关知识。</p>
+
+        <ul>
+          <li><a href="https://blog.csdn.net/fw72fw72/article/details/68488739">C++ 虚函数表 存在哪</a></li>
+        </ul>
+      </li>
+      <li>4.开始测汇编能力，问函数调用时会干什么（当时很懵B，随后提示一定会执行什么语句）。</li>
+      <li>5.开始问gdb相关知识，大概问了几个调试命令。
+        <ul>
+          <li>info br/source/stack/args</li>
+          <li>list function/filename:function/line-number/filiename:line-number</li>
+          <li>break / break function/line-number/filename:line-number</li>
+          <li>break * addr: 在某个地址中断</li>
+          <li>break … if cond: 条件断点
+            <ul>
+              <li>断点四状态: delete, enable, enable once, enable for deletion</li>
+            </ul>
+          </li>
+          <li>watch expr 设置监控点</li>
+          <li>print expr(表达式exp中的变量必须是全局变量或当前堆栈区可见的变量)</li>
+        </ul>
+      </li>
+      <li>
+        <p>set varible=value</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>命令</th>
+              <th>简写形式</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>list</td>
+              <td>l</td>
+              <td>查看源码</td>
+            </tr>
+            <tr>
+              <td>backtrace</td>
+              <td>bt、where</td>
+              <td>打印函数栈信息</td>
+            </tr>
+            <tr>
+              <td>next</td>
+              <td>n</td>
+              <td>执行下一行</td>
+            </tr>
+            <tr>
+              <td>step</td>
+              <td>s</td>
+              <td>一次执行一行，遇到函数会进入</td>
+            </tr>
+            <tr>
+              <td>finish</td>
+              <td>无</td>
+              <td>运行到函数结束</td>
+            </tr>
+            <tr>
+              <td>continue</td>
+              <td>c</td>
+              <td>继续运行</td>
+            </tr>
+            <tr>
+              <td>break</td>
+              <td>b</td>
+              <td>设置断点</td>
+            </tr>
+            <tr>
+              <td>info breakpoints</td>
+              <td>无</td>
+              <td>显示断点信息</td>
+            </tr>
+            <tr>
+              <td>delete</td>
+              <td>d</td>
+              <td>删除断点</td>
+            </tr>
+            <tr>
+              <td>print</td>
+              <td>p</td>
+              <td>打印表达式的值</td>
+            </tr>
+            <tr>
+              <td>run</td>
+              <td>r</td>
+              <td>启动程序</td>
+            </tr>
+            <tr>
+              <td>until</td>
+              <td>u</td>
+              <td>执行到指定行</td>
+            </tr>
+            <tr>
+              <td>info</td>
+              <td>i</td>
+              <td>显示信息</td>
+            </tr>
+            <tr>
+              <td>help</td>
+              <td>h</td>
+              <td>帮助信息</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ul>
+          <li><a href="https://www.jianshu.com/p/9f81880752cd">GDB 基础知识及断点</a></li>
+          <li><a href="https://blog.csdn.net/ni1288/article/details/8564026">GDB 基本知识</a></li>
+        </ul>
+      </li>
+      <li>6.开始转战STL，问用过哪些，还有map那点破事。</li>
+      <li>7.丢给我一组数让我建一棵红黑树，并询问是否记得红黑树创建规则</li>
+      <li>8.TCP/UDP那点破事，让我用UDP实现可靠数据传输。</li>
+      <li>
+        <p>9.linux那点破事，大概问了几个命令，记录当前资源占用率的文件存放在哪过，隐约记得是proc，便随口答了）。</p>
+
+        <ul>
+          <li><a href="https://baijiahao.baidu.com/s?id=1625547275238662021&wfr=spider&for=pc">linux系统/proc目录内容简介</a></li>
+        </ul>
+      </li>
+      <li>11.开始问问题，地图中有一个圆圈，怎么样保证丢的补给可以均匀落到地图各处。
+        <ul>
+          <li>回答1.0，随机生成坐标点（x，y），首先判断是否在园内，在就投递。</li>
+          <li>回应：可以但是需要判断较为麻烦，优化一下。</li>
+          <li>回答2.0，以圆心为原点，随即生成半径和角度（r ，sieta不知怎么打）。</li>
+          <li>回应：不均匀，圆心处比较密。</li>
+          <li>回答3.0，以圆心为原点，随即生成半径平方和角度（r^2 ，sieta不知怎么打）。</li>
+          <li>回应：可以，但是证明一下落点是随即的。</li>
+        </ul>
+      </li>
+      <li>4.怎么样均匀洗一副扑克牌。
+        <ul>
+          <li>回答1.0，使用随机数函数，每次生成一个数然后和剩余牌数取余，然后将该下标牌取出。</li>
+          <li>不对! 这样不均匀了</li>
+          <li><a href="https://www.cnblogs.com/xushuai123/archive/2013/02/26/2978059.html">算法 洗扑克牌(乱数排列)</a></li>
+          <li><a href="https://blog.csdn.net/qq_41035588/article/details/83310447">算法精练 快速洗扑克牌(乱数排序)</a></li>
+        </ul>
+      </li>
+      <li>1.排瓷砖，经典斐波那契数列问题。
+        <ul>
+          <li>排瓷砖: <a href="https://blog.csdn.net/weixin_42725143/article/details/82146253">从铺砖问题到排列组合算法的实现</a>
+</li>
+          <li>斐波那契数列: 递归</li>
+        </ul>
+      </li>
+      <li>
+        <p>2.快速获得一个队列中的最大元素。</p>
+
+        <ul>
+          <li>堆</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>网易雷火一面（估计已经凉了）：https://www.nowcoder.com/discuss/113819
+    <ul>
+      <li>一面</li>
+      <li>问：如何实现高平发后台？</li>
+      <li>答：
+        <ul>
+          <li>1、CDN。<a href="https://www.jianshu.com/p/ce98fbff39ac">什么是cdn？</a>
+            <ul>
+              <li>CDN把DNS改为了CDN域名解析器, 使得客户端会向就近的缓存服务器提出申请</li>
+              <li>如果缓存服务器不存在则向真实服务器提出申请, 本地缓存+返回客户端</li>
+            </ul>
+          </li>
+          <li>2、负载均衡。
+            <ul>
+              <li>负载均衡的几种实现方式
+                <ul>
+                  <li>http重定向:302</li>
+                  <li>dns负载均衡: 缺点dns是存在多级缓存的, 各个dns节点之间进行同步也很麻烦, dns和服务器之间也是分类的</li>
+                  <li>反向代理: 反向代理服务服务器处理所有的请求和响应, 其性能决定着瓶颈(工作于应用层)</li>
+                  <li>ip层负载均衡: 请求和响应依旧得经过负载均衡服务器(工作于ip层)</li>
+                  <li>数据链路层负载均衡: 请求经过负载均衡服务器, 但是响应不用(工作于数据链路层)</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>3、数据在内存缓存(Redis、memcache, mongodb)。</li>
+        </ul>
+      </li>
+      <li>问：http的Get方法和Post方法分别在场景使用？</li>
+      <li>答：小数据量和大数据量。用我做留言板时举例，为了标志不同的留言板，需要传get参数，这时需要实现“URL语义化”。如果是提交和删除留言，这时候用Post方法。
+        <ul>
+          <li>get得参数是ascii编码, 且浏览器默认会cache它, 所以不适用于传输敏感数据</li>
+          <li>且get携带得参数长度受限, 如果要非常长的参数的话还是需要使用post</li>
+          <li>get是明文, post可加密</li>
+          <li>get查询数据, post修改数据</li>
+        </ul>
+      </li>
+      <li>问：数据表中Primary key和Unique key区别？</li>
+      <li>答：不太清楚。只知道每条记录的Primary key是不能相同的，Unique key是不能相同的。Primary key数据库会自动给它做索引，所以查询时以Primary key为条件比普通属性快。（面试官告诉我Unique key也会做索引。）</li>
+      <li><a href="https://www.cnblogs.com/zjfjava/p/6922494.html">Mysql中key 、primary key 、unique key 与index区别</a></li>
+      <li>问：数据表设计注意什么？</li>
+      <li>答：避免数据冗余。如果没有其他需求，尽量实现第三范式。有“多对多”的关系要分表。拿当时比特币测量时的数据库设计举例，另外讲到外键对性能的影响。
+        <ul>
+          <li>三个范式:
+            <ul>
+              <li>列不可再分</li>
+              <li>属性完全依赖主键</li>
+              <li>属性不依赖于其他非主键, 直接依赖于主键</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>问：关系型数据库和NoSQL共同工作。</li>
+      <li>答：不太清楚，大概要在业务逻辑层面处理数据该往那个数据库存吧？
+        <ul>
+          <li>对于还在未来改动较大的业务, 也就是还没有定型的时候使用nosql, 毕竟nosql扩充方便</li>
+          <li>如果未来较为稳定的时候, 切换到关系型数据库</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>网易互娱-我为自己耽误了面试官的时间而愧疚：https://www.nowcoder.com/discuss/113550
+    <ul>
+      <li>hash函数的设计
+        <ul>
+          <li>std::hash<t>() stl提供的获取哈希函数的</t>
+</li>
+          <li>扰动函数 h = key.hashCode() ^ (h »&gt; 16)</li>
+          <li><a href="https://www.cnblogs.com/zhengwang/p/8136164.html">HashMap中的hash函数</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>很难受的网易互娱研发面经: https://www.nowcoder.com/discuss/96710
+    <ul>
+      <li>一面
+        <ul>
+          <li>多态，虚表虚指针，虚基类以及内存分布
+            <ul>
+              <li>多态</li>
+              <li>虚函数</li>
+              <li>虚基类</li>
+            </ul>
+          </li>
+          <li>函数重载</li>
+          <li>构造函数和复制构造函数能否为虚，为什么</li>
+          <li>一个对象的内存分布，多个虚函数占多大空间</li>
+          <li>shared_ptr介绍原理，weak_ptr如何解决引用传递</li>
+          <li>右值引用</li>
+          <li>编译器如何处理模版</li>
+          <li>编译中的导出符号表和未决符号表
+            <ul>
+              <li><a href="https://blog.csdn.net/petersmart123/article/details/52333818">编译过程和符号表重定位问题、静态和动态链接</a></li>
+            </ul>
+          </li>
+          <li>反汇编时符号表的状态</li>
+          <li>比较c++和java</li>
+          <li>介绍一下stl的list，查找list复杂度</li>
+          <li>unorder_map插入复杂度</li>
+          <li>stl迭代器重载</li>
+          <li>遍历vector的几种写法</li>
+          <li>数据库常用数据结构，b+树的好处</li>
+          <li>图的bfs和dfs</li>
+          <li>快排，复杂度，最坏情况以及设计算法解决</li>
+          <li>tcp和udp</li>
+          <li>如何用udp封装实现tcp</li>
+          <li>进程和线程</li>
+          <li>如何保证线程安全</li>
+          <li>互斥锁原理和使用</li>
+          <li>虚拟内存和LRU</li>
+          <li>字符串匹配kmp</li>
+          <li>最长公共子串dp的状态转移方程</li>
+          <li>点在线段上投影，向量解法</li>
+        </ul>
+      </li>
+      <li>二面：（50m）
+        <ul>
+          <li>擅长的语言排下序，比较c++和java…</li>
+          <li>给定两点初始状态和运动方程，求两点相遇的时间和最早相遇的时间（没做出来）</li>
+          <li>文件io类似括号匹配的问题，疯狂提示下才想到用栈解决，也没完全做出来</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>网易初游研面经: https://www.nowcoder.com/discuss/96793
+    <ul>
+      <li>一面
+        <ul>
+          <li>3、你知道什么排序算法？它们的平均复杂度各是多少？其中稳定的排序有哪些？</li>
+        </ul>
+
+        <p>| 排序算法     | 平均时间复杂度 | 最坏时间复杂度 | 空间复杂度 | 是否稳定 |
+  | ———— | ————– | ————– | ———- | ——– |
+  | 冒泡排序     | O（n^2）        | O（n^2）        | O（1）     | 是       |
+  | 选择排序     | O（n^2）        | O（n^2）        | O（1）     | 不是     |
+  | 直接插入排序 | O（n^2）        | O（n^2）        | O（1）     | 是       |
+  | 归并排序     | O(nlogn)       | O(nlogn)       | O（n）     | 是       |
+  | 快速排序     | O(nlogn)       | O（n^2）        | O（logn）  | 不是     |
+  | 堆排序       | O(nlogn)       | O(nlogn)       | O（1）     | 不是     |
+  | 希尔排序     | O(nlogn)       | O（n^s）        | O（1）     | 不是     |
+  | 计数排序     | O(n+k)O        | O(n+k)         | O(n+k)     | 是       |
+  | 基数排序     | O(N∗M)         | O(N∗M)         | O(M)       | 是       |
+      - 参考: <a href="https://blog.csdn.net/yushiyi6453/article/details/76407640">排序算法时间复杂度、空间复杂度、稳定性比较</a></p>
+
+        <ul>
+          <li>4、说一下快排。它的最坏复杂度是多少？什么情况下最坏？
+            <ul>
+              <li>快排的重点是选择值, 如果每次选择的值都没有比他小的, 那就很尴尬了</li>
+            </ul>
+          </li>
+          <li>5、说一下归并？</li>
+          <li>6、哈希是什么？哈希如何存储数据？什么情况下用到哈希？</li>
+          <li>7、说一下static的作用？</li>
+          <li>8、虚函数你知道吗？它是如何实现的？</li>
+          <li>9、如何让一个类被有限次数的实例化？</li>
+          <li>10、纯虚函数是什么？如何定义？</li>
+          <li>11、一个类如何被称为抽象类？抽象类可以实例化吗？为什么？</li>
+          <li>12、如何比较两个对象？</li>
+          <li>13、跳台阶，一次跳1阶或2阶，n阶有多少种跳法？（最多能跳n阶呢？）（动态规划，递归）</li>
+          <li>14、一个链表，实现它的翻转。（当时定义了三个指针， = =反正挺简单的）</li>
+          <li>15、有一个数组，所有数据都可以是负数、0、正数，求和最大的连续序列。如果是一个矩阵呢？（矩阵的没答上）动态规划, 矩阵跟左上相关</li>
+          <li>16、stl库懂吗？你常用的有什么？</li>
+          <li>17、vector的底层是什么？它是如何实现动态分配空间的？如果将其中一个元素删除，那么它的地址空间是怎么样的？</li>
+          <li>18、map、set知道吗？（知道，底层红黑树。既然你说到红黑树，那说一下红黑树是什么？它的实质是什么？如何实现的？）说一下它们的区别？</li>
+          <li>19、线程和进程的区别？线程间如何通信？线程共享的资源有什么？</li>
+          <li>20、TCP和UDP的区别？TCP如何实现可靠传输？它们的传输方式？</li>
+          <li>21、socket懂吗？如何实现？</li>
+          <li>22、堆和栈的区别？
+            <ul>
+              <li>堆是一种特殊的树,分为大根堆和小根堆</li>
+              <li>栈是可以看做是一个受限数组, 先进后出</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>二面（可能有一些在上面，具体也记不清了）：
+        <ul>
+          <li>23、给你一串字符串，压缩它有几种方法？
+            <ul>
+              <li>统计法</li>
+            </ul>
+          </li>
+          <li>24、vector赋值n个数，它需要拷贝几次？</li>
+          <li>25、基类A，派生类B继承于A，A *a = new B[10] 是否正确？ 会发生什么错误？ a[5]能正确的取到对象吗？
+            <ul>
+              <li>编译能通过, 不能正确取到对象, 对于指针使用下标运算符,进行偏移的基本单位是指针的类型</li>
+            </ul>
+          </li>
+          <li>26、两个链表，判断他们是否有相交部分？如果他们相交部分有环呢？
+            <ul>
+              <li>快慢指针法</li>
+            </ul>
+          </li>
+          <li>27、一副扑克，如何等概率洗牌？不消耗额外空间呢？
+            <ul>
+              <li>交换法</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>网易互娱游戏研发面经（两面）：https://www.nowcoder.com/discuss/111976
+    <ul>
+      <li>一面：
+        <ul>
+          <li>有点印象的记得问了一些指向函数指针的数组怎么写？
+            <ul>
+              <li>char a[] = “test” char b[] = “test”</li>
+              <li>char *p = “test” char *t = “test”</li>
+              <li>a==b ？</li>
+              <li>p==t ？</li>
+            </ul>
+          </li>
+          <li>二叉树非递归中序遍历。</li>
+          <li>讲一下因为保密协议不能说的笔试题</li>
+          <li>一个ip地址段（由首地址ip和尾地址ip组成，保证连续）表，怎么找到一个ip属于其中哪一个地址段？</li>
+          <li>（因为ip段不重合，根据首地址排序后二分找就可以了，感觉这题有点迷之简单。）</li>
+          <li>然后面试官就问ip段重合怎么办？然后当时没想出来，问题转化成查询覆盖一个点的所有线段。
+            <ul>
+              <li>首先根据首地址排序,然后找到首地址比他小的</li>
+              <li>然后将首地址比他小的的段, 按照下限进行排序,然后找到比他大的,即可</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>二面：
+        <ul>
+          <li>一致性哈希。
+            <ul>
+              <li>为什么需要使用一致性哈希</li>
+              <li>哈希环</li>
+              <li>容错性和可扩展性</li>
+              <li>哈希环倾斜问题</li>
+              <li><a href="https://www.cnblogs.com/study-everyday/p/8629100.html">一致性哈希(hash)算法</a></li>
+            </ul>
+          </li>
+          <li>手撕智能指针。</li>
+          <li>给一个情景题，设想产生很多要求保序的请求从多个机器上发到一个多线程的—上，再由—调用分布式的数据库，怎么保证这个过程中的顺序不乱。
+            <ul>
+              <li>如果这些命令需要串行执行的话, 那就不要使用并发, 使用同一个线程来串行完成这些执行</li>
+              <li>如果这些命令只需要顺序开始执行, 那么互斥的方式顺序加入任务队列,是一个不错的选择, 或则使用一个单线程来进行任务分发</li>
+            </ul>
+          </li>
+          <li>求一个数组左边之和最接近右边之和的节点。我想的是用前缀和来搞。</li>
+          <li>求中位数。
+            <ul>
+              <li>求一个流动数组的中位数，每次加入元素都要返回中位数，两个堆解决。</li>
+              <li>对的两个堆, 大根堆(less)存小值, 小根堆(greater)存大值</li>
+              <li>第一个数存入小根堆</li>
+              <li>后面的每一个数根小根堆中的最小值比较, 如果比他大则将这个值加入小根堆中,并将小根堆的最小值放入大根堆</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>网易互娱校招面经：https://www.nowcoder.com/discuss/111018
+    <ul>
+      <li>一面面经
+        <ul>
+          <li>1，c++多态的实现。讲了c++虚函数表，单继承，多继承，虚继承以及为什么虚继承，调用过程</li>
+          <li>2，智能指针。</li>
+          <li>3，熟悉stl的什么结构。我说的是看过sgi 的stl源码。就问了什么情况用vector什么情况用list，以及vector的insert，erase，remove的实现还有重新申请内存的情况</li>
+          <li>4，红黑树，插入这么做。算法导论书上有
+            <ul>
+              <li>首先当做二叉查找树进行查找, 新节点被当做为红色节点</li>
+              <li>着色
+                <ul>
+                  <li>此节点作为根节点或, 直接把本节点变成黑色</li>
+                  <li>如果被插节点为黑色, 不用做</li>
+                  <li>然后就是被插节点为红色:
+                    <ul>
+                      <li>叔叔节点是红色
+                        <ul>
+                          <li>(01) 将“父节点”设为黑色。</li>
+                          <li>(02) 将“叔叔节点”设为黑色。</li>
+                          <li>(03) 将“祖父节点”设为“红色”。</li>
+                          <li>(04) 将“祖父节点”设为“当前节点”(红色节点)；即，之后继续对“当前节点”进行操作。</li>
+                        </ul>
+                      </li>
+                      <li>叔叔节点是黑色，且当前节点是其父节点的右孩子
+                        <ul>
+                          <li>(01) 将“父节点”作为“新的当前节点”。</li>
+                          <li>(02) 以“新的当前节点”为支点进行左旋。</li>
+                        </ul>
+                      </li>
+                      <li>叔叔节点是黑色，且当前节点是其父节点的左孩子
+                        <ul>
+                          <li>(01) 将“父节点”设为“黑色”。</li>
+                          <li>(02) 将“祖父节点”设为“红色”。</li>
+                          <li>(03) 以“祖父节点”为支点进行右旋。</li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li><a href="https://www.cnblogs.com/xuxinstyle/p/9556998.html">红黑树(R-B Tree)</a></li>
+            </ul>
+          </li>
+          <li>5，操作系统，虚拟内存，进程同步</li>
+        </ul>
+      </li>
+      <li>二面面经
+        <ul>
+          <li>1，如何实现一个定时任务的模块，支持大量，不同时间的定时任务</li>
+          <li>最小堆实现，任务过多即使是o(log n)也不行，如何解决。
+            <ul>
+              <li>多个不同时间范围的堆，来实现</li>
+            </ul>
+          </li>
+          <li>问了会不会linux时间轮算法，不会</li>
+          <li>2，快排，</li>
+          <li>TCP为什么是三次握手，两次握手什么时候会出错，</li>
+          <li>select和epoll的区别</li>
+          <li>3，一条直线上多个点运动 知道所有点的位置，和速度包括方向。当两个点相碰时，追及或对撞两个点消失</li>
+          <li>问什么时候达到稳定状态，也就是以后都不会发生碰撞。问时间
+            <ul>
+              <li>用动态规划法, 每个点都跟前面的最大值比较如果比他小, 则会相撞</li>
+            </ul>
+          </li>
+          <li>4，英文文章，反转文章，单词的顺序改变。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>字节跳动后端一面被一个巨水的面试官给毙了：https://www.nowcoder.com/discuss/128236
+    <ul>
+      <li>问了反转链表，要求空间复杂度o1，我在循环内用了一个局部指针变量，虽然不优雅，但是局部变量每次循环完都会被析构，他硬说我的空间复杂度是on。</li>
+      <li>然后问了虚函数，这是唯一问的c++，我感觉他也就会个虚函数了。</li>
+      <li>然后问找前k大的数。</li>
+      <li>我： 如果内存放得下的话，用类似快排的思想，partition把大的放左边，小的放右边，调用partition之后，如果分界元素等于k，则返回最左边的k个值；否则对k所在的半边递归调用parition，平均时间复杂度是on。</li>
+      <li>面试官（惊讶）： 时间复杂度是on？</li>
+      <li>我： 是啊</li>
+      <li>面试官： 真的是么？</li>
+      <li>我： 是啊，假如每次分界完，平均下次要处理的元素占总元素数的a/b，那么时间近似是（1+a/b+（a/b）^2+…）n= b/a*n</li>
+      <li>面试官： 那我的k要是很大，接近n，你这个不就是n平方了么</li>
+      <li>我： a/b是平均下次要处理的元素占本次处理的总元素的比值，跟k无关</li>
+      <li>面试官： 那最坏时间复杂度是多少</li>
+      <li>我： on^2 当数组已经有序，每次处理完规模减少1。 如果你觉得这个方法不好，在内存放得下的情况下，那我们用堆做，建一个最大堆，建堆的时间复杂度是on，调整k次，调整一次的时间复杂度是ologn，一共是o（n+klogn）</li>
+      <li>面试官： 建堆的时间复杂度是on？</li>
+      <li>我： 建堆是从最后一个非叶结点开始调整，倒数第二层最多有n/2个需要调整的元素，最多需要调整1次，倒数第三层最多有n/4个需要调整的元素，每个最多需要调整2次，以此类推，最后累加起来接近线性时间复杂度。</li>
+      <li>面试官： 额…</li>
+      <li>我： 换一种方法，如果数据比较大，内存放不下，可以用优先队列，实现也是堆。优先队列是用一个最大堆，我们求前k大要用最小堆，所以要重载小于号运算符，优先队列重载时候要指定底层容器，我一般指定的是vector。执行时候如果队列里面的元素少于k个，则直接插入；否则将该元素与top（）比较，如果大则删掉top把这个元素放到队列中。</li>
+      <li>面试官：额..</li>
+      <li>我： 如果重复元素算一个，就用set，set是默认从小到大排列的，所以不需要重载运算符。</li>
+      <li>然后面试官没有回话，思考了一会，用“你会数据库么”结束了对算法的问询。在得知我不会数据库之后，面试官开始了他的主导，一直问数据库。我说，我不会数据库，要不你问问别的吧。然后他问我会网络么，我说曾经会一些，很久没用了，于是就问我tcp连接的终止，在我答完四次握手之后，问我服务器单方面终止链接之后，客户端继续发送数据会怎么样； 双方都终止了之后，客户端继续向服务器发送数据会怎么样。</li>
+    </ul>
+  </li>
+  <li>今日头条三面面经：https://www.nowcoder.com/discuss/109167
+    <ul>
+      <li>一面
+        <ul>
+          <li>如何处理get和post</li>
+          <li>tcp接收窗口和拥塞窗口</li>
+          <li>
+            <p>什么时候会向对端传窗口大小</p>
+
+            <ul>
+              <li>tcp协议头里面就有, 为16位的滑窗大小</li>
+            </ul>
+          </li>
+          <li>extern C的意义</li>
+          <li>假设rtt（数据从两端一来一回） 100ms，那么从输入一个http://url到得到网页要多少时间
+            <ul>
+              <li>dns</li>
+              <li>建立连接需要3次握手,也就是150毫秒</li>
+              <li>传输数据需要至少需要一次, 也就是50ms</li>
+              <li>客户端解析html</li>
+              <li>然后四次挥手结束</li>
+            </ul>
+          </li>
+          <li>
+            <p>https呢？</p>
+
+            <ul>
+              <li>连续发送两次http请求，会得到两次结果吗？可能第二次比第一次快吗？</li>
+            </ul>
+          </li>
+          <li>
+            <p>是否了解TCP包头阻塞?</p>
+
+            <ul>
+              <li>
+            </li>
+</ul>
+          </li>
+          <li>服务器状态502 503 504什么问题，怎么排查
+            <ul>
+              <li>501　　服务器不具备完成请求的功能。例如，服务器无法识别请求方法时可能会返回此代码。</li>
+              <li>502　　Bad Gateway错误</li>
+              <li>503　　服务器目前无法使用（由于超载或停机维护）。通常，这只是暂时状态。（服务不可用）</li>
+              <li>504　　Bad Gateway timeout 网关错误</li>
+              <li>505　　服务器不支持请求中所用的 HTTP 协议版本。（HTTP 版本不受支持）</li>
+            </ul>
+          </li>
+          <li>
+            <p>netstat具体查看什么问题</p>
+
+            <ul>
+              <li>netstat 查看内核访问网络相关信息的进程, 还提供TCP链接, tcp,udp监听等功能</li>
+            </ul>
+          </li>
+          <li>写题：多路归并（用了堆，在细节上有一些问题）</li>
+          <li>看代码中的问题：构造函数可能会抛出异常, 从而造成内存泄漏, delete也可能异常, 最好把_p设置为const
+            <div class="language-cpp highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="k">class</span> <span class="nc">Foo</span><span class="p">{</span>
+  <span class="nl">public:</span>
+  <span class="n">Foo</span><span class="p">(){</span><span class="n">_p</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">();}</span>
+  <span class="o">~</span><span class="n">Foo</span><span class="p">()</span> <span class="p">{</span><span class="k">delete</span> <span class="n">_p</span><span class="p">;</span> <span class="n">_p</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;}</span>
+  <span class="nl">private:</span>
+  <span class="kt">int</span><span class="o">*</span> <span class="n">_p</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div>            </div>
+          </li>
+          <li>sql：三句查询，要求建立索引来优化查询
+            <ul>
+              <li>CREATE INDEX index_name ON table_name (column_name)</li>
+              <li>CREATE UNIQUE INDEX index_name ON table_name (column_name)</li>
+              <li>select * from where ddd</li>
+            </ul>
+          </li>
+          <li>一些linux语句的作用：
+            <ul>
+              <li>less more</li>
+              <li>sed awk</li>
+              <li>du df dd (显示文件和目录的磁盘空间, 磁盘分区的详细信息, 指定内存块拷贝并进行转换)</li>
+              <li>at tee crotab</li>
+              <li>xargs</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>二面
+        <ul>
+          <li>linux IO模型，区别在哪
+            <ul>
+              <li>阻塞</li>
+              <li>非阻塞</li>
+              <li>IO复用</li>
+              <li>异步</li>
+              <li>信号</li>
+            </ul>
+          </li>
+          <li>线程独立拥有哪些资源</li>
+          <li>协程和线程有什么差别，优势呢？</li>
+          <li>get和post有什么差别</li>
+          <li>sendfile的优势在哪？
+            <ul>
+              <li>不用经过用户层拷贝, 内核态进行</li>
+              <li><a href="https://blog.csdn.net/u014303647/article/details/82081451">高级I/O函数之sendfile函数</a></li>
+            </ul>
+          </li>
+          <li>代码：随机播放100首歌（洗牌算法/这个我把自己绕进去了，洗一次直接输出就完了，我当时脑子短路了，洗一次播一首非要再洗一次来手动提升复杂度，最后没绕出去，然后换题了）</li>
+          <li>两个倒序数组找最第k大的（框架差不多，最后发现漏了一种情况，感觉还在想洗牌的事情）
+            <ul>
+              <li>第一个数组的倒数第k, 然后和第二个数组进行比较</li>
+              <li>直到第二个数组的值 大于等于第一个数组的值</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>三面
+        <ul>
+          <li>C/C++内存问题有哪些，尽量说</li>
+          <li>free和delete在具体实现上的差异</li>
+          <li>free之后的指针使用有什么问题</li>
+          <li>缓冲区溢出如何避免，有哪些场景
+            <ul>
+              <li><a href="https://blog.csdn.net/penngrove/article/details/48466249">避免缓冲区溢出的方法</a></li>
+            </ul>
+          </li>
+          <li>如何检查/处理越界</li>
+          <li>野指针和悬空指针分别是什么</li>
+          <li>试图使用野指针有什么问题</li>
+          <li>内存上还有别的问题吗？</li>
+          <li>C++11用过什么特性</li>
+          <li>之前讲的内存问题有什么好的方法吗？</li>
+          <li>智能指针讲一下</li>
+          <li>shared_ptr讲一下，怎么实现的，unique_ptr呢？</li>
+          <li>是不是所有要用指针的地方都应该用智能指针，有什么问题和不足？（我答了两次寻址和额外空间）</li>
+          <li>这些缺陷，在不用shared_ptr的前提下有减少成本的策略吗？（跳过了）</li>
+          <li>include，头文件里面一般放了些什么</li>
+          <li>声明和实现要写在一起吗？是不是一定要分开写？</li>
+          <li>写在一起和分开对最后的代码有什么影响，怎么确认（这个我不会，面试官让我试着分析一下，结合include的行为来谈）</li>
+          <li>gdb怎么查看一个函数的地址？</li>
+          <li>你在Linux使用经常哪些指令</li>
+          <li>如何探查CPU负载情况</li>
+          <li>在什么时候CPU被认为是繁忙/空闲的？</li>
+          <li>看过哪些比较大的代码？（后面很多问题是从这来的）</li>
+          <li>服务器：</li>
+          <li>多线程服务器和nginx在工作方式有什么不一样的地方</li>
+          <li>nginx怎么处理请求</li>
+          <li>进程唤醒（惊群问题）的额外成本主要在哪？</li>
+          <li>nginx的负载均衡（我只答了那个worker的负载均衡）</li>
+          <li>为什么它要用多进程，优势在哪，劣势在哪</li>
+          <li>多线程怎么应付同样的问题，能够解决吗，讲一讲方案</li>
+          <li>你的方案有什么问题？</li>
+          <li>http了解多少？</li>
+          <li>http缓存机制了解吗？</li>
+          <li>长连接讲一下</li>
+          <li>如何实现长连接（保活）</li>
+          <li>带外数据如何使用？</li>
+          <li>你的这个方法有什么问题，可以直接兼容不同的浏览器吗？</li>
+          <li>了解nginx的解决方案吗？</li>
+          <li>redis</li>
+          <li>你对redis怎么理解的？</li>
+          <li>redis的总体结构</li>
+          <li>单线程的优势和缺点</li>
+          <li>redis的事件分发</li>
+          <li>讲一讲文件事件有哪些</li>
+          <li>client功能是怎么实现的</li>
+          <li>时间事件（serverCron函数）</li>
+          <li>serverCron做了什么</li>
+          <li>redis所有事情都只有一个单线程吗？</li>
+          <li>bgsave讲一下，为什么要fork一个进程来做</li>
+          <li>interrupt与signal有什么差别</li>
+          <li>interrupt的发起和接受者是谁</li>
+          <li>操作系统在interrupt中发挥了什么作用</li>
+          <li>signal呢，发起者又是谁，接收者呢？（这里答得有点混乱）</li>
+          <li>TCP</li>
+          <li>ack什么时候发送，丢失了会怎么样？</li>
+          <li>sack了解吗？</li>
+          <li>重传ack的时机只有ack超时吗？</li>
+          <li>重复报文被接收会发生什么？</li>
+          <li>拥塞窗口要不要把自己的大小发给接收方，意义何在？（这个问题一面也问了，没有答出来）</li>
+          <li>延迟ACK的意义在哪？</li>
+          <li>为什么不能每次都直接发大的窗口？</li>
+          <li>进程地址空间布局讲一下</li>
+          <li>BSS为什么要叫这个名字？（后来查了，block started by symbol）</li>
+          <li>static关键字有什么作用，如果用来修饰函数呢？</li>
+          <li>多个线程使用static数据会开启多个副本吗？</li>
+          <li>C++OO</li>
+          <li>多重继承怎么实现</li>
+          <li>虚拟继承怎么实现</li>
+          <li>对于函数寻址在时间成本上有什么差异？</li>
+          <li>对于继承体系很复杂的情况这个成本会被拉高吗？</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="未看-1">未看</h2>
+<ul>
+  <li>
+    <p>头条1 2 3面经：https://www.nowcoder.com/discuss/99287</p>
+  </li>
+  <li>
+    <p>今日头条三面面经：https://www.nowcoder.com/discuss/102612</p>
+  </li>
+  <li>
+    <p>头条三面（攒一波人品）https://www.nowcoder.com/discuss/93423</p>
+  </li>
+  <li>
+    <p>今日头条c++后台开发 一二面，二面gg https://www.nowcoder.com/discuss/95939</p>
+  </li>
+  <li>
+    <p>平安科技一面又懵逼凉经：https://www.nowcoder.com/discuss/113464</p>
+  </li>
+  <li>
+    <p>2019校招盛大游戏cocos凉经：https://www.nowcoder.com/discuss/109360</p>
+  </li>
+  <li>
+    <p>趋势windows platform developer：https://www.nowcoder.com/discuss/111933</p>
+  </li>
+  <li>
+    <p>【后台C++】360后台C++ 2面凉：https://www.nowcoder.com/discuss/103844</p>
+  </li>
+  <li>
+    <p>360面筋！！：https://www.nowcoder.com/discuss/98392</p>
+  </li>
+  <li>
+    <p>360面经：https://www.nowcoder.com/discuss/97830</p>
+  </li>
+  <li>
+    <p>360一面二面，估计凉https://www.nowcoder.com/discuss/96670</p>
+  </li>
+  <li>
+    <p>刚刚出炉的360一面二面挂经https://www.nowcoder.com/discuss/96310</p>
+  </li>
+  <li>
+    <p>360一面凉经C++ https://www.nowcoder.com/discuss/97182</p>
+  </li>
+  <li>
+    <p>360面经https://www.nowcoder.com/discuss/97830</p>
+  </li>
+  <li>
+    <p>360面经https://www.nowcoder.com/discuss/97741</p>
+  </li>
+  <li>
+    <p>360奇葩挂经https://www.nowcoder.com/discuss/98188</p>
+  </li>
+  <li>
+    <p>贡献一波知乎面经。。：https://www.nowcoder.com/discuss/120463</p>
+  </li>
+  <li>
+    <p>快手提前批面经：https://www.nowcoder.com/discuss/112954</p>
+  </li>
+  <li>
+    <p>美图C++研发工程师（算法落地）面经~：https://www.nowcoder.com/discuss/103212</p>
+  </li>
+  <li>
+    <p>【C++研发岗】贝壳三面面经。：https://www.nowcoder.com/discuss/102429</p>
+  </li>
+  <li>
+    <p>米哈游引擎渲染挂面：https://www.nowcoder.com/discuss/120197</p>
+  </li>
+  <li>
+    <p>微软面经：https://www.nowcoder.com/discuss/136414</p>
+  </li>
+  <li>
+    <p>研发工程师面经（C++）：https://www.nowcoder.com/discuss/126102</p>
+  </li>
+  <li>
+    <p>秋招结束，春招再战！（附面经）：https://www.nowcoder.com/discuss/125248</p>
+  </li>
+  <li>
+    <p>offer选择，随便附上秋招面筋头条百度贝壳电信IT研发华为：https://www.nowcoder.com/discuss/123320</p>
+  </li>
+  <li>
+    <p>某菜鸡的头条+百度菜鸡实习面试记录：https://www.nowcoder.com/discuss/118629</p>
+  </li>
+  <li>
+    <p>秋招的面经：百度+中兴+链家+烽火：https://www.nowcoder.com/discuss/123214</p>
+  </li>
+  <li>
+    <p>写个秋招总结C++开发岗：https://www.nowcoder.com/discuss/124174</p>
+  </li>
+  <li>
+    <p>秋招结束，整理一下。内含面筋 ：https://www.nowcoder.com/discuss/124030</p>
+  </li>
+  <li>
+    <p>一个失败者的秋招面经：https://www.nowcoder.com/discuss/123798</p>
+  </li>
+  <li>
+    <p>2018年秋招游戏公司面经+面试准备心得：https://www.nowcoder.com/discuss/123714</p>
+  </li>
+  <li>
+    <p>结束秋招，总结自己的秋招之旅，回馈牛客（面经大礼包）：https://www.nowcoder.com/discuss/123111</p>
+  </li>
+  <li>
+    <p>弱鸡的游戏秋招之路：https://www.nowcoder.com/discuss/123043</p>
+  </li>
+  <li>
+    <p>2018面经总结：https://www.nowcoder.com/discuss/122973</p>
+  </li>
+  <li>
+    <p>终于轮到我了——来自非科班渣硕的秋招之路：https://www.nowcoder.com/discuss/122105</p>
+  </li>
+  <li>
+    <p>非科班985水硕秋招经历：https://www.nowcoder.com/discuss/122056</p>
+  </li>
+  <li>
+    <p>总结一下到目前为止的秋招，发C++面经攒人品：https://www.nowcoder.com/discuss/121780</p>
+  </li>
+  <li>
+    <p>秋招结束，回馈牛友~（建议和面经）：https://www.nowcoder.com/discuss/121478</p>
+  </li>
+  <li>
+    <p>和女朋友都已完成秋招，发出面经回馈牛客：https://www.nowcoder.com/discuss/120275</p>
+  </li>
+  <li>
+    <p>总结一个菜鸡的秋招之路，望博牛油们一乐：https://www.nowcoder.com/discuss/120185</p>
+  </li>
+  <li>
+    <p>C++开发渣硕妹纸BAT春招秋招面经：https://www.nowcoder.com/discuss/117644</p>
+  </li>
+  <li>
+    <p>不一样的面经（攒人品）：https://www.nowcoder.com/discuss/116175</p>
+  </li>
+  <li>
+    <p>回馈牛客，渣本的秋招总结（BAT）：https://www.nowcoder.com/discuss/114087</p>
+  </li>
+  <li>
+    <p>腾讯、网易互娱面经：https://www.nowcoder.com/discuss/111543</p>
+  </li>
+  <li>
+    <p>【C++后台研发工程师】C++后台研发工程师2018年BAT华为网易等面经总结：https://www.nowcoder.com/discuss/103939</p>
+  </li>
+  <li>
+    <p>美团，快手面经~：https://www.nowcoder.com/discuss/101667</p>
+  </li>
+  <li>
+    <p>贝壳现场面（C++）+京东技术管培生专业面：https://www.nowcoder.com/discuss/99274</p>
+  </li>
+  <li>
+    <p>【C++/后端】2019秋招C++/后端 今日头条等公司面经 ：https://www.nowcoder.com/discuss/137145</p>
+  </li>
+  <li>
+    <p>2018年秋招面试经验总结 ：https://www.nowcoder.com/discuss/140814</p>
+  </li>
+  <li>
+    <p>秋招总结-奋斗没有结束，这只是一个开始：https://www.nowcoder.com/discuss/138258</p>
+  </li>
+  <li>
+    <p>前来还愿啦，一波面经给需要的人：https://www.nowcoder.com/discuss/137775</p>
+  </li>
+  <li>
+    <p>全凉经：https://www.nowcoder.com/discuss/142903</p>
+  </li>
+  <li>
+    <p>一个非科班普通211硕士如何拿到腾讯、百度等offer：https://www.nowcoder.com/discuss/142151</p>
+  </li>
+  <li>
+    <p>致下一级毕业生：如何将自身强化到斩获国内大厂Offer的水平：https://www.nowcoder.com/discuss/141516</p>
+  </li>
+  <li>
+    <p>非计算机专业苦逼的秋招路：https://www.nowcoder.com/discuss/128187</p>
+  </li>
+  <li>
+    <p>秋招结束，总结一下，说下个人经验：https://www.nowcoder.com/discuss/127797</p>
+  </li>
+  <li>
+    <p>秋招over，回馈牛客网的帮助 ：https://www.nowcoder.com/discuss/122760</p>
+  </li>
+  <li>
+    <p>秋招总结与技巧，回馈与感谢：https://www.nowcoder.com/discuss/122640</p>
+  </li>
+  <li>
+    <p>(C++向)从零开始，游戏程序员学习之路(还愿贴)：https://www.nowcoder.com/discuss/121834</p>
+  </li>
+  <li>
+    <p>2018年9月秋招个人总结 ：https://www.nowcoder.com/discuss/121665</p>
+  </li>
+  <li>
+    <p>秋招结束，回馈牛客一波！：https://www.nowcoder.com/discuss/118716</p>
+  </li>
+  <li>
+    <p>C++面试题目总结：https://www.nowcoder.com/discuss/124724</p>
+  </li>
+  <li>
+    <p>秋招总结（C++）：https://www.nowcoder.com/discuss/124525</p>
+  </li>
+</ul>
+</body></html>

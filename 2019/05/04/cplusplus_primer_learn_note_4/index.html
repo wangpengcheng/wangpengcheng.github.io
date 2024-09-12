@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer 学习笔记 (四) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/05/04/cplusplus_primer_learn_note_4/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-miui6.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-miui6.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                    </div>
+                    <h1>C++ Primer 学习笔记 (四)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer 学习记录 (四)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on May 4, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-5-4: 16:03</p>
+</blockquote>
+
+<h2 id="类">类</h2>
+
+<h3 id="定义抽象数据">定义抽象数据</h3>
+<p>c++中类的实质就是数据的抽象实现和封装。抽象数据依赖于接口和实现，分离的编程技术；<strong>定义在函数内部的函数是隐式的inline函数</strong></p>
+
+<h4 id="类中的this关键字">类中的this关键字</h4>
+<p><em>参考链接：</em> <a href="https://www.cnblogs.com/liushui-sky/p/5802981.html">C++类中this指针的理解</a>; <a href="https://www.runoob.com/cplusplus/cpp-this-pointer.html">C++ this 指针</a>;<a href="https://blog.csdn.net/shidantong/article/details/80104710">关于this指针</a>;</p>
+
+<p>首先声明<code class="language-plaintext highlighter-rouge">this</code>指针是c++为了方便管理类中的函数而产生的，每个对象的<code class="language-plaintext highlighter-rouge">this</code>指针都指向对象本身，可以使用对象的非静态方法。<code class="language-plaintext highlighter-rouge">this</code>指针是编译器给予的每个成员函数的隐含参数，用来指向调用对象。
+注意：</p>
+
+<ol>
+  <li>友元函数没有 this 指针，因为友元不是类的成员。只有成员函数才有 this 指针。</li>
+  <li>this指针其本身的内容是不能被改变的，其类型为：<strong>类类型 * const</strong>
+</li>
+  <li>this指针不是对象本身的一部分，不影响该对象的大小</li>
+  <li>this指针的作用域在类的 <strong>非静态成员函数</strong>的内部，只能在其内部进行使用，其他任何函数都不能，静态成员函数内部无this指针，后面会详述。</li>
+  <li>this指针是类中非静态成员函数的第一个默认隐含参数，编译器自动传递和维护，用户不可显示传递</li>
+  <li>this指针可以为空但是类内部的成员变量数据不能为空，因此当调用使用成员变量时，请确保成员变量不为空。</li>
+</ol>
+
+<p>函数调用约定如下：</p>
+
+<p><img src="https://img-blog.csdn.net/20180426163408707?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NoaWRhbnRvbmc=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="函数调用约定表"></p>
+
+<p>_thiscall关键调用：</p>
+
+<ul>
+  <li>它只能用在类的成员函数上</li>
+  <li>参数从右向左进行压栈</li>
+  <li>若参数个数确定，this指针通过ecx寄存器传递给被调用者；若参数不确定，this指针在所有参数被压栈后压入堆栈</li>
+  <li>对于参数不确定的函数，调用者清理堆栈，否则函数自己清理堆栈。</li>
+</ul>
+
+<h5 id="构造函数">构造函数</h5>
+<p>构造函数主要是c++中对于类对象的实例化的函数,这里需要强调一下c++中<code class="language-plaintext highlighter-rouge">new A</code>、<code class="language-plaintext highlighter-rouge">new A()</code>与<code class="language-plaintext highlighter-rouge">new A[]</code>的区别；</p>
+
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/ywending/article/details/51096547">C++中new 一个对象的时候加括号和不加括号的区别</a>;<a href="https://blog.csdn.net/qq_34228570/article/details/79549958">C++ new A 和 new A() 的区别详解以及引申的各种初始化类型</a>;</p>
+
+<p>先说结论：</p>
+
+<ul>
+  <li>加括号调用没有参数的构造函数，不加括号调用默认构造函数或唯一的构造函数，看需求。</li>
+  <li><strong>C++在new时的初始化的规律可能为：对于有构造函数的类，不论有没有括号，都用构造函数进行初始化；如果没有构造函数，则不加括号的new只分配内存空间，不进行内存的初始化，而加了括号的new会在分配内存的同时初始化为0。</strong></li>
+</ul>
+
+<p>POD(Plain old data):它是一个struct或者类，且不包含构造函数、析构函数以及虚函数。POD class没有用户定义的析构函数、拷贝构造函数和非静态的非POD类型的数据成员。而且，POD class必须是一个aggregate，没有用户定义的构造函数，没有私有的或者保护的非静态数据，没有基类或虚函数。它只是一些字段值的集合，没有使用任何封装以及多态特性。</p>
+
+<p>对于<code class="language-plaintext highlighter-rouge">[new] T [object] {};</code>初始化一般有三种处理方式：</p>
+
+<ul>
+  <li>如果T有用户定义的缺省构造函数，直接调用；</li>
+  <li>如果T有编译器生成的缺省构造函数，先0值初始化再调用；</li>
+  <li>如果T根本不是类，直接0值初始化。</li>
+</ul>
+
+<p>对于<code class="language-plaintext highlighter-rouge">[new] T object;</code>如果T是非class类型，则给出非确定值（不赋值），比如：<code class="language-plaintext highlighter-rouge">int i; double d; bool b;</code>；
+0值初始化也单独作用于静态(或者线程局部）变量：<code class="language-plaintext highlighter-rouge">static T object;</code></p>
+
+<p>五种初始化类型：</p>
+
+<ul>
+  <li>list initialization (since C++11)</li>
+  <li>aggregate initialization 这是list initialization对aggregate类型的特例</li>
+  <li>value initialization 值初始化</li>
+  <li>default initialization 缺省初始化</li>
+  <li>zero initialization 0值初始化</li>
+</ul>
+
+<p>示例代码：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;  
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">A</span> <span class="p">{</span> <span class="k">public</span><span class="o">:</span><span class="kt">int</span> <span class="n">m</span><span class="p">;</span> <span class="p">};</span> <span class="c1">// POD  </span>
+
+<span class="k">class</span> <span class="nc">B</span> <span class="p">{</span> <span class="k">public</span><span class="o">:~</span><span class="n">B</span><span class="p">()</span> <span class="p">{};</span> <span class="kt">int</span> <span class="n">m</span><span class="p">;</span> <span class="p">};</span> <span class="c1">// non-POD, compiler generated default ctor  </span>
+
+<span class="k">class</span> <span class="nc">C</span> <span class="p">{</span> <span class="k">public</span><span class="o">:</span><span class="n">C</span><span class="p">()</span> <span class="o">:</span><span class="n">m</span><span class="p">()</span> <span class="p">{};</span> <span class="o">~</span><span class="n">C</span><span class="p">()</span> <span class="p">{};</span> <span class="kt">int</span> <span class="n">m</span><span class="p">;</span> <span class="p">};</span> <span class="c1">// non-POD, list-initialising m</span>
+
+<span class="k">class</span> <span class="nc">D</span> <span class="p">{</span> <span class="k">public</span><span class="o">:</span><span class="n">D</span><span class="p">()</span> <span class="p">{};</span> <span class="o">~</span><span class="n">D</span><span class="p">()</span> <span class="p">{};</span> <span class="kt">int</span> <span class="n">m</span><span class="p">;</span> <span class="p">};</span>  <span class="c1">// non-POD，default-initialising m</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">A</span> <span class="o">*</span><span class="n">aObj1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="p">;</span>
+    <span class="n">A</span> <span class="o">*</span><span class="n">aObj2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">A</span><span class="p">();</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">aObj1</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">aObj2</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="n">B</span> <span class="o">*</span><span class="n">bObj1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">B</span><span class="p">;</span>
+    <span class="n">B</span> <span class="o">*</span><span class="n">bObj2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">B</span><span class="p">();</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">bObj1</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">bObj2</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="n">C</span> <span class="o">*</span><span class="n">cObj1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C</span><span class="p">;</span>
+    <span class="n">C</span> <span class="o">*</span><span class="n">cObj2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">C</span><span class="p">();</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">cObj1</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">cObj2</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="n">D</span> <span class="o">*</span><span class="n">dObj1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">D</span><span class="p">;</span>
+    <span class="n">D</span> <span class="o">*</span><span class="n">dObj2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">D</span><span class="p">();</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">dObj1</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">dObj2</span><span class="o">-&gt;</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="k">delete</span> <span class="n">aObj1</span><span class="p">;</span>
+    <span class="k">delete</span> <span class="n">aObj2</span><span class="p">;</span>
+    <span class="k">delete</span> <span class="n">bObj1</span><span class="p">;</span>
+    <span class="k">delete</span> <span class="n">bObj2</span><span class="p">;</span>
+    <span class="k">delete</span> <span class="n">cObj1</span><span class="p">;</span>
+    <span class="k">delete</span> <span class="n">cObj2</span><span class="p">;</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*result
+
+
+-842150451
+0
+-842150451
+0
+0
+0
+-842150451
+-842150451
+注意不同编译器可能产生不同的结果，GCC中结果：
+0
+0
+38158368
+0
+0
+0
+38158400
+0
+结论（以GCC为准）：
+new A：0
+
+new A()：0
+
+new B：不确定的值
+
+new B()：0
+
+new C：0
+
+new C()：0
+
+new D：不确定的值
+
+new D()：0
+
+*/</span>
+
+
+</code></pre></div></div>
+
+<p>注意：</p>
+<ol>
+  <li>只有当类没有声明任何构造函数时，编译器才会自动地生成默认构造函数。</li>
+  <li>可以在构造函数之后添加<code class="language-plaintext highlighter-rouge">=default</code>来要求编译器生成默认构造函数。</li>
+</ol>
+
+<h3 id="访问控制与封装">访问控制与封装</h3>
+<p>访问说明符<code class="language-plaintext highlighter-rouge">public</code>、<code class="language-plaintext highlighter-rouge">private</code>、<code class="language-plaintext highlighter-rouge">protect</code>来加强类的封装性。注意<code class="language-plaintext highlighter-rouge">struct</code>关键字中定义第一个访问说明符之前的成员是<code class="language-plaintext highlighter-rouge">public</code>，如果使用<code class="language-plaintext highlighter-rouge">class</code>关键字，成员是<code class="language-plaintext highlighter-rouge">private</code>的。因此当希望所有的类成员是<code class="language-plaintext highlighter-rouge">public</code>时使用<code class="language-plaintext highlighter-rouge">struct</code>；希望是<code class="language-plaintext highlighter-rouge">private</code>时使用<code class="language-plaintext highlighter-rouge">class</code>。</p>
+
+<p><strong>友元(friend)</strong>:类允许其他类或者函数访问它的非公有成员，将函数成为友元只需要增加一条<code class="language-plaintext highlighter-rouge">friend</code>关键字就可以了。注意友元函数，必须在友元声明之外再专门对函数进行一次声明。</p>
+
+<p>定义类型的成员必须先定义后使用例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Screen</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">//使用类型别名等价地声明一个类型名字</span>
+
+    <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">;</span>
+    <span class="n">Screen</span><span class="p">();</span>
+    <span class="o">~</span><span class="n">Screen</span><span class="p">();</span>
+<span class="nl">private:</span>
+    <span class="n">pos</span> <span class="n">cursor</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">pos</span> <span class="n">height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">contents</span><span class="p">;</span>
+    
+<span class="p">};</span>
+</code></pre></div></div>
+<p>类的友元使用示例如下</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//screen.cpp</span>
+
+<span class="k">class</span> <span class="nc">Screen</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">//使用类型别名等价地声明一个类型名字</span>
+
+    <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">::</span><span class="n">size_type</span> <span class="n">pos</span><span class="p">;</span>
+    <span class="n">Screen</span><span class="p">();</span>
+    <span class="o">~</span><span class="n">Screen</span><span class="p">();</span>
+    <span class="c1">//定义友元</span>
+
+    <span class="c1">//Windows类可以访问Screen类的私有部分</span>
+
+    <span class="k">friend</span> <span class="k">class</span> <span class="nc">Windows</span><span class="p">;</span>
+    <span class="c1">//成员函数作为友元</span>
+
+    <span class="k">friend</span> <span class="kt">void</span> <span class="n">Windows</span><span class="o">::</span><span class="n">clear</span><span class="p">(</span><span class="n">ScreenIndex</span><span class="p">);</span>
+
+<span class="nl">private:</span>
+    <span class="n">pos</span> <span class="n">cursor</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">pos</span> <span class="n">height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">contents</span><span class="p">;</span>
+    
+<span class="p">}</span>
+
+<span class="c1">//windows.cpp</span>
+
+<span class="k">class</span> <span class="nc">Windows</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">//窗口中每个屏幕的编号</span>
+
+    <span class="k">using</span> <span class="n">ScreenIndex</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Screen</span><span class="o">&gt;::</span><span class="n">size_type</span><span class="p">;</span>
+    <span class="c1">//按照编号将指定的Screen重置为空白</span>
+<span class="nl">private:</span>
+    
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Screen</span><span class="o">&gt;</span> <span class="n">screen</span><span class="p">{</span><span class="n">screen</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="err">''</span><span class="p">)};</span>
+
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">clear</span><span class="p">(</span><span class="n">ScreenIndex</span> <span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//s是一个Screen的引用，指向我们想清空的那个平米</span>
+
+        <span class="n">Screen</span> <span class="o">&amp;</span><span class="n">s</span><span class="o">=</span><span class="n">screen</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+        <span class="c1">//将那个选定的Screen重置为空白</span>
+
+        <span class="n">s</span><span class="p">.</span><span class="n">contents</span><span class="o">=</span><span class="n">string</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">height</span><span class="o">*</span><span class="n">s</span><span class="p">.</span><span class="n">width</span><span class="p">,</span><span class="err">''</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>注意：</p>
+
+<ol>
+  <li>友元的函数未声明直接出现时，我们隐式的假定该名字在当前作用域中是可见的，要想正常使用，该函数必须先被定义过。</li>
+</ol>
+
+<p><strong><code class="language-plaintext highlighter-rouge">mutable</code></strong>关键字： 类成员变量使用<code class="language-plaintext highlighter-rouge">mutable</code>关键字即便是<code class="language-plaintext highlighter-rouge">const</code>对象也能更改类的成员变量。</p>
+
+<p>类的成员函数后添加<code class="language-plaintext highlighter-rouge">const</code>关键字，表示不会修改类中的成员变量；并且有一下几点规则：</p>
+
+<ol>
+  <li>在类中被const声明的成员函数只能访问const成员函数，而非const函数可以访问任意的成员函数，包括const成员函数</li>
+  <li>在类中被const声明的成员函数不可以修改对象的数据，不管对象是否具有const性质，它在编译时，以是否修改成员数据为依据，进行检查。</li>
+  <li>加上mutable修饰符的数据成员，对于任何情况下通过任何手段都可修改，自然此时的const成员函数是可以修改它的</li>
+</ol>
+
+<p><strong>向前声明：</strong> 仅仅声明类而不去定义它。对于类而言，当类的名字出现过后，它就被认为是声明过了（但是尚未定义），因此类允许包含指向它自身类型的引用或者指针。例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Link_screen</span>
+<span class="p">{</span>
+    <span class="n">Screen</span> <span class="n">windows</span><span class="p">;</span>
+    <span class="n">Link_screen</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+    <span class="n">Link_screen</span> <span class="o">*</span><span class="n">prev</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><strong>类中普通块作用域的名字查找</strong></p>
+
+<ul>
+  <li>首先，成员函数内查找该名字的声明，只有在函数使用之前出现的声明才被考虑。</li>
+  <li>如果在成员函数内没有找到，则在类内继续查找，这时类的所有成员都可以被考虑</li>
+  <li>如果类内也没有找到该名字的声明，在成员函数定义之前的作用域内继续查找。</li>
+  <li>类作用域之后，在外围的作用域中查找；如果编译器在函数和类的作用域中都没有找到名字，它将接着在外围的作用域中查找</li>
+</ul>
+
+<h3 id="构造函数再探">构造函数再探</h3>
+
+<p>如果成员是是const、引用，或者属于某种未提供默认构造函数的类类型，我们必须通过构造函数初始值列表为这些成员提供初值。最好令构造函数初始值的顺序与成员声明的顺序保持一致；而且如果有可能的话，尽量避免使用某些成员变量初始化其他成员。</p>
+
+<p>注意：成员的初始化顺序与他们在类中定义的出现顺序一致；第一个成员先被初始化，然后第二个</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">X</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">j</span><span class="p">;</span>
+<span class="nl">public:</span>
+    <span class="n">X</span><span class="p">(</span><span class="kt">int</span> <span class="n">val</span><span class="p">)</span><span class="o">:</span><span class="n">j</span><span class="p">(</span><span class="n">val</span><span class="p">),</span><span class="n">i</span><span class="p">(</span><span class="n">j</span><span class="p">){}</span>
+
+    <span class="c1">//错误：i在j之前被初始化，因此初始化i之前发生错误，j未定义。</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h4 id="委托构造函数">委托构造函数</h4>
+
+<p>C++中可以使用委托构造函数，即预定义一个基础的构造函数其它的构造函数可以调用这个构造函数。</p>
+
+<h4 id="隐式的类类型转换与转换避免">隐式的类类型转换与转换避免。</h4>
+<p>c++语言之间存在隐式的转换规则；构造函数实际上也定义了转换为此类类型的隐式转换机制。我们将这种构造函数称之为 <strong>转换构造函数</strong>；隐式转换，相当于构造了一个临时的变量对象。再给类一个临时成员变量。但是这种转换只允许一步类型转换，并且类型转换并不是总有效。
+为了防止这种状况的发生，我们在单参数构造函数前面添加<code class="language-plaintext highlighter-rouge">explicit</code>关键字使得构造函数只能直接初始化。但是使用<code class="language-plaintext highlighter-rouge">static_cast</code>强制类型转化可以使用带有<code class="language-plaintext highlighter-rouge">explicit</code>关键字的构造函数。</p>
+
+<h4 id="聚合类">聚合类</h4>
+<p>聚合类中可以使得用户直接访问其成员，并且具有特殊的初始化语法形式。聚合类的特征：</p>
+
+<ul>
+  <li>所有成员都是public的</li>
+  <li>没有定义任何构造函数</li>
+  <li>没有类内初始值</li>
+  <li>没有基类，也没有<code class="language-plaintext highlighter-rouge">virtual</code>函数</li>
+</ul>
+
+<p>例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">Data</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">ival</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">a</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="c1">//这就是一个聚合类</span>
+</code></pre></div></div>
+
+<p>注意：显示地初始化类的对象的成员存在三个明显的缺点</p>
+
+<ul>
+  <li>要求类的所有成员都是<code class="language-plaintext highlighter-rouge">public</code>的。</li>
+  <li>将正确初始化每个对象的每个成员的重任交给了类的用户。因为用户很容易忘掉某个初始值，或者提供一个不恰当的初始值，所以这样的初始化过程冗长乏味且容易出错。</li>
+  <li>添加或者删除一个成员之后，所有的初始化语句都需要重新更新。</li>
+</ul>
+
+<h4 id="字面常量类">字面常量类</h4>
+
+<p>要求：</p>
+
+<ul>
+  <li>数据成员都必须是字面类型值</li>
+  <li>类必须至少含有一个<code class="language-plaintext highlighter-rouge">constexpr</code>构造函数</li>
+  <li>如果一个数据成员含有类内初始值，则内置类型成员的初始值必须是一条常量表达式；如果成员属于某种类型，则初始值必须使用成员自己的<code class="language-plaintext highlighter-rouge">constexpr</code>构造函数。</li>
+  <li>类必须使用析构函数的默认定义，该成员负责销毁类的对象。</li>
+</ul>
+
+<h4 id="constexpr构造函数">
+<code class="language-plaintext highlighter-rouge">constexpr</code>构造函数</h4>
+
+<p>首先需要明确构造函数不能是<code class="language-plaintext highlighter-rouge">const</code>的，因为const修饰函数表示该函数的返回值是const类型的，改返回值只能赋值给同类型的const变量，不符合类的构造函数的需求。const是可以修饰类的成员函数，但是该函数不能修改数据成员。构造函数也属于类的成员函数，但是构造函数是要修改类的成员变量，所以类的构造函数不能申明成const类型的。</p>
+
+<p>但是字面常量类的构造函数时可以<code class="language-plaintext highlighter-rouge">constexpr</code>的函数，实际上一个字面值常量类必须至少提供一个<code class="language-plaintext highlighter-rouge">constexpr</code>构造函数。并且该构造函数一般是空的。因为它必须符合构造函数的要求–不能存在返回值；又符合<code class="language-plaintext highlighter-rouge">constexpr</code>函数要求–能拥有的唯一可执行语句就是返回语句。示例如下;</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Debug</span> <span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="cm">/* data */</span>
+<span class="nl">public:</span>
+    <span class="k">constexpr</span> <span class="n">Debug</span><span class="p">(</span><span class="kt">bool</span> <span class="n">b</span><span class="o">=</span><span class="nb">true</span><span class="p">)</span><span class="o">:</span><span class="n">hw</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="n">io</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="n">other</span><span class="p">(</span><span class="n">b</span><span class="p">){};</span>
+    <span class="k">constexpr</span> <span class="n">Debug</span><span class="p">(</span><span class="kt">bool</span> <span class="n">h</span><span class="p">,</span><span class="kt">bool</span> <span class="n">i</span><span class="p">,</span><span class="kt">bool</span> <span class="n">o</span><span class="p">)</span><span class="o">:</span><span class="n">hw</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="n">io</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">other</span><span class="p">(</span><span class="n">o</span><span class="p">){};</span>
+    <span class="k">constexpr</span> <span class="kt">bool</span> <span class="n">any</span><span class="p">(){</span><span class="k">return</span> <span class="n">hw</span> <span class="o">||</span> <span class="n">io</span> <span class="o">||</span> <span class="n">other</span><span class="p">;}</span>
+    <span class="c1">//.....</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h4 id="类的静态成员">类的静态成员</h4>
+
+<h5 id="c中的内存分配">c++中的内存分配</h5>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/cherrydreamsover/article/details/81627855">C/C++程序内存的分配</a>；<a href="https://blog.csdn.net/qq_40416052/article/details/82493916">【C++】动态内存分配详解（new/new[]和delete/delete[]）</a>;</p>
+
+<p>首先c/c++中内存分为以下几种类型</p>
+
+<ul>
+  <li>栈(stack):由编译器自动分配与释放，存放为运行时函数分配的局部变量、函数参数、返回数据、返回地址等。其操作类似于数据结构中的栈。</li>
+  <li>堆区（heap）：一般由程序员自动分配，如果程序员没有释放，程序结束时可能有OS回收。其分配类似于链表。</li>
+  <li>全局区（静态区static）：存放全局变量、静态数据、常量。程序结束后由系统释放。全局区分为已初始化全局区（data）和未初始化全局区（bss）。</li>
+  <li>常量区（文字常量区）：存放常量字符串，程序结束后有系统释放。</li>
+  <li>代码区：存放函数体（类成员函数和全局区）的二进制代码。</li>
+</ul>
+
+<p>具体的内存分配如下：</p>
+
+<p><img src="https://img-blog.csdn.net/20180813110942795?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2NoZXJyeWRyZWFtc292ZXI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="程序内存分配">;</p>
+
+<p>注意：栈的地址由高到低，堆的地址由低到高。</p>
+
+<p><strong>内存分配的方式</strong></p>
+
+<ol>
+  <li>从静态存储区分配：内存在程序编译的时候已经分配好，这块内存在程序的整个运行期间都存在。例如全局变量，static变量。</li>
+  <li>在栈上创建：在执行函数时，函数内局部变量的存储单元可以在栈上创建，函数执行结束时，这些内存单元会自动被释放。栈内存分配运算内置于处理器的指令集，效率高，但是分配的内存容量有限。</li>
+  <li>从堆上分配： 亦称为动态内存分配。
+    <ul>
+      <li>程序在运行的时候使用malloc或者new申请任意多少的内存，程序员自己负责在何时用free或delete释放内存。</li>
+      <li>动态内存的生命周期有程序员决定，使用非常灵活，但如果在堆上分配了空间，既有责任回收它，否则运行的程序会出现内存泄漏，频繁的分配和释放不同大小的堆空间将会产生内存碎片。</li>
+    </ul>
+  </li>
+  <li>在 C 语言中，全局变量又分为初始化的和未初始化的（未被初始化的对象存储区可以通过 void* 来访问和操纵，程序结束后由系统自行释放），在 C++ 里面没有这个区分了，他们共同占用同一块内存区。</li>
+</ol>
+
+<p><strong>堆和栈的区别</strong></p>
+
+<ol>
+  <li>
+<strong>管理方式不同</strong>：栈是由编译器自动申请和释放空间，堆是需要程序员手动申请和释放；</li>
+  <li>
+<strong>空间大小不同</strong>：栈的空间是有限的，在32位平台下，VC6下默认为1M，堆最大可以到4G；</li>
+  <li>
+<strong>能否产生碎片</strong>：栈和数据结构中的栈原理相同，在弹出一个元素之前，上一个已经弹出了，不会产生碎片，如果不停地调用malloc、free对造成内存碎片很多；</li>
+  <li>
+<strong>生长方向不同</strong>：堆生长方向是向上的，也就是向着内存地址增加的方向，栈刚好相反，向着内存减小的方向生长。</li>
+  <li>
+<strong>分配方式不同</strong>：堆都是动态分配的，没有静态分配的堆。栈有静态分配和动态分配。静态分配是编译器完成的，比如局部变量的分配。动态分配由 malloc 函数进行分配，但是栈的动态分配和堆是不同的，它的动态分配是由编译器进行释放，无需我们手工实现。</li>
+  <li>
+<strong>分配效率不同</strong>： 栈的效率比堆高很多。栈是机器系统提供的数据结构，计算机在底层提供栈的支持，分配专门的寄存器来存放栈的地址，压栈出栈都有相应的指令，因此比较快。堆是由库函数提供的，机制很复杂，库函数会按照一定的算法进行搜索内存，因此比较慢。</li>
+</ol>
+
+<p><strong>静态全局变量、全局变量区别</strong></p>
+
+<ul>
+  <li>静态全局变量和全局变量都属于常量区</li>
+  <li>静态全局区只在本文件中有效，别的文件想调用该变量，是调不了的，而全局变量在别的文件中可以调用。</li>
+  <li>如果别的文件中定义了一个该全局变量相同的变量名，是会出错的。</li>
+</ul>
+
+<p><strong>静态局部变量、局部变量的区别</strong></p>
+
+<ul>
+  <li>静态局部变量是属于常量区的，而函数内部的局部变量属于栈区</li>
+  <li>静态局部变量在该函数调用结束时，不会销毁，而是随整个程序结束而结束，但是别的函数调用不了该变量，局部变量随该函数的结束而结束；</li>
+  <li>如果定义这两个变量的时候没有初始值时，静态局部变量会自动定义为0，而局部变量就是一个随机值</li>
+  <li>静态局部变量在编译期间只赋值一次，以后每次函数调用时，不在赋值，调用上次的函数调用结束时的值。局部变量在调用期间，每调用一次，赋一次值。</li>
+</ul>
+
+<p>通过以上基础知识我们知道c++的静态成员都是直接在静态全局区域分配内存。因此在编译时就已经内存就已经开始分配成功了，因此不需要实例化类并且解引用，可以直接使用。</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/04/25/cplusplus_primer_learn_note_3/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记 (三)">
+                        Previous<br>
+                        <span>C++ Primer 学习笔记 (三)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/05/04/parallel_application_development_and_optimizatio/" data-toggle="tooltip" data-placement="top" title="并行应用开发和优化概论阅读笔记">
+                        Next<br>
+                        <span>并行应用开发和优化概论阅读笔记</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

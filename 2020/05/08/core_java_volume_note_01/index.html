@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>Java核心编程 卷I 笔记(一) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2020/05/08/core_java_volume_note_01/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Java" title="Java">Java</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记">读书笔记</a>
+                        
+                    </div>
+                    <h1>Java核心编程 卷I 笔记(一)</h1>
+                    
+                    
+                    <h2 class="subheading">Java核心编程 卷I 笔记(一)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on May 8, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2020-05-08 19:40:58</p>
+</blockquote>
+
+<p><em>参考链接：</em></p>
+<ul>
+  <li><a href="https://www.matools.com/api/java8">Java中文手册</a></li>
+</ul>
+
+<h1 id="第一章-java程序设计概述">第一章 Java程序设计概述</h1>
+
+<h2 id="12-java-白皮书的关键术语">1.2 Java 白皮书的关键术语</h2>
+<ol>
+  <li>简单性</li>
+  <li>面向对象</li>
+  <li>分布式</li>
+  <li>健壮性</li>
+  <li>安全性</li>
+  <li>体系结构中立</li>
+  <li>可移植性</li>
+  <li>解释型</li>
+  <li>高性能</li>
+  <li>多线程</li>
+  <li>动态性</li>
+</ol>
+
+<h1 id="第二章-java程序设计环境">第二章 Java程序设计环境</h1>
+
+<h2 id="21-安装java开发包工具">2.1 安装Java开发包工具</h2>
+
+<p>Java开发包工具可以到<a href="https://www.oracle.com/java/technologies/javase-downloads.html">Orcale官网</a>进行下载；但是因为Orcale的下载机制；因此需要注册用户。可以使用该<a href="http://bugmenot.com/view/oracle.com">网站</a>获取账户和密码进行下载。</p>
+
+<p>注意：</p>
+<ul>
+  <li>安装JDK之后，需要设置PATH添加JDK/bin路径和CLASSPATH路径；方便进行相关环境变量的设置</li>
+  <li>CLASSPATH中需要添加.路径。否则JAVA无法查找当前文件下的.class文件。</li>
+</ul>
+
+<h3 id="213-src源码">2.1.3 SRC源码</h3>
+
+<p>可以在JDK中找到标准库的源码；是src.zip的一个压缩文件。进行解压缩之后就可以获得源码。</p>
+
+<h3 id="214-下载本书源码示例">2.1.4 下载本书源码示例</h3>
+<p>可以从如下链接查找和下载本书的源代码</p>
+
+<ul>
+  <li><a href="http://horstmann.com/corejava/">源码地址</a></li>
+</ul>
+
+<h2 id="22-使用命令行工具简单的编译源码">2.2 使用命令行工具简单的编译源码</h2>
+
+<p>创建如下源代码Welcome.java：</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+* This file is a simple example for java 
+* @version 1.30 2020-05-11
+* @author WangPengCheng
+*/</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Welcome</span>
+<span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span> <span class="o">(</span><span class="nc">String</span> <span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="c1">//创建字符串常量</span>
+        <span class="nc">String</span> <span class="n">greeting</span> <span class="o">=</span><span class="s">"Welcome to Core Java"</span><span class="o">;</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">greeting</span><span class="o">);</span>
+        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">greeting</span><span class="o">.</span><span class="na">length</span><span class="o">();++</span><span class="n">i</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">"="</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+<p>执行下面的命令可以编译和运行；并产生结果</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>javac Welcome.java
+java Welcome
+Welcome to Core Java!
+<span class="o">=====================</span>
+</code></pre></div></div>
+<p>注意:</p>
+<ul>
+  <li>Java的大小写敏感，java的文件名必须和public中的class名相同</li>
+  <li>java运行时直接使用.class文件名。不需要带.class后缀</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">错误: 找不到或无法加载主类 Welcome.class</code>；需要检查设置的路径</li>
+</ul>
+
+<h2 id="23-使用集成开发环境">2.3 使用集成开发环境</h2>
+
+<p>本书推荐eclipse作为集成开发工具。但是因为不能翻墙下载一些jar；使用IntelliJ IDEA作为替代。解决下载问题之后可以使用eclipse</p>
+
+<h2 id="24-运行图形化应用程序">2.4 运行图形化应用程序</h2>
+<p>图形化应用程序的主要代码如下:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 导入相关的包和库 */</span>
+<span class="kn">import</span> <span class="nn">java.awt.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.swing.*</span><span class="o">;</span>
+<span class="cm">/**
+* A program for viewing images
+* @version 1.30 2020-05-11 18\:25\:62
+* @author WangPengCheng
+*/</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ImageViewer</span>
+<span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+    <span class="o">{</span>
+	<span class="c1">//lambel表达式添加函数</span>
+        <span class="nc">EventQueue</span><span class="o">.</span><span class="na">invokeLater</span><span class="o">(()-&gt;{</span>
+            <span class="nc">JFrame</span> <span class="n">frame</span><span class="o">=</span><span class="k">new</span> <span class="nc">ImageViewerFrame</span><span class="o">();</span>
+            <span class="n">frame</span><span class="o">.</span><span class="na">setTitle</span><span class="o">(</span><span class="s">"ImageViewer"</span><span class="o">);</span>
+            <span class="n">frame</span><span class="o">.</span><span class="na">setDefaultCloseOperation</span><span class="o">(</span><span class="nc">JFrame</span><span class="o">.</span><span class="na">EXIT_ON_CLOSE</span><span class="o">);</span>
+            <span class="n">frame</span><span class="o">.</span><span class="na">setVisible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="o">});</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="cm">/*
+ 显示图片帧
+*/</span>
+<span class="kd">class</span> <span class="nc">ImageViewerFrame</span> <span class="kd">extends</span> <span class="nc">JFrame</span>
+<span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">JLabel</span> <span class="n">label</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">JFileChooser</span> <span class="n">chooser</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">DEFAULT_WIDTH</span><span class="o">=</span><span class="mi">300</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">DEFAULT_HEIGHT</span><span class="o">=</span><span class="mi">400</span><span class="o">;</span>
+    <span class="c1">//定义构造函数</span>
+    <span class="kd">public</span> <span class="nf">ImageViewerFrame</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="n">setSize</span><span class="o">(</span><span class="no">DEFAULT_WIDTH</span><span class="o">,</span><span class="no">DEFAULT_HEIGHT</span><span class="o">);</span>
+        <span class="c1">//使用显示图片</span>
+        <span class="n">label</span><span class="o">=</span><span class="k">new</span> <span class="nc">JLabel</span><span class="o">();</span>
+        <span class="n">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
+        <span class="c1">//设置文件夹当前路径</span>
+        <span class="n">chooser</span><span class="o">=</span><span class="k">new</span> <span class="nc">JFileChooser</span><span class="o">();</span>
+        <span class="n">chooser</span><span class="o">.</span><span class="na">setCurrentDirectory</span><span class="o">(</span><span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="s">"."</span><span class="o">));</span>
+
+        <span class="c1">//设置文件选择框</span>
+        <span class="nc">JMenuBar</span> <span class="n">menuBar</span><span class="o">=</span><span class="k">new</span> <span class="nc">JMenuBar</span><span class="o">();</span>
+        <span class="n">setJMenuBar</span><span class="o">(</span><span class="n">menuBar</span><span class="o">);</span>
+        <span class="nc">JMenu</span> <span class="n">menu</span><span class="o">=</span><span class="k">new</span> <span class="nc">JMenu</span><span class="o">(</span><span class="s">"File"</span><span class="o">);</span>
+        <span class="n">menuBar</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">menu</span><span class="o">);</span>
+        <span class="c1">//设置选框按钮</span>
+        <span class="nc">JMenuItem</span> <span class="n">openItem</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JMenuItem</span><span class="o">(</span><span class="s">"Open"</span><span class="o">);;</span>
+        <span class="n">menu</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">openItem</span><span class="o">);</span>
+        <span class="n">openItem</span><span class="o">.</span><span class="na">addActionListener</span><span class="o">(</span><span class="n">event</span><span class="o">-&gt;{</span>
+            <span class="c1">//显示 选择弹窗</span>
+            <span class="kt">int</span> <span class="n">result</span><span class="o">=</span><span class="n">chooser</span><span class="o">.</span><span class="na">showOpenDialog</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+            <span class="c1">//根据选择设置icon</span>
+            <span class="k">if</span><span class="o">(</span><span class="n">result</span><span class="o">==</span><span class="nc">JFileChooser</span><span class="o">.</span><span class="na">APPROVE_OPTION</span><span class="o">)</span>
+            <span class="o">{</span>
+                <span class="nc">String</span> <span class="n">name</span><span class="o">=</span><span class="n">chooser</span><span class="o">.</span><span class="na">getSelectedFile</span><span class="o">().</span><span class="na">getPath</span><span class="o">();</span>
+                <span class="n">label</span><span class="o">.</span><span class="na">setIcon</span><span class="o">(</span><span class="k">new</span> <span class="nc">ImageIcon</span><span class="o">(</span><span class="n">name</span><span class="o">));</span>
+            <span class="o">}</span>
+        <span class="o">});</span>
+        <span class="c1">//设置关闭弹窗</span>
+        <span class="nc">JMenuItem</span> <span class="n">exitItem</span><span class="o">=</span><span class="k">new</span> <span class="nc">JMenuItem</span><span class="o">(</span><span class="s">"Exit"</span><span class="o">);</span>
+        <span class="n">menu</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">exitItem</span><span class="o">);</span>
+        <span class="n">exitItem</span><span class="o">.</span><span class="na">addActionListener</span><span class="o">(</span><span class="n">even</span><span class="o">-&gt;</span><span class="nc">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">0</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="25-构建并运行applet">2.5 构建并运行applet</h2>
+<p>详见 RoadApplet示例</p>
+
+<h1 id="第三章--java的基本程序设计结构">第三章  Java的基本程序设计结构</h1>
+
+<h2 id="31-一个简单的java应用程序">3.1 一个简单的Java应用程序</h2>
+
+<p>注意：</p>
+<ul>
+  <li>Java大小写敏感</li>
+  <li>Java中类必须以字母开头；但是不能使用保留字段；标准规范为以大写字母开头。单次的每一个首字母都应该大写</li>
+  <li>源代码的文件名必须与公共类的名字相同，并使用Java作为扩展名。</li>
+</ul>
+
+<h2 id="32-注释">3.2 注释</h2>
+<p><em>参考链接：</em></p>
+
+<p>java中的注释有三种<code class="language-plaintext highlighter-rouge">//</code>,<code class="language-plaintext highlighter-rouge">/**/</code>和<code class="language-plaintext highlighter-rouge">/** */</code> ；最后一种是文档注释；可以用来生成文档。
+文档注释的关键字；如下:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">标签</th>
+      <th style="text-align: left">描述</th>
+      <th style="text-align: left">示例</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@author</code></td>
+      <td style="text-align: left">标识一个类的作者</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@author description</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@deprecated</code></td>
+      <td style="text-align: left">指名一个过期的类或成员</td>
+      <td style="text-align: left">@deprecated description</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">{@docRoot}</code></td>
+      <td style="text-align: left">指明当前文档根目录的路径</td>
+      <td style="text-align: left">Directory Path</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@exception</code></td>
+      <td style="text-align: left">标志一个类抛出的异常</td>
+      <td style="text-align: left">@exception exception-name explanation</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">{@inheritDoc}</code></td>
+      <td style="text-align: left">从直接父类继承的注释</td>
+      <td style="text-align: left">Inherits a comment from the immediate surperclass.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">{@link}</code></td>
+      <td style="text-align: left">插入一个到另一个主题的链接</td>
+      <td style="text-align: left">{@link name text}</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">{@linkplain}</code></td>
+      <td style="text-align: left">插入一个到另一个主题的链接，但是该链接显示纯文本字体</td>
+      <td style="text-align: left">Inserts an in-line link to another topic.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@param</code></td>
+      <td style="text-align: left">说明一个方法的参数</td>
+      <td style="text-align: left">@param parameter-name explanation</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@return</code></td>
+      <td style="text-align: left">说明返回值类型</td>
+      <td style="text-align: left">@return explanation</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@see</code></td>
+      <td style="text-align: left">指定一个到另一个主题的链接</td>
+      <td style="text-align: left">@see anchor</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@serial</code></td>
+      <td style="text-align: left">说明一个序列化属性</td>
+      <td style="text-align: left">@serial description</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@serialData</code></td>
+      <td style="text-align: left">说明通过writeObject( ) 和 writeExternal( )方法写的数据</td>
+      <td style="text-align: left">@serialData description</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@serialField</code></td>
+      <td style="text-align: left">说明一个ObjectStreamField组件</td>
+      <td style="text-align: left">@serialField name type description</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@since</code></td>
+      <td style="text-align: left">标记当引入一个特定的变化时</td>
+      <td style="text-align: left">@since release</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">@throws</code></td>
+      <td style="text-align: left">和 @exception标签一样.</td>
+      <td style="text-align: left">The @throws tag has the same meaning as the @exception tag.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">{@value}</code></td>
+      <td style="text-align: left">显示常量的值，该常量必须是static属性。</td>
+      <td style="text-align: left">Displays the value of a constant, which must be a static field.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">@version</td>
+      <td style="text-align: left">指定类的版本</td>
+      <td style="text-align: left">@version info</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="33-数据类型">3.3 数据类型</h2>
+
+<p><em>参考链接：</em> <a href="https://www.runoob.com/java/java-basic-datatypes.html">Java基本数据类型</a></p>
+
+<p>Java中有两大数据类型:内置数据类型和引用数据类型</p>
+<ul>
+  <li>内置数据类型:</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">数据类型</th>
+      <th style="text-align: left">位数大小</th>
+      <th style="text-align: left">最小值</th>
+      <th style="text-align: left">最大值</th>
+      <th style="text-align: left">默认值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">boolean</td>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left">false</td>
+      <td style="text-align: left">true</td>
+      <td style="text-align: left">false</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">byte</td>
+      <td style="text-align: left">8</td>
+      <td style="text-align: left">127（2^7-1）</td>
+      <td style="text-align: left">-128（-2^7）</td>
+      <td style="text-align: left">0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">char</td>
+      <td style="text-align: left">16</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">\u0000(0)</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">\uffff(65535)</code></td>
+      <td style="text-align: left">无</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">short</td>
+      <td style="text-align: left">16</td>
+      <td style="text-align: left">-32768（-2^15）</td>
+      <td style="text-align: left">32767（2^15 - 1）</td>
+      <td style="text-align: left">0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">int</td>
+      <td style="text-align: left">32</td>
+      <td style="text-align: left">-2,147,483,648（-2^31）</td>
+      <td style="text-align: left">2,147,483,647（2^31 - 1）</td>
+      <td style="text-align: left">0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">float</td>
+      <td style="text-align: left">32</td>
+      <td style="text-align: left">无</td>
+      <td style="text-align: left">无</td>
+      <td style="text-align: left">0.0f</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">long</td>
+      <td style="text-align: left">64</td>
+      <td style="text-align: left">-9,223,372,036,854,775,808（-2^63）</td>
+      <td style="text-align: left">9,223,372,036,854,775,807（2^63 -1）</td>
+      <td style="text-align: left">0L</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">double</td>
+      <td style="text-align: left">64</td>
+      <td style="text-align: left">无</td>
+      <td style="text-align: left">无</td>
+      <td style="text-align: left">0.0d</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+<ul>
+  <li><strong>声明变量可以。但进行使用时，必须初始化之后才能使用。</strong></li>
+  <li>Java中不区分变量的声明和定义。</li>
+  <li>自动类型转换:<strong>整型、实型（常量）、字符型数据可以混合运算。运算中，不同类型的数据先转化为同一类型，然后进行运算。</strong>
+</li>
+</ul>
+
+<blockquote>
+  <p>低  ————————————&gt;  高</p>
+
+  <p>byte,short,char—&gt; int —&gt; long—&gt; float —&gt; double</p>
+</blockquote>
+
+<ul>
+  <li>注意:
+    <ol>
+      <li>不能对boolean类型进行类型转换。</li>
+      <li>不能把对象类型转换成不相关类的对象。</li>
+      <li>在把容量大的类型转换为容量小的类型时必须使用强制类型转换。</li>
+      <li>转换过程中可能导致溢出或损失精度。</li>
+    </ol>
+  </li>
+  <li>引用类型
+    <ul>
+      <li>在Java中，引用类型的变量非常类似于C/C++中的指针。引用类型指向一个对象，指向对象的变量是引用变量；对象和数组都是引用数据类型。</li>
+      <li>所有引用类型的默认值都是null</li>
+      <li>一个引用变量可以用来引用任何与之兼容的类型</li>
+    </ul>
+  </li>
+</ul>
+
+<p>注意:</p>
+<ul>
+  <li>对象只有在实例化之后才能被使用，而实例化对象的关键字就是new。</li>
+  <li>
+    <p>对象的实例化过程如下:
+<img src="https://img-blog.csdnimg.cn/20181203210928597.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNTU1MzIz,size_16,color_FFFFFF,t_70" alt=""></p>
+  </li>
+  <li>常量:Java中利用关键字final指示常量。</li>
+</ul>
+
+<h2 id="35-运算符">3.5 运算符</h2>
+
+<p>Java中的使用<code class="language-plaintext highlighter-rouge">+,-,*,/</code>表示对应运算
+注意:<strong>整数被0除将会产生一个异常，而浮点数被0除将会得到无穷大结果(Infinity)</strong></p>
+
+<h3 id="351-数学函数与常量">3.5.1 数学函数与常量</h3>
+
+<p>Java中包含了各种各样的数学函数，一般使用Math开头。一般Math中的方法都是静态方法；Math中没有幂函数，需要借助pow方法，中的两个输入对象进行计算。</p>
+
+<p>注意:java中的double类型不能用于金钱的运算，因为会存在误差。
+当不想使用前缀时可以采取如下的办法:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//将所有方法作为static类型使用</span>
+<span class="kn">import</span> <span class="nn">static</span> <span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">Math</span><span class="o">.*;</span>
+<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"The square root of \uo3co is"</span><span class="o">+</span><span class="n">sqrt</span><span class="o">(</span><span class="no">PI</span><span class="o">));</span>
+</code></pre></div></div>
+<p>感想:Java基本上是按照C++的设计思路在进行改进。C++中使用namespace 实现方法的重复冲突解决。但是Java直接使用文件夹和package的方式来作为namespace；本质上是一样的，但是因为区分了static方法和变量。C++中的全局方法实际是static方法。</p>
+
+<p>注意:</p>
+<ul>
+  <li>这里的<code class="language-plaintext highlighter-rouge">import static</code>。一般引入需要使用 ClassName.method(); 的方式去调用类中的静态方法；而静态引入后，直接使用 method(); 即可使用静态方法。</li>
+  <li>Math类中，为了达到最快的性能，所有的方法都使用计算机浮点单元中的例程。如果想得到准确的结果，因该使用StrictMath类。</li>
+</ul>
+
+<h3 id="352-数值类型之间的转换">3.5.2 数值类型之间的转换</h3>
+
+<p>转换方式如图所示，一般是低精度向高精度转换。但是注意和C++不同，Java中的boolean类型，不能向其它类型进行转换。</p>
+
+<h3 id="357-位运算符">3.5.7 位运算符</h3>
+
+<p>Java中的逻辑运算符和位运算符基本和C++相同，但是，为了避免右移运算时，C++使用最高符号位填充新高位。这里统一使用<code class="language-plaintext highlighter-rouge">&gt;&gt;&gt;</code>使用0填充高位。消除了不确定性。</p>
+
+<h3 id="358-java中的运算符及其级别">3.5.8 java中的运算符及其级别</h3>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-20-11-06-58.jpg" alt="">
+<img src="https://wangpengcheng.github.io/img/2020-05-20-11-08-58.png" alt=""></p>
+
+<h3 id="363-不可变字符串">3.6.3 不可变字符串</h3>
+
+<p>Java中的String类没有提供修改字符串的方法。每次的字符串修改，实际上都是新拷贝了一个字符串。原来的字符串仍旧存在于内存中。在jdk的实现中，string本质上是一个char数组；这里的char数组是被final修饰的。</p>
+
+<h3 id="364-检测字符串是否相同">3.6.4 检测字符串是否相同</h3>
+
+<p>因为Java不像C++可以重载==操作符，因此判断是否相同，需要使用equal函数或者compareTo()(结果为0时相同)函数。</p>
+
+<ul>
+  <li>null是指String对象没有初始化，相当于char* temp=null;空串是其等于””;</li>
+</ul>
+
+<h3 id="366-码点与代码单元">3.6.6 码点与代码单元</h3>
+
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/u012268339/article/details/54694310?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.nonecase">字符集和字符编码</a></p>
+
+<p>因为Java中使用Unicode字符集，编码方式通常为UTF-8或者UTF-16等不定长编码方式，而Java中的char类型时定长，长度为16位；因此当存在特殊字符其编码长度大于16时；需要进行修改。因此Java中使用代码单元(CodePoints)，保证每个字符都能被正确获取。字符的遍历应该使用如下操作</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">cp</span><span class="o">=</span><span class="n">sentence</span><span class="o">.</span><span class="na">codePointAt</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+<span class="k">if</span><span class="o">(</span><span class="nc">Character</span><span class="o">.</span><span class="na">isSupplementCodePoint</span><span class="o">(</span><span class="n">cp</span><span class="o">)){</span>
+    <span class="n">i</span><span class="o">+=</span><span class="mi">2</span><span class="o">;</span>
+<span class="o">}</span><span class="k">else</span><span class="o">{</span>
+    <span class="o">++</span><span class="n">i</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<h3 id="367-string-api">3.6.7 String API</h3>
+
+<p>详见<a href="https://www.matools.com/api/java8">参考手册</a>:</p>
+
+<h3 id="369-stringbuilder">3.6.9 StringBuilder</h3>
+
+<p>JDK5.0中引入StringBuilder类。非线程安全，实现高效的字符串处理；常用方法如下:
+<img src="https://wangpengcheng.github.io/img/2020-05-20-17-08-58.png" alt=""></p>
+
+<h2 id="37-输入和输出">3.7 输入和输出</h2>
+
+<p>Java中的输入和输出一般有Scanner和Console两种方式，一般头通过System.in进行初始化。并对输入进行获取。这两个都是包含在java.util包中。主要函数和方法如下:</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-20-19-08-58.png" alt=""></p>
+
+<h3 id="372-格式化输入和输出">3.7.2 格式化输入和输出</h3>
+
+<p>一般使用print进行格式化的输入和输出;相关参数和标准如下:</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-20-19-09-58.png" alt=""></p>
+
+<p>相关格式标志如下:</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-20-19-10-58.png" alt=""></p>
+
+<p>print格式
+<img src="https://wangpengcheng.github.io/img/2020-05-20-19-11-58.png" alt=""></p>
+
+<h3 id="373-文件输入与输出">3.7.3 文件输入与输出</h3>
+
+<p>可以使用Scaner并以文件路径作为参数进行文件的获取，可以指定字符串的编码格式。也可以使用<code class="language-plaintext highlighter-rouge">java.io.PrintWriter</code>构造一个将数据写入文件的PrintWriter。文件名由参数指定。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Scanner</span> <span class="n">in</span><span class="o">=</span><span class="k">new</span> <span class="nc">Scanner</span><span class="o">(</span><span class="nc">Path</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"myfile.txt"</span><span class="o">),</span><span class="s">"UTF-8"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h3 id="39-大数值">3.9 大数值</h3>
+
+<p><code class="language-plaintext highlighter-rouge">java.util.BigInteger</code>和<code class="language-plaintext highlighter-rouge">java.util.BigDecimal</code>大数值可以处理任意长度数字序列的数字。使用<code class="language-plaintext highlighter-rouge">.valueOf</code>方法将普通的数值转换为大数值。但是运算操作需要使用特殊的函数；主要函数列表如下:</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-20-19-20-58.png" alt=""></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-20-19-20-55.png" alt=""></p>
+
+<h2 id="310-数组">3.10 数组</h2>
+
+<p>Java中的数组实际上的内存分分配是在栈中(int[] 和new int[] 相同)。因此多维数组都是指针数组。每个元素都是指针，存放的是地址值。因此不必长度相同。但是数组除了已开始初始化外，之后只能借助第三方变量进行初始化。也可以使用new配合匿名数组进行初始化。也可以直接初始化</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span><span class="o">[]</span> <span class="n">smallPrimes</span><span class="o">=</span><span class="k">new</span> <span class="kt">int</span><span class="o">[]{</span><span class="mi">17</span><span class="o">,</span><span class="mi">19</span><span class="o">,</span><span class="mi">23</span><span class="o">,</span><span class="mi">29</span><span class="o">};</span>
+<span class="c1">//等同如下:</span>
+<span class="kt">int</span><span class="o">[]</span> <span class="n">anonymous</span><span class="o">={</span><span class="mi">17</span><span class="o">,</span><span class="mi">19</span><span class="o">,</span><span class="mi">23</span><span class="o">,</span><span class="mi">29</span><span class="o">};</span>
+<span class="n">smallPrimes</span><span class="o">=</span><span class="n">anonymous</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>使用<code class="language-plaintext highlighter-rouge">Arrays.copyOf()</code>和<code class="language-plaintext highlighter-rouge">Arrays.sort()</code>进行深拷贝和排序。
+注意Java中<code class="language-plaintext highlighter-rouge">[]</code>运算符被预定义为检查数组边界，没有指针预算。不能通过+1操纵得到数组的下一个元素。</p>
+
+<p><code class="language-plaintext highlighter-rouge">java.util.Arrays</code>中的常用方法:</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">static String toString(type[] a)</code>:将其转化为字符串，并使用,进行分割。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static type copyOf(type[] a,int length)</code>:拷贝函数</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static type copyOfRange(type[] a,int start,int end)</code>: 失败时返回0或者false;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static void sort(type[] a)</code>:快速排序</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static int binarySearch(type[] a,type v)</code>:二分搜索，其必须有序,返回对应值的下标。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static int binarySearch(type[] a,int start,int end,type v)</code>:二分搜索，限定范围。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static void fill(type[] a,type v)</code>:将所有的数据元素设置为v;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static type binarySearch(type[] a,type v)</code>:二分搜索，其必须有序</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static boolean equals(type[] a,type[] b)</code>: 比较是否完全相同。</li>
+</ul>
+
+<p>Java中的Arrays相当于C++中的vector。</p>
+
+<h1 id="第-4-章-对象与类">第 4 章 对象与类</h1>
+
+<p>注意类中的更改器方法一般都没有更改原来的数据，而是产生了一个新的数据。简单来说就是写时复制。</p>
+
+<h3 id="432-java多个源文件的使用">4.3.2 Java多个源文件的使用</h3>
+
+<p>当使用Java编译.java文件时，如果程序使用了xxx类，则javac会自动查找名为xxx.class的文件，没有则查找xxx.java然后对其进行编译。如果xxx.java版本比xxx.class版本更新，则自动地重新编译这个文件。<strong>Java编译器内置了make功能</strong></p>
+
+<p>注意:</p>
+<ul>
+  <li>Java构造器的工作方式与C++相同。但是所有的Java对象都是在堆中构造的，因此必须使用new操作符。</li>
+  <li>避免在构造函数中使用与全局变量同名的局部变量。</li>
+  <li>Java中和C++相同使用this作为隐式参数进行函数方法和变量的调用和声明。</li>
+  <li>Java中的所有方法都必须在类的内部定义</li>
+  <li>注意不要编写返回引用可变对象的访问器方法。因为Java中的对象都是指针，返回值拷贝也是指针值的拷贝。因此会存在可变对象，破坏了类的封装性。可以使用clone()方法，对对象进行深拷贝。</li>
+  <li>使用final，相当于C++中的const，定义必须初始化。</li>
+  <li>Java中的静态方法与c++中定义相同，但是是直接通过类名.方法名使用。而不是解引用方法使用。</li>
+  <li>Java中的所有方法都是按值进行参数传递的。</li>
+</ul>
+
+<h2 id="45-方法参数">4.5 方法参数</h2>
+<p>Java为了实现C++中的引用功能–改变传入对象，将所有的基本类型都做了类对象的封装。并通过开箱与装箱实现两者之间的快速转换。</p>
+
+<h2 id="46-对象构造">4.6 对象构造</h2>
+
+<ul>
+  <li>
+<strong>重载</strong>:Java允许重载任何方法，而不只是构造器方法。</li>
+  <li>
+<strong>默认域初始化</strong>:在构造器中没有显式地给域赋予初值，那么就会被自动地赋值为默认值。各个基本类型的默认值详见3.3</li>
+  <li>
+<strong>默认构造器</strong>:当类中没有任何构造器的时候，编译器才会提供无参构造器。存在任何一个构造器，其无参构造器都会消失。</li>
+  <li>
+<strong>显示初始化</strong>:建议在定义时，显示初始化默认参数。</li>
+  <li>
+<strong>构造方法输入参数命名</strong>:可以和成员变量相同，但是需要使用this指针区别两者。</li>
+  <li>
+<strong>块初始化</strong>:可以使用块初始化代码，让部分代码在构造函数之前进行运行。或者使用static关键字构造相同功能的代码块。为了避免循环定义，应该将初始化代码块放在变量定义域之后。</li>
+</ul>
+
+<h3 id="462-调用构造器的具体步骤">4.6.2 调用构造器的具体步骤</h3>
+
+<ol>
+  <li>所有数据域被初始化为默认值</li>
+  <li>按照在类声明中出现的次序，一次执行所有初始化语句和初始化块</li>
+  <li>构造器第一行调用了第二个构造器，则执行第二个构造器主体。</li>
+  <li>执行这个构造器的主体。</li>
+</ol>
+
+<h3 id="468-对象析构与finalize方法">4.6.8 对象析构与finalize方法：</h3>
+<p>Java中不支持析构函数，但是可以给任何一个类添加finalize方法回收任何短缺的资源。</p>
+
+<h2 id="47-包">4.7 包</h2>
+<p>可以使用完整的路径名进行类的导入，也可以使用import。避免重复的方法。当相同包中存在重复，需要再import一次明确相同类的来源。</p>
+
+<ul>
+  <li>使用<code class="language-plaintext highlighter-rouge">package xxx.xx.xx;</code>方法将类导入到包中。</li>
+  <li>包的路径，一般都是文件夹路径。因此可以直接再对应的package路径中找到对应的.class文件。</li>
+  <li>非public类，同一个包中可以访问。包外不行。</li>
+</ul>
+
+<h2 id="48-类路径">4.8 类路径</h2>
+
+<p>类存储在文件系统的子目录中，类的路径必须与包名匹配。
+为了类能够被多个程序共享，需要做到一下几点:</p>
+<ul>
+  <li>类放到一个目录中。包树状结构的基目录。文件路径必须和包名匹配。</li>
+  <li>将JAR文件放在一个目录中</li>
+  <li>设置类路径(class path)。包含所有类文件的路径的集合。</li>
+  <li>可以在运行时，使用<code class="language-plaintext highlighter-rouge">-classpath</code>参数指定类的路径。类似于C++的LIB_PATH。</li>
+</ul>
+
+<p>注意:javac编译器总是在当前目录中查找文件。但是java虚拟机仅在类中有<code class="language-plaintext highlighter-rouge">·</code>时才查看当前目录。如果没有设置类路径问题不会有/如果设置了但是没有包含’.’;则会运行错误。</p>
+
+<h2 id="49-文档注释">4.9 文档注释</h2>
+
+<p>详细语法：<a href="https://www.runoob.com/java/java-documentation.html">Java 文档注释</a></p>
+
+<h3 id="497-注释的抽取">4.9.7 注释的抽取</h3>
+<p>假设存放在docDirectory下，执行如下步骤:</p>
+<ol>
+  <li>切换至源文件目录或者根目录。</li>
+  <li>对于包执行如下命令: <code class="language-plaintext highlighter-rouge">javadoc -d docDirectory nameOfPackage</code>
+    <ul>
+      <li>多个包执行如下命令: <code class="language-plaintext highlighter-rouge">javadoc -d docDirectory nameOfPackage1,nameOfPackage2,nameOfPackage3...</code>
+</li>
+      <li>默认包运行:<code class="language-plaintext highlighter-rouge">javadoc -d docDirectory *.java</code>
+</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="410-类的设计技巧">4.10 类的设计技巧</h2>
+<ol>
+  <li>保证数据私有</li>
+  <li>一定要对数据初始化</li>
+  <li>不要在类中使用过多的基本类型。</li>
+  <li>不是所有的域都需要独立的访问器或者修改器。</li>
+  <li>将职责过多的类进行分解</li>
+  <li>类名和方法名要能够体现他们的职责。</li>
+  <li>优先使用不可变的类。</li>
+</ol>
+
+<h1 id="第-5-章-继承">第 5 章 继承</h1>
+
+<p>Java中对于普通类的继承直接使用extend 代替C++中的<code class="language-plaintext highlighter-rouge">:</code>进行继承操作。而且Java中为了避免菱形继承问题，使用了interface。作为抽象基类接口。对于extend只能单继承，interface可以使用implenment来实现多个接口类的继承，符合面向对象设计原则中的面向接口编程。同时提供了abstract 关键字修饰抽象类。相当于C++中的虚基类。</p>
+
+<p>注意:</p>
+<ul>
+  <li>Java中的所有继承都是公有继承。</li>
+  <li>Java中使用super关键字区分父类方法和子类方法；方便进行方法的重载；同时使用super显示进行父类构造函数的调用</li>
+  <li>Java中的对象变量是多态的(毕竟指针)；因此可以实现向下类型的安全转变。但是要注意类型转变时的方法和名称关系。向上的类型转换一般都是不安全的要注意方法调用。</li>
+  <li>如果时private、static、final修饰的方法或者构造器这些都是静态绑定。编译器可以准确地直到调用的方法。此外的方法。编译器会为每个类创建一个方法表，列出所有的方法签名和实际调用的方法。在运行时由虚拟机进行方法查找。指明类的方法和实际对应的函数代码段。</li>
+  <li>在覆盖一个方法的时候，子类方法不能低于超类方法的可见性。特别是，如果超类方法是public则子类方法一定要声明为public。</li>
+  <li>使用final关键字可以禁止类的继承和方法的覆盖。</li>
+  <li>在进行向下的类型转换之前，都应该使用instanceof关键字检查类型是否能够被强制转换成功。</li>
+  <li>Java类型转换失败时会产生一个异常。</li>
+  <li>abstract修饰的抽象类不能够被实例化。但是可以创建一个具体的子类，用来指向抽象类–(ps:猜想抽象类没有构建方法)。</li>
+  <li>public:对对所有类可见，protected–对本包和所有子类可见；private–本类可见；默认-对本包可见。</li>
+</ul>
+
+<h2 id="52-object-所有类的超类">5.2 Object 所有类的超类</h2>
+
+<p>Java中的所有类都是由Object类扩展而来的。因此可以将任何类型的变量向下转换为Object类型的变量。</p>
+
+<p>Java语言规范要求equals方法具有下面的特性:</p>
+<ul>
+  <li>
+    <ol>
+      <li>自反性:能够识别自身。</li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>对称性:对于任何引用x,对于x.equal(y)结果应该和y.equal(x)相同。</li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>传递性:a=c,c=b,则有a=c;</li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>一致性:x，y引用对象没有发生变化，反复调用应该返回同样的结果。</li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>对任意非空引用x,x.equals(null)应该返回false。</li>
+    </ol>
+  </li>
+</ul>
+
+<p>编写一个完美的equals方法的建议:</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-21-7-57-58.png" alt=""></p>
+
+<h3 id="523-hashcode方法">5.2.3 hashCode()方法</h3>
+
+<p>每个对象都有一个默认的散列码，其值为对象的存储地址。如果重新定义equals方法，就必须重新定义hashCode方法，以便将对象插入到散列表中。</p>
+<h3 id="524-tostring方法">5.2.4 toString方法</h3>
+
+<p>返回对象值的字符串。应该是<code class="language-plaintext highlighter-rouge">"classname ["+"valName="+val+"]"</code>;这样对象可以与一个字符串通过”+”连接起来。</p>
+<h3 id="53-泛型数组列表">5.3 泛型数组列表</h3>
+
+<p>Java中可以使用<code class="language-plaintext highlighter-rouge">ArrayList&lt;ClassName&gt;</code>的方式创建动态的泛型列表。不用定长。可以动态增长。相当于C++中的Vetcor。
+<strong>注意: <code class="language-plaintext highlighter-rouge">new ArrayList&lt;&gt;(100)</code>只是拥有100个容量的潜力；其中并没有任何元素–内存分配了但是没有内容</strong></p>
+
+<h2 id="54-对象的装箱与开箱">5.4 对象的装箱与开箱</h2>
+
+<p>详见参考链接</p>
+
+<h2 id="55-参数数量可变的方法">5.5 参数数量可变的方法</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PrintStream</span>
+<span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">PrintStream</span> <span class="nf">printf</span><span class="o">(</span><span class="nc">String</span> <span class="n">fmt</span><span class="o">,</span><span class="nc">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">){</span>
+        <span class="k">return</span> <span class="nf">format</span><span class="o">(</span><span class="n">fmt</span><span class="o">,</span><span class="n">args</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//注意：这里的Object实际上是一个object数组。</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="57-反射">5.7 反射</h2>
+
+<p>能够分析类能力的程序称为反射。反射机制的功能及其强大。</p>
+<ul>
+  <li>运行时分析类的能力</li>
+  <li>运行时查看对象，例如通过一个toString方法供所有类使用</li>
+  <li>实现通过的数组操作代码</li>
+  <li>利用Method对象，这个对象很像C++中的函数指针。</li>
+</ul>
+
+<h3 id="571-class类">5.7.1 Class类</h3>
+
+<p>Class类实际上是一个泛型类。例如Employee.class 的类型是Class<employee>。虚拟机为每个类型管理一个Class对象。因此可以使用==运算符是心啊两个类对象的比较操作。</employee></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-21-18-38-58.png" alt="反射类图"></p>
+
+<h3 id="573-利用反射分析类的能力">5.7.3 利用反射分析类的能力；</h3>
+
+<p><strong>java.lang.reflect相关方法:</strong></p>
+<ul>
+  <li><a href="https://www.matools.com/file/manual/jdk_api_1.8_google/java/lang/reflect/package-frame.html">java.lang.reflect</a></li>
+</ul>
+
+<p>Java数组会记录每个元素的类型。即创建数组时new表达式中使用的元素类型。因此使用反射创建数组时，应该使用Array.newInstance(componentType,newLength);创建实际的数组和元素。下面时一个优秀的拷贝构造函数的代码:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nc">Object</span> <span class="nf">goodCopyOf</span><span class="o">(</span><span class="nc">Object</span> <span class="n">a</span><span class="o">,</span><span class="kt">int</span> <span class="n">newLength</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="nc">Class</span> <span class="n">cl</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="na">getClass</span><span class="o">();</span>
+    <span class="k">if</span><span class="o">(!</span><span class="n">cl</span><span class="o">.</span><span class="na">isArray</span><span class="o">())</span> <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="nc">Class</span> <span class="n">componenType</span><span class="o">=</span><span class="n">cl</span><span class="o">.</span><span class="na">getComponentType</span><span class="o">();</span>
+    <span class="kt">int</span> <span class="n">length</span><span class="o">=</span><span class="nc">Array</span><span class="o">.</span><span class="na">getLength</span><span class="o">(</span><span class="n">a</span><span class="o">);</span>
+    <span class="nc">Object</span> <span class="n">newArray</span><span class="o">=</span><span class="nc">Array</span><span class="o">.</span><span class="na">newInstance</span><span class="o">(</span><span class="n">componentType</span><span class="o">,</span><span class="n">newLength</span><span class="o">);</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">a</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="n">newArray</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="nc">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">length</span><span class="o">,</span><span class="n">newLength</span><span class="o">));</span>
+    <span class="k">return</span> <span class="n">newArray</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-21-17-38-58.png" alt=""></p>
+
+<h3 id="576-调用任意方法">5.7.6 调用任意方法</h3>
+
+<p>Java中可以使用class类对应的getMethod方法查找字符串对应的方法。返回一个Method class类。然后使用Method的invoke方法就可以执行对应的函数了。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Method</span> <span class="n">m1</span><span class="o">=</span><span class="nc">Employee</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">"getName"</span><span class="o">);</span>
+<span class="c1">//执行函数</span>
+
+<span class="nc">String</span> <span class="n">n</span><span class="o">=(</span><span class="nc">String</span><span class="o">)</span><span class="n">m1</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">harry</span><span class="o">);</span>
+<span class="nc">Method</span> <span class="n">squre</span><span class="o">=</span><span class="nc">MethodTableTest</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">"square"</span><span class="o">,</span><span class="kt">double</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="kt">double</span> <span class="n">y</span><span class="o">=(</span><span class="nc">Double</span><span class="o">)</span><span class="n">squre</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span><span class="mi">10</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="58-继承的设计技巧">5.8 继承的设计技巧</h2>
+
+<ol>
+  <li>将公共操作和域放在超类</li>
+  <li>不要使用受保护的域:protected 域对于子类无限制，很容易破坏其封装性。其用改用于只是那些不提供一般用途而应该在子类中重新定义的方法。</li>
+  <li>使用继承实现”is-a”关系</li>
+  <li>除非所有继承的方法都有意义。否则不要使用继承</li>
+  <li>在覆盖方法时，不要改变预期的行为。</li>
+  <li>使用多态，而非类型信息；对于相同类，应该统一接口。</li>
+  <li>不要过多的使用反射:反射很脆弱，编译器很难帮助人们发现程序中的错误，只有在运行时才发现错误并导致异常。</li>
+</ol>
+
+<h1 id="第-6-章-接口lambda表达式">第 6 章 接口、lambda表达式</h1>
+
+<h2 id="61-接口interface">6.1 接口(interface)</h2>
+
+<p><strong>在接口中不能包含实例域或静态方法，但可以包含常量；接口中的所有方法都被自动地设置为public，接口中的域将被自动地设置为public static final常量</strong></p>
+
+<h3 id="613-接口与抽象类">6.1.3 接口与抽象类</h3>
+
+<p>接口的出现主要是为了防止多重继承问题下的多继承解决方案。</p>
+
+<h3 id="614-静态方法和默认方法">6.1.4 静态方法和默认方法</h3>
+
+<p>在interface中使用static关键字和default对方法进行修饰；获取对应的方法。默认方法可以提前实现接口方法。注意接口中如果方法没有default则必须将其实现。</p>
+
+<h3 id="616-解决默认方法冲突">6.1.6 解决默认方法冲突</h3>
+
+<p>Java解决多个方法的默认冲突方法如下:</p>
+<ol>
+  <li>超类优先。如果超类提供了一个具体方法，同名且有相同参数类型的默认方法会被忽略。</li>
+  <li>接口冲突:如果一个超类提供了一个默认方法，另外一个接口提供了一个同名且参数类型相同的方法。必须覆盖这个方法来解决冲突。</li>
+  <li>继承的类优先原则:继承超类和接口冲突时，优先考虑类方法–“类优先”原则。</li>
+</ol>
+
+<h2 id="62-接口示例">6.2 接口示例</h2>
+
+<h3 id="622-comparator接口">6.2.2 Comparator接口</h3>
+<p>类似于C++中的compartor function 类。是对左右两个数进行比较。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="kd">class</span> <span class="nc">LengthComparator</span> <span class="kd">implements</span> <span class="nc">Comparator</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span>
+ <span class="o">{</span>
+     <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="nc">String</span> <span class="n">first</span><span class="o">,</span><span class="nc">String</span> <span class="n">second</span><span class="o">){</span>
+         <span class="k">return</span> <span class="n">first</span><span class="o">.</span><span class="na">length</span><span class="o">()-</span><span class="n">second</span><span class="o">.</span><span class="na">length</span><span class="o">();</span>
+     <span class="o">}</span>
+ <span class="o">}</span>
+
+ <span class="nc">Comparator</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">comp</span><span class="o">=</span><span class="k">new</span> <span class="nc">LengthComparator</span><span class="o">();</span>
+ <span class="nc">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">friends</span><span class="o">,</span><span class="k">new</span> <span class="nc">LengthComparator</span><span class="o">);</span>
+
+</code></pre></div></div>
+
+<h3 id="623-对象克隆">6.2.3 对象克隆</h3>
+
+<p>因为Java中的所有类变量都是指针。因此会存在浅拷贝的问题。虽然Object存在一个protected clone()方法。但是它只能针对基本数据类型；对于类类型不会进行递归的拷贝。因此需要每个类重载或者定义自己的clone函数。为了实现这个功能；提供了Cloneable接口。来重写clone方法。进行深拷贝。</p>
+
+<p>注意:</p>
+<ul>
+  <li>所有数组类型都有一个public的clone方法，而不是protected。</li>
+</ul>
+
+<p>下面是一个可克隆的类：</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">clone</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Date</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.GregorianCalendar</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Employee</span> <span class="kd">implements</span> <span class="nc">Cloneable</span>
+<span class="o">{</span>
+   <span class="kd">private</span> <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kt">double</span> <span class="n">salary</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="nc">Date</span> <span class="n">hireDay</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="nf">Employee</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">double</span> <span class="n">salary</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">salary</span> <span class="o">=</span> <span class="n">salary</span><span class="o">;</span>
+      <span class="n">hireDay</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">();</span>
+   <span class="o">}</span>
+
+   <span class="kd">public</span> <span class="nc">Employee</span> <span class="nf">clone</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">CloneNotSupportedException</span>
+   <span class="o">{</span>
+      <span class="c1">// call Object.clone()</span>
+      <span class="nc">Employee</span> <span class="n">cloned</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Employee</span><span class="o">)</span> <span class="kd">super</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+
+      <span class="c1">// clone mutable fields</span>
+      <span class="n">cloned</span><span class="o">.</span><span class="na">hireDay</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Date</span><span class="o">)</span> <span class="n">hireDay</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+
+      <span class="k">return</span> <span class="n">cloned</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="cm">/**
+    * Set the hire day to a given date. 
+    * @param year the year of the hire day
+    * @param month the month of the hire day
+    * @param day the day of the hire day
+    */</span>
+   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setHireDay</span><span class="o">(</span><span class="kt">int</span> <span class="n">year</span><span class="o">,</span> <span class="kt">int</span> <span class="n">month</span><span class="o">,</span> <span class="kt">int</span> <span class="n">day</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="nc">Date</span> <span class="n">newHireDay</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GregorianCalendar</span><span class="o">(</span><span class="n">year</span><span class="o">,</span> <span class="n">month</span> <span class="o">-</span> <span class="mi">1</span><span class="o">,</span> <span class="n">day</span><span class="o">).</span><span class="na">getTime</span><span class="o">();</span>
+      
+      <span class="c1">// Example of instance field mutation</span>
+      <span class="n">hireDay</span><span class="o">.</span><span class="na">setTime</span><span class="o">(</span><span class="n">newHireDay</span><span class="o">.</span><span class="na">getTime</span><span class="o">());</span>
+   <span class="o">}</span>
+
+   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">raiseSalary</span><span class="o">(</span><span class="kt">double</span> <span class="n">byPercent</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="kt">double</span> <span class="n">raise</span> <span class="o">=</span> <span class="n">salary</span> <span class="o">*</span> <span class="n">byPercent</span> <span class="o">/</span> <span class="mi">100</span><span class="o">;</span>
+      <span class="n">salary</span> <span class="o">+=</span> <span class="n">raise</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span>
+   <span class="o">{</span>
+      <span class="k">return</span> <span class="s">"Employee[name="</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">",salary="</span> <span class="o">+</span> <span class="n">salary</span> <span class="o">+</span> <span class="s">",hireDay="</span> <span class="o">+</span> <span class="n">hireDay</span> <span class="o">+</span> <span class="s">"]"</span><span class="o">;</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="63-lambda表达式">6.3 lambda表达式</h2>
+
+<p>存在的意义和C++中的lambda表达式一样。主要语法参数如下：</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">(Args...)-&gt;{ code ...;return ...}</code>(注意：不需要定义输入类型)</li>
+</ul>
+
+<p>主要还是编译器辅助构造一个function class。并在必要时实例化。</p>
+
+<p>注意lambda表达式返回值，和C++相同，无论任何分支都必须要有。否则就会错误。下面是一个简单的测试代码：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kn">package</span> <span class="nn">lambda</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.swing.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.swing.Timer</span><span class="o">;</span>
+
+<span class="cm">/**
+ * This program demonstrates the use of lambda expressions.
+ * @version 1.0 2015-05-12
+ * @author Cay Horstmann
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LambdaTest</span>
+<span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="nc">String</span><span class="o">[]</span> <span class="n">planets</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">String</span><span class="o">[]</span> <span class="o">{</span> <span class="s">"Mercury"</span><span class="o">,</span> <span class="s">"Venus"</span><span class="o">,</span> <span class="s">"Earth"</span><span class="o">,</span> <span class="s">"Mars"</span><span class="o">,</span> 
+            <span class="s">"Jupiter"</span><span class="o">,</span> <span class="s">"Saturn"</span><span class="o">,</span> <span class="s">"Uranus"</span><span class="o">,</span> <span class="s">"Neptune"</span> <span class="o">};</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">planets</span><span class="o">));</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Sorted in dictionary order:"</span><span class="o">);</span>
+      <span class="nc">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">planets</span><span class="o">);</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">planets</span><span class="o">));</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Sorted by length:"</span><span class="o">);</span>
+      <span class="c1">//注意：没有定义输入类型</span>
+      <span class="nc">Arrays</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">planets</span><span class="o">,</span> <span class="o">(</span><span class="n">first</span><span class="o">,</span> <span class="n">second</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">first</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">-</span> <span class="n">second</span><span class="o">.</span><span class="na">length</span><span class="o">());</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="nc">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">planets</span><span class="o">));</span>
+            
+      <span class="nc">Timer</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Timer</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="n">event</span> <span class="o">-&gt;</span>
+         <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"The time is "</span> <span class="o">+</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">()));</span>
+      <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>   
+         
+      <span class="c1">// keep program running until user selects "Ok"</span>
+      <span class="nc">JOptionPane</span><span class="o">.</span><span class="na">showMessageDialog</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="s">"Quit program?"</span><span class="o">);</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>         
+   <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+<p>lambda 表达式主要还是将其转换为函数式接口。</p>
+
+<h2 id="634-方法引用">6.3.4 方法引用</h2>
+
+<p>和C++类似，Java允许方法引用，直接传递已经存在的函数进行使用。也可以直接使用方法引用；例如：</p>
+<pre><code class="language-Java">Timer t=new Timer(1000,event-&gt;System.out.println(event));
+//等价于
+
+Timer t=new Timer(1000,System.out::println());
+
+</code></pre>
+<p>System.out::println()等价于x-&gt;System.out.println(x);</p>
+
+<p>使用::进行分割，主要有三种情况：</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">object::instanceMethod</code>:相当于提供方法参数的lambda表达式</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">Class::staticMethod</code>:相当于提供方法参数的lambda表达式</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">Class::instanceMethod</code>:第一个参数会成为方法的目标。例如<code class="language-plaintext highlighter-rouge">String::compareToIgnoreCase</code>等同于<code class="language-plaintext highlighter-rouge">(x,y)-&gt;x.compareToIgnoreCase(y)</code>。</li>
+</ul>
+
+<h3 id="635-构造器引用">6.3.5 构造器引用</h3>
+
+<p>可以直接使用类的构造器引用的方式，传入函数参数；快速构造代码。</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//传入参数，构造Person数组</span>
+<span class="nc">Person</span><span class="o">[]</span> <span class="n">people</span><span class="o">=</span><span class="n">stream</span><span class="o">.</span><span class="na">toArray</span><span class="o">(</span><span class="nc">Person</span><span class="o">[]::</span><span class="k">new</span><span class="o">);</span>
+</code></pre></div></div>
+<h3 id="636-变量作用域">6.3.6 变量作用域</h3>
+
+<p>lambda表达式可以捕获外围作用域中变量的值，唯一需要注意的是基础类型，很可能在执行前已经消失。<strong>因此在lambda表达式中只能引用值不会改变的变量</strong></p>
+
+<p>注意:</p>
+<ul>
+  <li><strong>lamdba表达式的体域嵌套块有相同的作用域。因此需要注意命名冲突和遮蔽的有关规则</strong></li>
+</ul>
+
+<h3 id="637-处理lambda表达式">6.3.7 处理lambda表达式</h3>
+
+<p>lambda本质上还是转换为一个函数接口。下面是一些常用的函数式接口。方便lambda进行转换。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-05-22-08-58-56.png" alt="">
+<img src="https://wangpengcheng.github.io/img/2020-05-22-09-02-56.png" alt=""></p>
+
+<h2 id="64-内部类">6.4 内部类</h2>
+
+<p>内部类，可以访问自身的数据域，也可以访问创建它的外围类对象的数据域。</p>
+<ul>
+  <li>在内部类中可以使用<code class="language-plaintext highlighter-rouge">class.this.value</code>的方式明确访问外部变量。</li>
+  <li>内部类中声明的所有静态域都必须是final。</li>
+  <li>编译器获奖内部类翻译成用$分隔外部类名与内部类名的常规类文件，而虚拟机对此一无所知。</li>
+</ul>
+
+<h3 id="645-由外部方法访问变量">6.4.5 由外部方法访问变量</h3>
+
+<p>局部类不仅可以访问包含它们的外部类，还可以访问局部变量。不过局部变量事实上必须为final–不会改变。这是因为，为了防止局部变量生命周期提前结束，内部类在编译构造时会自动产生一个final的类内部变量；拷贝一次之后继续使用，防止发生错误。</p>
+
+<p>注意：</p>
+<ul>
+  <li><strong>Integer时不可变类，进入一个方法后，在里面的值的改变不会影响方法外的引用(<a href="https://blog.csdn.net/Synlla1119/article/details/94434401?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase">Integer面试题：如何在调用方法内改变Integer参数的值?</a>)</strong></li>
+  <li>对于需要传入更新的变量来说，最好的方法时是使用一个长度为1的数组来代替它。这样因为在堆上分配的内存，因此可以进行修改。</li>
+</ul>
+
+<h3 id="646-匿名内部类">6.4.6 匿名内部类</h3>
+
+<p>Java中可以只创建类的对象，并在后面重载关键方法；这样的方式创建匿名类。常用语法格式如下:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">new</span> <span class="nc">SuperType</span><span class="o">(</span><span class="n">construction</span> <span class="n">parameters</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="n">inner</span> <span class="kd">class</span> <span class="nc">methods</span> <span class="n">and</span> <span class="n">data</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>注意: 匿名类没有类名，所以不能有构造器。使用参数传递给超类构造器。尤其在内部类实现接口的时候，不能有任何构造函数。</p>
+
+<p>匿名类使用如下:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">anonymousInnerClass</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.awt.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.awt.event.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.swing.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.swing.Timer</span><span class="o">;</span>
+
+<span class="cm">/**
+ * This program demonstrates anonymous inner classes.
+ * @version 1.11 2015-05-12
+ * @author Cay Horstmann
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AnonymousInnerClassTest</span>
+<span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="nc">TalkingClock</span> <span class="n">clock</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TalkingClock</span><span class="o">();</span>
+      <span class="n">clock</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+
+      <span class="c1">// keep program running until user selects "Ok"</span>
+      <span class="nc">JOptionPane</span><span class="o">.</span><span class="na">showMessageDialog</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="s">"Quit program?"</span><span class="o">);</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * A clock that prints the time in regular intervals.
+ */</span>
+<span class="kd">class</span> <span class="nc">TalkingClock</span>
+<span class="o">{</span>
+   <span class="cm">/**
+    * Starts the clock.
+    * @param interval the interval between messages (in milliseconds)
+    * @param beep true if the clock should beep
+    */</span>
+   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">start</span><span class="o">(</span><span class="kt">int</span> <span class="n">interval</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">beep</span><span class="o">)</span>
+   <span class="o">{</span>
+       <span class="c1">//创建匿名类</span>
+      <span class="nc">ActionListener</span> <span class="n">listener</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ActionListener</span><span class="o">()</span>
+         <span class="o">{</span>
+             <span class="c1">//实现对应的函数</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">actionPerformed</span><span class="o">(</span><span class="nc">ActionEvent</span> <span class="n">event</span><span class="o">)</span>
+            <span class="o">{</span>
+               <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"At the tone, the time is "</span> <span class="o">+</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">());</span>
+               <span class="k">if</span> <span class="o">(</span><span class="n">beep</span><span class="o">)</span> <span class="nc">Toolkit</span><span class="o">.</span><span class="na">getDefaultToolkit</span><span class="o">().</span><span class="na">beep</span><span class="o">();</span>
+            <span class="o">}</span>
+         <span class="o">};</span>
+      <span class="nc">Timer</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Timer</span><span class="o">(</span><span class="n">interval</span><span class="o">,</span> <span class="n">listener</span><span class="o">);</span>
+      <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h3 id="67-静态内部类">6.7 静态内部类</h3>
+
+<p>当对象中不需要引用任何其他对象时，可以将这个内部类声明为static；<strong>只有内部类可以声明为static；内部类不需要访问外围对象的时候，应该使用静态内部类；声明在接口中的内部类，自动成为static和public类</strong></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kn">package</span> <span class="nn">staticInnerClass</span><span class="o">;</span>
+
+<span class="cm">/**
+ * This program demonstrates the use of static inner classes.
+ * @version 1.02 2015-05-12
+ * @author Cay Horstmann
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">StaticInnerClassTest</span>
+<span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="kt">double</span><span class="o">[]</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">double</span><span class="o">[</span><span class="mi">20</span><span class="o">];</span>
+      <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">d</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+         <span class="n">d</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="nc">Math</span><span class="o">.</span><span class="na">random</span><span class="o">();</span>
+      <span class="nc">ArrayAlg</span><span class="o">.</span><span class="na">Pair</span> <span class="n">p</span> <span class="o">=</span> <span class="nc">ArrayAlg</span><span class="o">.</span><span class="na">minmax</span><span class="o">(</span><span class="n">d</span><span class="o">);</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"min = "</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getFirst</span><span class="o">());</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"max = "</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getSecond</span><span class="o">());</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">ArrayAlg</span>
+<span class="o">{</span>
+   <span class="cm">/**
+    * A pair of floating-point numbers
+    */</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Pair</span>
+   <span class="o">{</span>
+      <span class="kd">private</span> <span class="kt">double</span> <span class="n">first</span><span class="o">;</span>
+      <span class="kd">private</span> <span class="kt">double</span> <span class="n">second</span><span class="o">;</span>
+
+      <span class="cm">/**
+       * Constructs a pair from two floating-point numbers
+       * @param f the first number
+       * @param s the second number
+       */</span>
+      <span class="kd">public</span> <span class="nf">Pair</span><span class="o">(</span><span class="kt">double</span> <span class="n">f</span><span class="o">,</span> <span class="kt">double</span> <span class="n">s</span><span class="o">)</span>
+      <span class="o">{</span>
+         <span class="n">first</span> <span class="o">=</span> <span class="n">f</span><span class="o">;</span>
+         <span class="n">second</span> <span class="o">=</span> <span class="n">s</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="cm">/**
+       * Returns the first number of the pair
+       * @return the first number
+       */</span>
+      <span class="kd">public</span> <span class="kt">double</span> <span class="nf">getFirst</span><span class="o">()</span>
+      <span class="o">{</span>
+         <span class="k">return</span> <span class="n">first</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="cm">/**
+       * Returns the second number of the pair
+       * @return the second number
+       */</span>
+      <span class="kd">public</span> <span class="kt">double</span> <span class="nf">getSecond</span><span class="o">()</span>
+      <span class="o">{</span>
+         <span class="k">return</span> <span class="n">second</span><span class="o">;</span>
+      <span class="o">}</span>
+   <span class="o">}</span>
+
+   <span class="cm">/**
+    * Computes both the minimum and the maximum of an array
+    * @param values an array of floating-point numbers
+    * @return a pair whose first element is the minimum and whose second element
+    * is the maximum
+    */</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="nc">Pair</span> <span class="nf">minmax</span><span class="o">(</span><span class="kt">double</span><span class="o">[]</span> <span class="n">values</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="kt">double</span> <span class="n">min</span> <span class="o">=</span> <span class="nc">Double</span><span class="o">.</span><span class="na">POSITIVE_INFINITY</span><span class="o">;</span>
+      <span class="kt">double</span> <span class="n">max</span> <span class="o">=</span> <span class="nc">Double</span><span class="o">.</span><span class="na">NEGATIVE_INFINITY</span><span class="o">;</span>
+      <span class="k">for</span> <span class="o">(</span><span class="kt">double</span> <span class="n">v</span> <span class="o">:</span> <span class="n">values</span><span class="o">)</span>
+      <span class="o">{</span>
+         <span class="k">if</span> <span class="o">(</span><span class="n">min</span> <span class="o">&gt;</span> <span class="n">v</span><span class="o">)</span> <span class="n">min</span> <span class="o">=</span> <span class="n">v</span><span class="o">;</span>
+         <span class="k">if</span> <span class="o">(</span><span class="n">max</span> <span class="o">&lt;</span> <span class="n">v</span><span class="o">)</span> <span class="n">max</span> <span class="o">=</span> <span class="n">v</span><span class="o">;</span>
+      <span class="o">}</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="nf">Pair</span><span class="o">(</span><span class="n">min</span><span class="o">,</span> <span class="n">max</span><span class="o">);</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h2 id="65-代理">6.5 代理</h2>
+
+<p>在运行时创建一个实现了一组给定接口的新类。在运行时确定类型，并使用方法；相当于装饰器模式的更新。测试代码如下</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">proxy</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.reflect.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="cm">/**
+ * This program demonstrates the use of proxies.
+ * @version 1.00 2000-04-13
+ * @author Cay Horstmann
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProxyTest</span>
+<span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span>
+   <span class="o">{</span>
+       <span class="c1">//创建对象数组</span>
+      <span class="nc">Object</span><span class="o">[]</span> <span class="n">elements</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">[</span><span class="mi">1000</span><span class="o">];</span>
+
+      <span class="c1">// fill elements with proxies for the integers 1 ... 1000</span>
+      <span class="c1">//初始化数组</span>
+      <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">elements</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+      <span class="o">{</span>
+         <span class="nc">Integer</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+         <span class="c1">//创建代理处理句柄</span>
+         <span class="nc">InvocationHandler</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TraceHandler</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+         <span class="c1">//创建代理对象，</span>
+         <span class="nc">Object</span> <span class="n">proxy</span> <span class="o">=</span> <span class="nc">Proxy</span><span class="o">.</span><span class="na">newProxyInstance</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="cm">/* 类加载器*/</span>
+         <span class="k">new</span> <span class="nc">Class</span><span class="o">[]</span> <span class="o">{</span> <span class="nc">Comparable</span><span class="o">.</span><span class="na">class</span> <span class="o">}</span> <span class="o">,</span> <span class="cm">/* class对象数组 */</span>
+         <span class="n">handler</span><span class="cm">/* 每个元素需要实现的接口 */</span>
+         <span class="o">);</span>
+         <span class="n">elements</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="n">proxy</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="c1">// construct a random integer</span>
+      <span class="c1">//生成一个随机数</span>
+      <span class="nc">Integer</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Random</span><span class="o">().</span><span class="na">nextInt</span><span class="o">(</span><span class="n">elements</span><span class="o">.</span><span class="na">length</span><span class="o">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+
+      <span class="c1">// search for the key</span>
+      <span class="c1">//执行二分搜索</span>
+      <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">binarySearch</span><span class="o">(</span><span class="n">elements</span><span class="o">,</span> <span class="n">key</span><span class="o">);</span>
+
+      <span class="c1">// print match if found</span>
+      <span class="c1">//输出找到结果</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">)</span> <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">elements</span><span class="o">[</span><span class="n">result</span><span class="o">]);</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+ * An invocation handler that prints out the method name and parameters, then
+ * invokes the original method
+ */</span>
+<span class="kd">class</span> <span class="nc">TraceHandler</span> <span class="kd">implements</span> <span class="nc">InvocationHandler</span>
+<span class="o">{</span>
+   <span class="kd">private</span> <span class="nc">Object</span> <span class="n">target</span><span class="o">;</span>
+
+   <span class="cm">/**
+    * Constructs a TraceHandler
+    * @param t the implicit parameter of the method call
+    */</span>
+   <span class="kd">public</span> <span class="nf">TraceHandler</span><span class="o">(</span><span class="nc">Object</span> <span class="n">t</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="n">target</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+   <span class="o">}</span>
+    <span class="c1">//打印调用参数</span>
+   <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">invoke</span><span class="o">(</span><span class="nc">Object</span> <span class="n">proxy</span><span class="o">,</span> <span class="nc">Method</span> <span class="n">m</span><span class="o">,</span> <span class="nc">Object</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Throwable</span>
+   <span class="o">{</span>
+      <span class="c1">// print implicit argument</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">target</span><span class="o">);</span>
+      <span class="c1">// print method name</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">"."</span> <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">"("</span><span class="o">);</span>
+      <span class="c1">// print explicit arguments</span>
+      <span class="c1">//输出参数</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">args</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+      <span class="o">{</span>
+         <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">args</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span>
+         <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="n">i</span><span class="o">]);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">args</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">", "</span><span class="o">);</span>
+         <span class="o">}</span>
+      <span class="o">}</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">")"</span><span class="o">);</span>
+
+      <span class="c1">// invoke actual method</span>
+      <span class="c1">//绑定目标和参数</span>
+      <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">target</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/04/21/java_learning_start_01/" data-toggle="tooltip" data-placement="top" title="java简单学习笔记(一)">
+                        Previous<br>
+                        <span>java简单学习笔记(一)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2020/05/08/core_java_volume_note_02/" data-toggle="tooltip" data-placement="top" title="Java核心编程 卷I 笔记(二)">
+                        Next<br>
+                        <span>Java核心编程 卷I 笔记(二)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

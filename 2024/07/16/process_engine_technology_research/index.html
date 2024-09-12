@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>流程引擎技术调研 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2024/07/16/process_engine_technology_research/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E6%B5%81%E7%A8%8B%E5%BC%95%E6%93%8E" title="流程引擎">流程引擎</a>
+                        
+                        <a class="tag" href="/tags/#%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94" title="技术调研">技术调研</a>
+                        
+                        <a class="tag" href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记">学习笔记</a>
+                        
+                    </div>
+                    <h1>流程引擎技术调研</h1>
+                    
+                    
+                    <h2 class="subheading">流程引擎技术调研</h2>
+                    
+                    <span class="meta">Posted by 敬方 on July 16, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2024-07-16 15:41:58</p>
+</blockquote>
+
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://www.cnblogs.com/johnnyzen/p/18024283/business-process-engine">技术选型与调研-流程引擎(工作流引擎–BPM引擎)：Activiti、Flowable、Camunda</a></li>
+  <li><a href="https://juejin.cn/post/7154196990199332894">流程引擎架构设计</a></li>
+  <li><a href="https://www.woshipm.com/pd/5667099.html">如何设计一个流程引擎</a></li>
+  <li><a href="https://github.com/fixteam/fixflow">fixflow中国最好的流程引擎</a></li>
+  <li><a href="https://juejin.cn/post/7339376488028553216">流程引擎比较分析</a></li>
+  <li>
+    <p><a href="https://blog.csdn.net/zhanyunhuaxia/article/details/126452044">规则引擎和流程引擎我该怎么理解</a></p>
+  </li>
+  <li><a href="https://github.com/alibaba/compileflow">compileflow 阿里开源流程引擎</a></li>
+  <li><a href="https://github.com/trustmaster/goflow">goflow 规则引擎</a></li>
+  <li><a href="https://github.com/BruceDone/clock">可视化任务调度系统，精简到一个二进制文件</a></li>
+  <li><a href="https://github.com/rulego/rulego">rulego IoT规则引擎</a></li>
+  <li><a href="https://github.com/argoproj/argo-workflows">argo-workflows github</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/138122028">Argo:云原生的工作流引擎</a></li>
+  <li><a href="https://www.lixueduan.com/posts/devops/argo-workflow/02-workflow-template/">ArgoWorkflow教程(二)—流水线正确打开方式：Workflow &amp; Template 概念模型</a></li>
+  <li><a href="https://github.com/TencentBlueKing/bk-sops">蓝鲸SOPS</a></li>
+  <li><a href="https://github.com/TencentBlueKing/bamboo-engine">蓝鲸标准流程引擎</a></li>
+  <li><a href="https://goframe.org/pages/viewpage.action?pageId=44462821">Argo Workflow源码解析源码解析</a></li>
+</ul>
+
+<h1 id="背景">背景</h1>
+
+<h1 id="前言">前言</h1>
+
+<h2 id="基础概念">基础概念</h2>
+
+<h1 id="技术调研">技术调研</h1>
+
+<h1 id="设计要点">设计要点</h1>
+
+<h1 id="项目分析以rulego为例">项目分析(以rulego为例)</h1>
+<h2 id="rulego简介">rulego简介</h2>
+<p>RuleGo是一个基于Go语言的轻量级、高性能、嵌入式、可编排组件式的规则引擎。支持异构系统数据集成，可以对输入消息进行聚合、分发、过滤、转换、丰富和执行各种动作。对应编辑页面：<a href="https://editor.rulego.cc/">统一编辑页面</a></p>
+
+<p><img src="https://github.com/rulego/rulego/raw/main/doc/imgs/rulechain/demo.png" alt="操作界面"></p>
+
+<h2 id="rulego-功能架构">rulego 功能&amp;架构</h2>
+
+<h3 id="核心功能">核心功能</h3>
+
+<p>rulego的核心功能如下</p>
+<ul>
+  <li>程编排： 支持对规则链组件进行动态编排，不重启应用情况下，替换或者新增业务逻辑。</li>
+  <li>扩展简单： 提供丰富灵活的扩展接口，可以很容易地实现自定义组件或者引入第三方组件。</li>
+  <li>动态加载： 支持通过Go plugin 动态加载组件和扩展组件。</li>
+  <li>规则链嵌套： 支持子规则链嵌套，实现流程复用。</li>
+  <li>内置大量组件： 消息类型路由，脚本路由，脚本过滤器，脚本转换器，HTTP推送，MQTT推送，发送邮件，日志记录，数据库操作 等组件。可以自行扩展自定义组件。</li>
+  <li>上下文隔离机制： 可靠的上下文隔离机制，无需担心高并发情况下的数据串流。</li>
+  <li>AOP机制： 允许在不修改规则链或节点的原有逻辑的情况下，对规则链的执行添加额外的行为，或者直接替换原规则链或者节点逻辑。</li>
+</ul>
+
+<h3 id="核心架构">核心架构</h3>
+<p>其核心功能还是以任务系统的链式处理自动化为主，实现了自定义切片、组件函数等多种模式。核心架构如下图：
+<img src="https://github.com/rulego/rulego/blob/main/doc/imgs/architecture_zh.png" alt="核心架构图"></p>
+
+<p>规则链处理消息/事件流程图如下图：</p>
+
+<p><img src="https://rulego.cc/img/chain_architecture.png" alt="规则链处理图"></p>
+
+<h2 id="rulego-代码分析">rulego 代码分析</h2>
+<p>rulego核心在于推理引擎的创建与推理过程两个部分</p>
+
+<h3 id="执行引擎创建">执行引擎创建</h3>
+
+<p>ruluego 解析json字符串完成规则链的初始化定义，同时完成模板上下文的初始化。从<code class="language-plaintext highlighter-rouge">examples/call_rest_service/call_rest_service.go</code>为主要入口，梳理函数调用链路如下：
+<code class="language-plaintext highlighter-rouge">rulego.New(创建新规则引擎)</code> -&gt; <code class="language-plaintext highlighter-rouge">newRuleEngine(创建规则引擎对象)</code> -&gt; <code class="language-plaintext highlighter-rouge">ruleEngine.ReloadSelf(加载规则配置)</code> -&gt; <code class="language-plaintext highlighter-rouge">Parser.DecodeRuleChain(解码types.RuleChain对象)</code> -&gt; <code class="language-plaintext highlighter-rouge">InitRuleChainCtx(初始化上下文)</code> -&gt; 完成创建。对应关键代码分析如下：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rulego.New</code></li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// 最终调用 engine.Pool.New 进行规则引擎的创建</span>
+<span class="c">// https://github.com/CNST-AK47/rulego/blob/ef8fe6762e51b6a509d765226d9fb23cb6b139ae/engine/pool.go#75</span>
+<span class="c">// New creates a new RuleEngine instance and stores it in the rule chain pool.</span>
+<span class="c">// If the specified id is empty, the ruleChain.id from the rule chain file is used.</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">g</span> <span class="o">*</span><span class="n">Pool</span><span class="p">)</span> <span class="n">New</span><span class="p">(</span><span class="n">id</span> <span class="kt">string</span><span class="p">,</span> <span class="n">rootRuleChainSrc</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">types</span><span class="o">.</span><span class="n">RuleEngineOption</span><span class="p">)</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">RuleEngine</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c">// Check if an instance with the given ID already exists.</span>
+    <span class="c">// 直接从引擎中加载</span>
+    <span class="k">if</span> <span class="n">v</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">g</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">Load</span><span class="p">(</span><span class="n">id</span><span class="p">);</span> <span class="n">ok</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="p">(</span><span class="o">*</span><span class="n">RuleEngine</span><span class="p">),</span> <span class="no">nil</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c">// 新增参数设置</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">WithRuleEnginePool</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
+        <span class="c">// Create a new rule engine instance.</span>
+        <span class="c">// 创建一个新实例--</span>
+        <span class="k">if</span> <span class="n">ruleEngine</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">newRuleEngine</span><span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">rootRuleChainSrc</span><span class="p">,</span> <span class="n">opts</span><span class="o">...</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="c">// Store the new rule engine instance in the pool.</span>
+            <span class="c">// 将实例放到内存池中</span>
+            <span class="k">if</span> <span class="n">ruleEngine</span><span class="o">.</span><span class="n">Id</span><span class="p">()</span> <span class="o">!=</span> <span class="s">""</span> <span class="p">{</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">Store</span><span class="p">(</span><span class="n">ruleEngine</span><span class="o">.</span><span class="n">Id</span><span class="p">(),</span> <span class="n">ruleEngine</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">ruleEngine</span><span class="p">,</span> <span class="n">err</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">newRuleEngine</code></li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// 创建新的规则引擎推理实例</span>
+<span class="c">// https://github.com/CNST-AK47/rulego/blob/688f5f254635ab138d9081314bbb977fd3200c97/engine/engine.go</span>
+
+<span class="c">// newRuleEngine creates a new RuleEngine instance with the given ID and definition.</span>
+<span class="c">// It applies the provided RuleEngineOptions during the creation process.</span>
+<span class="c">// 创建新规则引擎</span>
+<span class="k">func</span> <span class="n">newRuleEngine</span><span class="p">(</span><span class="n">id</span> <span class="kt">string</span><span class="p">,</span> <span class="n">def</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">types</span><span class="o">.</span><span class="n">RuleEngineOption</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="n">RuleEngine</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+ <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">def</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">New</span><span class="p">(</span><span class="s">"def can not nil"</span><span class="p">)</span>
+ <span class="p">}</span>
+ <span class="c">// Create a new RuleEngine with the Id</span>
+ <span class="c">// 创建对应的规则引擎对象</span>
+ <span class="n">ruleEngine</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="n">RuleEngine</span><span class="p">{</span>
+  <span class="n">id</span><span class="o">:</span>            <span class="n">id</span><span class="p">,</span>
+  <span class="n">Config</span><span class="o">:</span>        <span class="n">NewConfig</span><span class="p">(),</span> <span class="c">// 配置项</span>
+  <span class="n">ruleChainPool</span><span class="o">:</span> <span class="n">DefaultPool</span><span class="p">,</span>
+ <span class="p">}</span>
+ <span class="c">// 加载规则引擎配置</span>
+ <span class="n">err</span> <span class="o">:=</span> <span class="n">ruleEngine</span><span class="o">.</span><span class="n">ReloadSelf</span><span class="p">(</span><span class="n">def</span><span class="p">,</span> <span class="n">opts</span><span class="o">...</span><span class="p">)</span>
+ <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">ruleEngine</span><span class="o">.</span><span class="n">rootRuleChainCtx</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="n">id</span> <span class="o">!=</span> <span class="s">""</span> <span class="p">{</span>
+   <span class="c">// 设置规则引擎上下文Id</span>
+   <span class="n">ruleEngine</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">Id</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">{</span><span class="n">Id</span><span class="o">:</span> <span class="n">id</span><span class="p">,</span> <span class="n">Type</span><span class="o">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CHAIN</span><span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   <span class="c">// Use the rule chain ID if no ID is provided.</span>
+   <span class="n">ruleEngine</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">ruleEngine</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">Id</span><span class="o">.</span><span class="n">Id</span>
+  <span class="p">}</span>
+ <span class="p">}</span>
+ <span class="c">// Set the aspect lists.</span>
+ <span class="c">// 设置切面，</span>
+ <span class="n">startAspects</span><span class="p">,</span> <span class="n">endAspects</span><span class="p">,</span> <span class="n">completedAspects</span> <span class="o">:=</span> <span class="n">ruleEngine</span><span class="o">.</span><span class="n">Aspects</span><span class="o">.</span><span class="n">GetChainAspects</span><span class="p">()</span>
+ <span class="c">// 设置开始切面</span>
+ <span class="n">ruleEngine</span><span class="o">.</span><span class="n">startAspects</span> <span class="o">=</span> <span class="n">startAspects</span>
+ <span class="c">// 设置结束切面</span>
+ <span class="n">ruleEngine</span><span class="o">.</span><span class="n">endAspects</span> <span class="o">=</span> <span class="n">endAspects</span>
+ <span class="c">// 设置环绕切面</span>
+ <span class="n">ruleEngine</span><span class="o">.</span><span class="n">completedAspects</span> <span class="o">=</span> <span class="n">completedAspects</span>
+
+ <span class="k">return</span> <span class="n">ruleEngine</span><span class="p">,</span> <span class="n">err</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ruleEngine.ReloadSelf(加载规则)</code></li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// https://github.com/CNST-AK47/rulego/blob/688f5f254635ab138d9081314bbb977fd3200c97/engine/engine.go</span>
+<span class="c">// 执行规则加载</span>
+<span class="c">// ReloadSelf 重新加载规则链</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span><span class="n">RuleEngine</span><span class="p">)</span> <span class="n">ReloadSelf</span><span class="p">(</span><span class="n">def</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">types</span><span class="o">.</span><span class="n">RuleEngineOption</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+ <span class="c">// Apply the options to the RuleEngine.</span>
+ <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">opt</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">opts</span> <span class="p">{</span>
+  <span class="n">_</span> <span class="o">=</span> <span class="n">opt</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+ <span class="p">}</span>
+ <span class="c">// 检查是否已经初始化--用于重新加载规则时使用</span>
+ <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">Initialized</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c">//初始化内置切面</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">Aspects</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+   <span class="n">e</span><span class="o">.</span><span class="n">initBuiltinsAspects</span><span class="p">()</span>
+  <span class="p">}</span>
+  <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">Config</span>
+  <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">SetAspects</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">Aspects</span><span class="p">)</span>
+  <span class="c">//更新规则链</span>
+  <span class="n">err</span> <span class="o">:=</span> <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">ReloadSelf</span><span class="p">(</span><span class="n">def</span><span class="p">)</span>
+  <span class="c">//设置子规则链池</span>
+  <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">SetRuleEnginePool</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">ruleChainPool</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">err</span>
+ <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="c">//初始化内置切面</span>
+  <span class="n">e</span><span class="o">.</span><span class="n">initBuiltinsAspects</span><span class="p">()</span>
+  <span class="c">//初始化</span>
+  <span class="c">// 进行规则解析，解析对应的规则结构体</span>
+  <span class="k">if</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">e</span><span class="o">.</span><span class="n">Config</span><span class="o">.</span><span class="n">Parser</span><span class="o">.</span><span class="n">DecodeRuleChain</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">Config</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">Aspects</span><span class="p">,</span> <span class="n">def</span><span class="p">);</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+   <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="p">(</span><span class="o">*</span><span class="n">RuleChainCtx</span><span class="p">)</span><span class="o">.</span><span class="n">Id</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">Id</span>
+   <span class="p">}</span>
+   <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="p">(</span><span class="o">*</span><span class="n">RuleChainCtx</span><span class="p">)</span>
+   <span class="c">//设置子规则链池</span>
+   <span class="c">//方便上下文查找更新</span>
+   <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">SetRuleEnginePool</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">ruleChainPool</span><span class="p">)</span>
+   <span class="c">//执行创建切面逻辑</span>
+   <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">createdAspects</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="n">e</span><span class="o">.</span><span class="n">Aspects</span><span class="o">.</span><span class="n">GetEngineAspects</span><span class="p">()</span>
+   <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">aop</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">createdAspects</span> <span class="p">{</span>
+    <span class="c">// 创建对应的aop点</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">aop</span><span class="o">.</span><span class="n">OnCreated</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+     <span class="k">return</span> <span class="n">err</span>
+    <span class="p">}</span>
+   <span class="p">}</span>
+   <span class="n">e</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="no">true</span>
+   <span class="k">return</span> <span class="no">nil</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   <span class="k">return</span> <span class="n">err</span>
+  <span class="p">}</span>
+ <span class="p">}</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Parser.DecodeRuleChain</code></li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// 进行规则链解析</span>
+<span class="c">// https://github.com/CNST-AK47/rulego/blob/688f5f254635ab138d9081314bbb977fd3200c97/engine/parser.go</span>
+<span class="c">// 进行基础规则解析</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">p</span> <span class="o">*</span><span class="n">JsonParser</span><span class="p">)</span> <span class="n">DecodeRuleChain</span><span class="p">(</span><span class="n">config</span> <span class="n">types</span><span class="o">.</span><span class="n">Config</span><span class="p">,</span> <span class="n">aspects</span> <span class="n">types</span><span class="o">.</span><span class="n">AspectList</span><span class="p">,</span> <span class="n">dsl</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c">// 解析加载types.RuleChain</span>
+    <span class="k">if</span> <span class="n">rootRuleChainDef</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">ParserRuleChain</span><span class="p">(</span><span class="n">dsl</span><span class="p">);</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="c">//初始化</span>
+        <span class="c">// 进行规则引擎初始化</span>
+        <span class="k">return</span> <span class="n">InitRuleChainCtx</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">aspects</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rootRuleChainDef</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// .......</span>
+
+<span class="c">// ParserRuleChain 通过json解析规则链结构体</span>
+<span class="c">// 将其解析为rulechain对象</span>
+<span class="k">func</span> <span class="n">ParserRuleChain</span><span class="p">(</span><span class="n">rootRuleChain</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">RuleChain</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="n">def</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleChain</span>
+    <span class="n">err</span> <span class="o">:=</span> <span class="n">json</span><span class="o">.</span><span class="n">Unmarshal</span><span class="p">(</span><span class="n">rootRuleChain</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">def</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">def</span><span class="p">,</span> <span class="n">err</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">InitRuleChainCtx</code></li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// 初始化规则引擎上下文</span>
+<span class="c">// https://github.com/CNST-AK47/rulego/blob/688f5f254635ab138d9081314bbb977fd3200c97/engine/chain.go</span>
+
+<span class="c">// InitRuleChainCtx initializes a RuleChainCtx with the given configuration, aspects, and rule chain definition.</span>
+<span class="c">// 初始化规则链上下文</span>
+<span class="k">func</span> <span class="n">InitRuleChainCtx</span><span class="p">(</span><span class="n">config</span> <span class="n">types</span><span class="o">.</span><span class="n">Config</span><span class="p">,</span> <span class="n">aspects</span> <span class="n">types</span><span class="o">.</span><span class="n">AspectList</span><span class="p">,</span> <span class="n">ruleChainDef</span> <span class="o">*</span><span class="n">types</span><span class="o">.</span><span class="n">RuleChain</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="n">RuleChainCtx</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+ <span class="c">// Retrieve aspects for the engine.</span>
+ <span class="c">// 获取切面上下文</span>
+ <span class="n">chainBeforeInitAspects</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">afterReloadAspects</span><span class="p">,</span> <span class="n">destroyAspects</span> <span class="o">:=</span> <span class="n">aspects</span><span class="o">.</span><span class="n">GetEngineAspects</span><span class="p">()</span>
+ <span class="c">// 执行规则引擎初始化函数</span>
+ <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">aspect</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">chainBeforeInitAspects</span> <span class="p">{</span>
+  <span class="c">// 规则引擎初始化的节点</span>
+  <span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">aspect</span><span class="o">.</span><span class="n">OnChainBeforeInit</span><span class="p">(</span><span class="n">ruleChainDef</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+   <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+  <span class="p">}</span>
+ <span class="p">}</span>
+
+ <span class="c">// Initialize a new RuleChainCtx with the provided configuration and aspects.</span>
+ <span class="c">// 初始化规则链上下文</span>
+ <span class="k">var</span> <span class="n">ruleChainCtx</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">RuleChainCtx</span><span class="p">{</span>
+  <span class="n">config</span><span class="o">:</span>             <span class="n">config</span><span class="p">,</span>                                              <span class="c">// 配置信息</span>
+  <span class="n">SelfDefinition</span><span class="o">:</span>     <span class="n">ruleChainDef</span><span class="p">,</span>                                        <span class="c">// 规则链定义</span>
+  <span class="n">nodes</span><span class="o">:</span>              <span class="nb">make</span><span class="p">(</span><span class="k">map</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">]</span><span class="n">types</span><span class="o">.</span><span class="n">NodeCtx</span><span class="p">),</span>            <span class="c">// 规则链中节点</span>
+  <span class="n">nodeRoutes</span><span class="o">:</span>         <span class="nb">make</span><span class="p">(</span><span class="k">map</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">][]</span><span class="n">types</span><span class="o">.</span><span class="n">RuleNodeRelation</span><span class="p">),</span> <span class="c">// 规则链中节点关联列表</span>
+  <span class="n">relationCache</span><span class="o">:</span>      <span class="nb">make</span><span class="p">(</span><span class="k">map</span><span class="p">[</span><span class="n">RelationCache</span><span class="p">][]</span><span class="n">types</span><span class="o">.</span><span class="n">NodeCtx</span><span class="p">),</span>             <span class="c">// 对应缓存</span>
+  <span class="n">componentsRegistry</span><span class="o">:</span> <span class="n">config</span><span class="o">.</span><span class="n">ComponentsRegistry</span><span class="p">,</span>                           <span class="c">// 全局组件注册器</span>
+  <span class="n">initialized</span><span class="o">:</span>        <span class="no">true</span><span class="p">,</span>                                                <span class="c">// 师傅已经初始化</span>
+  <span class="n">aspects</span><span class="o">:</span>            <span class="n">aspects</span><span class="p">,</span>                                             <span class="c">// 切面</span>
+  <span class="n">afterReloadAspects</span><span class="o">:</span> <span class="n">afterReloadAspects</span><span class="p">,</span>                                  <span class="c">// 重载后切片</span>
+  <span class="n">destroyAspects</span><span class="o">:</span>     <span class="n">destroyAspects</span><span class="p">,</span>                                      <span class="c">// 销毁切片</span>
+ <span class="p">}</span>
+ <span class="c">// Set the ID of the rule chain context if provided in the definition.</span>
+ <span class="k">if</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">RuleChain</span><span class="o">.</span><span class="n">ID</span> <span class="o">!=</span> <span class="s">""</span> <span class="p">{</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">Id</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">{</span><span class="n">Id</span><span class="o">:</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">RuleChain</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="n">Type</span><span class="o">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CHAIN</span><span class="p">}</span>
+ <span class="p">}</span>
+ <span class="c">// Process the rule chain configuration's vars and secrets.</span>
+ <span class="c">// 进行规则链中配置上下文的处理</span>
+ <span class="k">if</span> <span class="n">ruleChainDef</span> <span class="o">!=</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">RuleChain</span><span class="o">.</span><span class="n">Configuration</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+  <span class="c">// 获取定义配置</span>
+  <span class="n">varsConfig</span> <span class="o">:=</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">RuleChain</span><span class="o">.</span><span class="n">Configuration</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">Vars</span><span class="p">]</span>
+  <span class="c">// 将其转变为map</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="n">str</span><span class="o">.</span><span class="n">ToStringMapString</span><span class="p">(</span><span class="n">varsConfig</span><span class="p">)</span>
+  <span class="c">// 获取环境配置</span>
+  <span class="n">envConfig</span> <span class="o">:=</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">RuleChain</span><span class="o">.</span><span class="n">Configuration</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">Secrets</span><span class="p">]</span>
+  <span class="c">// 加密信息</span>
+  <span class="n">secrets</span> <span class="o">:=</span> <span class="n">str</span><span class="o">.</span><span class="n">ToStringMapString</span><span class="p">(</span><span class="n">envConfig</span><span class="p">)</span>
+  <span class="c">// 解密信息</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">decryptSecrets</span> <span class="o">=</span> <span class="n">decryptSecret</span><span class="p">(</span><span class="n">secrets</span><span class="p">,</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">SecretKey</span><span class="p">))</span>
+ <span class="p">}</span>
+ <span class="c">// 获取节点列表</span>
+ <span class="n">nodeLen</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ruleChainDef</span><span class="o">.</span><span class="n">Metadata</span><span class="o">.</span><span class="n">Nodes</span><span class="p">)</span>
+ <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">nodeIds</span> <span class="o">=</span> <span class="nb">make</span><span class="p">([]</span><span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">,</span> <span class="n">nodeLen</span><span class="p">)</span>
+ <span class="c">// Load all node information.</span>
+ <span class="c">// 加载所有节点</span>
+ <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">Metadata</span><span class="o">.</span><span class="n">Nodes</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">Id</span> <span class="o">==</span> <span class="s">""</span> <span class="p">{</span>
+   <span class="n">item</span><span class="o">.</span><span class="n">Id</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Sprintf</span><span class="p">(</span><span class="n">defaultNodeIdPrefix</span><span class="o">+</span><span class="s">"%d"</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="n">ruleNodeId</span> <span class="o">:=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">{</span><span class="n">Id</span><span class="o">:</span> <span class="n">item</span><span class="o">.</span><span class="n">Id</span><span class="p">,</span> <span class="n">Type</span><span class="o">:</span> <span class="n">types</span><span class="o">.</span><span class="n">NODE</span><span class="p">}</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">nodeIds</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">ruleNodeId</span>
+  <span class="c">// 初始化节点上下文</span>
+  <span class="n">ruleNodeCtx</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">InitRuleNodeCtx</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ruleChainCtx</span><span class="p">,</span> <span class="n">aspects</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+   <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+  <span class="p">}</span>
+  <span class="c">// 更新节点上下文</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">ruleNodeId</span><span class="p">]</span> <span class="o">=</span> <span class="n">ruleNodeCtx</span>
+ <span class="p">}</span>
+ <span class="c">// Load node relationship information.</span>
+ <span class="c">// 登记节点之间的关联关系</span>
+ <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">item</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">Metadata</span><span class="o">.</span><span class="n">Connections</span> <span class="p">{</span>
+  <span class="n">inNodeId</span> <span class="o">:=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">{</span><span class="n">Id</span><span class="o">:</span> <span class="n">item</span><span class="o">.</span><span class="n">FromId</span><span class="p">,</span> <span class="n">Type</span><span class="o">:</span> <span class="n">types</span><span class="o">.</span><span class="n">NODE</span><span class="p">}</span>
+  <span class="n">outNodeId</span> <span class="o">:=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">{</span><span class="n">Id</span><span class="o">:</span> <span class="n">item</span><span class="o">.</span><span class="n">ToId</span><span class="p">,</span> <span class="n">Type</span><span class="o">:</span> <span class="n">types</span><span class="o">.</span><span class="n">NODE</span><span class="p">}</span>
+  <span class="n">ruleNodeRelation</span> <span class="o">:=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeRelation</span><span class="p">{</span>
+   <span class="n">InId</span><span class="o">:</span>         <span class="n">inNodeId</span><span class="p">,</span>
+   <span class="n">OutId</span><span class="o">:</span>        <span class="n">outNodeId</span><span class="p">,</span>
+   <span class="n">RelationType</span><span class="o">:</span> <span class="n">item</span><span class="o">.</span><span class="n">Type</span><span class="p">,</span>
+  <span class="p">}</span>
+  <span class="c">// 查询节点关系</span>
+  <span class="n">nodeRelations</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">nodeRoutes</span><span class="p">[</span><span class="n">inNodeId</span><span class="p">]</span>
+
+  <span class="k">if</span> <span class="n">ok</span> <span class="p">{</span>
+   <span class="n">nodeRelations</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeRelations</span><span class="p">,</span> <span class="n">ruleNodeRelation</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   <span class="n">nodeRelations</span> <span class="o">=</span> <span class="p">[]</span><span class="n">types</span><span class="o">.</span><span class="n">RuleNodeRelation</span><span class="p">{</span><span class="n">ruleNodeRelation</span><span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c">// 更新节点路由</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">nodeRoutes</span><span class="p">[</span><span class="n">inNodeId</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodeRelations</span>
+ <span class="p">}</span>
+ <span class="c">// Load sub-rule chains.</span>
+ <span class="c">// 加载子规则链关联关系</span>
+ <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">item</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">ruleChainDef</span><span class="o">.</span><span class="n">Metadata</span><span class="o">.</span><span class="n">RuleChainConnections</span> <span class="p">{</span>
+  <span class="n">inNodeId</span> <span class="o">:=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">{</span><span class="n">Id</span><span class="o">:</span> <span class="n">item</span><span class="o">.</span><span class="n">FromId</span><span class="p">,</span> <span class="n">Type</span><span class="o">:</span> <span class="n">types</span><span class="o">.</span><span class="n">NODE</span><span class="p">}</span>
+  <span class="n">outNodeId</span> <span class="o">:=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeId</span><span class="p">{</span><span class="n">Id</span><span class="o">:</span> <span class="n">item</span><span class="o">.</span><span class="n">ToId</span><span class="p">,</span> <span class="n">Type</span><span class="o">:</span> <span class="n">types</span><span class="o">.</span><span class="n">CHAIN</span><span class="p">}</span>
+  <span class="n">ruleChainRelation</span> <span class="o">:=</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleNodeRelation</span><span class="p">{</span>
+   <span class="n">InId</span><span class="o">:</span>         <span class="n">inNodeId</span><span class="p">,</span>
+   <span class="n">OutId</span><span class="o">:</span>        <span class="n">outNodeId</span><span class="p">,</span>
+   <span class="n">RelationType</span><span class="o">:</span> <span class="n">item</span><span class="o">.</span><span class="n">Type</span><span class="p">,</span>
+  <span class="p">}</span>
+  <span class="c">// 查询子规则接入节点</span>
+  <span class="n">nodeRelations</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">nodeRoutes</span><span class="p">[</span><span class="n">inNodeId</span><span class="p">]</span>
+  <span class="k">if</span> <span class="n">ok</span> <span class="p">{</span>
+   <span class="n">nodeRelations</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">nodeRelations</span><span class="p">,</span> <span class="n">ruleChainRelation</span><span class="p">)</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   <span class="n">nodeRelations</span> <span class="o">=</span> <span class="p">[]</span><span class="n">types</span><span class="o">.</span><span class="n">RuleNodeRelation</span><span class="p">{</span><span class="n">ruleChainRelation</span><span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c">// 更新关系</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">nodeRoutes</span><span class="p">[</span><span class="n">inNodeId</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodeRelations</span>
+ <span class="p">}</span>
+ <span class="c">// Initialize the root rule context.</span>
+ <span class="c">// 初始化根节点上下文</span>
+ <span class="k">if</span> <span class="n">firstNode</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">GetFirstNode</span><span class="p">();</span> <span class="n">ok</span> <span class="p">{</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">rootRuleContext</span> <span class="o">=</span> <span class="n">NewRuleContext</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">TODO</span><span class="p">(),</span> <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">ruleChainCtx</span><span class="p">,</span> <span class="no">nil</span><span class="p">,</span>
+   <span class="n">firstNode</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span> <span class="no">nil</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span>
+ <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="c">// If there are no nodes, initialize an empty node context.</span>
+  <span class="c">// 初始化一个空节点上下文</span>
+  <span class="n">ruleNodeCtx</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="n">InitRuleNodeCtx</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ruleChainCtx</span><span class="p">,</span> <span class="n">aspects</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">types</span><span class="o">.</span><span class="n">RuleNode</span><span class="p">{})</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">rootRuleContext</span> <span class="o">=</span> <span class="n">NewRuleContext</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">TODO</span><span class="p">(),</span> <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">ruleChainCtx</span><span class="p">,</span> <span class="no">nil</span><span class="p">,</span>
+   <span class="n">ruleNodeCtx</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">Pool</span><span class="p">,</span> <span class="no">nil</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span>
+  <span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">isEmpty</span> <span class="o">=</span> <span class="no">true</span>
+ <span class="p">}</span>
+
+ <span class="k">return</span> <span class="n">ruleChainCtx</span><span class="p">,</span> <span class="no">nil</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="推理过程">推理过程</h3>
+
+<p>rulego的核心推理过程，从入口<code class="language-plaintext highlighter-rouge">RuleEngine.OnMsg</code>进行处理，核心处理流程如下：
+<code class="language-plaintext highlighter-rouge">RuleEngine.OnMsg(消息处理入口)</code> -&gt; <code class="language-plaintext highlighter-rouge">RuleEngine.onMsgAndWait(核心消息处理)</code> -&gt; <code class="language-plaintext highlighter-rouge">DefaultRuleContext.tellOrElse(上下文处理函数)</code> -&gt; <code class="language-plaintext highlighter-rouge">DefaultRuleContext.tellNext(节点自处理)</code>-&gt; <code class="language-plaintext highlighter-rouge">DefaultRuleContext.NewNextNodeRuleContext(创建节点执行上下文)</code> -&gt; <code class="language-plaintext highlighter-rouge">Node.OnMsg(执行节点函数)</code> -&gt; <code class="language-plaintext highlighter-rouge">DefaultRuleContext.DoOnEnd(结束执行)</code></p>
+
+<ul>
+  <li>RuleEngine.onMsgAndWait(核心消息处理)</li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// engine/engine.go</span>
+<span class="c">// onMsgAndWait processes a message through the rule engine, optionally waiting for all nodes to complete.</span>
+<span class="c">// It applies any provided RuleContextOptions to customize the execution context.</span>
+<span class="c">// 进行核心的规则处理</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span><span class="n">RuleEngine</span><span class="p">)</span> <span class="n">onMsgAndWait</span><span class="p">(</span><span class="n">msg</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleMsg</span><span class="p">,</span> <span class="n">wait</span> <span class="kt">bool</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">types</span><span class="o">.</span><span class="n">RuleContextOption</span><span class="p">)</span> <span class="p">{</span>
+ <span class="c">// 规则上下文不为空，赋值上下文</span>
+ <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+  <span class="c">// Create a copy of the root context for processing the message.</span>
+  <span class="n">rootCtx</span> <span class="o">:=</span> <span class="n">e</span><span class="o">.</span><span class="n">rootRuleChainCtx</span><span class="o">.</span><span class="n">rootRuleContext</span><span class="o">.</span><span class="p">(</span><span class="o">*</span><span class="n">DefaultRuleContext</span><span class="p">)</span>
+  <span class="c">// 进行复制</span>
+  <span class="n">rootCtxCopy</span> <span class="o">:=</span> <span class="n">NewRuleContext</span><span class="p">(</span>
+   <span class="n">rootCtx</span><span class="o">.</span><span class="n">GetContext</span><span class="p">(),</span>
+   <span class="n">rootCtx</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+   <span class="n">rootCtx</span><span class="o">.</span><span class="n">ruleChainCtx</span><span class="p">,</span>
+   <span class="n">rootCtx</span><span class="o">.</span><span class="n">from</span><span class="p">,</span>
+   <span class="n">rootCtx</span><span class="o">.</span><span class="n">self</span><span class="p">,</span>
+   <span class="n">rootCtx</span><span class="o">.</span><span class="n">pool</span><span class="p">,</span>
+   <span class="n">rootCtx</span><span class="o">.</span><span class="n">onEnd</span><span class="p">,</span>
+   <span class="n">e</span><span class="o">.</span><span class="n">ruleChainPool</span><span class="p">,</span>
+  <span class="p">)</span>
+  <span class="c">// 设置是否为第一个</span>
+  <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">isFirst</span> <span class="o">=</span> <span class="n">rootCtx</span><span class="o">.</span><span class="n">isFirst</span>
+  <span class="c">// 设置运行时闪照</span>
+  <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">runSnapshot</span> <span class="o">=</span> <span class="n">NewRunSnapshot</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">Id</span><span class="p">,</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">ruleChainCtx</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">Now</span><span class="p">()</span><span class="o">.</span><span class="n">UnixMilli</span><span class="p">())</span>
+  <span class="c">// Apply the provided options to the context copy.</span>
+  <span class="c">// 进行上下文设置</span>
+  <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">opt</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">opts</span> <span class="p">{</span>
+   <span class="n">opt</span><span class="p">(</span><span class="n">rootCtxCopy</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="c">// Handle the case where the rule chain has no nodes.</span>
+  <span class="k">if</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">ruleChainCtx</span><span class="o">.</span><span class="n">isEmpty</span> <span class="p">{</span>
+   <span class="n">e</span><span class="o">.</span><span class="n">onErrHandler</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">rootCtxCopy</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">New</span><span class="p">(</span><span class="s">"the rule chain has no nodes"</span><span class="p">))</span>
+   <span class="k">return</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">initErr</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+   <span class="n">e</span><span class="o">.</span><span class="n">onErrHandler</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">rootCtxCopy</span><span class="p">,</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">initErr</span><span class="p">)</span>
+   <span class="k">return</span>
+  <span class="p">}</span>
+  <span class="c">// Execute start aspects and update the message accordingly.</span>
+  <span class="c">// 执行启动切片</span>
+  <span class="n">msg</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">onStart</span><span class="p">(</span><span class="n">rootCtxCopy</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+  <span class="c">// Set up a custom end callback function.</span>
+  <span class="n">customOnEndFunc</span> <span class="o">:=</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">onEnd</span>
+  <span class="c">// 设置最终结尾处理函数</span>
+  <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">onEnd</span> <span class="o">=</span> <span class="k">func</span><span class="p">(</span><span class="n">ctx</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleContext</span><span class="p">,</span> <span class="n">msg</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleMsg</span><span class="p">,</span> <span class="n">err</span> <span class="kt">error</span><span class="p">,</span> <span class="n">relationType</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+   <span class="c">// Execute end aspects and update the message accordingly.</span>
+   <span class="c">// 先执行引擎结束处理</span>
+   <span class="n">msg</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">onEnd</span><span class="p">(</span><span class="n">rootCtxCopy</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">relationType</span><span class="p">)</span>
+   <span class="c">// Trigger the custom end callback if provided.</span>
+   <span class="k">if</span> <span class="n">customOnEndFunc</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+    <span class="c">// 触发终结处理函数</span>
+    <span class="n">customOnEndFunc</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">relationType</span><span class="p">)</span>
+   <span class="p">}</span>
+
+  <span class="p">}</span>
+  <span class="c">// Set up a custom function to be called upon completion of all nodes.</span>
+  <span class="n">customFunc</span> <span class="o">:=</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">onAllNodeCompleted</span>
+  <span class="c">// If waiting is required, set up a channel to synchronize the completion.</span>
+  <span class="c">// 确认等待，则需要所有都执行完了，再继续</span>
+  <span class="k">if</span> <span class="n">wait</span> <span class="p">{</span>
+   <span class="n">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="k">chan</span> <span class="k">struct</span><span class="p">{})</span>
+   <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">onAllNodeCompleted</span> <span class="o">=</span> <span class="k">func</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">defer</span> <span class="nb">close</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="c">// Execute the completion handling function.</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">doOnAllNodeCompleted</span><span class="p">(</span><span class="n">rootCtxCopy</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">customFunc</span><span class="p">)</span>
+   <span class="p">}</span>
+   <span class="c">// Process the message through the rule chain.</span>
+   <span class="c">// 优先处理接下来的</span>
+   <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">TellNext</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">firstNodeRelationTypes</span><span class="o">...</span><span class="p">)</span>
+   <span class="c">// Block until all nodes have completed.</span>
+   <span class="o">&lt;-</span><span class="n">c</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   <span class="c">// If not waiting, simply set the completion handling function.</span>
+   <span class="c">// 不需要等待，直接异步执行</span>
+   <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">onAllNodeCompleted</span> <span class="o">=</span> <span class="k">func</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">doOnAllNodeCompleted</span><span class="p">(</span><span class="n">rootCtxCopy</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">customFunc</span><span class="p">)</span>
+   <span class="p">}</span>
+   <span class="c">// Process the message through the rule chain.</span>
+   <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">TellNext</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">rootCtxCopy</span><span class="o">.</span><span class="n">firstNodeRelationTypes</span><span class="o">...</span><span class="p">)</span>
+  <span class="p">}</span>
+
+ <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="c">// Log an error if the rule engine is not initialized or the root rule chain is not defined.</span>
+  <span class="n">e</span><span class="o">.</span><span class="n">Config</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"onMsg error.RuleEngine not initialized"</span><span class="p">)</span>
+ <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>DefaultRuleContext.tellOrElse(节点自处理)</li>
+</ul>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// tellNext 通知执行子节点，如果是当前第一个节点则执行当前节点</span>
+<span class="c">// 如果找不到relationTypes对应的节点，而且defaultRelationType非默认值，则通过defaultRelationType查找节点</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">ctx</span> <span class="o">*</span><span class="n">DefaultRuleContext</span><span class="p">)</span> <span class="n">tellOrElse</span><span class="p">(</span><span class="n">msg</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleMsg</span><span class="p">,</span> <span class="n">err</span> <span class="kt">error</span><span class="p">,</span> <span class="n">defaultRelationType</span> <span class="kt">string</span><span class="p">,</span> <span class="n">relationTypes</span> <span class="o">...</span><span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c">//msgCopy := msg.Copy()</span>
+	<span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">isFirst</span> <span class="p">{</span>
+		<span class="c">// 执行自身</span>
+		<span class="n">ctx</span><span class="o">.</span><span class="n">tellSelf</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">relationTypes</span><span class="o">...</span><span class="p">)</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="n">relationTypes</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="c">//找不到子节点，则执行结束回调</span>
+			<span class="n">ctx</span><span class="o">.</span><span class="n">DoOnEnd</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="s">""</span><span class="p">)</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">relationType</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">relationTypes</span> <span class="p">{</span>
+				<span class="c">//执行After aop</span>
+				<span class="c">// 返回执行后的结果</span>
+				<span class="n">msg</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">executeAfterAop</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">relationType</span><span class="p">)</span>
+				<span class="k">var</span> <span class="n">ok</span> <span class="o">=</span> <span class="no">false</span>
+				<span class="k">var</span> <span class="n">nodes</span> <span class="p">[]</span><span class="n">types</span><span class="o">.</span><span class="n">NodeCtx</span>
+				<span class="c">//根据relationType查找子节点列表</span>
+				<span class="n">nodes</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">getNextNodes</span><span class="p">(</span><span class="n">relationType</span><span class="p">)</span>
+				<span class="c">//根据默认关系查找节点</span>
+				<span class="k">if</span> <span class="n">defaultRelationType</span> <span class="o">!=</span> <span class="s">""</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span><span class="n">ok</span> <span class="o">||</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">ctx</span><span class="o">.</span><span class="n">skipTellNext</span> <span class="p">{</span>
+					<span class="n">nodes</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">getNextNodes</span><span class="p">(</span><span class="n">defaultRelationType</span><span class="p">)</span>
+				<span class="p">}</span>
+				<span class="k">if</span> <span class="n">ok</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">ctx</span><span class="o">.</span><span class="n">skipTellNext</span> <span class="p">{</span>
+					<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">item</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">nodes</span> <span class="p">{</span>
+						<span class="n">tmp</span> <span class="o">:=</span> <span class="n">item</span>
+						<span class="c">//增加一个待执行的子节点</span>
+						<span class="n">ctx</span><span class="o">.</span><span class="n">childReady</span><span class="p">()</span>
+						<span class="n">msgCopy</span> <span class="o">:=</span> <span class="n">msg</span><span class="o">.</span><span class="n">Copy</span><span class="p">()</span>
+						<span class="c">//通知执行子节点</span>
+						<span class="n">ctx</span><span class="o">.</span><span class="n">SubmitTack</span><span class="p">(</span><span class="k">func</span><span class="p">()</span> <span class="p">{</span>
+							<span class="n">ctx</span><span class="o">.</span><span class="n">tellNext</span><span class="p">(</span><span class="n">msgCopy</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">relationType</span><span class="p">)</span>
+						<span class="p">})</span>
+					<span class="p">}</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="c">//找不到子节点，则执行结束回调</span>
+					<span class="n">ctx</span><span class="o">.</span><span class="n">DoOnEnd</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">relationType</span><span class="p">)</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>DefaultRuleContext.tellNext(节点自处理)</li>
+</ul>
+
+<p>这里主要是进行核心的切片执行与AOP推理</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// engine/engine.go</span>
+<span class="c">// 执行下一个节点</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">ctx</span> <span class="o">*</span><span class="n">DefaultRuleContext</span><span class="p">)</span> <span class="n">tellNext</span><span class="p">(</span><span class="n">msg</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleMsg</span><span class="p">,</span> <span class="n">nextNode</span> <span class="n">types</span><span class="o">.</span><span class="n">NodeCtx</span><span class="p">,</span> <span class="n">relationType</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">defer</span> <span class="k">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="c">//捕捉异常</span>
+		<span class="k">if</span> <span class="n">e</span> <span class="o">:=</span> <span class="nb">recover</span><span class="p">();</span> <span class="n">e</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="c">//执行After aop</span>
+			<span class="n">msg</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">executeAfterAop</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"%v"</span><span class="p">,</span> <span class="n">e</span><span class="p">),</span> <span class="n">relationType</span><span class="p">)</span>
+			<span class="n">ctx</span><span class="o">.</span><span class="n">childDone</span><span class="p">()</span>
+		<span class="p">}</span>
+	<span class="p">}()</span>
+	<span class="c">// 创建新的节点上下文</span>
+	<span class="n">nextCtx</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">NewNextNodeRuleContext</span><span class="p">(</span><span class="n">nextNode</span><span class="p">)</span>
+
+	<span class="c">//环绕aop</span>
+	<span class="k">if</span> <span class="o">!</span><span class="n">nextCtx</span><span class="o">.</span><span class="n">executeAroundAop</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">relationType</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+	<span class="c">// AroundAop 已经执行节点OnMsg逻辑，不再执行下面的逻辑</span>
+	<span class="c">// 执行节点Msg处理函数</span>
+	<span class="n">nextNode</span><span class="o">.</span><span class="n">OnMsg</span><span class="p">(</span><span class="n">nextCtx</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>JsTransformNode.OnMsg(节点执行)</li>
+</ul>
+
+<p>具体的执行由节点本身来完成，但是节点中必须使用Next函数进行切换，保证进行下一个节点。核心在于递归式的子节点函数调用与gin中的middle实现思路一致，但是随着调用链的增加，递归栈长度会逐渐加深，内存性能损耗较大，同时对重试机制，分布式step执行不友好。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// OnMsg 处理消息</span>
+<span class="k">func</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span><span class="n">JsTransformNode</span><span class="p">)</span> <span class="n">OnMsg</span><span class="p">(</span><span class="n">ctx</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleContext</span><span class="p">,</span> <span class="n">msg</span> <span class="n">types</span><span class="o">.</span><span class="n">RuleMsg</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c">// 预定义数据</span>
+	<span class="k">var</span> <span class="n">data</span> <span class="k">interface</span><span class="p">{}</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">Data</span>
+	<span class="c">// 进行数据解析</span>
+	<span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">DataType</span> <span class="o">==</span> <span class="n">types</span><span class="o">.</span><span class="n">JSON</span> <span class="p">{</span>
+		<span class="k">var</span> <span class="n">dataMap</span> <span class="k">interface</span><span class="p">{}</span>
+		<span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">json</span><span class="o">.</span><span class="n">Unmarshal</span><span class="p">([]</span><span class="kt">byte</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">Data</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">dataMap</span><span class="p">);</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="n">dataMap</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">data</span> <span class="o">=</span> <span class="nb">make</span><span class="p">(</span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="k">interface</span><span class="p">{})</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="c">// 执行js数据过滤指令</span>
+	<span class="c">// 获取输出</span>
+	<span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">x</span><span class="o">.</span><span class="n">jsEngine</span><span class="o">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">"Transform"</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">msg</span><span class="o">.</span><span class="n">Metadata</span><span class="o">.</span><span class="n">Values</span><span class="p">(),</span> <span class="n">msg</span><span class="o">.</span><span class="n">Type</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+		<span class="n">ctx</span><span class="o">.</span><span class="n">TellFailure</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="c">// 转换输出数据为map</span>
+		<span class="n">formatData</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">out</span><span class="o">.</span><span class="p">(</span><span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="k">interface</span><span class="p">{})</span>
+		<span class="k">if</span> <span class="n">ok</span> <span class="p">{</span>
+			<span class="c">// 更新msg对应值</span>
+			<span class="k">if</span> <span class="n">formatMsgType</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">formatData</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">MsgTypeKey</span><span class="p">];</span> <span class="n">ok</span> <span class="p">{</span>
+				<span class="n">msg</span><span class="o">.</span><span class="n">Type</span> <span class="o">=</span> <span class="n">string2</span><span class="o">.</span><span class="n">ToString</span><span class="p">(</span><span class="n">formatMsgType</span><span class="p">)</span>
+			<span class="p">}</span>
+
+			<span class="k">if</span> <span class="n">formatMetaData</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">formatData</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">MetadataKey</span><span class="p">];</span> <span class="n">ok</span> <span class="p">{</span>
+				<span class="n">msg</span><span class="o">.</span><span class="n">Metadata</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">BuildMetadata</span><span class="p">(</span><span class="n">string2</span><span class="o">.</span><span class="n">ToStringMapString</span><span class="p">(</span><span class="n">formatMetaData</span><span class="p">))</span>
+			<span class="p">}</span>
+
+			<span class="k">if</span> <span class="n">formatMsgData</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">formatData</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">MsgKey</span><span class="p">];</span> <span class="n">ok</span> <span class="p">{</span>
+				<span class="c">// 设置新值</span>
+				<span class="k">if</span> <span class="n">newValue</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">string2</span><span class="o">.</span><span class="n">ToStringMaybeErr</span><span class="p">(</span><span class="n">formatMsgData</span><span class="p">);</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+					<span class="n">msg</span><span class="o">.</span><span class="n">Data</span> <span class="o">=</span> <span class="n">newValue</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="n">ctx</span><span class="o">.</span><span class="n">TellFailure</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+					<span class="k">return</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			<span class="c">// 进行下一步的运算--这个是关键</span>
+			<span class="n">ctx</span><span class="o">.</span><span class="n">TellNext</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">Success</span><span class="p">)</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">ctx</span><span class="o">.</span><span class="n">TellFailure</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">JsTransformReturnFormatErr</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2024/07/14/virtio_learn/" data-toggle="tooltip" data-placement="top" title="virtio学习笔记">
+                        Previous<br>
+                        <span>virtio学习笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2024/07/16/kubernetes_learn/" data-toggle="tooltip" data-placement="top" title="kubernetes学习">
+                        Next<br>
+                        <span>kubernetes学习</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

@@ -1,0 +1,2550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>UNIX网络编程 学习笔记 (二) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/11/26/unix_network_programming_02/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#UNIX" title="UNIX">UNIX</a>
+                        
+                        <a class="tag" href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程">网络编程</a>
+                        
+                    </div>
+                    <h1>UNIX网络编程 学习笔记 (二)</h1>
+                    
+                    
+                    <h2 class="subheading">UNIX网络编程 学习笔记 (二)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on November 26, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="unix网络编程-学习笔记">UNIX网络编程 学习笔记</h1>
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/zzxiaozhao/article/details/102637708">《Unix网络编程》卷1 初级</a></li>
+  <li><a href="https://blog.csdn.net/zzxiaozhao/article/details/102662861">《Unix网络编程》卷1 中级</a></li>
+</ul>
+
+<blockquote>
+  <p>2019-11-26 22:10:53</p>
+</blockquote>
+
+<h2 id="io复用select和poll函数">I/O复用：select和poll函数</h2>
+
+<p>进程可能在监听socket时还可能存在I/O的相关操作，会造成socket处理程序的阻塞。因此进程需要一种预先告知内核的能力，使得内核一旦发现进程指定的一个或多个I/O条件就绪;就直接通知进程–I/O复用。其由select和poll两个函数支持。</p>
+
+<p>I/O复用使用场景如下：</p>
+<ul>
+  <li>客户端处理互交式输入和网络socket时，必须使用I/O复用</li>
+  <li>一个客户端，同时处理多个套接字</li>
+  <li>TCP服务器既要监听套接字，又要处理已连接套接字。</li>
+  <li>一个服务器，既处理TCP又处理UDP</li>
+  <li>一个服务器处理多个服务器或者多个协议。</li>
+</ul>
+
+<h3 id="62-io模型">6.2 I/O模型</h3>
+
+<p>UNIX下可用的5种I/O模型：</p>
+
+<ul>
+  <li>阻塞式I/O:socket默认情况下的模式，进程从用户调用到系统调用，再到读取数据，中间过程是阻塞的；只有完成之后，才会开始处理数据</li>
+  <li>非阻塞式I/O：高速内核在进行I/O请求时，不要将进程投入睡眠态，而是返回一个错误–不进入自旋等待，而是直接返回。对于I/O频繁的类型不友好。
+<img src="https://wangpengcheng.github.io/img/2019-11-27-10-56-05.png" alt="非阻塞式I/O">
+</li>
+  <li>I/O复用:使用select或者poll，阻塞在这两个系统调用中的某一个之上，而不是阻塞在真正的I/O系统调用上。关键在于不是等待一个的I/O而是多个的I/O;类似于多个线程中使用阻塞式I/O
+<img src="https://wangpengcheng.github.io/img/2019-11-27-12-04-24.png" alt="I/O复用">
+</li>
+  <li>信号驱动式I/O:内核在描述符就绪时，发送SIGIO信号通知我们
+<img src="https://wangpengcheng.github.io/img/2019-11-27-12-09-46.png" alt="信号驱动式I/O">
+</li>
+  <li>异步I/O:定义内核相关操作，操作完成之后，由内核通知我们。信号驱动模式是内核通知，何时启动一个I/O操作。异步I/O是由内核通知我们I/O操作(数据复制)何时完成。
+<img src="https://wangpengcheng.github.io/img/2019-11-27-12-17-48.png" alt="异步I/O">
+</li>
+</ul>
+
+<h4 id="626-各种io模型的比较">6.2.6 各种I/O模型的比较</h4>
+
+<p><img src="https://img-blog.csdnimg.cn/20191023162011132.png#pic_center" alt="各种I/O模型的比较"></p>
+
+<p>注意：</p>
+<ul>
+  <li>同步I/O(synchronous I/O opetation),导致请求阻塞，直到I/O操作完成。</li>
+  <li>异步I/O(asynchronous I/O opetation),不导致请求进程阻塞</li>
+</ul>
+
+<h4 id="627-关于io复用">6.2.7 关于I/O复用</h4>
+
+<p>I/O复用采用轮询的方式处理多个描述符，当有文件准备好时，就通知进程。关注点如下：</p>
+
+<ul>
+  <li>I/O复用的应用场合
+    <ul>
+      <li>当客户处理多个描述符时（通常是交互式输入和网络套接字），必须使用I/O复用，才能即使告知用户程序套接字的情况</li>
+      <li>如果一个TCP服务器既要处理监听又要处理连接套接字，一般要用I/O复用</li>
+      <li>如果既要处理TCP，又要处理UDP，一般要用I/O复用</li>
+      <li>如果一个服务器要处理多个服务或多个协议如inet守护进程，一般要用I/O复用</li>
+    </ul>
+  </li>
+  <li>采用I/O复用的客户端和服务器程序</li>
+</ul>
+
+<h3 id="63-select函数">6.3 select函数</h3>
+<p><em>参考链接：</em> <a href="https://www.cnblogs.com/alantu2018/p/8612722.html">linux select函数详解</a></p>
+
+<p>select集合中的任何描述符准备好读写，他就开始工作。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">select</span><span class="p">(</span><span class="kt">int</span> <span class="n">maxfdp1</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">readset</span><span class="p">,</span> <span class="n">fd_set</span> <span class="o">*</span><span class="n">writeset</span><span class="p">,</span> <span class="n">fd_set</span> <span class="o">*</span><span class="n">exceptset</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="n">timeval</span> <span class="o">*</span><span class="n">timeout</span><span class="p">)</span>
+</code></pre></div></div>
+<p>参数解释：</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">timeval</code>:告知内核等待指定描述符中的任何一个就绪需要花多少时间，即最低时间，该时间后必须有返回；
+    <ul>
+      <li>永远等待就设置为空置指针，仅在有描述符准备好I/O时返回。</li>
+      <li>等待一段固定的时间：在有一个描述符准备号I/O时返回，但是不超过由该参数所指向的timeval结构体中指定的秒数和微秒数。一旦查过又没有符合条件的就返回0。</li>
+      <li>不等待:定时器设置为0，即为轮询(poll)；不等待，直接返回。加入描述符集的描述符都会被测试，并且返回满足要求的描述符的个数。这种方法通过轮询，无阻塞地获得了多个文件描述符状态。</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">readset</code>、<code class="language-plaintext highlighter-rouge">writeset</code>和<code class="language-plaintext highlighter-rouge">exceptset</code>指定我们要让内核测试读、写和异常条件的描述符。使用它们可以指定select的监听的描述符集合；<strong>一定要初始化，否则将产生不可描述的问题</strong>使用示例如下：
+    <div class="language-c highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="n">fd_set</span> <span class="n">rset</span><span class="p">;</span>
+<span class="cm">/* 初始化所有位--清空集合 */</span>
+<span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">set</span><span class="p">);</span>
+<span class="cm">/* 开启1的位--将1加入文件集合中 */</span>
+<span class="n">FD_SET</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+<span class="cm">/* 开启4的位 */</span>
+<span class="n">FD_SET</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+<span class="cm">/* 开启5的位 */</span>
+<span class="n">FD_SET</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+<span class="cm">/* 将1从集合中清除  */</span>
+<span class="n">FD_CLR</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>计时器到时返回0，-1表示出错</p>
+
+<h4 id="631-描述符就绪的条件">6.3.1 描述符就绪的条件</h4>
+
+<ul>
+  <li>一个套接字准备好读的情况：
+    <ul>
+      <li>接收缓冲区中字节数<code class="language-plaintext highlighter-rouge">&gt;=</code>接收缓冲区<strong>低水位标记</strong>的当前大小（默认1，由<code class="language-plaintext highlighter-rouge">SO_RCVLOWAT</code>设置）</li>
+      <li>读半部关闭(接收了<code class="language-plaintext highlighter-rouge">FIN</code>)将不阻塞并返回<code class="language-plaintext highlighter-rouge">0</code>
+</li>
+      <li>监听套接字的已连接数不为<code class="language-plaintext highlighter-rouge">0</code>，这时<code class="language-plaintext highlighter-rouge">accept</code>通常不阻塞</li>
+      <li>其上有一个套接字错误待处理，返回-1，<code class="language-plaintext highlighter-rouge">error</code>设置成具体的错误条件，可通过<code class="language-plaintext highlighter-rouge">SO_ERROR</code>套接字选项调用<code class="language-plaintext highlighter-rouge">getsockopt</code>获取并清除</li>
+    </ul>
+  </li>
+  <li>一个套接字准备好写：
+    <ul>
+      <li>以连接套接字或<code class="language-plaintext highlighter-rouge">UDP</code>套接字发送缓冲区中的可用字节数 <code class="language-plaintext highlighter-rouge">&gt;=</code> 发送缓冲区低水位标记的当前大小(默认<code class="language-plaintext highlighter-rouge">2048</code>，可用<code class="language-plaintext highlighter-rouge">SO_SNDLOWAT</code>)</li>
+      <li>写半部关闭的套接字，写操作将产生一个<code class="language-plaintext highlighter-rouge">SIGPIPE</code>信号</li>
+      <li>非阻塞式<code class="language-plaintext highlighter-rouge">connect</code>的套接字已建立连接，或者<code class="language-plaintext highlighter-rouge">connect</code>以失败告终</li>
+      <li>其上有一个套接字错误待处理，返回-1，<code class="language-plaintext highlighter-rouge">error</code>设置成具体的错误条件，可通过<code class="language-plaintext highlighter-rouge">SO_ERROR</code>套接字选项调用<code class="language-plaintext highlighter-rouge">getsockopt</code>获取并清除</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://img-blog.csdnimg.cn/20191023185927436.png#pic_center" alt="相关条件"></p>
+
+<p>混合使用stdio和select被认为是非常容易犯错误的：</p>
+<ul>
+  <li>readline缓冲区中可能有不完整的输入行</li>
+  <li>也可能有一个或多个完整的输入行</li>
+</ul>
+
+<h4 id="632-select的最大描述符">6.3.2 select的最大描述符</h4>
+<p>由FD_SETSIZE指定，一般为256，更改时，需要重新编译内核。</p>
+
+<h3 id="66-shutdown-函数">6.6 shutdown 函数</h3>
+
+<p>终止网络的常用方法是调用close函数，close函数的限制可以使用shutdown 来避免close的相关问题：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/socket.h&gt;
+</span><span class="kt">int</span> <span class="nf">shutdown</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">howto</span><span class="p">);</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">close()</code>把描述符的引用计数减1，<code class="language-plaintext highlighter-rouge">shutdown</code>直接激发TCP的正常连接序列的终止。</li>
+  <li>shutdown告诉对方我已近完成了数据的发送(对方仍然可以发给我）;howto相关参数如下：
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">SHUT_RD</code>：关闭连接的读这一半
+        <ul>
+          <li>可以把第二个参数置为<code class="language-plaintext highlighter-rouge">SHUT_RD</code>防止回环复制</li>
+          <li>关闭<code class="language-plaintext highlighter-rouge">SO_USELOOPBACK</code>套接字选项也能防止回环</li>
+        </ul>
+      </li>
+      <li>
+<code class="language-plaintext highlighter-rouge">SHUT_WR</code>：关闭连接的写这一半，也叫半关闭</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">SHUT_RDWR</code>：连接的读半部和写半部都关闭</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="68-tcp回射服务器程序">6.8 TCP回射服务器程序</h3>
+
+<p>使用一个client数组，来记录对应的已经建立连接的客户端的编号。当客户端连接断开口，将其对应的文件描述符从集合中删除，然后将对应的客户端编号设置为-1。</p>
+
+<p>改用了Read，Write，解决这一问题；并且改用了shutdown来关闭连接而不是用close。修复了批量输入的问题</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">str_cli</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="n">fp</span><span class="p">,</span> <span class="kt">int</span> <span class="n">sockfd</span><span class="p">){</span>
+  <span class="kt">int</span> <span class="n">maxfdp1</span><span class="p">,</span> <span class="n">stdineof</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+  <span class="n">fd_set</span> <span class="n">rset</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+
+  <span class="n">stdineof</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+  <span class="k">for</span><span class="p">(</span> <span class="p">;</span> <span class="p">;</span> <span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">stdineof</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span> <span class="c1">// 是一个初始化为0, 的新标志,当标志位0时,打开标准输入检测</span>
+      <span class="n">FD_SET</span><span class="p">(</span><span class="n">fileno</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* 将当前的socket描述符，添加到rset中 */</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+    <span class="n">maxfdp1</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">fileno</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="n">sockfd</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="c1">//使用Select监听函数</span>
+    <span class="n">Select</span><span class="p">(</span><span class="n">maxfdp1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">)){</span>
+      <span class="k">if</span><span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">Read</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">stdineof</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+          <span class="k">return</span> <span class="p">;</span>
+        <span class="k">else</span>
+          <span class="n">err_quit</span><span class="p">(</span><span class="s">"str_cli: server terminated prematurely"</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">Write</span><span class="p">(</span><span class="n">fileno</span><span class="p">(</span><span class="n">stdout</span><span class="p">),</span> <span class="n">buf</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">fileno</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">)){</span>
+      <span class="k">if</span><span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">Read</span><span class="p">(</span><span class="n">fileno</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="n">buf</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span> <span class="c1">// 表示读入EOF标志符,文件已经空了</span>
+        <span class="n">stdineof</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="c1">// 关闭标准输入 </span>
+        <span class="n">Shutdown</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">SHUT_WR</span><span class="p">);</span><span class="c1">// 关闭socked 的读操作</span>
+        <span class="n">FD_CLR</span><span class="p">(</span><span class="n">fileno</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span> <span class="c1">// 从检测位中删除 输入输入检测</span>
+        <span class="k">continue</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">Writen</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>下面是使用select的服务端程序</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="cm">/* 定义对应的文件描述符 */</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">maxi</span><span class="p">,</span> <span class="n">maxfd</span><span class="p">,</span> <span class="n">listenfd</span><span class="p">,</span> <span class="n">connfd</span><span class="p">,</span> <span class="n">sockfd</span><span class="p">;</span>
+    <span class="cm">/* 定义客户端连接集合 */</span>
+    <span class="kt">int</span> <span class="n">nready</span><span class="p">,</span> <span class="n">client</span><span class="p">[</span><span class="n">FD_SETSIZE</span><span class="p">];</span>
+    <span class="kt">ssize_t</span> <span class="n">n</span><span class="p">;</span>
+    <span class="cm">/* 定义连接客户端集合 */</span>
+    <span class="n">fd_set</span> <span class="n">rset</span><span class="p">,</span> <span class="n">allset</span><span class="p">;</span>
+    <span class="cm">/* 定义缓冲区 */</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="cm">/* 定义客户端关键字 */</span>
+    <span class="n">socklen_t</span> <span class="n">clilen</span><span class="p">;</span>
+    <span class="cm">/* 定义相关地址 */</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">cliaddr</span><span class="p">,</span> <span class="n">servaddr</span><span class="p">;</span>
+    <span class="cm">/* 开始进行监听 */</span>
+    <span class="n">listenfd</span> <span class="o">=</span> <span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="cm">/* 初始化服务器地址 */</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">SERV_PORT</span><span class="p">);</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+    <span class="cm">/* 连接监听socket和服务器地址 */</span>
+    <span class="n">Bind</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="cm">/* 开始监听 */</span>
+    <span class="n">Listen</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="n">LISTENQ</span><span class="p">);</span>
+    <span class="n">maxfd</span> <span class="o">=</span> <span class="n">listenfd</span><span class="p">;</span>
+    <span class="n">maxi</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="cm">/* 初始化client集合 */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">FD_SETSIZE</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="cm">/* 初始化监听集合 */</span>
+    <span class="n">FD_ZERO</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">allset</span><span class="p">);</span>
+    <span class="cm">/* 添加监听集合 */</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">allset</span><span class="p">);</span>
+    <span class="k">for</span><span class="p">(</span> <span class="p">;</span> <span class="p">;</span> <span class="p">){</span>
+        <span class="n">rset</span> <span class="o">=</span> <span class="n">allset</span><span class="p">;</span>
+        <span class="cm">/* 指向select */</span>
+        <span class="n">nready</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">maxfd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="cm">/* select监听函数 */</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">)){</span>
+            <span class="n">clilen</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+            <span class="cm">/* 获取连接描述符 */</span>
+            <span class="n">connfd</span> <span class="o">=</span> <span class="n">Accept</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">clilen</span><span class="p">);</span>
+            <span class="cm">/* 将其加入队列中 */</span>
+            <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">FD_SETSIZE</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+                    <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">connfd</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="cm">/* 超过范围开始警告 */</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">FD_SETSIZE</span><span class="p">)</span>
+                <span class="n">err_quit</span><span class="p">(</span><span class="s">"too many clients"</span><span class="p">);</span>
+            <span class="cm">/* 将连接符，添加到监听集合中 */</span>
+            <span class="n">FD_SET</span><span class="p">(</span><span class="n">connfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">allset</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">connfd</span> <span class="o">&gt;</span> <span class="n">maxfd</span><span class="p">)</span>
+                <span class="n">maxfd</span><span class="o">=</span> <span class="n">connfd</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">maxi</span><span class="p">)</span>
+                <span class="n">maxi</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="cm">/* 没有准备好直接继续，不进行下面的链接检查和读写操作了 */</span>
+            <span class="k">if</span><span class="p">(</span><span class="o">--</span><span class="n">nready</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="cm">/* 遍历所有连接 */</span>
+        <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">maxi</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+            <span class="cm">/* 获取保存的连接描述符 */</span>
+            <span class="k">if</span><span class="p">((</span><span class="n">sockfd</span> <span class="o">=</span> <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">)){</span>
+                <span class="cm">/* 如果没有读取到，将其清除 */</span>
+                <span class="k">if</span><span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">Read</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+                    <span class="n">Close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+                    <span class="n">FD_CLR</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">allset</span><span class="p">);</span>
+                    <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+                <span class="p">}</span><span class="k">else</span><span class="p">{</span><span class="cm">/* 否则写入内容 */</span>
+                    
+                    <span class="n">Writen</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="cm">/* 状态错误，直接跳出 */</span>
+                <span class="k">if</span><span class="p">(</span><span class="o">--</span><span class="n">nready</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>相关的过程如下:</p>
+
+<p><img src="https://img-blog.csdnimg.cn/20191023192300958.png#pic_center" alt="相关过程"></p>
+
+<p><strong>拒绝服务攻击：</strong> 当一个服务器在处理多个客户端时，对于单个客户端的函数调用，如果阻塞了，那么可能导致服务器被挂起，拒绝为所有其它客户提供服务。</p>
+
+<p>解决办法：</p>
+<ul>
+  <li>使用非阻塞式I/O</li>
+  <li>让每个客户由单独的控制线程提供服务。</li>
+  <li>对I/O操作设置超时</li>
+</ul>
+
+<h3 id="69-pselect函数">6.9 pselect函数</h3>
+
+<p>由POSIX发明，如今许多Unix变种支持它</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/select.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;time.h&gt;
+</span><span class="kt">int</span> <span class="n">pselect</span><span class="p">(</span><span class="kt">int</span> <span class="n">maxfdp1</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">readset</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">writeset</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">execptset</span><span class="p">,</span><span class="k">const</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">timeout</span><span class="p">,</span><span class="k">const</span> <span class="n">sigset_t</span> <span class="o">*</span><span class="n">sigmask</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>pselect函数使用timespec结构，时间划分更加细腻。使用了第六个参数，指向信号掩码的指针。该参数允许程序先禁止递交某些信号，再测试由这些当前被禁止信号的信号处理函数设置的全局变量。</p>
+
+<h3 id="610-poll函数">6.10 poll函数</h3>
+
+<p>poll功能和select类似，但是能够提供额外的信息</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;poll.h&gt;
+</span><span class="kt">int</span> <span class="nf">poll</span><span class="p">(</span><span class="k">struct</span> <span class="n">pollfd</span> <span class="o">*</span><span class="n">fdarray</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nfds</span><span class="p">,</span><span class="kt">int</span> <span class="n">timeout</span><span class="p">);</span>
+</code></pre></div></div>
+<p>pollfd用于指定测试某个给定描述符的条件；关键结构如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">pollfd</span><span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span><span class="cm">/* 确认描述符 */</span>
+    <span class="kt">short</span> <span class="n">events</span> <span class="cm">/* 测试条件 */</span>
+    <span class="kt">short</span> <span class="n">revents</span> <span class="cm">/* 描述符的状态 */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>events常量如下：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-11-29-17-14-28.png" alt="poll处理函数"></p>
+
+<p>nfds指定结构数组中元素的个数，是由nfds参数指定的</p>
+
+<h3 id="611-tcp回射服务器程序">6.11 TCP回射服务器程序</h3>
+
+<p>使用poll代替select来作为TCP的回射服务器。可以只需要一个pollfd结构的数组类维护客户心虚，不必再分配数组。传递给poll的pollfd的结构数组中的任何fd成员为负值的项都被poll忽略。下面是服务器的主要代码</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+#include &lt;limmits.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span> <span class="p">,</span><span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="n">maxi</span><span class="p">,</span><span class="n">listenfd</span><span class="p">,</span><span class="n">connfd</span><span class="p">,</span><span class="n">sockfd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">nready</span><span class="p">;</span>
+    <span class="kt">ssize_t</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="cm">/* socket描述符 */</span>
+    <span class="n">socklen_t</span> <span class="n">clilen</span><span class="p">;</span>
+    <span class="cm">/* poll客户端描述符 */</span>
+    <span class="k">struct</span> <span class="nc">pollfd</span> <span class="n">client</span><span class="p">[</span><span class="n">OPEN_MAX</span><span class="p">];</span>
+    <span class="cm">/* 相关地址结构 */</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">cliaddr</span><span class="p">,</span><span class="n">servaddr</span><span class="p">;</span>
+    <span class="cm">/* 创建socket */</span> 
+    <span class="n">listenfd</span><span class="o">=</span><span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">SOCK_STREAM</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="cm">/* 初始化地址结构体 */</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span><span class="o">=</span><span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span><span class="o">=</span><span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span><span class="o">=</span><span class="n">htons</span><span class="p">(</span><span class="n">SERV_PORT</span><span class="p">);</span>
+    <span class="cm">/* 初始化socket地址 */</span>
+    <span class="n">Bind</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,(</span><span class="n">SA</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="cm">/* 监听被动化 */</span>
+    <span class="n">Listen</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span><span class="n">LISTENQ</span><span class="p">);</span>
+    <span class="cm">/* 初始化第一个结构体 */</span>
+    <span class="n">client</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span><span class="o">=</span><span class="n">listenfd</span><span class="p">;</span>
+    <span class="n">client</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">events</span><span class="o">=</span><span class="n">POLLRDNORM</span><span class="p">;</span>
+    <span class="cm">/* 将数据初始化为-1 */</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="cm">/* 设置栈顶指针 */</span>
+    <span class="n">maxi</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="cm">/* 下面是poll的监听操作 */</span>
+    <span class="k">for</span><span class="p">(;;){</span>
+        <span class="n">nready</span><span class="o">=</span><span class="n">Poll</span><span class="p">(</span><span class="n">client</span><span class="p">,</span><span class="n">maxi</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">INFTIM</span><span class="p">);</span>
+        <span class="cm">/* 创建新的客户端连接 */</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">revents</span><span class="o">&amp;</span><span class="n">POLLRDNORM</span><span class="p">){</span>
+            <span class="n">clilen</span><span class="o">=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+            <span class="cm">/* accept连接 */</span>
+            <span class="n">connfd</span><span class="o">=</span><span class="n">Accept</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span><span class="o">&amp;</span><span class="n">clilen</span><span class="p">);</span>
+            <span class="cm">/* 遍历剩下的连接集合 */</span>
+            <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">OPEN_MAX</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+                    <span class="cm">/* 存储当前连接 */</span>
+                    <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">=</span><span class="n">connfd</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="cm">/* 已经溢出 */</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="n">OPEN_MAX</span><span class="p">)</span>
+                <span class="n">err_quit</span><span class="p">(</span><span class="s">"too many clients"</span><span class="p">);</span>
+            <span class="cm">/* 设置监听条件 */</span>
+            <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span><span class="o">=</span><span class="n">POLLRDNORM</span><span class="p">;</span>
+            <span class="cm">/* 检查越界 */</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">&gt;</span><span class="n">max</span><span class="p">)</span>
+                <span class="n">maxi</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+            <span class="cm">/* 没有更多可读描述，直接继续 */</span>
+            <span class="k">if</span><span class="p">(</span><span class="o">--</span><span class="n">nready</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">continue</span><span class="p">;</span>  
+        <span class="p">}</span>
+        <span class="cm">/* 遍历整个队列进行处理 */</span>
+        <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">maxi</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="cm">/* 查找当前网络连接符 */</span>
+            <span class="k">if</span><span class="p">((</span><span class="n">sockfd</span><span class="o">=</span><span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+            <span class="cm">/* 检查描述符状态是否正确 */</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span><span class="o">&amp;</span><span class="p">(</span><span class="n">POLLRDNORM</span><span class="o">|</span><span class="n">POLLERR</span><span class="p">)){</span>
+                <span class="cm">/* 数据处理和读入 */</span>
+                <span class="cm">/* 如果连接直接断开了 */</span>
+                <span class="k">if</span><span class="p">((</span><span class="n">n</span><span class="o">=</span><span class="n">read</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span><span class="n">buf</span><span class="p">,</span><span class="n">MAXLINE</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">errno</span><span class="o">==</span><span class="n">ECONNRESET</span><span class="p">){</span>
+                        <span class="cm">/* 当前连接，被客户端重置 */</span>
+                        <span class="n">Close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+                        <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span>
+                    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                        <span class="n">err_sys</span><span class="p">(</span><span class="s">"read error"</span><span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+                    <span class="cm">/* 当前连接被客户端关闭 */</span>
+                    <span class="n">Close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+                    <span class="n">client</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span>
+                <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                    <span class="n">Writen</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span><span class="n">buf</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="cm">/* 没有更多的描述符 */</span>
+                <span class="k">if</span><span class="p">(</span><span class="o">--</span><span class="n">nready</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="612-linux中的epoll高并发事件触发处理">6.12 Linux中的epoll–高并发事件触发处理</h3>
+
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/qq_19923217/article/details/81943705">linux 高并发事件触发处理 — epoll</a></li>
+  <li><a href="https://blog.csdn.net/liushengxi_root/article/details/87926566">Linux 下 Epoll 源码深入解读</a></li>
+</ul>
+
+<h4 id="6121-select-和epoll的区别">6.12.1 select 和epoll的区别</h4>
+
+<ol>
+  <li>函数使用上：epoll 使用一组函数来完成任务，而不是单个函数</li>
+  <li>效率：select 使用轮询来处理，随着监听 fd 数目的增加而降低效率。而 epoll 把用户关心的文件描述符事件放在内核里的一个事件表中，只需要一个额外的文件描述符来标识内核中的这个事件表即可。</li>
+</ol>
+
+<p>epoll主要使用内核事件表，来实现I/O复用。</p>
+
+<h4 id="6122-相关api讲解">6.12.2 相关API讲解</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/epoll.h&gt;
+</span><span class="cm">/* 创建epoll；需要一个额外的文件描述符来标识使用的内核事件表，返回内核事件表的作用描述符 */</span>
+<span class="kt">int</span> <span class="nf">epoll_create</span><span class="p">(</span><span class="kt">int</span> <span class="n">size</span><span class="p">);</span>
+<span class="cm">/* epoll的事件注册函数，用来操作内核事件表。它不同于select；需要先注册监听事件的类型 */</span>
+<span class="kt">int</span> <span class="nf">epoll_ctl</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">top</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="k">struct</span> <span class="n">epoll_event</span> <span class="o">*</span><span class="n">event</span><span class="p">);</span>
+<span class="cm">/* 等待事件发生，并将发生的事件从内核事件表fd中复制到第二个参数events指向的数组中 */</span>
+<span class="kt">int</span> <span class="nf">epoll_wait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="k">struct</span> <span class="n">epoll_event</span><span class="o">*</span> <span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">);</span>
+</code></pre></div></div>
+<p>epoll_ctl的参数含义如下：</p>
+
+<ul>
+  <li>epfd： 要操作的内核事件表的文件描述符，即 epoll_create 的返回值</li>
+  <li>op：指定操作类型，操作类型有三种：
+    <ul>
+      <li>EPOLL_CTL_ADD：往内核事件表中注册指定fd 相关的事件</li>
+      <li>EPOLL_CTL_MOD：修改指定 fd 上的注册事件</li>
+      <li>EPOLL_CTL_DEL：删除指定 fd 的注册事件</li>
+    </ul>
+  </li>
+  <li>fd：所要操作的文件描述符，也就是要内核事件表中监听的 fd</li>
+  <li>event：指定所要监听的事件类型，epoll_event 结构指针类型。</li>
+</ul>
+
+<p>struct epoll_even结构如下：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">union</span> <span class="n">epoll_data</span> <span class="p">{</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="n">__uint32_t</span> <span class="n">u32</span><span class="p">;</span>
+    <span class="n">__uint64_t</span> <span class="n">u64</span><span class="p">;</span>
+ <span class="p">}</span> <span class="n">epoll_data_t</span><span class="p">;</span>
+
+ <span class="k">struct</span> <span class="n">epoll_event</span> <span class="p">{</span>
+    <span class="n">__uint32_t</span> <span class="n">events</span><span class="p">;</span> <span class="cm">/* Epoll events */</span>
+    <span class="n">epoll_data_t</span> <span class="n">data</span><span class="p">;</span> <span class="cm">/* User data variable */</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>其中 events 成员描述事件类型，可以是以下几种类型宏的集合：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">类型宏</th>
+      <th style="text-align: left">成员描述事件</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EPOLLIN</code></td>
+      <td style="text-align: left">表示对应的文件描述符可以读（包括对端SOCKET正常关闭）；</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EPOLLOUT</code></td>
+      <td style="text-align: left">表示对应的文件描述符可以写；</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EPOLLPRI</code></td>
+      <td style="text-align: left">表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EPOLLERR</code></td>
+      <td style="text-align: left">表示对应的文件描述符发生错误；</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EPOLLHUP</code></td>
+      <td style="text-align: left">表示对应的文件描述符被挂断；</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EPOLLET</code></td>
+      <td style="text-align: left">将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EPOLLONESHOT</code></td>
+      <td style="text-align: left">只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>epoll_ctl 成功时返回 0，失败则返回 -1，并设置 errno</p>
+
+<p>epoll_wait指定的相关参数如下:</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">epfd</code>:要操作的内核事件表的文件描述符，即epoll_create的返回值</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">events</code>:内核事件表中得到的检测事件集合</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">maxevents&amp;timeout</code>:maxevents 告诉内核 events 的最大 size，timeout 指定超时时间</li>
+</ul>
+
+<p>成功时返回就绪的文件描述符的个数，失败返回-1并设置errno</p>
+
+<h4 id="6123-epoll工作模式">6.12.3 epoll工作模式</h4>
+
+<ul>
+  <li>LT(level trigger)模式:电平触发(epoll默认工作模式)，网epoll_wait检测到描述事件发生并将此事件通知应用程序，应用程序可以不立即处理该事件。下次调用epoll_wait时，会再次响应应用程序并通知此事件。</li>
+  <li>ET(edge trigger)模式:边缘触发,当epoll_wait检测到描述符事件发生并将此事件通知应用程序，应用程序必须立即处理此事。不处理，下一次调用epoll_wait时，不会再次响应应用程序并通知此事件。</li>
+  <li>ET模式在很大程度上减少了epoll事件被重复触发的次数，因此效率要比LT模式高。epoll工作在ET模式的时候，必须使用<strong>非阻塞套接口</strong>，以避免由于一个文件句柄的阻塞读/阻塞写操作把处理多个文件描述符的任务饿死。</li>
+</ul>
+
+<p>下面是一个简单的服务器和客户端的示例:</p>
+
+<p>服务器端</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;errno.h&gt;
+</span>
+<span class="cp">#include &lt;netinet/in.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;arpa/inet.h&gt;
+#include &lt;sys/epoll.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#define IPADDRESS   "127.0.0.1"
+#define PORT        8787
+#define MAXSIZE     1024
+#define LISTENQ     5
+#define FDSIZE      1000
+#define EPOLLEVENTS 100
+</span>
+<span class="cm">/* 函数声明 */</span>
+
+<span class="cm">/*创建套接字并进行绑定*/</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">socket_bind</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">ip</span><span class="p">,</span><span class="kt">int</span> <span class="n">port</span><span class="p">);</span>
+<span class="cm">/* IO多路复用epoll */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">do_epoll</span><span class="p">(</span><span class="kt">int</span> <span class="n">listenfd</span><span class="p">);</span>
+<span class="cm">/* 事件处理函数 */</span>
+<span class="k">static</span> <span class="kt">void</span>
+<span class="nf">handle_events</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span><span class="kt">int</span> <span class="n">num</span><span class="p">,</span><span class="kt">int</span> <span class="n">listenfd</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span>
+<span class="cm">/* 处理接收到的连接 */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">handle_accpet</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">listenfd</span><span class="p">);</span>
+<span class="cm">/* 读处理 */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">do_read</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span>
+<span class="cm">/* 写处理 */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">do_write</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span>
+<span class="c1">//添加事件</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">add_event</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">state</span><span class="p">);</span>
+<span class="c1">//修改事件</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">modify_event</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">state</span><span class="p">);</span>
+<span class="c1">//删除事件</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">delete_event</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">state</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">int</span>  <span class="n">listenfd</span><span class="p">;</span>
+    <span class="cm">/* 创建链接socket */</span>
+    <span class="n">listenfd</span> <span class="o">=</span> <span class="n">socket_bind</span><span class="p">(</span><span class="n">IPADDRESS</span><span class="p">,</span><span class="n">PORT</span><span class="p">);</span>
+    <span class="cm">/* 开始监听 */</span>
+    <span class="n">listen</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span><span class="n">LISTENQ</span><span class="p">);</span>
+    <span class="cm">/* 执行epoll */</span>
+    <span class="n">do_epoll</span><span class="p">(</span><span class="n">listenfd</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">socket_bind</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">ip</span><span class="p">,</span><span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span>  <span class="n">listenfd</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">servaddr</span><span class="p">;</span>
+    <span class="cm">/* 初始化socket，指定TCP协议 */</span>
+    <span class="n">listenfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">SOCK_STREAM</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">listenfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"socket error:"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* 初始化地址结构体 */</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">ip</span><span class="p">,</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">);</span>
+    <span class="cm">/* 初始化端口 */</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">port</span><span class="p">);</span>
+    <span class="cm">/* 连接地址和协议 */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,(</span><span class="k">struct</span> <span class="nc">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"bind error: "</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* 返回描述符 */</span>
+    <span class="k">return</span> <span class="n">listenfd</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">do_epoll</span><span class="p">(</span><span class="kt">int</span> <span class="n">listenfd</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* epoll内核注册事件表 */</span>
+    <span class="kt">int</span> <span class="n">epollfd</span><span class="p">;</span>
+    <span class="cm">/* 定义监听事件列表 */</span>
+    <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="n">events</span><span class="p">[</span><span class="n">EPOLLEVENTS</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">ret</span><span class="p">;</span>
+    <span class="cm">/* 读取缓冲区 */</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="n">MAXSIZE</span><span class="p">];</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">MAXSIZE</span><span class="p">);</span>
+    <span class="cm">/* 创建一个描述符 */</span>
+    <span class="n">epollfd</span> <span class="o">=</span> <span class="n">epoll_create</span><span class="p">(</span><span class="n">FDSIZE</span><span class="p">);</span>
+    <span class="cm">/* 添加监听描述符事件 */</span>
+    <span class="n">add_event</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">listenfd</span><span class="p">,</span><span class="n">EPOLLIN</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span> <span class="p">;</span> <span class="p">;</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="cm">/* 获取已经准备好的描述符事件 */</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">epoll_wait</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">events</span><span class="p">,</span><span class="n">EPOLLEVENTS</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+        <span class="cm">/* 处理对应事件 */</span>
+        <span class="n">handle_events</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">events</span><span class="p">,</span><span class="n">ret</span><span class="p">,</span><span class="n">listenfd</span><span class="p">,</span><span class="n">buf</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* 注意这里需要关闭epoll，否则文件描述符会被耗尽 */</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">epollfd</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span>
+<span class="nf">handle_events</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span><span class="kt">int</span> <span class="n">num</span><span class="p">,</span><span class="kt">int</span> <span class="n">listenfd</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="cm">/* 进行选好遍历 */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span><span class="p">;</span>
+        <span class="cm">/* 根据描述符的类型和事件类型进行处理 */</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">fd</span> <span class="o">==</span> <span class="n">listenfd</span><span class="p">)</span> <span class="o">&amp;&amp;</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">&amp;</span> <span class="n">EPOLLIN</span><span class="p">))</span><span class="cm">/* 如果是主监听socket */</span>
+            <span class="cm">/* 处理事件;主要是将建立的连接，添加到队列中 */</span>
+            <span class="n">handle_accpet</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">listenfd</span><span class="p">);</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">&amp;</span> <span class="n">EPOLLIN</span><span class="p">)</span>
+            <span class="n">do_read</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">buf</span><span class="p">);</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span> <span class="o">&amp;</span> <span class="n">EPOLLOUT</span><span class="p">)</span>
+            <span class="n">do_write</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">buf</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">handle_accpet</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">listenfd</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">clifd</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">cliaddr</span><span class="p">;</span>
+    <span class="n">socklen_t</span>  <span class="n">cliaddrlen</span><span class="p">;</span>
+    <span class="cm">/* 获取新的连接 */</span>
+    <span class="n">clifd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,(</span><span class="k">struct</span> <span class="nc">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span><span class="o">&amp;</span><span class="n">cliaddrlen</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">clifd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"accpet error:"</span><span class="p">);</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"accept a new client: %s:%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">inet_ntoa</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">),</span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sin_port</span><span class="p">);</span>
+        <span class="cm">/* 添加一个客户描述符和事件 */</span>
+        <span class="n">add_event</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">clifd</span><span class="p">,</span><span class="n">EPOLLIN</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">do_read</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">nread</span><span class="p">;</span>
+    <span class="n">nread</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buf</span><span class="p">,</span><span class="n">MAXSIZE</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"read error:"</span><span class="p">);</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+        <span class="n">delete_event</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">EPOLLIN</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">"client close.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+        <span class="n">delete_event</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">EPOLLIN</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"read message is : %s"</span><span class="p">,</span><span class="n">buf</span><span class="p">);</span>
+        <span class="cm">/* 修改描述符对应的事件，由读改为写 */</span>
+        <span class="n">modify_event</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">EPOLLOUT</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="cm">/* 执行写操作 */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">do_write</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">nwrite</span><span class="p">;</span>
+    <span class="n">nwrite</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buf</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+    <span class="cm">/* 写失败 */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">nwrite</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"write error:"</span><span class="p">);</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+        <span class="n">delete_event</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">EPOLLOUT</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+        <span class="n">modify_event</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">EPOLLIN</span><span class="p">);</span>
+    <span class="cm">/* 重设缓冲区 */</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">MAXSIZE</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cm">/* 添加事件 */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">add_event</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">state</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* 创建事件 */</span>
+    <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="n">ev</span><span class="p">;</span>
+    <span class="n">ev</span><span class="p">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">state</span><span class="p">;</span>
+    <span class="n">ev</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span> <span class="o">=</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="cm">/* 添加事件控制 */</span>
+    <span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cm">/* 将事件删除 */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">delete_event</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">state</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="n">ev</span><span class="p">;</span>
+    <span class="n">ev</span><span class="p">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">state</span><span class="p">;</span>
+    <span class="n">ev</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span> <span class="o">=</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">EPOLL_CTL_DEL</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cm">/* 触发事件 */</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">modify_event</span><span class="p">(</span><span class="kt">int</span> <span class="n">epollfd</span><span class="p">,</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">state</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="n">ev</span><span class="p">;</span>
+    <span class="n">ev</span><span class="p">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">state</span><span class="p">;</span>
+    <span class="n">ev</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span> <span class="o">=</span> <span class="n">fd</span><span class="p">;</span>
+    <span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epollfd</span><span class="p">,</span><span class="n">EPOLL_CTL_MOD</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ol>
+  <li>执行epoll_create时，创建了红黑树和就绪list链表。</li>
+  <li>执行epoll_ctl时，如果增加fd（socket），则检查在红黑树中是否存在，存在立即返回，不存在则添加到红黑树上，然后向内核注册回调函数，用于当中断事件来临时向准备就绪list链表中插入数据。</li>
+  <li>执行epoll_wait时立刻返回准备就绪链表里的数据即可。</li>
+</ol>
+
+<p><strong>相对select，epoll少了从内核态到用户态的fd描述符集合的拷贝</strong></p>
+
+<h2 id="第-7-章-套接字选项">第 7 章 套接字选项</h2>
+
+<p>getsockopt和setsockopt仅用于套接字</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/socket.h&gt;
+</span><span class="kt">int</span> <span class="nf">getsockopt</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">level</span><span class="p">,</span> <span class="kt">int</span> <span class="n">optname</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">optname</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">optval</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="o">*</span><span class="n">optlen</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">setsockopt</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">level</span><span class="p">,</span> <span class="kt">int</span> <span class="n">optname</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">optval</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="n">optlen</span><span class="p">);</span>
+<span class="c1">// 均返回：成功0，出错-1</span>
+</code></pre></div></div>
+<h4 id="72-参数说明">7.2 参数说明</h4>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">sockfd</code>:一个打开的套接字描述符.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">level</code>:(级别)指定系统中解释选项的代码或为通用套接字代码，或为特定于某个协议的代码(IPV4、IPV6、TCP、SCTP)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">optval</code>:指向某个变量的指针
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">setsockopt</code>通过它获取新值，</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">getsockopt</code>把已获取的选项当前值存放到<code class="language-plaintext highlighter-rouge">*optval</code>
+</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">optlen</code>：<code class="language-plaintext highlighter-rouge">optval</code>的长度.</li>
+  <li>
+<strong>套接字选项粗分为两大基本类型:</strong>
+    <ul>
+      <li>
+<strong>标志选项</strong>：启用或禁止某个特性的二元选项
+        <ul>
+          <li>
+<code class="language-plaintext highlighter-rouge">getsockopt</code>:<code class="language-plaintext highlighter-rouge">optval</code>为0表示禁止，否则表示启用</li>
+          <li>
+<code class="language-plaintext highlighter-rouge">setsockopt</code>:<code class="language-plaintext highlighter-rouge">optval</code>为0用来禁止</li>
+        </ul>
+      </li>
+      <li>
+<strong>值选项</strong>：取得并返回我们可以设置或检查的特定值选项
+        <ul>
+          <li>用户进程与系统之间传递所指数据类型的值</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>下面是opt可以设置的选项的名称：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-11-29-21-40-06.png" alt="套接字层和IP层的套接字选项汇总01">
+<img src="https://wangpengcheng.github.io/img/2019-11-29-21-40-47.png" alt="套接字层和IP层的套接字选项汇总02"></p>
+
+<p>传输层的选项汇总如下:</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-11-29-21-42-16.png" alt="传输层套接字选项汇总"></p>
+
+<h3 id="74-套接字状态">7.4 套接字状态</h3>
+
+<p><code class="language-plaintext highlighter-rouge">accept</code>一直要到三次握手完成以后才返回给服务器已连接的套接字，想在三次握手完成时确保这些套接字选项中的某一个是给 <strong>已连接套接字</strong>设置的,必须先设置<strong>监听套接字</strong>。</p>
+
+<h3 id="75-通用套接字选项">7.5 通用套接字选项</h3>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_BROADCAST</code>:
+    <ul>
+      <li>本选项开启或禁止进程发送广播(仅数据报套接字支持，且需在支持广播消息的网络上如以太网和令牌环网), 可以防止没有设置成广播时发送广播数据：如UDP发送一个的目的地址是一个广播地址，但是该选项没设置，就会返回EACCES错误</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_DEBUG</code>
+    <ul>
+      <li>仅由<code class="language-plaintext highlighter-rouge">TCP</code>支持，选项开启时内核将为<code class="language-plaintext highlighter-rouge">TCP</code>在该套接字<strong>发送和接收</strong>所有分组<strong>保留详细信息</strong>，可用<code class="language-plaintext highlighter-rouge">trpt</code>查看.</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_DONTROUTE</code>
+    <ul>
+      <li>规定外出分组将绕过底层协议的正常路由机制，用来绕过路由表，以<strong>强制将分组从特定的接口发出</strong>
+</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_ERROR</code>（可获取不能设置）
+    <ul>
+      <li>套接字发生错误时，将套接字的so_error变量设置为为Unix Exxx值中的一个，也叫待处理错误(pending error),可以用下面两种方式中的一种立即通知进程
+        <ul>
+          <li>阻塞在<code class="language-plaintext highlighter-rouge">select</code>时，返回设置RW中一个或两个条件</li>
+          <li>信号驱动IO模型：
+            <ul>
+              <li>产生SIGIO信号通知进程或者进程组
+                <ul>
+                  <li>进程通过访问SO_ERROR获取so_error的值</li>
+                </ul>
+              </li>
+              <li>
+<code class="language-plaintext highlighter-rouge">getsockopt()</code>返回的整个数值就是待处理错误,</li>
+              <li>处理后由内核复位为0</li>
+            </ul>
+          </li>
+          <li>当进程调用read且没有数据返回时,如果so_error非0(本来该发生阻塞,但是发现有错误产生,则返回)返回-1,error设置为so_error的值，so_error设置为0。</li>
+          <li>调用write时so_error非0，返回-1,error设置为so_error的值，so_error设置为0</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_KEEPALIVE</code>
+    <ul>
+      <li>设置保活选项后，2小时后(期间没有数据)TCP自动发送保活探测分节(keep-alive probe),会导致三种情况
+        <ul>
+          <li>以期望<code class="language-plaintext highlighter-rouge">ACK</code>响应，进程得不到通知。</li>
+          <li>响应<code class="language-plaintext highlighter-rouge">RST</code>,表对端已崩溃并重启，套接字的待处理错误设置为<code class="language-plaintext highlighter-rouge">ECONNRESET</code>
+</li>
+          <li>没有任何响应，间隔75s再发8个探测分节，11m15s后放弃且带错李错误设置为ETIMEOUT.如果收到ICMP错误就返回相应错误。</li>
+        </ul>
+      </li>
+      <li><strong>这是一个清理通向不可达客户的半开连接的好方法</strong></li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_LINGER</code>
+    <ul>
+      <li>本选项指定close()函数对面向连接的协议如何操作，默认立即返回，如果有数据残留将尝试把这些数据发送给对端;主要是(TCP和SCTP，但不是UDP)
+<img src="https://img-blog.csdnimg.cn/20191023200805489.png#pic_center" alt="">
+</li>
+      <li>要求传送给内核如下结构:
+        <div class="language-c highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">linger</span> <span class="p">{</span>
+<span class="kt">int</span> <span class="n">l_onoff</span><span class="p">;</span>    <span class="cm">/*0=off,l_linger被忽略，&gt;nonzero=on*/</span>
+<span class="kt">int</span> <span class="n">l_linger</span><span class="p">;</span>   <span class="cm">/*linger time*/</span>
+<span class="p">}</span>
+</code></pre></div>        </div>
+      </li>
+      <li>
+<code class="language-plaintext highlighter-rouge">linger=0</code>:丢弃缓冲区的任何数据，发送给<code class="language-plaintext highlighter-rouge">RST</code>给对端。没有四分节终止序列，可避免<code class="language-plaintext highlighter-rouge">TCP</code>的<code class="language-plaintext highlighter-rouge">TIME_WAIT</code>状态
+        <ul>
+          <li>可能引发错误:在<code class="language-plaintext highlighter-rouge">2MSL</code>内创建另一个化身，刚终止的连接上的旧的分节不被正确的传递到新的化身上。</li>
+        </ul>
+      </li>
+      <li>
+<code class="language-plaintext highlighter-rouge">linger!=0</code>:套接字关闭时内核拖延一段时间；进程将睡眠到所有数据已发送并确认或延滞时间到。</li>
+      <li>套接字是非阻塞类型的，延滞时间到之前数据没发送完返回<code class="language-plaintext highlighter-rouge">EWOULDBLOCK</code>错误。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">close()</code>成功返回只能说明，发送的数据和FIN已有对端确认，但不代表进程已经读取，所以改用<code class="language-plaintext highlighter-rouge">shutdown</code>号一点，当然也能应用级<code class="language-plaintext highlighter-rouge">ACK</code>
+</li>
+      <li><img src="https://img-blog.csdnimg.cn/20191023200856787.png#pic_center" alt=""></li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_OOBINLINE</code>
+    <ul>
+      <li>带外数据将被留存在正常的输入队列中(即在线留存)，此时接收函数的<code class="language-plaintext highlighter-rouge">MSG_OOB</code>标志不能用来读取带外数据</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_CVBUF</code>和<code class="language-plaintext highlighter-rouge">SO_SNDBUF</code>
+    <ul>
+      <li>套接字接收缓冲区中可用空间大小限定了<code class="language-plaintext highlighter-rouge">TCP</code>通告对端窗口的大小</li>
+      <li>注意顺序：窗口规模选项是在建立连接时用<code class="language-plaintext highlighter-rouge">SYN</code>分节得到的，所以客户需在connect<code class="language-plaintext highlighter-rouge">之前，serv</code>需在<code class="language-plaintext highlighter-rouge">listen</code>之前</li>
+      <li>根据快恢复算法，缓冲区大小至少应是<code class="language-plaintext highlighter-rouge">MSS</code>值的四倍，最好是偶数倍</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_RCVLOWAT</code>和<code class="language-plaintext highlighter-rouge">SO_SNDLOWAT</code>(低水位标记)
+    <ul>
+      <li>接收低水位标记：<code class="language-plaintext highlighter-rouge">select</code>返回可读时接收缓冲区所需的数据量，<code class="language-plaintext highlighter-rouge">TCP/UDP</code>、<code class="language-plaintext highlighter-rouge">SCTP</code>默认为1</li>
+      <li>发送缓冲区：<code class="language-plaintext highlighter-rouge">select()</code>返回可写时发送缓冲区所需的可用空间。<code class="language-plaintext highlighter-rouge">tcp</code>默认<code class="language-plaintext highlighter-rouge">2048</code>，<code class="language-plaintext highlighter-rouge">UDP</code>的发送缓冲区的可用字节数从不改变(不保留副本)</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_RCVTIMEO</code>和<code class="language-plaintext highlighter-rouge">SO_SNDTIMEO</code>
+    <ul>
+      <li>设置超时值，默认设置为0，即禁止超时
+-<code class="language-plaintext highlighter-rouge"> SO_REUSEADDR</code>和<code class="language-plaintext highlighter-rouge">SO_REUSEPORT</code>(重用地址端口)</li>
+      <li>监听服务器终止，子进程继续处理连接，重启监听服务器时会出错，而开启了SO_REUSEADDR就不会。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">SO_REUSEADDR</code>允许同一个端口的多个服务器实例(只要不同的本地IP地址即可)，通配地址捆绑一般放到最后</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">SO_REUSEADDR</code><strong>允许同一个端口捆绑同一个进程的不同套接字</strong>
+</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">SO_REUSEADDR</code>允许UDP完全重复捆绑(一般来说)，用于多播</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_TYPE</code>
+    <ul>
+      <li>本选项返回套接字类型，返回值是一个诸如<code class="language-plaintext highlighter-rouge">SOCK_STREAM</code>或<code class="language-plaintext highlighter-rouge">SOCK_DGRAM</code>之类的值，通常由启动时继承了套接字的进程使用</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SO_USELOOPBACK</code>
+    <ul>
+      <li>仅用于路由域(<code class="language-plaintext highlighter-rouge">AF_ROUTE</code>)套接字，默认打开。开启时，相应套接字将接收在其上发送的任何数据报的一个副本。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>注意：</p>
+<ul>
+  <li>所有TCP服务器程序中，在调用bind之前设置<code class="language-plaintext highlighter-rouge">SO_REUSEADDR</code>套接字选项；</li>
+  <li>当编写一个可在同一时刻在同一主机上运行多次的多播应用程序时，设置<code class="language-plaintext highlighter-rouge">SO_REUSEADDR</code>套接字选项，并将所参加多播组的地址作为本地IP的地址捆绑。</li>
+  <li>当对已绑定统配地址端口，绑定不同的IP地址时，IP地址的数据将被传递到新的套接字，而不是传递到绑定了统配地址的已有套接字。对于保留端口一般不是问题(一般用户无法绑定)</li>
+</ul>
+
+<h3 id="76-ipv4套接字选项">7.6 IPv4套接字选项</h3>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">IP_HDRINCL</code>
+    <ul>
+      <li>如果是给原始IP套接字设置的，必须自己构造首部(一般情况下由，内核设置)，下列情况例外：
+        <ul>
+          <li>IP总是计算并存储IP首部校验和</li>
+          <li>将IP标识字段设置为0，内核将设置该字段</li>
+          <li>如果源IP地址是INADDR_ANY，IP将把它设置为外出接口的主机IP地址</li>
+          <li>如何设置IP选项取决于实现。有些实现取出我们预先使用IP_OPTIONS套接字选项设置的任何IP选项，把它们添加到我们构造的首部中，而其它实现规则则要求我们亲自在首部指定任何期望的IP选项。</li>
+          <li>IP首部中有些字段必须以主机字节序填写，有些字段必须以网络字节序填写，具体取决于实现。使得套接字编程选项不便于移植。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IP_OPTIONS</code>
+    <ul>
+      <li>允许在<code class="language-plaintext highlighter-rouge">IPv4</code>首部总设置<code class="language-plaintext highlighter-rouge">IP</code>选项</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IP_RECVDSTADDR</code>
+    <ul>
+      <li>开启导致所收到的UDP数据报的接收接口索引由<code class="language-plaintext highlighter-rouge">recvmsg</code>函数作为辅助函数返回</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IP_RECVIF</code>
+    <ul>
+      <li>开启导致所收到的UDP数据报的接收接口索引由<code class="language-plaintext highlighter-rouge">recvmsg</code>函数作为辅助函数返回</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IP_TOS</code>
+    <ul>
+      <li>本套接字选项允许我们为<code class="language-plaintext highlighter-rouge">TCP</code>、<code class="language-plaintext highlighter-rouge">UDP</code>、<code class="language-plaintext highlighter-rouge">SCTP</code>设置<code class="language-plaintext highlighter-rouge">IP</code>首部中的服务类型字段</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IP_TTL</code>
+    <ul>
+      <li>用于设置或获取系统用在从某个给定套接字发送的单播分组上的默认<code class="language-plaintext highlighter-rouge">TTL</code>值</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="77-icmpv6套接字选项">7.7 ICMPv6套接字选项</h3>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">ICMP6_FILTER</code>套接字选项
+    <ul>
+      <li>允许我们获取或设置一个icmp6_filter结构，该结构指出256个可能的ICMPv6消息类型中哪些将经由某个原始套接字传递给所在进程。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="78-ipv6套接字选项">7.8 IPv6套接字选项</h3>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_CHECKSUM</code>:指定用户数据中校验和所处位置的字节偏移。该值为负，则内核执行如下操作：
+    <ul>
+      <li>给所有外出分组计算并存储校验和</li>
+      <li>验证外来分组的校验和，丢弃所有校验和和无效的分组</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_DONTFRAG</code>
+    <ul>
+      <li>禁止UDP套接字或者原始套接字自动插入分片首部，外出分组中大小超过发送接口MTU的那些分组将被丢弃。</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_NEXTHOP</code>
+    <ul>
+      <li>将外出数据报的下一跳地址，指定为一个套接字地址结构</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_PATHMTU</code>
+    <ul>
+      <li>不能设置，只能获取；获取本选项时，返回值为路由MTU发现功能确定的当前MTU</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_RECVDSTOPTS</code>
+    <ul>
+      <li>开启选项，任何接收到的IPv6目的地址选项都将由recvmsg作为辅助数据返回；默认关闭</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_RECVHOPLIMT</code>
+    <ul>
+      <li>任何接收到的跳限字段都将由recvmsg作为辅助数据返回；默认关闭</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_RECVHOPOPTS</code>
+    <ul>
+      <li>任何接收到的IPV6步跳选项都将由recvmsg作为辅助数据返回；默认关闭</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_RECVPATHMTU</code>
+    <ul>
+      <li>某条路径的路径MTU在发生变化时将由recvmsg作为辅助数据返回</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_RECVPKTINFO</code>
+    <ul>
+      <li>接收到的IPV6数据报的以下两条信息将由recvmsg作为辅助数据返回；目的IPV6地址和到达接口索引</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_RECVRTHDR</code>
+    <ul>
+      <li>任何接收到的IPV6路由首部将由recvmsg作为辅助数据分会；默认关闭</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_RECVTCLASS</code>
+    <ul>
+      <li>接收到的流通类(包含DSCP和ECN字段)将有recvmsg作为辅助数据返回。</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_UNICAST_HOPS</code>
+    <ul>
+      <li>类似于IPV4的IP_TTL套接字选项。设置本选项会给在相应套接字上发送的外出数据报指定默认跳限，获取本选项会返回内核用于相应套接字的跳限值。</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_USE_MIN_MTU</code>
+    <ul>
+      <li>设置为1，表示路径MTU发现功能不必执行，为避免分片，分组就使用IPV6的最小MTU发送。</li>
+      <li>设置为0，路径MTU发现功能对于所有目的都得执行。</li>
+      <li>设置为-1，路径MTU发现功能仅仅对单播目的地执行，对于多播目的地使用最小MTU;是默认值。</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_V6ONLY</code>
+    <ul>
+      <li>开启选项；将限制它只执行IPV6通信。本地选项默认为关闭，不过有些系统讯在默认开启本选项的手段。</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">IPV6_xxx</code>
+    <ul>
+      <li>用于修改协议首部的IPV6选项假设；
+        <ul>
+          <li>UDP:由recvmsg和sendmsg作为辅助数据在内核和应用进程之间传递。</li>
+          <li>TCP：使用getsocketopt和setsocket获取和设置</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="79-tcp套接字选项">7.9 TCP套接字选项</h3>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">TCP_MAXSEG</code>
+    <ul>
+      <li>获取和设置TCP连接的最大分节大小(MSS);返回值是TCP可以发送给对端的最大数据量；通常是由对端使用SYN分节通告的MSS</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">TCP_NODELAY</code>
+    <ul>
+      <li>禁止TCP的Nagle算法(减少局域网上小分组(小于MSS的任何分组)的数目);默认情况下，该选项关闭
+<img src="https://wangpengcheng.github.io/img/2019-12-01-16-50-13.png" alt="禁止前后变化">
+</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="710-sctp套接字选项">7.10 SCTP套接字选项</h3>
+
+<p>略</p>
+
+<h3 id="711-fcntl函数">7.11 fcntl函数</h3>
+
+<p>执行各种描述符控制操作。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-01-16-53-04.png" alt="相关操作小节"></p>
+
+<p>函数使用：<code class="language-plaintext highlighter-rouge">int fcntl(int fd, int cmd, .../* int arg */);</code></p>
+
+<p>每种描述符都有一组由F_GETFL命令获取或由F_SETFL命令设置的文件标志，影响套接字描述符的有两个：</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">O_NONBLOCK</code>(非阻塞式IO)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">O_ASYNC</code>(信号驱动式IO)</li>
+</ul>
+
+<p>正确设置非阻塞式IO的写法：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">flag</span><span class="p">;</span>
+<span class="cm">/* Set a socket as nonblocking */</span>
+<span class="k">if</span><span class="p">((</span><span class="n">flag</span><span class="o">=</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">F_GETFL</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>    <span class="c1">//必须要先获取其他文件标志</span>
+    <span class="n">err_sys</span><span class="p">(</span><span class="s">"F_GETFL, error"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">flag</span> <span class="o">|=</span><span class="n">O_NONBLOCK</span><span class="p">;</span>                       <span class="c1">//或运算，打开非阻塞标志</span>
+<span class="k">if</span><span class="p">(</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span> <span class="o">&lt;</span><span class="mi">0</span> <span class="p">){</span>
+    <span class="n">err_sys</span><span class="p">(</span><span class="s">"F_SETFL error"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">flag</span> <span class="o">&amp;=~</span><span class="n">O_NONBLOCK</span><span class="p">;</span>                      <span class="c1">//与运算，关闭非阻塞标志</span>
+<span class="k">if</span><span class="p">(</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span> <span class="o">&lt;</span><span class="mi">0</span> <span class="p">){</span>
+    <span class="n">err_sys</span><span class="p">(</span><span class="s">"F_SETFL error"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">F_SETOWN</code>的参数是正值则指出接收信号的进程ID，是负数则绝对值指出信号的组ID
+<code class="language-plaintext highlighter-rouge">F_GETOWN</code>与上面类似
+使用<code class="language-plaintext highlighter-rouge">socket()</code>函数创建的套接字没有属组。如果一个新的套接字是从一个监听套接字创建而来，属组将继承过来。</p>
+
+<h2 id="第-八-章-基本udp套接字编程">第 八 章 基本UDP套接字编程</h2>
+
+<p>UDP常见的应用程序：DNS(域名系统)；NFS(网络文件系统)和SNMP(简单网络管理协议)</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-01-18-17-30.png" alt="UDP相关操作"></p>
+
+<p>UDP的关键函数</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 接收信息函数 */</span>
+<span class="kt">ssize_t</span> <span class="nf">recvform</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span><span class="kt">void</span> <span class="o">*</span><span class="n">buff</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">,</span><span class="kt">int</span> <span class="n">flag</span><span class="p">,</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">from</span><span class="p">,</span><span class="n">socklen_t</span> <span class="o">*</span><span class="n">addrlen</span><span class="p">);</span>
+<span class="cm">/* 发送信息函数 */</span>
+<span class="kt">ssize_t</span> <span class="nf">sendto</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buff</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">,</span><span class="kt">int</span> <span class="n">flags</span><span class="p">,</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">to</span><span class="p">,</span><span class="n">socklen_t</span> <span class="o">*</span><span class="n">addrlen</span><span class="p">);</span>
+</code></pre></div></div>
+<p>参数解析：</p>
+
+<ul>
+  <li>前三个参数等同于read和write的三个参数：描述符，<strong>指向读/写入缓冲区的指针</strong>和<strong>读/写字节数</strong>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">buff</code>：接收的内容；可以为0</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">flag</code>:设置相关参数</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">from</code>:指向一个由函数返回时，填写的数据报发送者的协议地址的套接字地址结构，返回字节在addrlen.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">to</code>:指向一个套接字地址结构(内含数据包接收者协议地址：<code class="language-plaintext highlighter-rouge">IP</code>以及<code class="language-plaintext highlighter-rouge">Port</code>),长度由<code class="language-plaintext highlighter-rouge">addrlen</code>指定。</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">UDP客户端</code>而言，是不需要指定端口的，在第一次调用<code class="language-plaintext highlighter-rouge">sendto</code>的时候，内核会给他指派一个临时端口，但是如果没有指定端口，又没有调用<code class="language-plaintext highlighter-rouge">sendto</code>将无法接收到消息。</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">recvfrom</code>像是<code class="language-plaintext highlighter-rouge">accept</code>和<code class="language-plaintext highlighter-rouge">read</code>的结合;</p>
+
+<h3 id="83-udp回射服务器程序">8.3 UDP回射服务器程序：</h3>
+
+<p>主要流程如下：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-01-18-31-25.png" alt="UDP简单的回射客户端/服务器"></p>
+
+<p><code class="language-plaintext highlighter-rouge">UDP</code>服务端是一个典型的迭代器模型，大多数TCP服务器是并发的。对于本套接字，<code class="language-plaintext highlighter-rouge">UDP</code>层中隐含有排队发送，每个<code class="language-plaintext highlighter-rouge">UDP</code>套接字都有一个接收缓冲区，实行FIFO机制。主要服务器端代码如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span><span class="cm">/* 声明输出函数 */</span>
+<span class="kt">void</span> <span class="nf">dg_echo</span><span class="p">(</span><span class="kt">int</span> <span class="p">,</span> <span class="n">SA</span> <span class="o">*</span><span class="p">,</span> <span class="n">socklen_t</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">servaddr</span><span class="p">,</span> <span class="n">cliaddr</span><span class="p">;</span>
+    <span class="cm">/* 指定协议和数据报类型，注意这里的协议选择 */</span>
+    <span class="n">sockfd</span> <span class="o">=</span> <span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> 
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">SERV_PORT</span><span class="p">);</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+    <span class="cm">/* 指定连接的源地址结构 */</span>
+    <span class="n">Bind</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="cm">/* 处理相关网络编程 */</span>
+    <span class="n">dg_echo</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">dg_echo</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="n">SA</span> <span class="o">*</span> <span class="n">pcliaddr</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="n">clilen</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">len</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">msg</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="k">for</span><span class="p">(</span> <span class="p">;</span> <span class="p">;</span> <span class="p">){</span>
+        <span class="n">len</span> <span class="o">=</span> <span class="n">clilen</span><span class="p">;</span>
+        <span class="cm">/* 接收相关消息 */</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Recvfrom</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pcliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+        <span class="cm">/* 对消息进行回传 */</span>
+        <span class="n">Sendto</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pcliaddr</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>UDP回射客户端:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span><span class="cm">/* 声明客户端回射函数 */</span>
+<span class="kt">void</span> <span class="nf">dg_cli</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="k">const</span> <span class="n">SA</span> <span class="o">*</span><span class="p">,</span> <span class="n">socklen_t</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+  <span class="cm">/* 使用提示 */</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="n">err_quit</span><span class="p">(</span><span class="s">"usage: ./udpcli01 &lt;IPaddress&gt;"</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">servaddr</span><span class="p">;</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">SERV_PORT</span><span class="p">);</span>
+    <span class="cm">/* 获取目的IP地址 */</span>
+    <span class="n">Inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">);</span>
+    <span class="n">sockfd</span> <span class="o">=</span> <span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> 
+    <span class="cm">/* 对于UDP客户端而言,是不需要保证端口的,在第一次调用sendto的时候,内核会给他指派一个临时宽口 */</span> 
+    <span class="n">dg_cli</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">dg_cli</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="n">fp</span><span class="p">,</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="k">const</span> <span class="n">SA</span> <span class="o">*</span> <span class="n">servaddr</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="n">servlen</span><span class="p">){</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">len</span> <span class="o">=</span> <span class="n">servlen</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span> <span class="p">;</span> <span class="p">;</span> <span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">;</span>
+        <span class="k">else</span>
+            <span class="n">Sendto</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">servaddr</span><span class="p">,</span> <span class="n">servlen</span><span class="p">);</span>
+        <span class="cm">/* 读取相关信息，注意，没有指定客户端地址，不会对客户端进行分辨*/</span>
+        <span class="k">if</span><span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">Recvfrom</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="n">err_quit</span><span class="p">(</span><span class="s">"connection close"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"Recvfrom error"</span><span class="p">);</span>
+    <span class="n">buf</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">Fputs</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>注意：</p>
+<ul>
+  <li>因为UDP和TCP不同，是无连接的(没有TCP中的EOF)；服务器端，不会在connet(指定发送端口)之后建立稳定链路。因此需要客户端发送一个singal过去，让服务器进行接收。</li>
+  <li>一般来说TCP的服务器是并发的，UDP的服务器是迭代的。</li>
+  <li>UDP层中隐含有排队发生。每个UDP套接字都有一个接收缓冲区，到达套接字的每个数据报都进入这个套接字接收缓冲区。进程调用recvfrom时，缓冲区中的下一个数据报以FIFO(先入先出)的顺序反给进程。</li>
+  <li>UDP缓冲区大小有限，可以使用SO_RCVBUF来进行修改。</li>
+  <li>UDP是非稳定连接，因此存在数据报永远无法到达的可能；程序容易陷入。因此最好指定响应时间。超时重传或者断开连接。14.2节讨论</li>
+  <li>验证接受响应的确认：
+    <ul>
+      <li>重新<code class="language-plaintext highlighter-rouge">malloc</code>一个<code class="language-plaintext highlighter-rouge">sockaddr*</code>变量，子啊<code class="language-plaintext highlighter-rouge">Recvfrom</code>获得其值，比较该变量和原先发送的<code class="language-plaintext highlighter-rouge">servaddr</code>,相同就是需要的变量。</li>
+    </ul>
+  </li>
+  <li>服务器程序未运行时：
+    <ul>
+      <li>服务器主机响应<code class="language-plaintext highlighter-rouge">“port unreachable”</code>ICMP消息，但是此时的进程不能识别这个异步错误，它永远阻塞于<code class="language-plaintext highlighter-rouge">recvfrom</code>调用。</li>
+      <li>我们需要用<code class="language-plaintext highlighter-rouge">connect</code>获取这个ICMP消息。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="810-udp-程序例子小节">8.10 UDP 程序例子小节</h3>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-01-18-57-51.png" alt="客户端角度总结UDP客户/服务器"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-01-19-21-07.png" alt="服务器的UDP"></p>
+
+<h3 id="811-udp的connect函数">8.11 UDP的connect函数</h3>
+
+<ul>
+  <li>这里的<code class="language-plaintext highlighter-rouge">connect()</code>不同于<code class="language-plaintext highlighter-rouge">TCP</code>，<strong>只检查是否存在立即可知的错误，记录对端IP地址和端口号，然后返回给进程</strong>。连接后(使用connet后)主要发生三点变化：
+    <ul>
+      <li>不指定目的地址，即不用sendto(或第六个参数为空指针),改用write()或send()；写到已连接的UDP上的任何内容都将自动发送到connect指定的协议地址。</li>
+      <li>不必使用recvfrom()来获取数据报的发送者，而改用read(),recv(),recvmsg(),<strong>这说明一个UDP套接字仅与一个IP地址作数据交换（可以是多播、广播地址）</strong>
+</li>
+      <li>异步错误将返回给进程；未连接UDP套接字不会接收任何异步错误。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-01-19-27-50.png" alt="TCP和UDP的套接字"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-01-19-30-35.png" alt="已连接的UDP的套接字"></p>
+
+<p><strong>UDP客户进程或者服务器，只有在使用自己的UDP套接字与确定的唯一对端进行通信时，才能调用connect（通常是UDP客户端）；简而言之使用connect之后输出端基本就被确定下来，因此只适用于客户端</strong></p>
+
+<ul>
+  <li>给一个UDP套接字多次调用<code class="language-plaintext highlighter-rouge">connect()</code>，以<strong>断开套接字</strong>或<strong>指定新的IP地址和端口号</strong>(注意：对于TCP套接字connect只能调用一次)</li>
+  <li>最便于移植的方法是清零一个地址结构后把它的地址簇成员设置为<code class="language-plaintext highlighter-rouge">AF_UNSPEC</code>
+</li>
+  <li>如果要给同一个目的地址发送多个数据报，显式<code class="language-plaintext highlighter-rouge">connect()</code>好一点。</li>
+</ul>
+
+<p>一个未连接的套接字上给两个数据报调用sendto函数涉及内核执行下列6个步奏：</p>
+<ol>
+  <li>连接套接字</li>
+  <li>输出第一个数据报</li>
+  <li>断开套接字连接</li>
+  <li>连接套接字</li>
+  <li>输出第二个数据报</li>
+  <li>断开套接字连接</li>
+</ol>
+
+<p>当连接之后，效率会更高。调用connect后调用两次write涉及内核执行如下步骤：</p>
+<ol>
+  <li>连接套接字</li>
+  <li>输出第一个数据报</li>
+  <li>输出第二个数据报</li>
+</ol>
+
+<p>当调用两次sendto时，需复制两次。临时未连接的UDP套接字大于会消耗每个UDP<strong>传输三分之一的开销</strong>。如果要给同一个地址发送多个数据报，显式使用<code class="language-plaintext highlighter-rouge">connect()</code>好一点</p>
+
+<p>当连接一个没有运行的udp服务器的程序时,连接不会出错，但是发送数据时会返回一个目的端口不可达的ICMP错误(connect造成TCP三次握手，其中第一个分节导致服务器TCP返送RST)，被内核映射成ECONNREFUSED,UnixWare内核不会返回这种错误(page200)；下面是改进过的dg_cli函数</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">dg_cli</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="k">const</span> <span class="n">SA</span> <span class="o">*</span><span class="n">pservaddr</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="n">servlen</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">sendline</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">],</span> <span class="n">recvline</span><span class="p">[</span><span class="n">MAXLINE</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+    <span class="cm">/* 显式的连接ip地址 */</span>
+    <span class="n">Connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="n">pservaddr</span><span class="p">,</span> <span class="n">servlen</span><span class="p">);</span>
+    <span class="cm">/* 进行回写操作 */</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">Fgets</span><span class="p">(</span><span class="n">sendline</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* 使用read和write代替sento和recvfrom调用 */</span>
+        <span class="n">Write</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">sendline</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">sendline</span><span class="p">));</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Read</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">recvline</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">);</span>
+        <span class="cm">/* null terminate */</span>
+        <span class="n">recvline</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">Fputs</span><span class="p">(</span><span class="n">recvline</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="813-udp缺乏流量控制">8.13 UDP缺乏流量控制</h3>
+
+<p>UDP缺乏流量，控制，因此需要在客户端和服务器上进行流量的控制传输。</p>
+
+<p>下面显示一个客户端的发送流量控制</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+#define NDG 2000 </span><span class="cm">/* 发送数据包个数 */</span><span class="cp">
+#define DGLEN 1400 </span><span class="cm">/* 每个数据包的长度 */</span><span class="cp">
+</span><span class="cm">/* 定义处理函数 */</span>
+<span class="kt">void</span> <span class="nf">dg_cli</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span><span class="k">const</span> <span class="n">SA</span> <span class="o">*</span><span class="n">pservaddr</span><span class="p">,</span><span class="n">socklen_t</span> <span class="n">servlen</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">sendline</span><span class="p">[</span><span class="n">DGLEN</span><span class="p">];</span>
+    <span class="cm">/* 在这里发送多个数据包 */</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">NDG</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="n">Sendto</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span><span class="n">sendline</span><span class="p">,</span><span class="n">DGLEN</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">pservaddr</span><span class="p">,</span><span class="n">servlen</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>服务器的接收流量控制</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span><span class="k">static</span> <span class="kt">void</span> <span class="nf">recvgrom_int</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
+<span class="cm">/* 相关输出函数 */</span>
+<span class="kt">void</span> <span class="nf">dg_echo</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span><span class="n">SA</span> <span class="o">*</span><span class="n">pcliaddr</span><span class="p">,</span><span class="n">socklen_t</span> <span class="n">clien</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">socklen_t</span> <span class="n">len</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">mesg</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="n">Signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span><span class="n">recvfrom_int</span><span class="p">);</span>
+    <span class="k">for</span><span class="p">(;;){</span>
+        <span class="n">len</span><span class="o">=</span><span class="n">clilen</span><span class="p">;</span>
+        <span class="n">Recvfrom</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span><span class="n">mesg</span><span class="p">,</span><span class="n">MAXLINE</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">pcliaddr</span><span class="p">,</span><span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+        <span class="cm">/* 统计接收数量 */</span>
+        <span class="n">count</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">recvfrom_int</span><span class="p">(</span><span class="kt">int</span> <span class="n">signo</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s"> received %d dataprams </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">count</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>UDP套接字的接收缓冲区一般FreeBSD下默认大小为42080字节，可以通过SO_RCVBF进行相关缓冲区大小的更改。</p>
+
+<h3 id="814-udp中的外出接口的确定">8.14 UDP中的外出接口的确定</h3>
+
+<p>connect()函数的一个副作用是可用来确定；特定目的地的外出接口(本地IP通过，从路由表搜索目的地址得到)</p>
+
+<p>相关操作如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){</span>
+	<span class="kt">int</span>					<span class="n">sockfd</span><span class="p">;</span>
+	<span class="n">socklen_t</span>			<span class="n">len</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">sockaddr_in</span>	<span class="n">cliaddr</span><span class="p">,</span> <span class="n">servaddr</span><span class="p">;</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span>
+		<span class="n">err_quit</span><span class="p">(</span><span class="s">"usage: udpcli &lt;IPaddress&gt;"</span><span class="p">);</span>
+
+	<span class="n">sockfd</span> <span class="o">=</span> <span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+	<span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">SERV_PORT</span><span class="p">);</span>
+	<span class="n">Inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">);</span>
+    <span class="cm">/* 进行连接操作 */</span>
+	<span class="n">Connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+
+	<span class="n">len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+	<span class="n">Getsockname</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">"local address %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">Sock_ntop</span><span class="p">((</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="n">len</span><span class="p">));</span>
+
+	<span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>调用connect并不给主机端发送任何消息，它完全是一个本地操作，只是保存对端的IP地址和端口号。</p>
+
+<p>也可以使用这条性质实现UDP的epoll并发框架：</p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/u010643777/article/details/72190891">UDP下的epoll并发框架</a></li>
+  <li><a href="https://blog.csdn.net/weixin_34315189/article/details/92919826">UDP的epoll并发处理问题</a></li>
+</ul>
+
+<h3 id="815-使用select函数的tcp和udp回射服务器程序">8.15 使用select函数的TCP和UDP回射服务器程序</h3>
+
+<p>关键代码如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include	"unp.h"
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){</span>
+    <span class="cm">/* 定义监听，连接 */</span>
+	<span class="kt">int</span>					<span class="n">listenfd</span><span class="p">,</span> <span class="n">connfd</span><span class="p">,</span> <span class="n">udpfd</span><span class="p">,</span> <span class="n">nready</span><span class="p">,</span> <span class="n">maxfdp1</span><span class="p">;</span>
+	<span class="cm">/* 定义mesg数组 */</span>
+    <span class="kt">char</span>				<span class="n">mesg</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+	<span class="n">pid_t</span>				<span class="n">childpid</span><span class="p">;</span>
+	<span class="n">fd_set</span>				<span class="n">rset</span><span class="p">;</span>
+	<span class="kt">ssize_t</span>				<span class="n">n</span><span class="p">;</span>
+	<span class="cm">/* 定义套接字长度 */</span>
+    <span class="n">socklen_t</span>           <span class="n">len</span><span class="p">;</span>
+	<span class="k">const</span> <span class="kt">int</span>           <span class="n">on</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">sockaddr_in</span>	<span class="n">cliaddr</span><span class="p">,</span> <span class="n">servaddr</span><span class="p">;</span>
+	<span class="cm">/* 定义子信号处理函数 */</span>
+    <span class="kt">void</span>                <span class="n">sig_chld</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+
+	<span class="cm">/* create listening TCP socket */</span>
+	<span class="n">listenfd</span> <span class="o">=</span> <span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+	<span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span>      <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span>        <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">SERV_PORT</span><span class="p">);</span>
+    <span class="cm">/* 设置socket相关参数，防止该端口上已有连接存在*/</span>
+	<span class="n">Setsockopt</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">on</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">on</span><span class="p">));</span>
+	<span class="cm">/* 连接socket和端口 */</span>
+    <span class="n">Bind</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+    <span class="cm">/* 开始监听，转为被动 */</span>
+	<span class="n">Listen</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="n">LISTENQ</span><span class="p">);</span>
+
+	<span class="cm">/* create UDP socket */</span>
+	<span class="cm">/* 创建UDP scoket */</span>
+    <span class="n">udpfd</span> <span class="o">=</span> <span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+	<span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span>      <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+	<span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span>        <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">SERV_PORT</span><span class="p">);</span>
+
+	<span class="n">Bind</span><span class="p">(</span><span class="n">udpfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+	<span class="cm">/* end udpservselect01 */</span>
+	<span class="cm">/* include udpservselect02 */</span>
+	<span class="cm">/* 设置信号处理函数， */</span>
+    <span class="n">Signal</span><span class="p">(</span><span class="n">SIGCHLD</span><span class="p">,</span> <span class="n">sig_chld</span><span class="p">);</span>	<span class="cm">/* must call waitpid(), 因为TCP连接由子进程处理  */</span>
+
+	<span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+	<span class="n">maxfdp1</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="n">udpfd</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span> <span class="p">;</span> <span class="p">;</span> <span class="p">)</span> <span class="p">{</span>
+		<span class="n">FD_SET</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+		<span class="n">FD_SET</span><span class="p">(</span><span class="n">udpfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">);</span>
+        <span class="cm">/* 监听网络监听；主要是使用TCP */</span>
+		<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">nready</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">maxfdp1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EINTR</span><span class="p">)</span>
+				<span class="k">continue</span><span class="p">;</span>		<span class="cm">/* back to for() */</span>
+			<span class="k">else</span>
+                <span class="n">err_sys</span><span class="p">(</span><span class="s">"select error"</span><span class="p">);</span>
+        <span class="p">}</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">))</span> <span class="p">{</span>
+			<span class="n">len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+            <span class="cm">/* 接收访问数据 */</span>
+			<span class="n">connfd</span> <span class="o">=</span> <span class="n">Accept</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+	
+			<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">childpid</span> <span class="o">=</span> <span class="n">Fork</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>	<span class="cm">/* child process */</span>
+				<span class="n">Close</span><span class="p">(</span><span class="n">listenfd</span><span class="p">);</span>	<span class="cm">/* close listening socket */</span>
+				<span class="n">str_echo</span><span class="p">(</span><span class="n">connfd</span><span class="p">);</span>	<span class="cm">/* process the request */</span>
+				<span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="n">Close</span><span class="p">(</span><span class="n">connfd</span><span class="p">);</span>			<span class="cm">/* parent closes connected socket */</span>
+		<span class="p">}</span>
+        <span class="cm">/* 如果一个UDP套接字可读，那么已有一个数据报到达。使用recvfrom进行读取 */</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">udpfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rset</span><span class="p">))</span> <span class="p">{</span>
+			<span class="n">len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+			<span class="n">n</span> <span class="o">=</span> <span class="n">Recvfrom</span><span class="p">(</span><span class="n">udpfd</span><span class="p">,</span> <span class="n">mesg</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+			<span class="n">Sendto</span><span class="p">(</span><span class="n">udpfd</span><span class="p">,</span> <span class="n">mesg</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="cm">/* end udpservselect02 */</span>
+
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/11/10/unix_network_programming_01/" data-toggle="tooltip" data-placement="top" title="UNIX网络编程 学习笔记 (一)">
+                        Previous<br>
+                        <span>UNIX网络编程 学习笔记 (一)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/11/28/%E9%9D%A2%E7%BB%8F%E6%B1%87%E6%80%BB-C++%E5%9F%BA%E7%A1%80%E5%86%8D%E6%8E%A2/" data-toggle="tooltip" data-placement="top" title="面经汇总 C++基础再探">
+                        Next<br>
+                        <span>面经汇总 C++基础再探</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

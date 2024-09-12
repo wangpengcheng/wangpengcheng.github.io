@@ -1,0 +1,3154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>NVCC 学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/04/17/nvcc_learn_note/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#complier" title="complier">complier</a>
+                        
+                        <a class="tag" href="/tags/#CUDA" title="CUDA">CUDA</a>
+                        
+                        <a class="tag" href="/tags/#NVCC" title="NVCC">NVCC</a>
+                        
+                    </div>
+                    <h1>NVCC 学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">NVCC 学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on April 17, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="nvcc学习笔记">NVCC学习笔记</h1>
+<p><em>参考链接:</em> <a href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/">NVCC Introduction</a>;<a href="https://blog.csdn.net/fb_help/article/details/79289212">nvcc编译器参数</a>;</p>
+<blockquote>
+  <p>2019-1-17</p>
+</blockquote>
+
+<h2 id="cuda编译流程简介">CUDA编译流程简介</h2>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/slow_jiulong/article/details/53157684">NVCC CUDA编译流程</a>;</p>
+
+<p>NVCC是一种编译器驱动，通过命令行选项可以在不同阶段启动不同的工具完成编译工作，其目的在于隐藏了复杂的CUDA编译细节，并且它不是一个特殊的CUDA编译驱动而是在模仿一般的通用编译驱动如gcc，它接受一定的传统编译选项如宏定义，库函数路径以及编译过程控制等。所有非CUDA编译步骤扔给通用的C编译器，在Windows下是MS的”cl”编译器，而在Linux下是gcc。CUDA程序编译的路径会因在编译选项时设置的不同CUDA运行模式而不同，如模拟环境的设置等。nvcc封装了四种内部编译工具:</p>
+
+<ul>
+  <li>nvopencc : (C:\CUDA\open64\bin)</li>
+  <li>ptxas</li>
+  <li>fatbin</li>
+  <li>cudafe</li>
+</ul>
+
+<h3 id="nvcc-编译流程">NVCC 编译流程</h3>
+
+<ol>
+  <li>预处理：
+输入的cu文件有一个预处理过程，这一过程包括的步骤有将该源文件里的宏以及相关引用文件扩展开，然后将预编译已经产生的与C有关的CUDA系统定义的宏扩展开，并合并分支编译的结果。CUDA源文件经过预处理过程后会生成具有.cup后缀名的经过预处理的源文件，经过预处理的源文件是再现程序bug的最好形式。通常，这个预处理过程是隐式完成的，如果想要显示执行，可以用命令<code class="language-plaintext highlighter-rouge">nvcc -E x.cu -o x.cup</code>或<code class="language-plaintext highlighter-rouge">nvcc -E x.cu &gt; x.cup</code>来实现。</li>
+  <li>前后端设备分离：
+将预处理的结果送给CUDA前端，即CUDAfe。通过CUDAfe分离源文件，然后调用不同的编译器分别编译。cudafe被称为CUDA frontend，会被调用两次，完成两个工作：一是将主机代码与设备代码分离，生成gpu文件，二是对gpu文件进行dead code analysis，传给nvopencc，未来的版本可能没有第二次调用。 Nvopencc生成ptx文件传给ptxas，最后将cubin或ptx传给fatbin组合成一个设备代码描述符。</li>
+  <li>生成编译代码：
+编译阶段CUDA源代码对C语言所扩展的部分将被转成regular ANSI C的源文件，也就可以由一般的C编译器进行更多的编译和连接。也即是设备代码被编译成ptx（parallel thread execution）代码和/或二进制代码，host代码则以C文件形式输出，在编译时可将设备代码描述符链接到所生成的host代码，将其中的cubin对象作为全局初始化数据数组包含进来，但此时，kernel执行配置也要被转换为CUDA运行启动代码，以加载和启动编译后的kernel。在调用CUDA驱动API时，CUDA运行时系统会查看这个描述符，根据当前的GPU load一块具有合适ISA的image，然后便可单独执行ptx代码或cubin对象，而忽略nvcc编译得到的host代码。
+Nvcc的各个编译阶段以及行为是可以通过组合输入文件名和选项命令进行选择的。它是不区分输入文件类型的，如object, library or resource files，仅仅把当前要执行编译阶段需要的文件传递给linker。</li>
+</ol>
+
+<h3 id="nvcc编译过程和兼容性详解">NVCC编译过程和兼容性详解</h3>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/fb_help/article/details/80462853">NVCC编译过程和兼容性详解</a>;</p>
+
+<p>CUDA编译阶段将源文件中包含C++ externed（cuda 相关代码）的内容变换到标准的C++代码，然后交给c++编译器进行进一步的编译和链接。如图：</p>
+
+<p><img src="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/graphics/cuda-compilation-from-cu-to-executable.png" alt="NVCC编译流程图"></p>
+
+<p>NVCC主要编译流程上文中有简单描述；主要注意的是fatbinary，fatbinary，fat是肥的意思，（这里简单讲解，下文会有深入的理解），为了让应用程序适应不同的GPU，fatbinary里可能会有多种GPU的实现，程序在运行的时候会根据自己的特点选择合适的最高效的GPU实现进行运行： 
+CUDA 运行时系统（GPU驱动程序）会监视fatbinary文件中的内容，每次程序运行时，CUDA 运行时系统（GPU驱动程序）都会找到fatbinary中最合适部分并映射到当前GPU。（fatbinary会有适合不同的GPU的实现）；</p>
+<h3 id="gpu-中的代">GPU 中的“代”</h3>
+<p>GPU中的代是指NVIDIA GPU架构和计算能力的评价标准，如sm_30、sm_70，sm_50等；分别对应不同的GPU架构；算能力高的GPU可以运行编译成低代的程序，反之则不行，如计算能力6.1的GPU可以运行编译成compute_30，sm_30的程序）；一个GPU代中的二进制兼容性可以在某些条件下得到保证，因为它们共享基本的指令集。 两个GPU版本之间的情况就是这样，它没有功能上的差异（例如，当一个版本是另一个版本的缩小版本时），或者一个版本在功能上被包含在另一个版本中。 后者的一个例子是基础的Kepler版本sm_30，其功能是所有其他Kepler版本的子集：针对sm_30编译的任何代码将在所有其他Kepler GPU上运行。</p>
+<h4 id="gpu中的小代">GPU中的小“代”</h4>
+<p>除了sm_20，sm_30，sm_50，sm_60这些大的代号，还有sm_21, sm_35, sm_53 ,sm_61这些小代，这些小代不会做大的改变，会有一些小的调整，如调整寄存器和处理器集群的数量，这只影响执行性能，不会改变功能。程序更精确的对应GPU代号可能可以达到最佳性能。</p>
+
+<h3 id="gpu中的应用程序兼容性">GPU中的应用程序兼容性</h3>
+<p><em>参考链接：</em> <a href="https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/">Matching CUDA arch and CUDA gencode for various NVIDIA architectures</a></p>
+
+<blockquote>
+  <p>–两端式编译结构，真实GPU与虚拟GPU；</p>
+</blockquote>
+
+<ul>
+  <li>CUDA程序的编译必须经历两个过程，即虚拟框架和真实框架，虚拟框架决定了程序最小的可运行GPU框架，而真实框架决定了程序可运行的最小的实际GPU。 
+例如-arch=compute_30;-code=sm_30表示计算能力3.0及以上的GPU都可以运行编译的程序。但计算能力2.0的GPU就不能运行了。</li>
+  <li>即时编译（Just-In-Time）机制让程序可以在大的GPU框架内动态选择与电脑GPU最合适的小代。</li>
+  <li>–generate-code保证用户GPU可以动态选择最适合的GPU框架（最适合GPU的大代和小代）。</li>
+</ul>
+
+<p>CPU中不同代CPU应用程序的兼容性很好，已发布的指令集体系结构是确保当这些分布式应用程序成为主流时能够继续在新版CPU上运行的常用机制。这种情况对于GPU而言是不同的，因为NVIDIA不能保证二进制兼容性，nvcc依靠两阶段编译模型来确保应用程序与未来GPU世代的兼容性。即虚拟架构和真实架构：虚拟架构确定编译成的代号的功能，真实架构确定编译成的真实代号的功能和性能。</p>
+
+<p><img src="https://img-blog.csdn.net/2018052616211679?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZiX2hlbHA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="GPU虚拟架构图"></p>
+
+<p>虚拟GPU与真实GPU之间向上兼容；当虚拟GPU版本低于真实GPU时程序能够正常运行；NVIDIA中即时编译（JIT）能够好的体现兼容性。虚拟GPU架构特性表如下：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">虚拟列表</th>
+      <th style="text-align: center">添加的新特性</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">compute_30 and compute_32</td>
+      <td style="text-align: center">Basic features,Kepler support,Unified memory programming</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">compute_35</td>
+      <td style="text-align: center">Dynamic parallelism support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">compute_50, compute_52, and compute_53</td>
+      <td style="text-align: center">Maxwell support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">compute_60, compute_61, and compute_62</td>
+      <td style="text-align: center">Pascal support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">compute_70 and compute_72</td>
+      <td style="text-align: center">Volta support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">compute_75</td>
+      <td style="text-align: center">Turing support</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>NVIDIA GPU真实架构如下：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">真实的架构</th>
+      <th style="text-align: center">功能更新</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">sm_30 and sm_32</td>
+      <td style="text-align: center">Basic features,Kepler support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sm_35</td>
+      <td style="text-align: center">Dynamic parallelism support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sm_50, sm_52, and sm_53</td>
+      <td style="text-align: center">Maxwell support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sm_60, sm_61, and sm_62</td>
+      <td style="text-align: center">Pascal support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sm_70</td>
+      <td style="text-align: center">Volta support</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sm_75</td>
+      <td style="text-align: center">Turing support</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>NVIDIA SM与compute对应的真实显卡</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">标志参数</th>
+      <th style="text-align: center">对应架构</th>
+      <th style="text-align: center">对应显卡型号系列</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">SM20 or SM_20, compute_30</td>
+      <td style="text-align: center">Fermi cards (CUDA 3.2 until CUDA 8)</td>
+      <td style="text-align: center">GeForce 400, 500, 600, GT-630</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM_30, compute_30</td>
+      <td style="text-align: center">Kepler cards (CUDA 5 until CUDA 10)</td>
+      <td style="text-align: center">Kepler architecture (e.g. generic Kepler, GeForce 700, GT-730)</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM35 or SM_35, compute_35</td>
+      <td style="text-align: center">Kepler cards (CUDA 5 until CUDA 10)</td>
+      <td style="text-align: center">Tesla K40</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM37 or SM_37, compute_37</td>
+      <td style="text-align: center">Kepler cards (CUDA 5 until CUDA 10)</td>
+      <td style="text-align: center">Tesla K80</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM_50, compute_50</td>
+      <td style="text-align: center">Maxwell cards (CUDA 6 until CUDA 11)</td>
+      <td style="text-align: center">Tesla/Quadro M series</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM52 or SM_52,compute_52</td>
+      <td style="text-align: center">Maxwell cards (CUDA 6 until CUDA 11)</td>
+      <td style="text-align: center">Quadro M6000 , GeForce 900, GTX-970, GTX-980, GTX Titan X</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM53 or SM_53, compute_53</td>
+      <td style="text-align: center">Maxwell cards (CUDA 6 until CUDA 11)</td>
+      <td style="text-align: center">Tegra (Jetson) TX1 / Tegra X1, Drive CX, Drive PX, Jetson Nano</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM60 or SM_60, compute_60</td>
+      <td style="text-align: center">Pascal (CUDA 8 and later)</td>
+      <td style="text-align: center">Quadro GP100, Tesla P100, DGX-1 (Generic Pascal)</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM61 or SM_61, compute_61</td>
+      <td style="text-align: center">Pascal (CUDA 8 and later)</td>
+      <td style="text-align: center">GTX 1080, GTX 1070, GTX 1060, GTX 1050, GTX 1030, Titan Xp, Tesla P40, Tesla P4, Discrete GPU on the NVIDIA Drive PX2</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM62 or SM_62, compute_62</td>
+      <td style="text-align: center">Pascal (CUDA 8 and later)</td>
+      <td style="text-align: center">Integrated GPU on the NVIDIA Drive PX2, Tegra (Jetson) TX2</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM70 or SM_70, compute_70</td>
+      <td style="text-align: center">Volta (CUDA 9 and later)</td>
+      <td style="text-align: center">DGX-1 with Volta, Tesla V100, GTX 1180 (GV104), Titan V, Quadro GV100</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM72 or SM_72, compute_72</td>
+      <td style="text-align: center">Volta (CUDA 9 and later)</td>
+      <td style="text-align: center">Jetson AGX Xavier, Drive AGX Pegasus, Xavier NX</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM75 or SM_75, compute_75</td>
+      <td style="text-align: center">Turing (CUDA 10 and later)</td>
+      <td style="text-align: center">GTX/RTX Turing – GTX 1660 Ti, RTX 2060, RTX 2070, RTX 2080, Titan RTX, Quadro RTX 4000, Quadro RTX 5000, Quadro RTX 6000, Quadro RTX 8000, Quadro T1000/T2000, Tesla T4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM80 or SM_80, compute_80</td>
+      <td style="text-align: center">Ampere (CUDA 11 and later)</td>
+      <td style="text-align: center">NVIDIA A100 (the name “Tesla” has been dropped – GA100), NVIDIA DGX-A100</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM86 or SM_86, compute_86</td>
+      <td style="text-align: center">Ampere (CUDA 11 and later)</td>
+      <td style="text-align: center">Tesla GA10x cards, RTX Ampere – RTX 3080, GA102 – RTX 3090, RTX A6000, RTX A40</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">SM90 or SM_90, compute_90</td>
+      <td style="text-align: center">Hopper (CUDA 12 [planned] and later)</td>
+      <td style="text-align: center">NVIDIA H100 (GH100)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>NVCC在提高兼容性的处理方式上采用了两种机制：即时编译(JIT)和fatbinaries</p>
+
+<h4 id="即时编译just-in-time">即时编译(Just-In-Time)</h4>
+
+<p>过指定虚拟代码架构而不是真实的GPU，nvcc推迟PTX代码的组装，直到应用程序运行时（目标GPU完全已知）。 例如，当应用程序在sm_50或更高版本的架构上启动时，下面的命令允许生成完全匹配的GPU二进制代码。</p>
+
+<p>Just-in-Time Compilation of Device Code;</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-23-21-41-04.png" alt="Just-in-Time Compilation of Device Code"></p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nvcc xx.cu –gpu-architecture<span class="o">=</span>compute_50 –gpu-code<span class="o">=</span>compute_50 
+
+nvcc x.cu <span class="nt">--gpu-architecture</span><span class="o">=</span>compute_50 <span class="nt">--gpu-code</span><span class="o">=</span>compute_50,sm_50,sm_52
+
+</code></pre></div></div>
+<p>即使编译，即程序运行时，再根据当前的GPU编译成自己计算能力动态编译成应用程序。这就可以让GPU选择想要的版本进行编译。即双compute_的组合。但这种只能保证同一代的兼容性。
+注意：当GPU计算能力低于编译的虚拟框架时，JIT将失败。</p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">--generate-code</code>可以编译多种GPU架构的代码。</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nvcc x.cu <span class="se">\</span>
+    <span class="nt">--generate-code</span> <span class="nb">arch</span><span class="o">=</span>compute_50,code<span class="o">=</span>sm_50 <span class="se">\</span>
+    <span class="nt">--generate-code</span> <span class="nb">arch</span><span class="o">=</span>compute_50,code<span class="o">=</span>sm_52 <span class="se">\</span>
+    <span class="nt">--generate-code</span> <span class="nb">arch</span><span class="o">=</span>compute_53,code<span class="o">=</span>sm_53
+
+nvcc x.cu <span class="se">\</span>
+    <span class="nt">--generate-code</span> <span class="nb">arch</span><span class="o">=</span>compute_50,code<span class="o">=</span>compute_50 <span class="se">\</span>
+    <span class="nt">--generate-code</span> <span class="nb">arch</span><span class="o">=</span>compute_53,code<span class="o">=</span>compute_53
+
+nvcc x.cu <span class="se">\</span>
+    <span class="nt">--generate-code</span> <span class="nb">arch</span><span class="o">=</span>compute_50,code<span class="o">=[</span>sm_50,sm_52] <span class="se">\</span>
+    <span class="nt">--generate-code</span> <span class="nb">arch</span><span class="o">=</span>compute_53,code<span class="o">=</span>sm_53  
+
+</code></pre></div></div>
+
+<h3 id="使用cuda分离编译">使用CUDA分离编译</h3>
+
+<p>cuda5之后支持在设备上分离编译的模式，但是仍然以一个文件作为默认编译方式可以通过添加<code class="language-plaintext highlighter-rouge"> --device-c </code>参数来实现分离编译，再使用<code class="language-plaintext highlighter-rouge">--device-link</code>来进行相关的链接。</p>
+
+<p>过程如下图所示：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-23-21-57-44.png" alt=""></p>
+
+<p>单个的编译流程和上图相似。</p>
+
+<p>注意</p>
+<ul>
+  <li>编译过程中的32/64中间文件，会产生错误链接。</li>
+  <li>设备编译的.o文件必须链接到host编译的.o文件，否则会产生_cudaRegisterLinkedBinary_name错误</li>
+  <li>分离编译中的<code class="language-plaintext highlighter-rouge">__CUDA_ARCH__</code>关键字不能出现在header中，因为不同的目标可能包含不同的行为。如果都包含在header中并且依赖<code class="language-plaintext highlighter-rouge">__CUDA_ARCH__</code>在链接时就会产生错误。多个版本中的行为只有一个会被使用。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-keep</code>选项可以让文件在当前文件夹中被编译，这样中间文件不会放在临时文件夹中。</li>
+  <li>当使用<code class="language-plaintext highlighter-rouge">--keep</code>时，清除文件，需要使用<code class="language-plaintext highlighter-rouge">--keep --clean-targets</code>。否则文件不能被正常清除。</li>
+  <li>使用<code class="language-plaintext highlighter-rouge">nvcc --resource-usage acos.cu</code> 输出文件的相关注册信息。</li>
+</ul>
+
+<h4 id="代码的适应性更改">代码的适应性更改</h4>
+
+<p>使用static关键字，可能得到多个设备符号在不同的文件中</p>
+
+<h4 id="fatbinaries">Fatbinaries</h4>
+<p>在JIT中克服启动延迟，同时仍允许在新GPU上执行的另一种解决方案是指定多个代码实例，如nvcc x.cu –gpu-architecture = compute_50 –gpu-code = compute_50，sm_50，sm_52该命令为两个Kepler变体生成精确代码，以及在遇到下一代GPU时由JIT使用的PTX代码。nvcc将其设备代码组织在fatbinaries中，这些代码能够保存相同GPU源代码的多个翻译。在运行时，CUDA驱动程序将在设备功能启动时选择最合适的翻译。
+即一次保存多个精确的真实框架的二进制结果，当程序被传给GPU时，GPU选择最好的结果，因为一次性加入了多个真实框架，所以被称为‘fat‘。但这也仅仅是保证了大代之间的兼容性。
+在编译参数选择时也可以使用<code class="language-plaintext highlighter-rouge">-generate-code</code>参数，他会在编译时产生不同代的PTX再配合JIT或者fatbinary实现所有GPU兼容。因此在使用cuda程序兼容性的时候，指定虚拟架构决定cuda运行下限，再通过指定<code class="language-plaintext highlighter-rouge">-generate-code</code>或者<code class="language-plaintext highlighter-rouge">-gpu-code=xxx,xxxx,xxxx,...</code>实现程序的兼容性；</p>
+
+<h2 id="nvcc-参数解析">NVCC 参数解析</h2>
+<p><em>参考链接：</em> <a href="https://docs.nvidia.com/cuda/pdf/CUDA_Compiler_Driver_NVCC.pdf">CUDA_Compiler_Driver_NVCC</a>;</p>
+
+<hr>
+
+<h3 id="c-nvcc编译参数关键字">C++ NVCC编译参数关键字</h3>
+
+<h4 id="nvcc关键字有如下">NVCC关键字有如下:</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">关键字</th>
+      <th style="text-align: center">作用描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__NVCC__</code></td>
+      <td style="text-align: center">Defined when compiling C/C++/CUDA source files</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC__</code></td>
+      <td style="text-align: center">Defined when compiling CUDA source files</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC_RDC__</code></td>
+      <td style="text-align: center">Defined when compiling CUDA sources files in relocatable device code mode</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC_DEBUG__</code></td>
+      <td style="text-align: center">Defined when compiler CUDA source files in the device-debug mode</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC_RELAXED_CONSTEXPR__</code></td>
+      <td style="text-align: center">Defined when the <code class="language-plaintext highlighter-rouge">--expt-relaxed-constexpr</code> flag is specified on the command line</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC_EXTENDED_LAMBDA__</code></td>
+      <td style="text-align: center">Defined when the <code class="language-plaintext highlighter-rouge">--expt-extended-lambda</code> flag is specified on the command line</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC_VER_MAJOR__</code></td>
+      <td style="text-align: center">Defined with the major version number of <code class="language-plaintext highlighter-rouge">nvcc</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC_VER_MINOR__</code></td>
+      <td style="text-align: center">Defined with the minor version number of <code class="language-plaintext highlighter-rouge">nvcc</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">__CUDACC_VER_BUILD__</code></td>
+      <td style="text-align: center">Defined with the build version number of <code class="language-plaintext highlighter-rouge">nvcc</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="nvcc中文件类型和解析">NVCC中文件类型和解析：</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Input File Prefix</th>
+      <th style="text-align: center">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.cu</code></td>
+      <td style="text-align: center">CUDA source file, containing host code and device functions</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.c</code></td>
+      <td style="text-align: center">C source file</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">.cc</code>, <code class="language-plaintext highlighter-rouge">.cxx</code>, <code class="language-plaintext highlighter-rouge">.cpp</code>
+</td>
+      <td style="text-align: center">C++ source file</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.ptx</code></td>
+      <td style="text-align: center">PTX intermediate assembly file</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.cubin</code></td>
+      <td style="text-align: center">CUDA device code binary file (CUBIN) for a single GPU architecture</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.fatbin</code></td>
+      <td style="text-align: center">CUDA fat binary file that may contain multiple PTX and CUBIN files</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">.o</code>, <code class="language-plaintext highlighter-rouge">.obj</code>
+</td>
+      <td style="text-align: center">Object file</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">.a</code>, <code class="language-plaintext highlighter-rouge">.lib</code>
+</td>
+      <td style="text-align: center">Library file</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.res</code></td>
+      <td style="text-align: center">Resource file</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.so</code></td>
+      <td style="text-align: center">Shared object file</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="nvcc-编译选项">NVCC 编译选项</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Phase</th>
+      <th style="text-align: center">Long Name</th>
+      <th style="text-align: center">Short Name</th>
+      <th style="text-align: center">Default Output File Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">CUDA compilation to C/C++ source file</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--cuda</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-cuda</code></td>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">.cpp.ii</code> appended to source file name, as in <code class="language-plaintext highlighter-rouge">x.cu.cpp.ii.</code> This output file can be compiled by the host compiler that was used by nvcc to preprocess the <code class="language-plaintext highlighter-rouge">.cu</code>file.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">C/C++ preprocessing</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--preprocess</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-E</code></td>
+      <td style="text-align: center">
+<result on="" standard="" output=""></result>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">C/C++ compilation to object file</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--compile</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-c</code></td>
+      <td style="text-align: center">Source file name with suffix replaced by o on Linux and Mac OS X, or obj on Windows</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Cubin generation from CUDA source files</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--cubin</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-cubin</code></td>
+      <td style="text-align: center">Source file name with suffix replaced by <code class="language-plaintext highlighter-rouge">cubin</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Cubin generation from PTX intermediate files.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--cubin</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-cubin</code></td>
+      <td style="text-align: center">Source file name with suffix replaced by cubin</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">PTX generation from CUDA source files</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--ptx</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-ptx</code></td>
+      <td style="text-align: center">Source file name with suffix replaced by <code class="language-plaintext highlighter-rouge">ptx</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Fatbinary generation from source, PTX or cubin files</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--fatbin</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-fatbin</code></td>
+      <td style="text-align: center">Source file name with suffix replaced by fatbin</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Linking relocatable device code.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--device-link</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-dlink</code></td>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">a_dlink.obj</code> on Windows or <code class="language-plaintext highlighter-rouge">a_dlink.o</code> on other platforms</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Cubin generation from linked relocatable device code.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--device-link--cubin</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-dlink-cubin</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">a_dlink.cubin</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Fatbinary generation from linked relocatable device code</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--device-link--fatbin</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-dlink-fatbin</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">a_dlink.fatbin</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Linking an executable</td>
+      <td style="text-align: center">
+<no phase="" option=""></no>
+</td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">a.exe</code> on Windows or <code class="language-plaintext highlighter-rouge">a.out</code> on other platforms</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Constructing an object file archive, or library</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--lib</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-lib</code></td>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">a.lib</code> on Windows or <code class="language-plaintext highlighter-rouge">a.a</code> on other platforms</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">make dependency generation</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--generate-dependencies</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-M</code></td>
+      <td style="text-align: center">
+<result on="" standard="" output=""></result>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">make dependency generation without headers in system paths.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--generate-nonsystem-dependencies</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-MM</code></td>
+      <td style="text-align: center">
+<result on="" standard="" output=""></result>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Running an executable</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--run</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-run</code></td>
+      <td style="text-align: center"> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>### MVCC 命令选项；</p>
+
+<p>NVCC 命令工具使用方法和参数解析详见<code class="language-plaintext highlighter-rouge">nvcc --help</code>;</p>
+
+<p>#### 常用参数和功能如下：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">全称</th>
+      <th style="text-align: center">简写</th>
+      <th style="text-align: center">作用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--output-file [file]</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-o [file]</code></td>
+      <td style="text-align: center">输出目标文件</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--pre-include [file1,file2,...] </code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-inlude [file1,file2,...]</code></td>
+      <td style="text-align: center">添加头文件</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--library [library]</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-l [library]</code></td>
+      <td style="text-align: center">添加动态链接文件</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">--define-macro def</code>,…</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-D</code></td>
+      <td style="text-align: center">Specify macro definitions for use during preprocessing or compilation.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">--undefine-macro def</code>,…</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-U</code></td>
+      <td style="text-align: center">Undefine macro definitions during preprocessing or compilation.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">--include-path path</code>,…</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-I</code></td>
+      <td style="text-align: center">Specify include search paths.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">--system-include path</code>,…</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-isystem</code></td>
+      <td style="text-align: center">Specify system include search paths.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">
+<code class="language-plaintext highlighter-rouge">--library-path path</code>,…</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-L</code></td>
+      <td style="text-align: center">Specify library search paths (see Libraries).</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--output-directory directory</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-odir</code></td>
+      <td style="text-align: center">Specify the directory of the output file. This option is intended for letting the dependency generation step (see <code class="language-plaintext highlighter-rouge">--generate-dependencies</code>) generate a rule that defines the target object file in the proper directory.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--compiler-bindir directory</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-ccbin</code></td>
+      <td style="text-align: center">Specify the directory in which the compiler executable resides. The host compiler executable name can be also specified to ensure that the correct host compiler is selected. In addition, driver prefix options (<code class="language-plaintext highlighter-rouge">--input-drive-prefix</code>, <code class="language-plaintext highlighter-rouge">--dependency-drive-prefix</code>, or <code class="language-plaintext highlighter-rouge">--drive-prefix</code>) may need to be specified, if nvcc is executed in a Cygwin shell or a MinGW shell on Windows.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--cudart {none/shared/static} </code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-cudart</code></td>
+      <td style="text-align: center">Specify the type of CUDA runtime library to be used: no CUDA runtime library, shared/dynamic CUDA runtime library, or static CUDA runtime library. Allowed values for this option: <code class="language-plaintext highlighter-rouge">none</code>, <code class="language-plaintext highlighter-rouge">shared</code>, <code class="language-plaintext highlighter-rouge">static</code>. Default value: <code class="language-plaintext highlighter-rouge">static</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">--libdevice-directory directory</code></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">-ldir</code></td>
+      <td style="text-align: center">Specify the directory that contains the libdevice library files when option <code class="language-plaintext highlighter-rouge">--dont-use-profile</code> is used. Libdevice library files are located in the nvvm/libdevice directory in the CUDA Toolkit.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="nvcc90-help信息如下">nvcc9.0 help信息如下</h4>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Usage  : nvcc <span class="o">[</span>options] &lt;inputfile&gt;
+
+Options <span class="k">for </span>specifying the compilation phase
+<span class="o">============================================</span>
+More exactly, this option specifies up to which stage the input files must be compiled,
+according to the following compilation trajectories <span class="k">for </span>different input file types:
+        .c/.cc/.cpp/.cxx : preprocess, compile, <span class="nb">link</span>
+        .o               : <span class="nb">link</span>
+        .i/.ii           : compile, <span class="nb">link</span>
+        .cu              : preprocess, cuda frontend, PTX assemble,
+                           merge with host C code, compile, <span class="nb">link</span>
+        .gpu             : cicc compile into cubin
+        .ptx             : PTX assemble into cubin.
+
+<span class="nt">--cuda</span>  <span class="o">(</span><span class="nt">-cuda</span><span class="o">)</span>                           
+        Compile all .cu input files to .cu.cpp.ii output.
+
+<span class="nt">--cubin</span> <span class="o">(</span><span class="nt">-cubin</span><span class="o">)</span>                          
+        Compile all .cu/.gpu/.ptx input files to device-only .cubin files.  This
+        step discards the host code <span class="k">for </span>each .cu input file.
+
+<span class="nt">--fatbin</span><span class="o">(</span><span class="nt">-fatbin</span><span class="o">)</span>                         
+        Compile all .cu/.gpu/.ptx/.cubin input files to device-only .fatbin files.
+        This step discards the host code <span class="k">for </span>each .cu input file.
+
+<span class="nt">--ptx</span>   <span class="o">(</span><span class="nt">-ptx</span><span class="o">)</span>                            
+        Compile all .cu/.gpu input files to device-only .ptx files.  This step discards
+        the host code <span class="k">for </span>each of these input file.
+
+<span class="nt">--preprocess</span>                               <span class="o">(</span><span class="nt">-E</span><span class="o">)</span>                              
+        Preprocess all .c/.cc/.cpp/.cxx/.cu input files.
+
+<span class="nt">--generate-dependencies</span>                    <span class="o">(</span><span class="nt">-M</span><span class="o">)</span>                              
+        Generate a dependency file that can be included <span class="k">in </span>a make file <span class="k">for </span>the .c/.cc/.cpp/.cxx/.cu
+        input file <span class="o">(</span>more than one are not allowed <span class="k">in </span>this mode<span class="o">)</span><span class="nb">.</span>
+
+<span class="nt">--compile</span>                                  <span class="o">(</span><span class="nt">-c</span><span class="o">)</span>                              
+        Compile each .c/.cc/.cpp/.cxx/.cu input file into an object file.
+
+<span class="nt">--device-c</span>                                 <span class="o">(</span><span class="nt">-dc</span><span class="o">)</span>                             
+        Compile each .c/.cc/.cpp/.cxx/.cu input file into an object file that contains
+        relocatable device code.  It is equivalent to <span class="s1">'--relocatable-device-code=true
+        --compile'</span><span class="nb">.</span>
+
+<span class="nt">--device-w</span>                                 <span class="o">(</span><span class="nt">-dw</span><span class="o">)</span>                             
+        Compile each .c/.cc/.cpp/.cxx/.cu input file into an object file that contains
+        executable device code.  It is equivalent to <span class="s1">'--relocatable-device-code=false
+        --compile'</span><span class="nb">.</span>
+
+<span class="nt">--device-link</span>                              <span class="o">(</span><span class="nt">-dlink</span><span class="o">)</span>                          
+        Link object files with relocatable device code and .ptx/.cubin/.fatbin files
+        into an object file with executable device code, which can be passed to the
+        host linker.
+
+<span class="nt">--link</span>  <span class="o">(</span><span class="nt">-link</span><span class="o">)</span>                           
+        This option specifies the default behavior: compile and <span class="nb">link </span>all inputs.
+
+<span class="nt">--lib</span>   <span class="o">(</span><span class="nt">-lib</span><span class="o">)</span>                            
+        Compile all inputs into object files <span class="o">(</span><span class="k">if </span>necessary<span class="o">)</span> and add the results to
+        the specified output library file.
+
+<span class="nt">--run</span>   <span class="o">(</span><span class="nt">-run</span><span class="o">)</span>                            
+        This option compiles and links all inputs into an executable, and executes
+        it.  Or, when the input is a single executable, it is executed without any
+        compilation or linking. This step is intended <span class="k">for </span>developers <span class="nb">who </span><span class="k">do </span>not want
+        to be bothered with setting the necessary environment variables<span class="p">;</span> these are
+        <span class="nb">set </span>temporarily by nvcc<span class="o">)</span><span class="nb">.</span>
+
+
+File and path specifications.
+<span class="o">=============================</span>
+
+<span class="nt">--output-file</span> &lt;file&gt;                       <span class="o">(</span><span class="nt">-o</span><span class="o">)</span>                              
+        Specify name and location of the output file.  Only a single input file is
+        allowed when this option is present <span class="k">in </span>nvcc non-linking/archiving mode.
+
+<span class="nt">--pre-include</span> &lt;file&gt;,...                   <span class="o">(</span><span class="nt">-include</span><span class="o">)</span>                        
+        Specify header files that must be preincluded during preprocessing.
+
+<span class="nt">--library</span> &lt;library&gt;,...                    <span class="o">(</span><span class="nt">-l</span><span class="o">)</span>                              
+        Specify libraries to be used <span class="k">in </span>the linking stage without the library file
+        extension.  The libraries are searched <span class="k">for </span>on the library search paths that
+        have been specified using option <span class="s1">'--library-path'</span><span class="nb">.</span>
+
+<span class="nt">--define-macro</span> &lt;def&gt;,...                   <span class="o">(</span><span class="nt">-D</span><span class="o">)</span>                              
+        Specify macro definitions to define <span class="k">for </span>use during preprocessing or compilation.
+
+<span class="nt">--undefine-macro</span> &lt;def&gt;,...                 <span class="o">(</span><span class="nt">-U</span><span class="o">)</span>                              
+        Undefine macro definitions during preprocessing or compilation.
+
+<span class="nt">--include-path</span> &lt;path&gt;,...                  <span class="o">(</span><span class="nt">-I</span><span class="o">)</span>                              
+        Specify include search paths.
+
+<span class="nt">--system-include</span> &lt;path&gt;,...                <span class="o">(</span><span class="nt">-isystem</span><span class="o">)</span>                        
+        Specify system include search paths.
+
+<span class="nt">--library-path</span> &lt;path&gt;,...                  <span class="o">(</span><span class="nt">-L</span><span class="o">)</span>                              
+        Specify library search paths.
+
+<span class="nt">--output-directory</span> &lt;directory&gt;             <span class="o">(</span><span class="nt">-odir</span><span class="o">)</span>                           
+        Specify the directory of the output file.  This option is intended <span class="k">for </span>letting
+        the dependency generation step <span class="o">(</span>see <span class="s1">'--generate-dependencies'</span><span class="o">)</span> generate a
+        rule that defines the target object file <span class="k">in </span>the proper directory.
+
+<span class="nt">--compiler-bindir</span> &lt;path&gt;                   <span class="o">(</span><span class="nt">-ccbin</span><span class="o">)</span>                          
+        Specify the directory <span class="k">in </span>which the host compiler executable resides.  The
+        host compiler executable name can be also specified to ensure that the correct
+        host compiler is selected.  In addition, driver prefix options <span class="o">(</span><span class="s1">'--input-drive-prefix'</span>,
+        <span class="s1">'--dependency-drive-prefix'</span>, or <span class="s1">'--drive-prefix'</span><span class="o">)</span> may need to be specified,
+        <span class="k">if </span>nvcc is executed <span class="k">in </span>a Cygwin shell or a MinGW shell on Windows.
+
+<span class="nt">--cudart</span><span class="o">{</span>none|shared|static<span class="o">}</span>              <span class="o">(</span><span class="nt">-cudart</span><span class="o">)</span>                         
+        Specify the <span class="nb">type </span>of CUDA runtime library to be used: no CUDA runtime library,
+        shared/dynamic CUDA runtime library, or static CUDA runtime library.
+        Allowed values <span class="k">for </span>this option:  <span class="s1">'none'</span>,<span class="s1">'shared'</span>,<span class="s1">'static'</span><span class="nb">.</span>
+        Default value:  <span class="s1">'static'</span><span class="nb">.</span>
+
+<span class="nt">--libdevice-directory</span> &lt;directory&gt;          <span class="o">(</span><span class="nt">-ldir</span><span class="o">)</span>                           
+        Specify the directory that contains the libdevice library files when option
+        <span class="s1">'--dont-use-profile'</span> is used.  Libdevice library files are located <span class="k">in </span>the
+        <span class="s1">'nvvm/libdevice'</span> directory <span class="k">in </span>the CUDA toolkit.
+
+<span class="nt">--cl-version</span> &lt;cl-version-number&gt;           <span class="nt">--cl-version</span> &lt;cl-version-number&gt;  
+        Specify the version of Microsoft Visual Studio installation.  Note: this
+        option is to be used <span class="k">in </span>conjunction with <span class="s1">'--use-local-env'</span>, and is ignored
+        when <span class="s1">'--use-local-env'</span> is not specified. Support <span class="k">for </span>VS2010 and earlier has
+        been deprecated.
+        Allowed values <span class="k">for </span>this option:  2010,2012,2013,2015,2017.
+
+<span class="nt">--use-local-env</span>                            <span class="nt">--use-local-env</span>                   
+        Specify whether the environment is already <span class="nb">set </span>up <span class="k">for </span>the host compiler.
+
+
+Options <span class="k">for </span>specifying behavior of compiler/linker.
+<span class="o">===================================================</span>
+
+<span class="nt">--profile</span>                                  <span class="o">(</span><span class="nt">-pg</span><span class="o">)</span>                             
+        Instrument generated code/executable <span class="k">for </span>use by gprof <span class="o">(</span>Linux only<span class="o">)</span><span class="nb">.</span>
+
+<span class="nt">--debug</span> <span class="o">(</span><span class="nt">-g</span><span class="o">)</span>                              
+        Generate debug information <span class="k">for </span>host code.
+
+<span class="nt">--device-debug</span>                             <span class="o">(</span><span class="nt">-G</span><span class="o">)</span>                              
+        Generate debug information <span class="k">for </span>device code. Turns off all optimizations.
+        Don not use <span class="k">for </span>profiling<span class="p">;</span> use <span class="nt">-lineinfo</span> instead.
+
+<span class="nt">--generate-line-info</span>                       <span class="o">(</span><span class="nt">-lineinfo</span><span class="o">)</span>                       
+        Generate line-number information <span class="k">for </span>device code.
+
+<span class="nt">--optimize</span> &lt;level&gt;                         <span class="o">(</span><span class="nt">-O</span><span class="o">)</span>                              
+        Specify optimization level <span class="k">for </span>host code.
+
+<span class="nt">--ftemplate-backtrace-limit</span> &lt;limit&gt;        <span class="o">(</span><span class="nt">-ftemplate-backtrace-limit</span><span class="o">)</span>      
+        Set the maximum number of template instantiation notes <span class="k">for </span>a single warning
+        or error to &lt;limit&gt;. A value of 0 is allowed, and indicates that no limit
+        should be enforced. This value is also passed to the host compiler <span class="k">if </span>it
+        provides an equivalent flag.
+
+<span class="nt">--ftemplate-depth</span> &lt;limit&gt;                  <span class="o">(</span><span class="nt">-ftemplate-depth</span><span class="o">)</span>                
+        Set the maximum instantiation depth <span class="k">for </span>template classes to &lt;limit&gt;. This
+        value is also passed to the host compiler <span class="k">if </span>it provides an equivalent flag.
+
+<span class="nt">--shared</span><span class="o">(</span><span class="nt">-shared</span><span class="o">)</span>                         
+        Generate a shared library during linking.  Use option <span class="s1">'--linker-options'</span>
+        when other linker options are required <span class="k">for </span>more control.
+
+<span class="nt">--x</span> <span class="o">{</span>c|c++|cu<span class="o">}</span>                             <span class="o">(</span><span class="nt">-x</span><span class="o">)</span>                              
+        Explicitly specify the language <span class="k">for </span>the input files, rather than letting
+        the compiler choose a default based on the file name suffix.
+        Allowed values <span class="k">for </span>this option:  <span class="s1">'c'</span>,<span class="s1">'c++'</span>,<span class="s1">'cu'</span><span class="nb">.</span>
+
+<span class="nt">--std</span> <span class="o">{</span>c++03|c++11|c++14<span class="o">}</span>                  <span class="o">(</span><span class="nt">-std</span><span class="o">)</span>                            
+        Select a particular C++ dialect.  Note that this flag also turns on the corresponding
+        dialect flag <span class="k">for </span>the host compiler.
+        Allowed values <span class="k">for </span>this option:  <span class="s1">'c++03'</span>,<span class="s1">'c++11'</span>,<span class="s1">'c++14'</span><span class="nb">.</span>
+
+<span class="nt">--no-host-device-initializer-list</span>          <span class="o">(</span><span class="nt">-nohdinitlist</span><span class="o">)</span>                   
+        Do not implicitly consider member functions of std::initializer_list as __host__
+        __device__ functions.
+
+<span class="nt">--no-host-device-move-forward</span>              <span class="o">(</span><span class="nt">-nohdmoveforward</span><span class="o">)</span>                
+        Do not implicitly consider std::move and std::forward as __host__ __device__
+        <span class="k">function </span>templates.
+
+<span class="nt">--expt-relaxed-constexpr</span>                   <span class="o">(</span><span class="nt">-expt-relaxed-constexpr</span><span class="o">)</span>         
+        Experimental flag: Allow host code to invoke __device__ constexpr functions,
+        and device code to invoke __host__ constexpr functions.
+
+<span class="nt">--expt-extended-lambda</span>                     <span class="o">(</span><span class="nt">-expt-extended-lambda</span><span class="o">)</span>           
+        Experimental flag: Allow __host__, __device__ annotations <span class="k">in </span>lambda declaration.
+
+<span class="nt">--machine</span> <span class="o">{</span>32|64<span class="o">}</span>                          <span class="o">(</span><span class="nt">-m</span><span class="o">)</span>                              
+        Specify 32 vs 64 bit architecture.
+        Allowed values <span class="k">for </span>this option:  32,64.
+        Default value:  64.
+
+
+Options <span class="k">for </span>passing specific phase options
+<span class="o">==========================================</span>
+These allow <span class="k">for </span>passing options directly to the intended compilation phase.  Using
+these, <span class="nb">users </span>have the ability to pass options to the lower level compilation tools,
+without the need <span class="k">for </span>nvcc to know about each and every such option.
+
+<span class="nt">--compiler-options</span> &lt;options&gt;,...           <span class="o">(</span><span class="nt">-Xcompiler</span><span class="o">)</span>                      
+        Specify options directly to the compiler/preprocessor.
+
+<span class="nt">--linker-options</span> &lt;options&gt;,...             <span class="o">(</span><span class="nt">-Xlinker</span><span class="o">)</span>                        
+        Specify options directly to the host linker.
+
+<span class="nt">--archive-options</span> &lt;options&gt;,...            <span class="o">(</span><span class="nt">-Xarchive</span><span class="o">)</span>                       
+        Specify options directly to library manager.
+
+<span class="nt">--ptxas-options</span> &lt;options&gt;,...              <span class="o">(</span><span class="nt">-Xptxas</span><span class="o">)</span>                         
+        Specify options directly to ptxas, the PTX optimizing assembler.
+
+<span class="nt">--nvlink-options</span> &lt;options&gt;,...             <span class="o">(</span><span class="nt">-Xnvlink</span><span class="o">)</span>                        
+        Specify options directly to nvlink.
+
+
+Miscellaneous options <span class="k">for </span>guiding the compiler driver.
+<span class="o">======================================================</span>
+
+<span class="nt">--dont-use-profile</span>                         <span class="o">(</span><span class="nt">-noprof</span><span class="o">)</span>                         
+        Nvcc uses the nvcc.profiles file <span class="k">for </span>compilation.  When specifying this option,
+        the profile file is not used.
+
+<span class="nt">--dryrun</span><span class="o">(</span><span class="nt">-dryrun</span><span class="o">)</span>                         
+        Do not execute the compilation commands generated by nvcc.  Instead, list
+        them.
+
+<span class="nt">--verbose</span>                                  <span class="o">(</span><span class="nt">-v</span><span class="o">)</span>                              
+        List the compilation commands generated by this compiler driver, but <span class="k">do </span>not
+        suppress their execution.
+
+<span class="nt">--keep</span>  <span class="o">(</span><span class="nt">-keep</span><span class="o">)</span>                           
+        Keep all intermediate files that are generated during internal compilation
+        steps.
+
+<span class="nt">--keep-dir</span> &lt;directory&gt;                     <span class="o">(</span><span class="nt">-keep-dir</span><span class="o">)</span>                       
+        Keep all intermediate files that are generated during internal compilation
+        steps <span class="k">in </span>this directory.
+
+<span class="nt">--save-temps</span>                               <span class="o">(</span><span class="nt">-save-temps</span><span class="o">)</span>                     
+        This option is an <span class="nb">alias </span>of <span class="s1">'--keep'</span><span class="nb">.</span>
+
+<span class="nt">--clean-targets</span>                            <span class="o">(</span><span class="nt">-clean</span><span class="o">)</span>                          
+        This option reverses the behavior of nvcc.  When specified, none of the compilation
+        phases will be executed.  Instead, all of the non-temporary files that nvcc
+        would otherwise create will be deleted.
+
+<span class="nt">--run-args</span> &lt;arguments&gt;,...                 <span class="o">(</span><span class="nt">-run-args</span><span class="o">)</span>                       
+        Used <span class="k">in </span>combination with option <span class="nt">--run</span> to specify <span class="nb">command </span>line arguments <span class="k">for
+        </span>the executable.
+
+<span class="nt">--input-drive-prefix</span> &lt;prefix&gt;              <span class="o">(</span><span class="nt">-idp</span><span class="o">)</span>                            
+        On Windows, all <span class="nb">command </span>line arguments that refer to file names must be converted
+        to the Windows native format before they are passed to pure Windows executables.
+        This option specifies how the current development environment represents
+        absolute paths.  Use <span class="s1">'/cygwin/'</span> as &lt;prefix&gt; <span class="k">for </span>Cygwin build environments,
+        and <span class="s1">'/'</span> as &lt;prefix&gt; <span class="k">for </span>MinGW.
+
+<span class="nt">--dependency-drive-prefix</span> &lt;prefix&gt;         <span class="o">(</span><span class="nt">-ddp</span><span class="o">)</span>                            
+        On Windows, when generating dependency files <span class="o">(</span>see <span class="nt">--generate-dependencies</span><span class="o">)</span>,
+        all file names must be converted appropriately <span class="k">for </span>the instance of <span class="s1">'make'</span>
+        that is used.  Some instances of <span class="s1">'make'</span> have trouble with the colon <span class="k">in </span>absolute
+        paths <span class="k">in </span>the native Windows format, which depends on the environment <span class="k">in </span>which
+        the <span class="s1">'make'</span> instance has been compiled.  Use <span class="s1">'/cygwin/'</span> as &lt;prefix&gt; <span class="k">for </span>a
+        Cygwin make, and <span class="s1">'/'</span> as &lt;prefix&gt; <span class="k">for </span>MinGW.  Or leave these file names <span class="k">in
+        </span>the native Windows format by specifying nothing.
+
+<span class="nt">--drive-prefix</span> &lt;prefix&gt;                    <span class="o">(</span><span class="nt">-dp</span><span class="o">)</span>                             
+        Specifies &lt;prefix&gt; as both <span class="nt">--input-drive-prefix</span> and <span class="nt">--dependency-drive-prefix</span><span class="nb">.</span>
+
+<span class="nt">--dependency-target-name</span> &lt;target&gt;          <span class="o">(</span><span class="nt">-MT</span><span class="o">)</span>                             
+        Specify the target name of the generated rule when generating a dependency
+        file <span class="o">(</span>see <span class="s1">'--generate-dependencies'</span><span class="o">)</span><span class="nb">.</span>
+
+<span class="nt">--no-align-double</span>                          <span class="nt">--no-align-double</span>                 
+        Specifies that <span class="s1">'-malign-double'</span> should not be passed as a compiler argument
+        on 32-bit platforms.  WARNING: this makes the ABI incompatible with the cuda’s
+        kernel ABI <span class="k">for </span>certain 64-bit types.
+
+<span class="nt">--no-device-link</span>                           <span class="o">(</span><span class="nt">-nodlink</span><span class="o">)</span>                        
+        Skip the device <span class="nb">link </span>step when linking object files.
+
+
+Options <span class="k">for </span>steering GPU code generation.
+<span class="o">=========================================</span>
+
+<span class="nt">--gpu-architecture</span> &lt;<span class="nb">arch</span><span class="o">&gt;</span>                  <span class="o">(</span><span class="nt">-arch</span><span class="o">)</span>                           
+        Specify the name of the class of NVIDIA <span class="s1">'virtual'</span> GPU architecture <span class="k">for </span>which
+        the CUDA input files must be compiled.
+        With the exception as described <span class="k">for </span>the shorthand below, the architecture
+        specified with this option must be a <span class="s1">'virtual'</span> architecture <span class="o">(</span>such as compute_50<span class="o">)</span><span class="nb">.</span>
+        Normally, this option alone does not trigger assembly of the generated PTX
+        <span class="k">for </span>a <span class="s1">'real'</span> architecture <span class="o">(</span>that is the role of nvcc option <span class="s1">'--gpu-code'</span>,
+        see below<span class="o">)</span><span class="p">;</span> rather, its purpose is to control preprocessing and compilation
+        of the input to PTX.
+        For convenience, <span class="k">in case</span> of simple nvcc compilations, the following shorthand
+        is supported.  If no value <span class="k">for </span>option <span class="s1">'--gpu-code'</span> is specified, <span class="k">then </span>the
+        value of this option defaults to the value of <span class="s1">'--gpu-architecture'</span><span class="nb">.</span>  In this
+        situation, as only exception to the description above, the value specified
+        <span class="k">for</span> <span class="s1">'--gpu-architecture'</span> may be a <span class="s1">'real'</span> architecture <span class="o">(</span>such as a sm_50<span class="p">)</span>,
+        <span class="k">in </span>which <span class="k">case</span> nvcc uses the specified <span class="s1">'real'</span> architecture and its closest
+        <span class="s1">'virtual'</span> architecture as effective architecture values.  For example, <span class="s1">'nvcc
+        --gpu-architecture=sm_50'</span> is equivalent to <span class="s1">'nvcc --gpu-architecture=compute_50
+        --gpu-code=sm_50,compute_50'</span><span class="nb">.</span>
+        Allowed values <span class="k">for </span>this option:  <span class="s1">'compute_30'</span>,<span class="s1">'compute_32'</span>,<span class="s1">'compute_35'</span>,
+        <span class="s1">'compute_37'</span>,<span class="s1">'compute_50'</span>,<span class="s1">'compute_52'</span>,<span class="s1">'compute_53'</span>,<span class="s1">'compute_60'</span>,<span class="s1">'compute_61'</span>,
+        <span class="s1">'compute_62'</span>,<span class="s1">'compute_70'</span>,<span class="s1">'sm_30'</span>,<span class="s1">'sm_32'</span>,<span class="s1">'sm_35'</span>,<span class="s1">'sm_37'</span>,<span class="s1">'sm_50'</span>,<span class="s1">'sm_52'</span>,
+        <span class="s1">'sm_53'</span>,<span class="s1">'sm_60'</span>,<span class="s1">'sm_61'</span>,<span class="s1">'sm_62'</span>,<span class="s1">'sm_70'</span><span class="nb">.</span>
+
+<span class="nt">--gpu-code</span> &lt;code&gt;,...                      <span class="o">(</span><span class="nt">-code</span><span class="p">)</span>                           
+        Specify the name of the NVIDIA GPU to assemble and optimize PTX <span class="k">for</span><span class="nb">.</span>
+        nvcc embeds a compiled code image <span class="k">in </span>the resulting executable <span class="k">for </span>each specified
+        &lt;code&gt; architecture, which is a <span class="nb">true </span>binary load image <span class="k">for </span>each <span class="s1">'real'</span> architecture
+        <span class="o">(</span>such as sm_50<span class="o">)</span>, and PTX code <span class="k">for </span>the <span class="s1">'virtual'</span> architecture <span class="o">(</span>such as compute_50<span class="o">)</span><span class="nb">.</span>
+        During runtime, such embedded PTX code is dynamically compiled by the CUDA
+        runtime system <span class="k">if </span>no binary load image is found <span class="k">for </span>the <span class="s1">'current'</span> GPU.
+        Architectures specified <span class="k">for </span>options <span class="s1">'--gpu-architecture'</span> and <span class="s1">'--gpu-code'</span>
+        may be <span class="s1">'virtual'</span> as well as <span class="s1">'real'</span>, but the &lt;code&gt; architectures must be
+        compatible with the &lt;<span class="nb">arch</span><span class="o">&gt;</span> architecture.  When the <span class="s1">'--gpu-code'</span> option is
+        used, the value <span class="k">for </span>the <span class="s1">'--gpu-architecture'</span> option must be a <span class="s1">'virtual'</span> PTX
+        architecture.
+        For instance, <span class="s1">'--gpu-architecture=compute_35'</span> is not compatible with <span class="s1">'--gpu-code=sm_30'</span>,
+        because the earlier compilation stages will assume the availability of <span class="s1">'compute_35'</span>
+        features that are not present on <span class="s1">'sm_30'</span><span class="nb">.</span>
+        Allowed values <span class="k">for </span>this option:  <span class="s1">'compute_30'</span>,<span class="s1">'compute_32'</span>,<span class="s1">'compute_35'</span>,
+        <span class="s1">'compute_37'</span>,<span class="s1">'compute_50'</span>,<span class="s1">'compute_52'</span>,<span class="s1">'compute_53'</span>,<span class="s1">'compute_60'</span>,<span class="s1">'compute_61'</span>,
+        <span class="s1">'compute_62'</span>,<span class="s1">'compute_70'</span>,<span class="s1">'sm_30'</span>,<span class="s1">'sm_32'</span>,<span class="s1">'sm_35'</span>,<span class="s1">'sm_37'</span>,<span class="s1">'sm_50'</span>,<span class="s1">'sm_52'</span>,
+        <span class="s1">'sm_53'</span>,<span class="s1">'sm_60'</span>,<span class="s1">'sm_61'</span>,<span class="s1">'sm_62'</span>,<span class="s1">'sm_70'</span><span class="nb">.</span>
+
+<span class="nt">--generate-code</span> &lt;specification&gt;,...        <span class="o">(</span><span class="nt">-gencode</span><span class="o">)</span>                        
+        This option provides a generalization of the <span class="s1">'--gpu-architecture=&lt;arch&gt; --gpu-code=&lt;code&gt;,
+        ...'</span> option combination <span class="k">for </span>specifying nvcc behavior with respect to code
+        generation.  Where use of the previous options generates code <span class="k">for </span>different
+        <span class="s1">'real'</span> architectures with the PTX <span class="k">for </span>the same <span class="s1">'virtual'</span> architecture, option
+        <span class="s1">'--generate-code'</span> allows multiple PTX generations <span class="k">for </span>different <span class="s1">'virtual'</span>
+        architectures.  In fact, <span class="s1">'--gpu-architecture=&lt;arch&gt; --gpu-code=&lt;code&gt;,
+        ...'</span> is equivalent to <span class="s1">'--generate-code arch=&lt;arch&gt;,code=&lt;code&gt;,...'</span><span class="nb">.</span>
+        <span class="s1">'--generate-code'</span> options may be repeated <span class="k">for </span>different virtual architectures.
+        Allowed keywords <span class="k">for </span>this option:  <span class="s1">'arch'</span>,<span class="s1">'code'</span><span class="nb">.</span>
+
+<span class="nt">--relocatable-device-code</span> <span class="o">{</span><span class="nb">true</span>|false<span class="o">}</span>     <span class="o">(</span><span class="nt">-rdc</span><span class="o">)</span>                            
+        Enable <span class="o">(</span>disable<span class="o">)</span> the generation of relocatable device code.  If disabled,
+        executable device code is generated.  Relocatable device code must be linked
+        before it can be executed.
+        Default value:  false.
+
+<span class="nt">--entries</span> entry,...                        <span class="o">(</span><span class="nt">-e</span><span class="o">)</span>                              
+        Specify the global entry functions <span class="k">for </span>which code must be generated.  By
+        default, code will be generated <span class="k">for </span>all entry functions.
+
+<span class="nt">--maxrregcount</span> &lt;amount&gt;                    <span class="o">(</span><span class="nt">-maxrregcount</span><span class="o">)</span>                   
+        Specify the maximum amount of registers that GPU functions can use.
+        Until a <span class="k">function</span><span class="nt">-specific</span> limit, a higher value will generally increase the
+        performance of individual GPU threads that execute this <span class="k">function</span><span class="nb">.</span>  However,
+        because thread registers are allocated from a global register pool on each
+        GPU, a higher value of this option will also reduce the maximum thread block
+        size, thereby reducing the amount of thread parallelism.  Hence, a good maxrregcount
+        value is the result of a trade-off.
+        If this option is not specified, <span class="k">then </span>no maximum is assumed.
+        Value less than the minimum registers required by ABI will be bumped up by
+        the compiler to ABI minimum limit.
+        User program may not be able to make use of all registers as some registers
+        are reserved by compiler.
+
+<span class="nt">--use_fast_math</span>                            <span class="o">(</span><span class="nt">-use_fast_math</span><span class="o">)</span>                  
+        Make use of fast math library.  <span class="s1">'--use_fast_math'</span> implies <span class="s1">'--ftz=true --prec-div=false
+        --prec-sqrt=false --fmad=true'</span><span class="nb">.</span>
+
+<span class="nt">--ftz</span> <span class="o">{</span><span class="nb">true</span>|false<span class="o">}</span>                         <span class="o">(</span><span class="nt">-ftz</span><span class="o">)</span>                            
+        This option controls single-precision denormals support. <span class="s1">'--ftz=true'</span> flushes
+        denormal values to zero and <span class="s1">'--ftz=false'</span> preserves denormal values. <span class="s1">'--use_fast_math'</span>
+        implies <span class="s1">'--ftz=true'</span><span class="nb">.</span>
+        Default value:  false.
+
+<span class="nt">--prec-div</span> <span class="o">{</span><span class="nb">true</span>|false<span class="o">}</span>                    <span class="o">(</span><span class="nt">-prec-div</span><span class="o">)</span>                       
+        This option controls single-precision floating-point division and reciprocals.
+        <span class="s1">'--prec-div=true'</span> enables the IEEE round-to-nearest mode and <span class="s1">'--prec-div=false'</span>
+        enables the fast approximation mode.  <span class="s1">'--use_fast_math'</span> implies <span class="s1">'--prec-div=false'</span><span class="nb">.</span>
+        Default value:  true.
+
+<span class="nt">--prec-sqrt</span> <span class="o">{</span><span class="nb">true</span>|false<span class="o">}</span>                   <span class="o">(</span><span class="nt">-prec-sqrt</span><span class="o">)</span>                      
+        This option controls single-precision floating-point squre root.  <span class="s1">'--prec-sqrt=true'</span>
+        enables the IEEE round-to-nearest mode and <span class="s1">'--prec-sqrt=false'</span> enables the
+        fast approximation mode.  <span class="s1">'--use_fast_math'</span> implies <span class="s1">'--prec-sqrt=false'</span><span class="nb">.</span>
+        Default value:  true.
+
+<span class="nt">--fmad</span> <span class="o">{</span><span class="nb">true</span>|false<span class="o">}</span>                        <span class="o">(</span><span class="nt">-fmad</span><span class="o">)</span>                           
+        This option enables <span class="o">(</span>disables<span class="o">)</span> the contraction of floating-point multiplies
+        and adds/subtracts into floating-point multiply-add operations <span class="o">(</span>FMAD, FFMA,
+        or DFMA<span class="o">)</span><span class="nb">.</span>  <span class="s1">'--use_fast_math'</span> implies <span class="s1">'--fmad=true'</span><span class="nb">.</span>
+        Default value:  true.
+
+
+Options <span class="k">for </span>steering cuda compilation.
+<span class="o">======================================</span>
+
+<span class="nt">--default-stream</span> <span class="o">{</span>legacy|null|per-thread<span class="o">}</span>  <span class="o">(</span><span class="nt">-default-stream</span><span class="o">)</span>                 
+        Specify the stream that CUDA commands from the compiled program will be sent
+        to by default.
+                
+        legacy
+                The CUDA legacy stream <span class="o">(</span>per context, implicitly synchronizes with
+                other streams<span class="o">)</span><span class="nb">.</span>
+                
+        per-thread
+                A normal CUDA stream <span class="o">(</span>per thread, does not implicitly
+                synchronize with other streams<span class="o">)</span><span class="nb">.</span>
+                
+        <span class="s1">'null'</span> is a deprecated <span class="nb">alias </span><span class="k">for</span> <span class="s1">'legacy'</span><span class="nb">.</span>
+                
+        Allowed values <span class="k">for </span>this option:  <span class="s1">'legacy'</span>,<span class="s1">'null'</span>,<span class="s1">'per-thread'</span><span class="nb">.</span>
+        Default value:  <span class="s1">'legacy'</span><span class="nb">.</span>
+
+
+Generic tool options.
+<span class="o">=====================</span>
+
+<span class="nt">--disable-warnings</span>                         <span class="o">(</span><span class="nt">-w</span><span class="o">)</span>                              
+        Inhibit all warning messages.
+
+<span class="nt">--keep-device-functions</span>                    <span class="o">(</span><span class="nt">-keep-device-functions</span><span class="o">)</span>          
+        In whole program compilation mode, preserve user defined external linkage
+        __device__ <span class="k">function </span>definitions up to PTX.
+
+<span class="nt">--source-in-ptx</span>                            <span class="o">(</span><span class="nt">-src-in-ptx</span><span class="o">)</span>                     
+        Interleave <span class="nb">source </span><span class="k">in </span>PTX. May only be used <span class="k">in </span>conjunction with <span class="nt">--device-debug</span>
+        or <span class="nt">--generate-line-info</span><span class="nb">.</span>
+
+<span class="nt">--restrict</span>                                 <span class="o">(</span><span class="nt">-restrict</span><span class="o">)</span>                       
+        Programmer assertion that all kernel pointer parameters are restrict pointers.
+
+<span class="nt">--Wreorder</span>                                 <span class="o">(</span><span class="nt">-Wreorder</span><span class="o">)</span>                       
+        Generate warnings when member initializers are reordered.
+
+<span class="nt">--Wno-deprecated-declarations</span>              <span class="o">(</span><span class="nt">-Wno-deprecated-declarations</span><span class="o">)</span>    
+        Suppress warning on use of deprecated entity.
+
+<span class="nt">--Wno-deprecated-gpu-targets</span>               <span class="o">(</span><span class="nt">-Wno-deprecated-gpu-targets</span><span class="o">)</span>     
+        Suppress warnings about deprecated GPU target architectures.
+
+<span class="nt">--Werror</span>&lt;kind&gt;,...                        <span class="o">(</span><span class="nt">-Werror</span><span class="o">)</span>                         
+        Make warnings of the specified kinds into errors.  The following is the list
+        of warning kinds accepted by this option:
+                
+        cross-execution-space-call
+                Be more strict about unsupported cross execution space calls.
+                The compiler will generate an error instead of a warning <span class="k">for </span>a
+                call from a __host__ __device__ to a __host__ <span class="k">function</span><span class="nb">.</span>
+        reorder
+                Generate errors when member initializers are reordered.
+        deprecated-declarations
+                Generate error on use of a deprecated entity.
+        Allowed values <span class="k">for </span>this option:  <span class="s1">'cross-execution-space-call'</span>,<span class="s1">'deprecated-declarations'</span>,
+        <span class="s1">'reorder'</span><span class="nb">.</span>
+
+<span class="nt">--resource-usage</span>                           <span class="o">(</span><span class="nt">-res-usage</span><span class="o">)</span>                      
+        Show resource usage such as registers and memory of the GPU code.
+        This option implies <span class="s1">'--nvlink-options --verbose'</span> when <span class="s1">'--relocatable-device-code=true'</span>
+        is set.  Otherwise, it implies <span class="s1">'--ptxas-options --verbose'</span><span class="nb">.</span>
+
+<span class="nt">--help</span>  <span class="o">(</span><span class="nt">-h</span><span class="o">)</span>                              
+        Print this <span class="nb">help </span>information on this tool.
+
+<span class="nt">--version</span>                                  <span class="o">(</span><span class="nt">-V</span><span class="o">)</span>                              
+        Print version information on this tool.
+
+<span class="nt">--options-file</span> &lt;file&gt;,...                  <span class="o">(</span><span class="nt">-optf</span><span class="o">)</span>                           
+        Include <span class="nb">command </span>line options from specified file.
+
+
+</code></pre></div></div>
+
+<h2 id="实例演示和分析">实例演示和分析</h2>
+
+<p>下面是一个 简单的实例运行情况,<a href="">test.cu</a></p>
+<div class="language-cuda highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+</span>
+<span class="cp">#include &lt;math.h&gt;
+</span><span class="c1">// Kernel function to add the elements of two arrays</span>
+<span class="k">__global__</span>
+<span class="kt">void</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">float</span> <span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="kt">float</span> <span class="o">*</span><span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">stride</span> <span class="o">=</span> <span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">y</span><span class="p">;</span>
+
+  <span class="c1">// Allocate Unified Memory – accessible from CPU or GPU</span>
+  <span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="n">N</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+  <span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">y</span><span class="p">,</span> <span class="n">N</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+  <span class="c1">// initialize x and y arrays on the host</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">;</span>
+    <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span><span class="n">f</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Run kernel on 1M elements on the GPU</span>
+  <span class="n">add</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span> <span class="mi">256</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+
+  <span class="c1">// Wait for GPU to finish before accessing on host</span>
+  <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+  <span class="c1">// Check for errors (all values should be 3.0f)</span>
+  <span class="kt">float</span> <span class="n">maxError</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">maxError</span> <span class="o">=</span> <span class="n">fmax</span><span class="p">(</span><span class="n">maxError</span><span class="p">,</span> <span class="n">fabs</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="mf">3.0</span><span class="n">f</span><span class="p">));</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Max error: "</span> <span class="o">&lt;&lt;</span> <span class="n">maxError</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="c1">// Free memory</span>
+  <span class="n">cudaFree</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+  <span class="n">cudaFree</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><strong>注意：因为cuda安装和软件限制，有时需要使用root权限才能正常使用nvprof进行分析，否则可能提示内存无法访问</strong></p>
+
+<p>接下来使用 <code class="language-plaintext highlighter-rouge">--dryrun</code> 可以打印全编译过程而不执行。为了方便理清情况使用<code class="language-plaintext highlighter-rouge">--cuda</code>只进行预处理工作
+<code class="language-plaintext highlighter-rouge">nvcc test.cu -o add_cuda --cuda -keep --dryrun</code></p>
+
+<p>输出日志如下：</p>
+
+<pre><code class="language-log">#nvcc编译器中自定义的环境变量
+
+#$ _SPACE_= 
+#$ _CUDART_=cudart
+#$ _HERE_=/usr/local/cuda/bin
+#$ _THERE_=/usr/local/cuda/bin
+#$ _TARGET_SIZE_=
+#$ _TARGET_DIR_=
+#$ _TARGET_SIZE_=64
+#$ TOP=/usr/local/cuda/bin/..
+#$ NVVMIR_LIBRARY_DIR=/usr/local/cuda/bin/../nvvm/libdevice
+#预定义的LD_LIBRARY_PATH环境变量后面已经省略
+#$ LD_LIBRARY_PATH=/usr/local/cuda/bin/ ...
+#PATH环境变量后面已经省略
+#$ PATH=/usr/local/cuda/bin/../open64/bin:/usr/local/cuda/bin/../nvvm/bin:/usr/local/cuda/bin: ...
+#$ INCLUDES="-I/usr/local/cuda/bin/..//include"  
+#$ LIBRARIES=  "-L/usr/local/cuda/bin/..//lib64/stubs" "-L/usr/local/cuda/bin/..//lib64"
+
+#$ CUDAFE_FLAGS=
+#$ PTXAS_FLAGS=
+#开始进行预处理将test.cu转变为.cpp1.ii和.cpp4.ii
+
+#gcc预处理为test.cpp1.ii
+
+#$ gcc -D__CUDA_ARCH__=300 -E -x c++  -DCUDA_DOUBLE_MATH_FUNCTIONS -D__CUDACC__ -D__NVCC__  "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -include "cuda_runtime.h" -m64 "test.cu" &gt; "test.cpp1.ii" 
+
+#nvcc中的cicc(nvopencc)将 test.cpp1.ii转化为test.ptx 并生成一份附属的test.cudafe1.stub.c
+
+#$ cicc --gnu_version=50400 --allow_managed   -arch compute_30 -m64 -ftz=0 -prec_div=1 -prec_sqrt=1 -fmad=1 --include_file_name "test.fatbin.c" -tused -nvvmir-library "/usr/local/cuda/bin/../nvvm/libdevice/libdevice.10.bc" --gen_module_id_file --module_id_file_name "test.module_id" --orig_src_file_name "test.cu" --gen_c_file_name "test.cudafe1.c" --stub_file_name "test.cudafe1.stub.c" --gen_device_file_name "test.cudafe1.gpu"  "test.cpp1.ii" -o "test.ptx"
+
+#使用ptxas 以sm_30虚拟架构开始将test.ptx 转化为test.sm_30.cubin 注意当存在多种虚拟架构时，会重复进行上述2个步骤。
+
+#$ ptxas -arch=sm_30 -m64  "test.ptx"  -o "test.sm_30.cubin" 
+
+# 使用fatbinary将test.sm_30.cubin和test.ptx转换为test.fatbin.c;
+
+#$ fatbinary --create="test.fatbin" -64 "--image=profile=sm_30,file=test.sm_30.cubin" "--image=profile=compute_30,file=test.ptx" --embedded-fatbin="test.fatbin.c" --cuda
+
+#使用gcc将host的代码分离出来形成test.cpp4.ii
+
+#$ gcc -E -x c++ -D__CUDACC__ -D__NVCC__  "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -include "cuda_runtime.h" -m64 "test.cu" &gt; "test.cpp4.ii" 
+
+#使用cudafe++ 将test.cpp4.ii和test.cudafe1.stub.c转换为test.cudafe1.cpp文件
+
+#$ cudafe++ --gnu_version=50400 --allow_managed  --m64 --parse_templates --gen_c_file_name "test.cudafe1.cpp" --stub_file_name "test.cudafe1.stub.c" --module_id_file_name "test.module_id" "test.cpp4.ii" 
+
+#使用gcc预处理test.cudafe1.cpp 将结果转换为我们的目标 "add_cuda"
+
+#$ gcc -E -x c++ -D__CUDA_FTZ=0 -D__CUDA_PREC_DIV=1 -D__CUDA_PREC_SQRT=1 "-I/usr/local/cuda/bin/..//include"   -m64 "test.cudafe1.cpp" &gt; "add_cuda"
+
+
+</code></pre>
+
+<p>上面可以较为清晰的看到nvcc中文件分离和预处理的过程。</p>
+
+<p>gcc分离出.cpp1.ii -&gt; cicc为.cpp1.ii添加信息成为test.ptx -&gt; ptxas将其转换为对应的.cubin -&gt; fatbinary将.ptx和.cubin合成为.fatbin.c -&gt; 与gcc生成的.cudafe1.cpp一起进行合成生成最终的add_cuda。</p>
+
+<p>下面来看一下编译与链接的过程：</p>
+
+<p><code class="language-plaintext highlighter-rouge">nvcc test.cu -o add_cuda  -keep --dryrun</code>这样来查看生成的整个过程。</p>
+
+<pre><code class="language-log">#预定义变量
+
+#$ _SPACE_= 
+#$ _CUDART_=cudart
+#$ _HERE_=/usr/local/cuda/bin
+#$ _THERE_=/usr/local/cuda/bin
+#$ _TARGET_SIZE_=
+#$ _TARGET_DIR_=
+#$ _TARGET_SIZE_=64
+#$ TOP=/usr/local/cuda/bin/..
+#$ NVVMIR_LIBRARY_DIR=/usr/local/cuda/bin/../nvvm/libdevice
+#$ LD_LIBRARY_PATH=/usr/local/cuda/bin/../lib ...
+#$ PATH=/usr/local/cuda/bin/../open64/bin:/usr/local/cuda/bin/../nvvm/bin: ...
+#$ INCLUDES="-I/usr/local/cuda/bin/..//include"  
+#$ LIBRARIES=  "-L/usr/local/cuda/bin/..//lib64/stubs" "-L/usr/local/cuda/bin/..//lib64"
+#$ CUDAFE_FLAGS=
+#$ PTXAS_FLAGS=
+
+# 移除add_cuda_dlink.reg.c
+
+#$ rm add_cuda_dlink.reg.c
+
+#生成test.cpp1.ii
+
+#$ gcc -D__CUDA_ARCH__=300 -E -x c++  -DCUDA_DOUBLE_MATH_FUNCTIONS -D__CUDACC__ -D__NVCC__  "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -include "cuda_runtime.h" -m64 "test.cu" &gt; "test.cpp1.ii" 
+
+#生成test.ptx和test.cudafe1.stub.c
+
+#$ cicc --gnu_version=50400 --allow_managed   -arch compute_30 -m64 -ftz=0 -prec_div=1 -prec_sqrt=1 -fmad=1 --include_file_name "test.fatbin.c" -tused -nvvmir-library "/usr/local/cuda/bin/../nvvm/libdevice/libdevice.10.bc" --gen_module_id_file --module_id_file_name "test.module_id" --orig_src_file_name "test.cu" --gen_c_file_name "test.cudafe1.c" --stub_file_name "test.cudafe1.stub.c" --gen_device_file_name "test.cudafe1.gpu"  "test.cpp1.ii" -o "test.ptx"
+
+#将test.ptx转化为 test.sm_30.cubin
+
+#$ ptxas -arch=sm_30 -m64  "test.ptx"  -o "test.sm_30.cubin" 
+
+#创建对应的fatbin
+
+#$ fatbinary --create="test.fatbin" -64 "--image=profile=sm_30,file=test.sm_30.cubin" "--image=profile=compute_30,file=test.ptx" --embedded-fatbin="test.fatbin.c" --cuda
+
+#另外一个分支，创建test.cpp4.ii
+
+#$ gcc -E -x c++ -D__CUDACC__ -D__NVCC__  "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -include "cuda_runtime.h" -m64 "test.cu" &gt; "test.cpp4.ii" 
+
+#使用cudafe++用test.cudafe1.stub.创建test.o和test.cudafe1.cpp
+
+#$ cudafe++ --gnu_version=50400 --allow_managed  --m64 --parse_templates --gen_c_file_name "test.cudafe1.cpp" --stub_file_name "test.cudafe1.stub.c" --module_id_file_name "test.module_id" "test.cpp4.ii" 
+#$ gcc -D__CUDA_ARCH__=300 -c -x c++  -DCUDA_DOUBLE_MATH_FUNCTIONS "-I/usr/local/cuda/bin/..//include"   -m64 -o "test.o" "test.cudafe1.cpp" 
+
+#将test.o进行链接，成为目标add_cuda_dlink.sm_30.cubin同时生成链接辅助二文件add_cuda_dlink.reg.c
+
+#$ nvlink --arch=sm_30 --register-link-binaries="add_cuda_dlink.reg.c" -m64   "-L/usr/local/cuda/bin/..//lib64/stubs" "-L/usr/local/cuda/bin/..//lib64" -cpu-arch=X86_64 "test.o"  -o "add_cuda_dlink.sm_30.cubin"
+
+# 将add_cuda_dlink.sm_30.cubin用fatbinaty转换为add_cuda_dlink.fatbin.c
+
+#$ fatbinary --create="add_cuda_dlink.fatbin" -64 -link "--image=profile=sm_30,file=add_cuda_dlink.sm_30.cubin" --embedded-fatbin="add_cuda_dlink.fatbin.c" 
+
+# 使用gcc将add_cuda_dlink.reg.c、add_cuda_dlink.fatbin.c 转换为add_cuda_dlink.o
+
+#$ gcc -c -x c++ -DFATBINFILE="\"add_cuda_dlink.fatbin.c\"" -DREGISTERLINKBINARYFILE="\"add_cuda_dlink.reg.c\"" -I. "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -m64 -o "add_cuda_dlink.o" "/usr/local/cuda/bin/crt/link.stub" 
+
+#最后使用gcc进行链接
+
+#$ g++ -m64 -o "add_cuda" -Wl,--start-group "add_cuda_dlink.o" "test.o"   "-L/usr/local/cuda/bin/..//lib64/stubs" "-L/usr/local/cuda/bin/..//lib64" -lcudadevrt  -lcudart_static  -lrt -lpthread  -ldl  -Wl,--end-group 
+
+
+</code></pre>
+
+<h3 id="接下来让我使用shell脚本来按照上面执行看一下效果和文件变化">接下来让我使用shell脚本来按照上面执行看一下效果和文件变化。</h3>
+
+<h3 id="1-gcc生成testcpp1ii">1. gcc生成test.cpp1.ii</h3>
+
+<p><code class="language-plaintext highlighter-rouge">gcc -D__CUDA_ARCH__=300 -E -x c++  -DCUDA_DOUBLE_MATH_FUNCTIONS -D__CUDACC__ -D__NVCC__  "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -include "cuda_runtime.h" -m64 "test.cu" &gt; "test.cpp1.ii"</code></p>
+
+<p>生成文件test.cpp1.ii内容如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## test.cpp1.ii 主要是头文件的链接信息
+
+
+# 1 "test.cu"
+# 1 "&lt;built-in&gt;"
+# 1 "&lt;command-line&gt;"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 1 "&lt;command-line&gt;" 2
+# 1 "/usr/local/cuda/bin/..//include/cuda_runtime.h" 1
+# 56 "/usr/local/cuda/bin/..//include/cuda_runtime.h"
+#pragma GCC diagnostic push
+
+
+#pragma GCC diagnostic ignored "-Wunused-function"
+# 78 "/usr/local/cuda/bin/..//include/cuda_runtime.h"
+# 1 "/usr/local/cuda/bin/..//include/host_config.h" 1
+# 50 "/usr/local/cuda/bin/..//include/host_config.h"
+# 1 "/usr/local/cuda/bin/..//include/crt/host_config.h" 1
+# 179 "/usr/local/cuda/bin/..//include/crt/host_config.h"
+# 1 "/usr/include/features.h" 1 3 4
+# 367 "/usr/include/features.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 1 3 4
+# 410 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/wordsize.h" 1 3 4
+# 411 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 2 3 4
+# 368 "/usr/include/features.h" 2 3 4
+# 391 "/usr/include/features.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/gnu/stubs.h" 1 3 4
+# 10 "/usr/include/x86_64-linux-gnu/gnu/stubs.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/gnu/stubs-64.h" 1 3 4
+# 11 "/usr/include/x86_64-linux-gnu/gnu/stubs.h" 2 3 4
+# 392 "/usr/include/features.h" 2 3 4
+# 180 "/usr/local/cuda/bin/..//include/crt/host_config.h" 2
+# 50 "/usr/local/cuda/bin/..//include/host_config.h" 2
+# 79 "/usr/local/cuda/bin/..//include/cuda_runtime.h" 2
+
+
+
+# 1 "/usr/local/cuda/bin/..//include/builtin_types.h" 1
+# 56 "/usr/local/cuda/bin/..//include/builtin_types.h"
+# 1 "/usr/local/cuda/bin/..//include/device_types.h" 1
+# 53 "/usr/local/cuda/bin/..//include/device_types.h"
+# 1 "/usr/local/cuda/bin/..//include/host_defines.h" 1
+# 50 "/usr/local/cuda/bin/..//include/host_defines.h"
+# 1 "/usr/local/cuda/bin/..//include/crt/host_defines.h" 1
+# 50 "/usr/local/cuda/bin/..//include/host_defines.h" 2
+# 54 "/usr/local/cuda/bin/..//include/device_types.h" 2
+
+
+</code></pre></div></div>
+
+<p>这里主要是将.cu中使用的头文件罗列出来，方便后面进行对应的查找。</p>
+
+<h4 id="2--cicc生成对应汇编代码">2.  cicc生成对应汇编代码</h4>
+
+<p><code class="language-plaintext highlighter-rouge">cicc --gnu_version=50400 --allow_managed   -arch compute_30 -m64  ....</code>
+者一步主要由test.cu是生成对应的.ptx文件，但是实际生成了test.cudafe1.c、test.cudafe1.gpu、test.cudafe1.stub.c、test.module_id、test.ptx六个文件。下面是每个文件对应的内容：</p>
+
+<p><strong>test.cudafe1.c</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## test.cudafe1.c
+
+# 1 "test.cu"
+# 61 "/usr/include/c++/5/iostream" 3
+extern _ZSt7ostream _ZSt4cout __attribute__((visibility("default")));
+# 74 "/usr/include/c++/5/iostream" 3
+static struct _ZNSt8ios_base4InitE _ZSt8__ioinit __attribute__((visibility("default"))) = {};
+extern void *__dso_handle __attribute__((visibility("hidden")));
+
+</code></pre></div></div>
+
+<p>全局静态结构体的东西和gcc生成的比较类似</p>
+
+<p><strong>test.cudafe1.gpu</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>typedef char __nv_bool;
+# 1563 "/usr/local/cuda/bin/..//include/driver_types.h"
+struct CUstream_st;
+# 27 "/usr/include/xlocale.h" 3
+struct __locale_struct;
+# 233 "/usr/include/c++/5/bits/char_traits.h" 3
+struct _ZSt11char_traitsIcE;
+# 371 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct _ZNSt6locale5facetE;
+# 371 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct __SO__NSt6locale5facetE;
+# 513 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct _ZNSt6locale5_ImplE;
+# 62 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct _ZSt6locale;
+# 57 "/usr/include/c++/5/bits/ios_base.h" 3
+enum _ZSt13_Ios_Fmtflags {
+# 59 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt12_S_boolalpha = 1,
+# 60 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_dec,
+# 61 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt8_S_fixed = 4,
+# 62 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_hex = 8,
+# 63 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt11_S_internal = 16,
+# 64 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt7_S_left = 32,
+# 65 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_oct = 64,
+# 66 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt8_S_right = 128,
+# 67 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt13_S_scientific = 256,
+# 68 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt11_S_showbase = 512,
+# 69 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt12_S_showpoint = 1024,
+# 70 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt10_S_showpos = 2048,
+# 71 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt9_S_skipws = 4096,
+# 72 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt10_S_unitbuf = 8192,
+# 73 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt12_S_uppercase = 16384,
+# 74 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt14_S_adjustfield = 176,
+# 75 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt12_S_basefield = 74,
+# 76 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt13_S_floatfield = 260,
+# 77 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt19_S_ios_fmtflags_end = 65536,
+# 78 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt19_S_ios_fmtflags_max = 2147483647,
+# 79 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt19_S_ios_fmtflags_min = (-2147483647-1)};
+# 111 "/usr/include/c++/5/bits/ios_base.h" 3
+enum _ZSt13_Ios_Openmode {
+# 113 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_app = 1,
+# 114 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_ate,
+# 115 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_bin = 4,
+# 116 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt5_S_in = 8,
+# 117 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_out = 16,
+# 118 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt8_S_trunc = 32,
+# 119 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt19_S_ios_openmode_end = 65536,
+# 120 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt19_S_ios_openmode_max = 2147483647,
+# 121 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt19_S_ios_openmode_min = (-2147483647-1)};
+# 153 "/usr/include/c++/5/bits/ios_base.h" 3
+enum _ZSt12_Ios_Iostate {
+# 155 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt10_S_goodbit,
+# 156 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt9_S_badbit,
+# 157 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt9_S_eofbit,
+# 158 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt10_S_failbit = 4,
+# 159 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt18_S_ios_iostate_end = 65536,
+# 160 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt18_S_ios_iostate_max = 2147483647,
+# 161 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt18_S_ios_iostate_min = (-2147483647-1)};
+# 193 "/usr/include/c++/5/bits/ios_base.h" 3
+enum _ZSt12_Ios_Seekdir {
+# 195 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_beg,
+# 196 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_cur,
+# 197 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt6_S_end,
+# 198 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt18_S_ios_seekdir_end = 65536};
+# 528 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base14_Callback_listE;
+# 567 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base6_WordsE;
+# 579 "/usr/include/c++/5/bits/ios_base.h" 3
+enum _ZNSt8ios_baseUt_E {
+# 579 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZNSt8ios_base18_S_local_word_sizeE = 8};
+# 601 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base4InitE;
+# 228 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZSt8ios_base;
+# 125 "/usr/include/c++/5/iosfwd" 3
+struct _ZSt19istreambuf_iteratorIcSt11char_traitsIcEE;
+# 128 "/usr/include/c++/5/iosfwd" 3
+struct _ZSt19ostreambuf_iteratorIcSt11char_traitsIcEE;
+# 80 "/usr/include/c++/5/iosfwd" 3
+struct _ZSt15basic_streambufIcSt11char_traitsIcEE;
+# 41 "/usr/include/x86_64-linux-gnu/c++/5/bits/ctype_base.h" 3
+struct _ZSt10ctype_base;
+# 681 "/usr/include/c++/5/bits/locale_facets.h" 3
+struct _ZSt5ctypeIcE;
+# 1547 "/usr/include/c++/5/bits/locale_facets.h" 3
+enum _ZNSt10__num_baseUt_E {
+# 1548 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base9_S_ominusE,
+# 1549 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base8_S_oplusE,
+# 1550 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_oxE,
+# 1551 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_oXE,
+# 1552 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base10_S_odigitsE,
+# 1553 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base14_S_odigits_endE = 20,
+# 1554 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base11_S_oudigitsE = 20,
+# 1555 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base15_S_oudigits_endE = 36,
+# 1556 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_oeE = 18,
+# 1557 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_oEE = 34,
+# 1558 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base7_S_oendE = 36};
+# 1573 "/usr/include/c++/5/bits/locale_facets.h" 3
+enum _ZNSt10__num_baseUt0_E {
+# 1574 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base9_S_iminusE,
+# 1575 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base8_S_iplusE,
+# 1576 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_ixE,
+# 1577 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_iXE,
+# 1578 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base8_S_izeroE,
+# 1579 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_ieE = 18,
+# 1580 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base5_S_iEE = 24,
+# 1581 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10__num_base7_S_iendE = 26};
+# 1948 "/usr/include/c++/5/bits/locale_facets.h" 3
+struct _ZSt7num_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE;
+# 2289 "/usr/include/c++/5/bits/locale_facets.h" 3
+struct _ZSt7num_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE;
+# 77 "/usr/include/c++/5/iosfwd" 3
+struct _ZSt9basic_iosIcSt11char_traitsIcEE;
+# 86 "/usr/include/c++/5/iosfwd" 3
+struct _ZSo;
+# 216 "/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 39 "/usr/include/xlocale.h" 3
+typedef struct __locale_struct *__locale_t;
+# 32 "/usr/include/x86_64-linux-gnu/c++/5/bits/atomic_word.h" 3
+typedef int _Atomic_word;
+# 197 "/usr/include/x86_64-linux-gnu/c++/5/bits/c++config.h" 3
+typedef long _ZSt9ptrdiff_t;
+# 98 "/usr/include/c++/5/bits/postypes.h" 3
+typedef _ZSt9ptrdiff_t _ZSt10streamsize;
+# 141 "/usr/include/c++/5/iosfwd" 3
+typedef struct _ZSo _ZSt7ostream;
+# 62 "/usr/include/x86_64-linux-gnu/c++/5/bits/c++locale.h" 3
+typedef __locale_t _ZSt10__c_locale;
+# 371 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct _ZNSt6locale5facetE { const long *__vptr;
+# 377 "/usr/include/c++/5/bits/locale_classes.h" 3
+_Atomic_word _M_refcount;char __nv_no_debug_dummy_end_padding_0[4];};
+# 371 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct __SO__NSt6locale5facetE { const long *__vptr;
+# 377 "/usr/include/c++/5/bits/locale_classes.h" 3
+_Atomic_word _M_refcount;};
+# 62 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct _ZSt6locale {
+# 309 "/usr/include/c++/5/bits/locale_classes.h" 3
+struct _ZNSt6locale5_ImplE *_M_impl;};
+# 323 "/usr/include/c++/5/bits/ios_base.h" 3
+typedef enum _ZSt13_Ios_Fmtflags _ZNSt8ios_base8fmtflagsE;
+# 398 "/usr/include/c++/5/bits/ios_base.h" 3
+typedef enum _ZSt12_Ios_Iostate _ZNSt8ios_base7iostateE;
+# 461 "/usr/include/c++/5/bits/ios_base.h" 3
+typedef enum _ZSt12_Ios_Seekdir _ZNSt8ios_base7seekdirE;
+# 567 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base6_WordsE {
+# 569 "/usr/include/c++/5/bits/ios_base.h" 3
+void *_M_pword;
+# 570 "/usr/include/c++/5/bits/ios_base.h" 3
+long _M_iword;};
+# 601 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base4InitE {};
+# 228 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZSt8ios_base { const long *__vptr;
+# 520 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt10streamsize _M_precision;
+# 521 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZSt10streamsize _M_width;
+# 522 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZNSt8ios_base8fmtflagsE _M_flags;
+# 523 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZNSt8ios_base7iostateE _M_exception;
+# 524 "/usr/include/c++/5/bits/ios_base.h" 3
+_ZNSt8ios_base7iostateE _M_streambuf_state;
+# 558 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base14_Callback_listE *_M_callbacks;
+# 575 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base6_WordsE _M_word_zero;
+# 580 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base6_WordsE _M_local_word[8];
+# 583 "/usr/include/c++/5/bits/ios_base.h" 3
+int _M_word_size;
+# 584 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZNSt8ios_base6_WordsE *_M_word;
+# 590 "/usr/include/c++/5/bits/ios_base.h" 3
+struct _ZSt6locale _M_ios_locale;};
+# 129 "/usr/include/c++/5/streambuf" 3
+typedef char _ZNSt15basic_streambufIcSt11char_traitsIcEE9char_typeE;
+# 130 "/usr/include/c++/5/streambuf" 3
+typedef struct _ZSt11char_traitsIcE _ZNSt15basic_streambufIcSt11char_traitsIcEE11traits_typeE;
+# 80 "/usr/include/c++/5/iosfwd" 3
+struct _ZSt15basic_streambufIcSt11char_traitsIcEE { const long *__vptr;
+# 184 "/usr/include/c++/5/streambuf" 3
+_ZNSt15basic_streambufIcSt11char_traitsIcEE9char_typeE *_M_in_beg;
+# 185 "/usr/include/c++/5/streambuf" 3
+_ZNSt15basic_streambufIcSt11char_traitsIcEE9char_typeE *_M_in_cur;
+# 186 "/usr/include/c++/5/streambuf" 3
+_ZNSt15basic_streambufIcSt11char_traitsIcEE9char_typeE *_M_in_end;
+# 187 "/usr/include/c++/5/streambuf" 3
+_ZNSt15basic_streambufIcSt11char_traitsIcEE9char_typeE *_M_out_beg;
+# 188 "/usr/include/c++/5/streambuf" 3
+_ZNSt15basic_streambufIcSt11char_traitsIcEE9char_typeE *_M_out_cur;
+# 189 "/usr/include/c++/5/streambuf" 3
+_ZNSt15basic_streambufIcSt11char_traitsIcEE9char_typeE *_M_out_end;
+# 192 "/usr/include/c++/5/streambuf" 3
+struct _ZSt6locale _M_buf_locale;};
+# 44 "/usr/include/x86_64-linux-gnu/c++/5/bits/ctype_base.h" 3
+typedef const int *_ZNSt10ctype_base9__to_typeE;
+# 48 "/usr/include/x86_64-linux-gnu/c++/5/bits/ctype_base.h" 3
+typedef unsigned short _ZNSt10ctype_base4maskE;
+# 41 "/usr/include/x86_64-linux-gnu/c++/5/bits/ctype_base.h" 3
+struct _ZSt10ctype_base {};
+# 686 "/usr/include/c++/5/bits/locale_facets.h" 3
+typedef char _ZNSt5ctypeIcE9char_typeE;
+# 681 "/usr/include/c++/5/bits/locale_facets.h" 3
+struct _ZSt5ctypeIcE {  const long *__b_NSt6locale5facetE___vptr;
+# 377 "/usr/include/c++/5/bits/locale_classes.h" 3
+_Atomic_word __b_NSt6locale5facetE__M_refcount;
+# 690 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZSt10__c_locale _M_c_locale_ctype;
+# 691 "/usr/include/c++/5/bits/locale_facets.h" 3
+__nv_bool _M_del;
+# 692 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10ctype_base9__to_typeE _M_toupper;
+# 693 "/usr/include/c++/5/bits/locale_facets.h" 3
+_ZNSt10ctype_base9__to_typeE _M_tolower;
+# 694 "/usr/include/c++/5/bits/locale_facets.h" 3
+const _ZNSt10ctype_base4maskE *_M_table;
+# 695 "/usr/include/c++/5/bits/locale_facets.h" 3
+char _M_widen_ok;
+# 696 "/usr/include/c++/5/bits/locale_facets.h" 3
+char _M_widen[256];
+# 697 "/usr/include/c++/5/bits/locale_facets.h" 3
+char _M_narrow[256];
+# 698 "/usr/include/c++/5/bits/locale_facets.h" 3
+char _M_narrow_ok;char __nv_no_debug_dummy_end_padding_0[6];};
+# 76 "/usr/include/c++/5/bits/basic_ios.h" 3
+typedef char _ZNSt9basic_iosIcSt11char_traitsIcEE9char_typeE;
+# 87 "/usr/include/c++/5/bits/basic_ios.h" 3
+typedef struct _ZSt5ctypeIcE _ZNSt9basic_iosIcSt11char_traitsIcEE12__ctype_typeE;
+# 89 "/usr/include/c++/5/bits/basic_ios.h" 3
+typedef struct _ZSt7num_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE _ZNSt9basic_iosIcSt11char_traitsIcEE14__num_put_typeE;
+# 91 "/usr/include/c++/5/bits/basic_ios.h" 3
+typedef struct _ZSt7num_getIcSt19istreambuf_iteratorIcSt11char_traitsIcEEE _ZNSt9basic_iosIcSt11char_traitsIcEE14__num_get_typeE;
+# 77 "/usr/include/c++/5/iosfwd" 3
+struct _ZSt9basic_iosIcSt11char_traitsIcEE { struct _ZSt8ios_base __b_St8ios_base;
+# 96 "/usr/include/c++/5/bits/basic_ios.h" 3
+struct _ZSo *_M_tie;
+# 97 "/usr/include/c++/5/bits/basic_ios.h" 3
+_ZNSt9basic_iosIcSt11char_traitsIcEE9char_typeE _M_fill;
+# 98 "/usr/include/c++/5/bits/basic_ios.h" 3
+__nv_bool _M_fill_init;
+# 99 "/usr/include/c++/5/bits/basic_ios.h" 3
+struct _ZSt15basic_streambufIcSt11char_traitsIcEE *_M_streambuf;
+# 102 "/usr/include/c++/5/bits/basic_ios.h" 3
+const _ZNSt9basic_iosIcSt11char_traitsIcEE12__ctype_typeE *_M_ctype;
+# 104 "/usr/include/c++/5/bits/basic_ios.h" 3
+const _ZNSt9basic_iosIcSt11char_traitsIcEE14__num_put_typeE *_M_num_put;
+# 106 "/usr/include/c++/5/bits/basic_ios.h" 3
+const _ZNSt9basic_iosIcSt11char_traitsIcEE14__num_get_typeE *_M_num_get;};
+# 62 "/usr/include/c++/5/ostream" 3
+typedef char _ZNSo9char_typeE;
+# 71 "/usr/include/c++/5/ostream" 3
+typedef struct _ZSo _ZNSo14__ostream_typeE;
+# 86 "/usr/include/c++/5/iosfwd" 3
+struct _ZSo { const long *__vptr; struct _ZSt9basic_iosIcSt11char_traitsIcEE __v_St9basic_iosIcSt11char_traitsIcEE;};
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+# 342 "/usr/local/cuda/bin/..//include/crt/math_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) __attribute__((__nothrow__)) __attribute__((__const__)) float fmaxf(float, float);
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 5 "test.cu"
+__global__ __var_used__ extern void _Z3addiPfS_(int, float *, float *);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 5 "test.cu"
+__global__ __var_used__ void _Z3addiPfS_(
+# 5 "test.cu"
+int n, 
+# 5 "test.cu"
+float *x, 
+# 5 "test.cu"
+float *y){
+# 6 "test.cu"
+{
+# 7 "test.cu"
+ int __cuda_local_var_31489_7_non_const_index;
+# 8 "test.cu"
+ int __cuda_local_var_31490_7_non_const_stride;
+# 7 "test.cu"
+__cuda_local_var_31489_7_non_const_index = ((int)(threadIdx.x));
+# 8 "test.cu"
+__cuda_local_var_31490_7_non_const_stride = ((int)(blockDim.x));
+# 9 "test.cu"
+{
+# 9 "test.cu"
+ int i;
+# 9 "test.cu"
+i = 0;
+# 9 "test.cu"
+for (; (i &lt; n); i++) {
+# 10 "test.cu"
+(y[i]) = ((x[i]) + (y[i])); } } 
+# 11 "test.cu"
+}}
+
+</code></pre></div></div>
+
+<p>设备端代码，主要是各种会被用到的头文件和.cu文件，应该相当于和成新的代码。</p>
+
+<p><strong>test.cudafe1.stub.c</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#define __NV_CUBIN_HANDLE_STORAGE__ static
+#include "crt/host_runtime.h"
+#include "test.fatbin.c"
+extern void __device_stub__Z3addiPfS_(int, float *, float *);
+static void __nv_cudaEntityRegisterCallback(void **);
+static void __sti____cudaRegisterAll(void) __attribute__((__constructor__));
+void __device_stub__Z3addiPfS_(int __par0, float *__par1, float *__par2){__cudaSetupArgSimple(__par0, 0UL);__cudaSetupArgSimple(__par1, 8UL);__cudaSetupArgSimple(__par2, 16UL);__cudaLaunch(((char *)((void ( *)(int, float *, float *))add)));}
+# 5 "test.cu"
+void add( int __cuda_0,float *__cuda_1,float *__cuda_2)
+# 6 "test.cu"
+{__device_stub__Z3addiPfS_( __cuda_0,__cuda_1,__cuda_2);
+
+
+
+
+}
+# 1 "test.cudafe1.stub.c"
+static void __nv_cudaEntityRegisterCallback( void **__T0) {  __nv_dummy_param_ref(__T0); __nv_save_fatbinhandle_for_managed_rt(__T0); __cudaRegisterEntry(__T0, ((void ( *)(int, float *, float *))add), _Z3addiPfS_, (-1)); }
+static void __sti____cudaRegisterAll(void) {  __cudaRegisterBinary(__nv_cudaEntityRegisterCallback);  }
+
+#pragma GCC diagnostic pop
+
+</code></pre></div></div>
+
+<p>gcc中声明的全局函数</p>
+
+<p><strong>test.module_id</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_12_test_cpp1_ii_b0a118f9
+
+</code></pre></div></div>
+
+<p><strong>test.ptx</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//
+// Generated by NVIDIA NVVM Compiler
+//
+// Compiler Build ID: CL-22781540
+// Cuda compilation tools, release 9.0, V9.0.176
+// Based on LLVM 3.4svn
+//
+
+.version 6.0
+.target sm_30
+.address_size 64
+
+    // .globl   _Z3addiPfS_
+
+.visible .entry _Z3addiPfS_(
+    .param .u32 _Z3addiPfS__param_0,
+    .param .u64 _Z3addiPfS__param_1,
+    .param .u64 _Z3addiPfS__param_2
+)
+{
+    .reg .pred  %p&lt;7&gt;;
+    .reg .f32   %f&lt;22&gt;;
+    .reg .b32   %r&lt;18&gt;;
+    .reg .b64   %rd&lt;17&gt;;
+
+
+    ld.param.u32    %r8, [_Z3addiPfS__param_0];
+    ld.param.u64    %rd6, [_Z3addiPfS__param_1];
+    ld.param.u64    %rd7, [_Z3addiPfS__param_2];
+    cvta.to.global.u64  %rd1, %rd7;
+    cvta.to.global.u64  %rd2, %rd6;
+    setp.lt.s32 %p1, %r8, 1;
+    @%p1 bra    BB0_10;
+
+    and.b32     %r12, %r8, 3;
+    mov.u32     %r14, 0;
+    setp.eq.s32 %p2, %r12, 0;
+    @%p2 bra    BB0_7;
+
+    setp.eq.s32 %p3, %r12, 1;
+    @%p3 bra    BB0_6;
+
+    setp.eq.s32 %p4, %r12, 2;
+    @%p4 bra    BB0_5;
+
+    ld.global.f32   %f1, [%rd2];
+    ld.global.f32   %f2, [%rd1];
+    add.f32     %f3, %f1, %f2;
+    st.global.f32   [%rd1], %f3;
+    mov.u32     %r14, 1;
+
+BB0_5:
+    mul.wide.u32    %rd8, %r14, 4;
+    add.s64     %rd9, %rd2, %rd8;
+    add.s64     %rd10, %rd1, %rd8;
+    ld.global.f32   %f4, [%rd10];
+    ld.global.f32   %f5, [%rd9];
+    add.f32     %f6, %f5, %f4;
+    st.global.f32   [%rd10], %f6;
+    add.s32     %r14, %r14, 1;
+
+BB0_6:
+    mul.wide.s32    %rd11, %r14, 4;
+    add.s64     %rd12, %rd2, %rd11;
+    add.s64     %rd13, %rd1, %rd11;
+    ld.global.f32   %f7, [%rd13];
+    ld.global.f32   %f8, [%rd12];
+    add.f32     %f9, %f8, %f7;
+    st.global.f32   [%rd13], %f9;
+    add.s32     %r14, %r14, 1;
+
+BB0_7:
+    setp.lt.u32 %p5, %r8, 4;
+    @%p5 bra    BB0_10;
+
+    mul.wide.s32    %rd16, %r14, 4;
+
+BB0_9:
+    add.s64     %rd14, %rd2, %rd16;
+    add.s64     %rd15, %rd1, %rd16;
+    ld.global.f32   %f10, [%rd15];
+    ld.global.f32   %f11, [%rd14];
+    add.f32     %f12, %f11, %f10;
+    ld.global.f32   %f13, [%rd15+4];
+    ld.global.f32   %f14, [%rd15+8];
+    ld.global.f32   %f15, [%rd15+12];
+    st.global.f32   [%rd15], %f12;
+    ld.global.f32   %f16, [%rd14+4];
+    add.f32     %f17, %f16, %f13;
+    st.global.f32   [%rd15+4], %f17;
+    ld.global.f32   %f18, [%rd14+8];
+    add.f32     %f19, %f18, %f14;
+    st.global.f32   [%rd15+8], %f19;
+    ld.global.f32   %f20, [%rd14+12];
+    add.f32     %f21, %f20, %f15;
+    st.global.f32   [%rd15+12], %f21;
+    add.s64     %rd16, %rd16, 16;
+    add.s32     %r14, %r14, 4;
+    setp.lt.s32 %p6, %r14, %r8;
+    @%p6 bra    BB0_9;
+
+BB0_10:
+    ret;
+}
+
+
+</code></pre></div></div>
+
+<p>这个是设备端的主要汇编语言，应该是直接生成对应的显卡机器码。</p>
+
+<h4 id="3-产生testsm_30cubin二进制文件">3. 产生test.sm_30.cubin二进制文件</h4>
+
+<p><code class="language-plaintext highlighter-rouge">ptxas -arch=sm_30 -m64  "test.ptx"  -o "test.sm_30.cubin"</code> 产生test.sm_30.cubin二进制文件。</p>
+
+<h4 id="4重新生成二进制文件">4.重新生成二进制文件</h4>
+
+<p><code class="language-plaintext highlighter-rouge">fatbinary --create="test.fatbin" -64 "--image=profile=sm_30,file=test.sm_30.cubin" "--image=profile=compute_30,file=test.ptx" --embedded-fatbin="test.fatbin.c" --cuda</code></p>
+
+<p>这里主要生成了一个test.fatbin二进制文件和test.fatbin.c文件，主要应该是对前面的汇编码，进行了一次封装和函数指针的对齐，主要是统一host和device的函数调用地址。</p>
+
+<p><strong>test.fatbin.c</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#ifndef __SKIP_INTERNAL_FATBINARY_HEADERS
+#include "fatBinaryCtl.h"
+#endif
+#define __CUDAFATBINSECTION  ".nvFatBinSegment"
+#define __CUDAFATBINDATASECTION  ".nv_fatbin"
+asm(
+".section .nv_fatbin, \"a\"\n"
+".align 8\n"
+"fatbinData:\n"
+".quad 0x00100001ba55ed50,0x0000000000000d10,0x0000004001010002,0x0000000000000928\n"
+".quad 0x0000000000000000,0x0000001e00010007,0x0000000000000000,0x0000000000000015\n"
+".quad 0x0000000000000000,0x0000000000000000,0x33010102464c457f,0x0000000000000007\n"
+".quad 0x0000005a00be0002,0x0000000000000000,0x0000000000000880,0x0000000000000680\n"
+".quad 0x00380040001e051e,0x0001000800400003,0x7472747368732e00,0x747274732e006261\n"
+".quad 0x746d79732e006261,0x746d79732e006261,0x78646e68735f6261,0x666e692e766e2e00\n"
+".quad 0x2e747865742e006f,0x5069646461335a5f,0x2e766e2e005f5366,0x335a5f2e6f666e69\n"
+".quad 0x5f53665069646461,0x6168732e766e2e00,0x61335a5f2e646572,0x005f536650696464\n"
+".quad 0x736e6f632e766e2e,0x5a5f2e30746e6174,0x5366506964646133,0x747368732e00005f\n"
+".quad 0x74732e0062617472,0x79732e0062617472,0x79732e006261746d,0x6e68735f6261746d\n"
+".quad 0x692e766e2e007864,0x61335a5f006f666e,0x005f536650696464,0x5a5f2e747865742e\n"
+".quad 0x5366506964646133,0x6e692e766e2e005f,0x6461335a5f2e6f66,0x2e005f5366506964\n"
+".quad 0x65726168732e766e,0x646461335a5f2e64,0x6e2e005f53665069,0x6174736e6f632e76\n"
+".quad 0x61335a5f2e30746e,0x005f536650696464,0x00006d617261705f,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x000700030000003e,0x0000000000000000\n"
+".quad 0x0000000000000000,0x000600030000007c,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0007101200000032,0x0000000000000000,0x00000000000002c0,0x0000000300082304\n"
+".quad 0x0008120400000000,0x0000000000000003,0x0000000300081104,0x00080a0400000000\n"
+".quad 0x0018014000000002,0x000c170400181903,0x0010000200000000,0x000c17040021f000\n"
+".quad 0x0008000100000000,0x000c17040021f000,0x0000000000000000,0x003f1b030011f000\n"
+".quad 0x00000020000c1c04,0x0000029800000198,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x22c28042f2c28307,0x2800400110005de4\n"
+".quad 0x2800400500009de4,0x188ec0000421dc23,0x80000000000001e7,0x380000000c209c02\n"
+".quad 0x28000000fc001de4,0x190e0000fc21dc23,0x220202c042f2c2f7,0x40000004c00001e7\n"
+".quad 0x190ec0000421dc23,0x40000003200001e7,0x190ec0000821dc23,0x1800000010025de2\n"
+".quad 0x280040052000a1e4,0x280040053000e1e4,0x2202c04280427047,0x28004005400121e4\n"
+".quad 0x28004005500161e4,0x840000000020a085,0x18000000040021e2,0x840000000041a085\n"
+".quad 0x4001400520021c43,0x209280053001dc43,0x22d2004283f042c7,0x400140054002dc43\n"
+".quad 0x2092800550025c43,0x0800000004001c02,0x500000001822a000,0x2800000020019de4\n"
+".quad 0x940000000042a085,0x280000002c021de4,0x2282c042f283f237,0x8400000000619c85\n"
+".quad 0x8400000000809c85,0x500000001820dc00,0x940000000080dc85,0x4001400520009c43\n"
+".quad 0x1800000010015de2,0x208a80053000dce3,0x22f283f28042c047,0x4001400540011c43\n"
+".quad 0x8400000000209c85,0x208a800550015ce3,0x0800000004001c02,0x8400000000419c85\n"
+".quad 0x500000000861dc00,0x940000000041dc85,0x22c042f202e2c287,0x1800000010009de2\n"
+".quad 0x1a0e40050021dc03,0x80000000000001e7,0x6000c00008031c03,0x1000000010035ce2\n"
+".quad 0x4801400520c11c03,0x0800000010001c02,0x22328042c0428047,0x4800400530d15c43\n"
+".quad 0x188e40050001dc23,0x4801400540c09c03,0x840000000041dc85,0x4800400550d0dc43\n"
+".quad 0x0c00000040c31c02,0x8400000000219c85,0x2283f232e283f047,0x8400000010221c85\n"
+".quad 0x4800000037f35c43,0x500000001c619c00,0x9400000000219c85,0x8400000010425c85\n"
+".quad 0x840000002021dc85,0x5000000024825c00,0x2283f2e283f232e7,0x9400000010225c85\n"
+".quad 0x8400000020429c85,0x8400000030221c85,0x500000002871dc00,0x940000002021dc85\n"
+".quad 0x840000003042dc85,0x500000002c82dc00,0x2000000002f2e047,0x940000003022dc85\n"
+".quad 0x4003fffc600001e7,0x8000000000001de7,0x4003ffffe0001de7,0x4000000000001de4\n"
+".quad 0x4000000000001de4,0x4000000000001de4,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000300000001,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000040,0x000000000000008a,0x0000000000000000\n"
+".quad 0x0000000000000001,0x0000000000000000,0x000000030000000b,0x0000000000000000\n"
+".quad 0x0000000000000000,0x00000000000000ca,0x000000000000009d,0x0000000000000000\n"
+".quad 0x0000000000000001,0x0000000000000000,0x0000000200000013,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000168,0x0000000000000060,0x0000000200000002\n"
+".quad 0x0000000000000008,0x0000000000000018,0x7000000000000029,0x0000000000000000\n"
+".quad 0x0000000000000000,0x00000000000001c8,0x0000000000000024,0x0000000000000003\n"
+".quad 0x0000000000000004,0x0000000000000000,0x7000000000000044,0x0000000000000000\n"
+".quad 0x0000000000000000,0x00000000000001ec,0x0000000000000054,0x0000000700000003\n"
+".quad 0x0000000000000004,0x0000000000000000,0x0000000100000070,0x0000000000000002\n"
+".quad 0x0000000000000000,0x0000000000000240,0x0000000000000158,0x0000000700000000\n"
+".quad 0x0000000000000004,0x0000000000000000,0x0000000100000032,0x0000000000000006\n"
+".quad 0x0000000000000000,0x00000000000003c0,0x00000000000002c0,0x0e00000300000003\n"
+".quad 0x0000000000000040,0x0000000000000000,0x0000000500000006,0x0000000000000880\n"
+".quad 0x0000000000000000,0x0000000000000000,0x00000000000000a8,0x00000000000000a8\n"
+".quad 0x0000000000000008,0x0000000500000001,0x0000000000000240,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000418,0x0000000000000418,0x0000000000000008\n"
+".quad 0x0000000600000001,0x0000000000000000,0x0000000000000000,0x0000000000000000\n"
+".quad 0x0000000000000000,0x0000000000000000,0x0000000000000008,0x0000004801010001\n"
+".quad 0x0000000000000360,0x000000400000035d,0x0000001e00060000,0x0000000000000000\n"
+".quad 0x0000000000002015,0x0000000000000000,0x000000000000079d,0x0000000000000000\n"
+".quad 0x762e1cf200010a13,0x36206e6f69737265,0x677261742e0a302e,0x30335f6d73207465\n"
+".quad 0x7365726464612e0a,0x3620657a69735f73,0x69736917f8002f34,0x746e652e20656c62\n"
+".quad 0x6461335a5f207972,0x0a285f5366506964,0x2e206d617261702e,0x175f110019323375\n"
+".quad 0x2f00212c305f3600,0x21311f0000213436,0x0a290a3208f30d00,0x2e206765722e0a7b\n"
+".quad 0x3c70252064657270,0x33669500123b3e37,0x1232323c66252032,0x3c72460012621000\n"
+".quad 0x2034368000123831,0x420037313c647225,0xb2010071646c0a0a,0x5b202c3872256f00\n"
+".quad 0x00293b5d270000b8,0x02002a361f004102,0x2a371f00002a311f,0x0a3b5d3203f40200\n"
+".quad 0x2e6f742e61747663,0x00306c61626f6c67,0x001f0f00362c3121,0x3604f2001f321105\n"
+".quad 0x6c2e707465730a3b,0x7025093233732e74,0x3b3109f300bf2c31,0x726220317025400a\n"
+".quad 0x30315f3042422061,0x010b646e610a0a3b,0x3b33630028323123,0x315300f7766f6d0a\n"
+".quad 0x6523005230202c34,0x00302c3223005271,0x0053321500533011,0x3314002b0a3b373b\n"
+".quad 0x2b3315007e02002b,0x2b3414002b361d00,0x2b3415002b321100,0xed03018e3b352100\n"
+".quad 0x202c314001cb0200,0x001b3b5d2d00f35b,0x33017100001b3212,0x2c33220015646461\n"
+".quad 0x0a3b326625780035,0x00002d0200327473,0x3b314100fa0d001b,0x6d0a3aa300820a0a\n"
+".quad 0x1e656469772e6c75,0x1200242c38643300,0x2601847312006734,0x001a3819018a2c39\n"
+".quad 0x381e01c42c303136,0x301f00b7341300b7,0x19001c35120000d3,0x001a2c362200d339\n"
+".quad 0x110200d33466253f,0x050085361300d430,0xda361700da0a00d4,0x3131643f00240200\n"
+".quad 0x00dc3231270300db,0xdd3317001c31312a,0x371300c231312e00,0x130000de331f00de\n"
+".quad 0x2200df3219001c38,0x3766253f001b2c39,0x1f00df33110200df,0x0d3a37250b00df39\n"
+".quad 0xe535130265751103,0x0d351a0264341102,0x010a3617010a0d03,0x00f63a3929005001\n"
+".quad 0x0112361a01123418,0x00f6361e01123518,0x13351f00f7303123,0x19001d3131230001\n"
+".quad 0x1d01018301011434,0x0000370f00400000,0x56342b2f00543314,0x381f001f34150100\n"
+".quad 0x01001f351501001f,0x35110001750f018c,0x00003d32312f0175,0x00b42b1b00b23614\n"
+".quad 0x00a000001f2c3723,0x58342b220300560f,0x3815000058371f00,0x39230058381a0058\n"
+".quad 0x580f00d900001f2c,0x391f005838120400,0x0b00583015000426,0x00202c3132330279\n"
+".quad 0x210400590f011300,0x0307321b005a3231,0x79311f00072c3624,0x6405059f341c0403\n"
+".quad 0x1502953872253102,0xd002763913029536,0x3b7465720a3a3031,0x0000000a0a0a7d0a\n"
+".text\n");
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern const unsigned long long fatbinData[420];
+#ifdef __cplusplus
+}
+#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
+static const __fatBinC_Wrapper_t __fatDeviceText __attribute__ ((aligned (8))) __attribute__ ((section (__CUDAFATBINSECTION)))= 
+    { 0x466243b1, 1, fatbinData, 0 };
+#ifdef __cplusplus
+}
+#endif
+
+
+</code></pre></div></div>
+
+<h4 id="5-gcc生成host代码">5. gcc生成host代码</h4>
+
+<p><code class="language-plaintext highlighter-rouge">gcc -E -x c++ -D__CUDACC__ -D__NVCC__  "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -include "cuda_runtime.h" -m64 "test.cu" &gt; "test.cpp4.ii"</code></p>
+
+<p>生成test.cpp4.ii内容非常多基本就是将标准库展开，所有的.h文件代码嵌入文件中。主要内容是stl标准库中的代码+原来的main函数代码。这里主要是生成主机端执行的代码和普通的c++没有什么太大的区别</p>
+
+<h4 id="6-cudafe-生成testcudafe1cpp">6. cudafe++ 生成test.cudafe1.cpp</h4>
+
+<p><code class="language-plaintext highlighter-rouge">cudafe++ --gnu_version=50400 --allow_managed  --m64 --parse_templates --gen_c_file_name "test.cudafe1.cpp" --stub_file_name "test.cudafe1.stub.c" --module_id_file_name "test.module_id" "test.cpp4.ii"</code></p>
+
+<p>主要生成了test.cudafe1.cpp文件.</p>
+
+<p>文件主要包含引用include的内容，test.cudafe1.stub.c和.cu中源文件的内容，基本就是进行了再一次的拓展，主要目的应该是合并host和device接口的代码。</p>
+
+<h4 id="7--生成目标中间文件">7.  生成目标中间文件</h4>
+
+<p><code class="language-plaintext highlighter-rouge">gcc -D__CUDA_ARCH__=300 -c -x c++  -DCUDA_DOUBLE_MATH_FUNCTIONS "-I/usr/local/cuda/bin/..//include"   -m64 -o "test.o" "test.cudafe1.cpp"</code></p>
+
+<p>主要是用上一步的test.cudafe1.cpp生成对应的.o中间文件。应该主要还是在host主机上运行</p>
+
+<h4 id="8-链接内容">8. 链接内容</h4>
+
+<p><code class="language-plaintext highlighter-rouge">nvlink --arch=sm_30 --register-link-binaries="add_cuda_dlink.reg.c" -m64   "-L/usr/local/cuda/bin/..//lib64/stubs" "-L/usr/local/cuda/bin/..//lib64" -cpu-arch=X86_64 "test.o"  -o "add_cuda_dlink.sm_30.cubin"</code></p>
+
+<p>使用这个链接命令生成了对应的.cubin二进制文件和add_cuda_dlink.reg.c文件
+add_cuda_dlink.reg.c只有这一个内容</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#define NUM_PRELINKED_OBJECTS 0
+
+</code></pre></div></div>
+
+<h4 id="9-筛选和重新生成二进制文件">9. 筛选和重新生成二进制文件</h4>
+
+<p><code class="language-plaintext highlighter-rouge">fatbinary --create="add_cuda_dlink.fatbin" -64 -link "--image=profile=sm_30,file=add_cuda_dlink.sm_30.cubin" --embedded-fatbin="add_cuda_dlink.fatbin.c"</code></p>
+
+<p>主要生成了<code class="language-plaintext highlighter-rouge">add_cuda_dlink.fatbin.c</code>和add_cuda_dlink.fatbin二进制文件。</p>
+
+<p><code class="language-plaintext highlighter-rouge">add_cuda_dlink.fatbin.c</code>的内容和test.fatbin.c的内容基本一致。就是将test.fatbin中的静态代码重新进行添加，因为编译的参数可能会使用不同的sm和code在这里要进行筛选。本次代码因为没有加其它编译参数，因此相同</p>
+
+<h4 id="10-编译生成中间文件">10. 编译生成中间文件</h4>
+
+<p><code class="language-plaintext highlighter-rouge">gcc -c -x c++ -DFATBINFILE="\"add_cuda_dlink.fatbin.c\"" -DREGISTERLINKBINARYFILE="\"add_cuda_dlink.reg.c\"" -I. "-I/usr/local/cuda/bin/..//include"   -D"__CUDACC_VER_BUILD__=176" -D"__CUDACC_VER_MINOR__=0" -D"__CUDACC_VER_MAJOR__=9" -m64 -o "add_cuda_dlink.o" "/usr/local/cuda/bin/crt/link.stub"</code></p>
+
+<p>生成add_cuda_dlink.o最后中间文件,其实估计中间文件应该和test.fatbin内容差不多，或者说test.fatbin是它的一部分。</p>
+
+<ol>
+  <li>链接生成最终可执行文件</li>
+</ol>
+
+<p><code class="language-plaintext highlighter-rouge">g++ -m64 -o "add_cuda" -Wl,--start-group "add_cuda_dlink.o" "test.o"   "-L/usr/local/cuda/bin/..//lib64/stubs" "-L/usr/local/cuda/bin/..//lib64" -lcudadevrt  -lcudart_static  -lrt -lpthread  -ldl  -Wl,--end-group </code></p>
+
+<p>链接add_cuda_dlink.o和test.o最终生成对应的<code class="language-plaintext highlighter-rouge">add_cuda</code>，对齐代码和可执行函数接口</p>
+
+<h2 id="总结">总结</h2>
+
+<p>整个流程给我的感觉是，其实设备使用的代码就是.ptx。不过因为NVCC提供的虚拟架构方式，会生成好几份不同的代码和对应的二进制文件，并且生成对应的函数调用头文件，有点像普通的C++ 动态链接库和头文件分离。头文件中包含函数地址。</p>
+
+<p>后面在在主机端生成代码，只是将cuda部分的函数声明了而已。</p>
+
+<p>最后使用nvlink其实关键并不在于链接过程中的函数地址对齐，而是对生成的好几份设备端的机器代码和接口进行合适的筛选测试。生成新的静态二进制文件。很有可能就是将前面的二进制文件直接拼接过来。而add_cuda_dlink.fatbin.c其实是对应函数映射地址的接口，更类似于一个.h的头文件</p>
+
+<p>然后c++编译器将add_cuda_dlink.fatbin.c装入，使用add_cuda_dlink.reg.c应该是其它的一些关键字，当存在多个版本的设备二进制可执行文件时，用来声明执行。帮助生成二进制.obj</p>
+
+<p>最后再有主机链接器(gcc)进行动态和静态链接库的链接。本次代码因为是机器码直接装入，因此不会有cuda的动态链接。</p>
+
+<p>从上面可以看出，cuda真的是比较喜欢静态链接。也知道cudnn为什么函数这么少，so的动态链接库这么大了，应该是将 <strong>多个硬件版本的机器码</strong>直接放进去了。</p>
+
+<p>总体而言，nvcc更像是qmake进行相关makefile和预处理代码的生成，调用gcc生成host二进制文件，调用cicc、ptxas、fatbinary分别生成汇编代码、机器码、静态代码。最后使用nvlink链接生成.obj文件，使用gcc link生成最终的可执行文件。</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/04/17/cplusplus_primer_learn_note_1/" data-toggle="tooltip" data-placement="top" title="C++ Primer  学习笔记 (一)">
+                        Previous<br>
+                        <span>C++ Primer  学习笔记 (一)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/04/17/work_find/" data-toggle="tooltip" data-placement="top" title="找工作学习计划">
+                        Next<br>
+                        <span>找工作学习计划</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

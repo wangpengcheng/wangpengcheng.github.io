@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C/C++ 的一个符号操作问题 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/05/12/c_peator_problem/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#C" title="C">C</a>
+                        
+                        <a class="tag" href="/tags/#java" title="java">java</a>
+                        
+                        <a class="tag" href="/tags/#%E6%B1%87%E7%BC%96" title="汇编">汇编</a>
+                        
+                        <a class="tag" href="/tags/#%E5%8F%8D%E6%B1%87%E7%BC%96" title="反汇编">反汇编</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E7%AC%A6%EF%BC%9A" title="基础操作符：">基础操作符：</a>
+                        
+                    </div>
+                    <h1>C/C++ 的一个符号操作问题</h1>
+                    
+                    
+                    <h2 class="subheading">深入思考操作符</h2>
+                    
+                    <span class="meta">Posted by 敬方 on May 12, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-5-14 19:54:52</p>
+</blockquote>
+
+<h1 id="cc-的一个符号操作问题">C/C++ 的一个符号操作问题</h1>
+
+<p>今天发现一串奇异的代码，和师兄们一起讨论研究之后，汇总成这篇文章。</p>
+
+<p>首先先亮出代码：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//a.c</span>
+
+<span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+    <span class="c1">//注意下面的操作</span>
+    
+    <span class="n">a</span><span class="o">+=</span><span class="n">a</span><span class="o">-=</span><span class="n">a</span><span class="o">*=</span><span class="n">a</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//gcc 和g++编译结果都是0</span>
+</code></pre></div></div>
+<p>上述代码<code class="language-plaintext highlighter-rouge">g++</code>和<code class="language-plaintext highlighter-rouge">gcc</code>编译结果都是0;使用
+<code class="language-plaintext highlighter-rouge">gcc -S a.c -o gcc_a.s</code>和<code class="language-plaintext highlighter-rouge">g++ -S a.c -o g_a.s</code>得到其汇编代码相同如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    .file   "a.c"
+    .section    .rodata
+.LC0:
+    .string "%d\n"
+    .text
+    .globl  main
+    .type   main, @function
+main:
+.LFB2:
+    .cfi_startproc
+    pushq   %rbp
+    .cfi_def_cfa_offset 16
+    .cfi_offset 6, -16
+    movq    %rsp, %rbp
+    .cfi_def_cfa_register 6
+    subq    $16, %rsp
+    movl    $10, -4(%rbp)
+    movl    -4(%rbp), %eax
+    imull   -4(%rbp), %eax
+    movl    %eax, -4(%rbp)
+    movl    -4(%rbp), %eax
+    subl    %eax, -4(%rbp)
+    movl    -4(%rbp), %eax
+    addl    %eax, -4(%rbp)
+    movl    -4(%rbp), %eax
+    movl    %eax, %esi
+    movl    $.LC0, %edi
+    movl    $0, %eax
+    call    printf
+    movl    $0, %eax
+    leave
+    .cfi_def_cfa 7, 8
+    ret
+    .cfi_endproc
+.LFE2:
+    .size   main, .-main
+    .ident  "GCC: (Ubuntu 5.4.0-6ubuntu1~16.04.11) 5.4.0 20160609"
+    .section    .note.GNU-stack,"",@progbits
+
+</code></pre></div></div>
+<p>接下来就是对这一串汇编代码的解读了。</p>
+
+<h2 id="gcc指令">GCC指令</h2>
+<p><em>参考链接：</em> <a href="http://gcc.gnu.org/">GCC</a>;<a href="https://gcc.gnu.org/onlinedocs/">GCC online documentation</a>;<a href="https://gcc.gnu.org/onlinedocs/gcc-5.5.0/gcc/#toc-GCC-Command-Options">GCC C++ Command Options</a>;<a href="https://www.runoob.com/w3cnote/gcc-parameter-detail.html">GCC参数详解</a></p>
+
+<h3 id="gcc-编译步骤">GCC 编译步骤</h3>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/czg13548930186/article/details/78331692">gcc程序的编译过程和链接原理</a>;</p>
+
+<p>GCC编译分为4步；</p>
+
+<p><img src="https://img-blog.csdn.net/20180911135651696?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pzajExMjY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="编译流程图"></p>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">gcc -E</code>:预处理阶段(preprocessing)，对包含的头文件（#include)和宏定义（#define，#ifdef等）进行处理。在上述的代码处理过程中，编译器将包含的头文件stdio.h编译进来，并且让用户使用选项”-E“
+进行查看，该选项的作用是让gcc在预处理结束后停止编译过程。”.i“文件为已经过预处理的c程序。一下列出部分;处理操作： <code class="language-plaintext highlighter-rouge">gcc -E a.c -o  gcc_a_e.i -std=c99</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">gcc -S</code>:编译操作(compilation)，将C/C++或者<code class="language-plaintext highlighter-rouge">.i</code>文件编译成为汇编代码。处理操作：<code class="language-plaintext highlighter-rouge"> gcc -S gcc_a_e.i -o  gcc_a_e.s -std=c99</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">gcc -c</code>:汇编操作(assembly),将<code class="language-plaintext highlighter-rouge">.c</code>或者<code class="language-plaintext highlighter-rouge">.s</code>文件转化为对应的二进制文件<code class="language-plaintext highlighter-rouge">.o</code>或者<code class="language-plaintext highlighter-rouge">.obj</code>;处理操作：<code class="language-plaintext highlighter-rouge">gcc -c gcc_a_e_s.s -o gcc_a.o</code>;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">gcc -o a a.o</code>：链接操作(link);链接不同的<code class="language-plaintext highlighter-rouge">.o</code>文件，生成可执行的文件。</li>
+</ol>
+
+<p>常用选项表</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">选项</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-v</code></td>
+      <td style="text-align: left">查看gcc编译器的版本，显示gcc执行时的详细过程</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-o &lt;file&gt;</code></td>
+      <td style="text-align: left">Place the output into <file>;指定输出文件名为file，这个名称不能跟源文件名同名</file>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-E</code></td>
+      <td style="text-align: left">Preprocess only; do not compile, assemble or link；只预处理，不会编译、汇编、链接</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-S</code></td>
+      <td style="text-align: left">Compile only; do not assemble or link；只编译，不会汇编、链接</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-c</code></td>
+      <td style="text-align: left">Compile and assemble, but do not link； 编译和汇编，不会链接</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-On</code></td>
+      <td style="text-align: left">编译优化选项，默认等级<code class="language-plaintext highlighter-rouge">-O1</code>,<code class="language-plaintext highlighter-rouge">-O2</code>告诉GCC除了完成<code class="language-plaintext highlighter-rouge">-O1</code>级别的优化之外，同时还要进行一些额外的调整工作，如处理器指令调度等,选项<code class="language-plaintext highlighter-rouge">-O3</code>则除了完成<code class="language-plaintext highlighter-rouge">-O2</code>级别的优化之外，还包括循环展开和其他一些与处理器特性相关的优化工作</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-l</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">-lLIBRARY</code> 连接时搜索指定的函数库LIBRARY</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-I</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">Include</code> 添加<code class="language-plaintext highlighter-rouge">include</code>头文件</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-Ldir</code></td>
+      <td style="text-align: left">制定编译的时候，搜索库的路径。比如你自己的库，可以用它制定目录，不然编译器将只在标准库的目录找。这个dir就是目录的名称。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">-w/Wall</code></td>
+      <td style="text-align: left">不生成/生成所有警告信息</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="链接原理">链接原理</h4>
+
+<p>使用  <code class="language-plaintext highlighter-rouge">gcc -V -o gcc_a_e gcc_a_e.o</code>查看链接详细操作如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 5.4.0-6ubuntu1~16.04.11' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-libmpx --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-amd64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-amd64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-amd64 --with-arch-directory=amd64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-objc-gc --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.11) 
+COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/5/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/5/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'gcc_a_e' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/5/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/5/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper -plugin-opt=-fresolution=/tmp/ccXTxtp9.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/ --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -z relro -o gcc_a_e /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/5/crtbegin.o -L/usr/lib/gcc/x86_64-linux-gnu/5 -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/5/../../.. gcc_a_e.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-linux-gnu/5/crtend.o /usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu/crtn.o
+
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>crt1.o、crti.o、crtbegin.o、crtend.o、crtn.o是gcc加入的系统标准启动文件，对于一般应用程序，这些启动是必需的。</li>
+  <li>-lc：链接libc库文件，其中libc库文件中就实现了printf等函数</li>
+  <li>gcc默认使用动态链接库进行链接，生成的程序在执行的时候需要加载所需要的动态库才能运行，动态库体积小，但是必须依赖所需的动态库否则无法执行。</li>
+  <li>添加<code class="language-plaintext highlighter-rouge">-static</code>选项可以实现，静态库的链接，生成的程序包含所需要的所有库可以直接运行。不过体积较大。操作：<code class="language-plaintext highlighter-rouge"> gcc -v -static  -o a_static a.c</code>.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-nostartfiles</code>:不链接标准启动库文件，而标准库文件仍然可以正常使用。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-nostdlib</code>:不链接系统标准启动文件和标准库文件。</li>
+</ul>
+
+<h4 id="生成汇编指令结果">生成汇编指令结果：</h4>
+
+<p><strong><code class="language-plaintext highlighter-rouge">gcc -S -O3 -o a1.s a.c</code></strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//a1.s
+
+    .file   "a.c"
+    .section    .rodata.str1.1,"aMS",@progbits,1
+.LC0:
+    .string "%d\n"
+    .section    .text.unlikely,"ax",@progbits
+.LCOLDB1:
+    .section    .text.startup,"ax",@progbits
+.LHOTB1:
+    .p2align 4,,15
+    .globl  main
+    .type   main, @function
+main:
+.LFB23:
+    .cfi_startproc
+    subq    $8, %rsp
+    .cfi_def_cfa_offset 16
+    xorl    %edx, %edx
+    movl    $.LC0, %esi
+    movl    $1, %edi
+    xorl    %eax, %eax
+    call    __printf_chk
+    xorl    %eax, %eax
+    addq    $8, %rsp
+    .cfi_def_cfa_offset 8
+    ret
+    .cfi_endproc
+.LFE23:
+    .size   main, .-main
+    .section    .text.unlikely
+.LCOLDE1:
+    .section    .text.startup
+.LHOTE1:
+    .ident  "GCC: (Ubuntu 5.4.0-6ubuntu1~16.04.11) 5.4.0 20160609"
+    .section    .note.GNU-stack,"",@progbits
+
+</code></pre></div></div>
+
+<h3 id="intel-x86-基本汇编指令">Intel x86 基本汇编指令</h3>
+
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/pro_technician/article/details/78173777">深入浅出GNU X86-64 汇编</a>;<a href="http://www.cnblogs.com/orlion/p/5765339.html">x86汇编程序基础(AT&amp;T语法)</a>；<a href="http://www.ruanyifeng.com/blog/2018/01/assembly-language-primer.html">汇编语言入门教程</a></p>
+
+<p>在此简单的介绍x86_64基本汇编指令，不做过多介绍。</p>
+
+<h4 id="程序加载时系统的内存分配">程序加载时系统的内存分配</h4>
+
+<p>程序启动过程：
+程序——-&gt; 程序加载器| ———-&gt; Flash memory
+                     | ———-&gt; SDRAM 
+                     | ———-&gt; BBRAM</p>
+
+<p><strong>系统区块特性</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">名称</th>
+      <th style="text-align: left">种类</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_NULL</code></td>
+      <td style="text-align: left">无效的区块</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_PROGBITS</code></td>
+      <td style="text-align: left">带有数据(机械语和初始值等)的区块</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_NOBITS</code></td>
+      <td style="text-align: left">不带有数据</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_RELA</code></td>
+      <td style="text-align: left">带有可再分配的数据</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_REL</code></td>
+      <td style="text-align: left">带有可再分配的数据且不依赖与内存的代码</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_SYMTAB</code></td>
+      <td style="text-align: left">带有符号表的区块</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">名称</th>
+      <th style="text-align: left">属性</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHF_ALLOC</code></td>
+      <td style="text-align: left">应该放在内存上的区块</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHF_WRITE</code></td>
+      <td style="text-align: left">应该放在可读写区域的区块</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHF_EXECINSTR</code></td>
+      <td style="text-align: left">应该放在可执行区域的区块</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>归类</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">文件</th>
+      <th style="text-align: left">种类</th>
+      <th style="text-align: left">属性</th>
+      <th style="text-align: left">说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.bbs</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_NOBITS</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHF_ALLOC + SHF_WRITE</code></td>
+      <td style="text-align: left">主要存放0或者无初始值的全局变量和0或者无初始值的静态局部变量</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.data</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_PROGBITS</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHF_ALLOC + SHF_WRITE</code></td>
+      <td style="text-align: left">主要存放初始值是0以外的全局变量和初始值为0以外的静态局部变量</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.text</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_PROGBITS</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHF_ALLOC + SHF_EXECINSTR</code></td>
+      <td style="text-align: left">机械语跟代码</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.rodata</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHT_PROGBITS</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">SHF_ALLOC</code></td>
+      <td style="text-align: left">字符串，或者定数（const）</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>linux各个字段含义：
+<em>参考链接：</em> <a href="https://www.cnblogs.com/lcchuguo/p/5105316.html">Linux段管理</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">字段名称</th>
+      <th style="text-align: left">意义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.bbs/BSS</code></td>
+      <td style="text-align: left">BSS是英文Block Started by Symbol的简称。属于静态内存分配;用于存储未初始化的全局变量或者是默认初始化为0的全局变量，它不占用程序文件的大小，可是占用程序执行时的内存空间。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.data/data</code></td>
+      <td style="text-align: left">该段用于存储初始化的全局变量，初始化为0的全局变量出于编译优化的策略还是被保存在BSS段</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.rodata/rodata</code></td>
+      <td style="text-align: left">该段也叫常量区，用于存放常量数据，ro就是Read Only之意。1.些马上数与指令编译在一起直接放在代码段。2.对于字符串常量，编译器会去掉反复的常量，让程序的每一个字符串常量仅仅有一份。3.有些系统中rodata段是多个进程共享的，目的是为了提高空间的利用率。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.text/text</code></td>
+      <td style="text-align: left">用于存放程序代码的，编译时确定,仅仅读。更进一步讲是存放处理器的机器指令，当各个源文件单独编译之后生成目标文件。经连接器链接各个目标文件并解决各个源文件之间函数的引用，与此同一时候，还得将全部目标文件里的.text段合在一起，但不是简单的将它们“堆”在一起就完事，还须要处理各个段之间的函数引用问题。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.stack/stack</code></td>
+      <td style="text-align: left">是由系统负责申请释放，其操作方式类似stack，用于存储參数变量及局部变量，事实上函数的运行也是stack的方式，所以才有了递归</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">.heap/heap</code></td>
+      <td style="text-align: left">它由用户申请和释放。申请时至少分配虚存，当真正存储数据时才分配对应的实存，释放时也并不是马上释放实存。而是可能被反复利用。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><img src="http://img.blog.csdn.net/20141028122011240?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd2R4aW4xMzIy/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="64位内存布局"></p>
+
+<h4 id="汇编程序基本元素组成">汇编程序基本元素组成</h4>
+
+<ul>
+  <li>
+<strong>指示（Directives）</strong>：以点号开始，用来指示对编译器，连接器，调试器有用的结构信息。指示本身不是汇编指令。例如：
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">.file</code>：只是记录原始源文件名。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">.data</code>：表示数据段(section)的开始地址。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">.text</code>：表示实际程序代码的起始。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">.string</code>：表示数据段中的字符串常量。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">.globl main</code>：指明标签main是一个可以在其它模块的代码中被访问的全局符号。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">.section</code> :定义内存段,声明段的类型，例如<code class="language-plaintext highlighter-rouge">.section .rodata</code>
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">.bbs</code></li>
+          <li><code class="language-plaintext highlighter-rouge">.rodata</code></li>
+          <li><code class="language-plaintext highlighter-rouge">.text</code></li>
+          <li><code class="language-plaintext highlighter-rouge">.stack</code></li>
+          <li><code class="language-plaintext highlighter-rouge">.heap</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+<strong>标签（Labels）</strong>：以冒号结尾，用来把标签名和标签出现的位置关联起来。按照惯例， 以点号开始的标签都是编译器生成的临时局部标签，其它标签则是用户可见的函数和全局变量名称。例如：
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">.LC0:</code>：表示紧接着的字符串的名称是<code class="language-plaintext highlighter-rouge">.LC0.</code>标签。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">.cfi_</code> 开头的汇编指示符用来告诉汇编器生成相应的 DWARF 调试信息(<a href="https://blog.csdn.net/jtli_embeddedcv/article/details/9321253">.cfi指令解读</a>;<a href="https://source.winehq.org/source/dlls/dbghelp/cpu_x86_64.c#L739">官方文档</a>)
+        <ul>
+          <li>
+<code class="language-plaintext highlighter-rouge">.cfi_startproc</code>:定义函数开始</li>
+          <li>
+<code class="language-plaintext highlighter-rouge">.cfi_endproc</code>：定义函数结束</li>
+          <li>
+<code class="language-plaintext highlighter-rouge">.cfi_def_cfa_offset</code>:定义此处距离CFA(Canonical Frame Address)标准框架地址–<strong>在前一个调用框架中调用当前函数时的栈顶指针</strong>
+</li>
+        </ul>
+      </li>
+      <li>
+<code class="language-plaintext highlighter-rouge">main:</code>：表示指令 <code class="language-plaintext highlighter-rouge">pushq %rbp</code>是main函数的第一个指令。</li>
+    </ul>
+  </li>
+  <li>
+<strong>指令（Instructions）</strong>：实际的汇编代码 (pushq %rbp), 一般都会缩进，以便和指示及标签区分开来。</li>
+</ul>
+
+<h4 id="cpu寄存器">CPU寄存器</h4>
+<p>X86-64中，所有寄存器都是64位，相对32位的x86来说，标识符发生了变化，比如：从原来的%ebp变成了%rbp。为了向后兼容性，%ebp依然可以使用，不过指向了%rbp的低32位。X86-64寄存器的变化，不仅体现在位数上，更加体现在寄存器数量上。新增加寄存器%r8到%r15。加上x86的原有8个，一共16个寄存器。寄存器集成在CPU上，存取速度比存储器快好几个数量级，寄存器多了，GCC就可以更多的使用寄存器，替换之前的存储器堆栈使用，从而大大提升性能。</p>
+
+<p><img src="https://img-blog.csdn.net/20171008191643821" alt="x86_64寄存器地址"></p>
+
+<p>注意：随着设计的进展，新的指令和寻址模式被添加进来，使得很多寄存器变成了等同的。少数留下来的指令，特别是和字符串处理相关的，要求使用<code class="language-plaintext highlighter-rouge">%rsi</code> 和<code class="language-plaintext highlighter-rouge">%rdi</code>。两个寄存器被保留下来分别作为栈指针 (<code class="language-plaintext highlighter-rouge">%rsp</code>) 和基址指针 (<code class="language-plaintext highlighter-rouge">%rbp</code>)。最后的8个寄存器是编号的并且没有特殊限制。</p>
+
+<p>多年来，体系结构从8位扩展到16位，32位，因此每个寄存器都有一些内部结构：</p>
+
+<p><img src="https://img-blog.csdn.net/20171008192750274" alt="%rax 寄存器内部结构"></p>
+
+<p>%rax的低8位是8位寄存器%al,仅靠的8位是%ah。低16位是%ax，低32位是%eax，整个64位是%rax。
+寄存器%r8-%r15也有相同结构，但命名方式稍有不同：</p>
+
+<p><img src="https://img-blog.csdn.net/20171008193142962" alt="%r8-%r15寄存器内部结构"></p>
+
+<p><strong>注意</strong>：大多数编译器产品混合使用32和64位模式。32位寄存器用来做整数计算，因为大多数程序不需要大于 2^32 的整数值。64位一般用来保存内存地址(指针)，使得可以寻址到16EB虚拟内存。</p>
+
+<h4 id="寻址模式">寻址模式</h4>
+<p>x86_64使用复杂指令集(CISC)(<a href="https://www.cnblogs.com/createyuan/p/4626235.html">risc与cisc</a>)所以MOV指令有很多不同的变种以便在不同的存储单元之间移动不同的数据类型。与大多数指令相同，有着决定移动大多数数据的单字母前缀：</p>
+
+<p><img src="https://img-blog.csdn.net/20171008200505370" alt="单字母前缀"></p>
+
+<p>不同的数据有着不同的寻址模式和内存偏移:</p>
+
+<ul>
+  <li>全局值(全局变量和函数)的引用直接使用名字，例如<code class="language-plaintext highlighter-rouge">x</code>或者<code class="language-plaintext highlighter-rouge">printf</code>
+</li>
+  <li>常数使用带有<code class="language-plaintext highlighter-rouge">$</code>的立即数，例如$56。</li>
+  <li>寄存器值的引用：使用寄存器的名称，例如:<code class="language-plaintext highlighter-rouge">%rbx</code>
+</li>
+  <li>间接寻址：使用与寄存器中保存的地址值相对应的内存中的值，例如：(%rsp)表示%rsp指向的内存中的值。</li>
+  <li>相对基址寻址：把一个常数加到寄存器上，例如<code class="language-plaintext highlighter-rouge">-16(%rcx)</code>表示把<code class="language-plaintext highlighter-rouge">%rcx</code>指向的地址前移16个字节后对应的内存值。<code class="language-plaintext highlighter-rouge">-16(%rbx,%rcx8)</code>表示<code class="language-plaintext highlighter-rouge">-16+%rbx+%rcx*8</code>对应的地址的内存值。</li>
+</ul>
+
+<p>使用各种寻址模式加载一个64位值到%rax:</p>
+
+<p><img src="https://img-blog.csdn.net/20171008200403991" alt="添加一个64位值到%rax"></p>
+
+<blockquote>
+  <p>注意：
+注意GNU工具使用传统的AT&amp;T语法。类Unix操作系统上，AT&amp;T语法被用在各种处理器上。Intel语法则一般用在DOS和Windows系统上。下面是AT&amp;T语法的指令：</p>
+
+  <p>movl %esp, %ebp</p>
+
+  <p>movl是指令名称。%则表明esp和ebp是寄存器.在AT&amp;T语法中, 第一个是源操作数,第二个是目的操作数。
+在其他地方，例如interl手册，你会看到是没有%的intel语法,它的操作数顺序刚好相反。下面是Intel语法:</p>
+
+  <p><code class="language-plaintext highlighter-rouge">MOVQ EBP, ESP</code></p>
+
+  <p>当在网页上阅读手册的时候，你可以根据是否有%来确定是AT&amp;T 还是 Intel 语法。</p>
+</blockquote>
+
+<h4 id="基本算术指令">基本算术指令</h4>
+<p>编译器会使用基本的算术指令：<code class="language-plaintext highlighter-rouge">add</code>、<code class="language-plaintext highlighter-rouge">sub</code>、<code class="language-plaintext highlighter-rouge">imul</code>和<code class="language-plaintext highlighter-rouge">idiv</code>.其中<code class="language-plaintext highlighter-rouge">ADD</code>和<code class="language-plaintext highlighter-rouge">SUB</code>有两个操作数：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">add</code>:加操作；例：<code class="language-plaintext highlighter-rouge">ADDQ %rbx, %ras</code>；把%rbx加到%rax，结果存在%rax中，会覆盖之前的值。值的内存大小为8bit</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">sub</code>:减操作；例如<code class="language-plaintext highlighter-rouge">SUBQ %rbx,%rax</code>;%rax值存储减去%rbx，结果存储在%rax中。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">imul</code>:乘操作；例如<code class="language-plaintext highlighter-rouge">IMULQ %rbx %rax</code>;它把%rax的值乘以操作数，把结果的低64位存在%rax，高64位放在%rdx(两个64位值相乘的结果是128位)。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">idiv</code>:除操作：把128bit值(低64位在 %rax ，高64位在%rdx)除以指令中的操作数为了正确处理负数,用CDQO 指令把%rax符号扩展到%rdx)，商存储在%rax，余数在%rdx。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">AND</code>：布尔操作，与</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">OR</code>:布尔操作，或</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">OR</code>：布尔操作，非</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">jmp</code>:跳转指令；跳转到制定地点。</li>
+  <li>跳转比较指令。比较并跳转</li>
+</ul>
+
+<p><img src="https://img-blog.csdn.net/20171013211645843" alt="比较跳转指令"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//%rax从0累加到5:
+
+        MOVQ $0, %rax
+loop:
+        INCQ %rax
+        CMPQ $5, %rax
+        JLE  loop
+
+</code></pre></div></div>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">inc</code>:目标操作数<code class="language-plaintext highlighter-rouge">+1</code>;使得目标操作数添加1.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">dec</code>:目标操作数<code class="language-plaintext highlighter-rouge">-1</code>；使得目标操作数减1</li>
+</ul>
+
+<h4 id="栈-statck">栈 statck</h4>
+<p>栈是一个辅助的数据结构，主要用来记录函数的调用历史和相关的局部变量(没有放到寄存器的)。一般栈是从高地址到低地址向下生长的。<code class="language-plaintext highlighter-rouge">%rsp</code>是栈指针，指向栈最底部(其实是平常所说的栈顶)元素。所以，<code class="language-plaintext highlighter-rouge">push %rax</code>（8字节），会把<code class="language-plaintext highlighter-rouge">%rsp</code>减去8，并把%rax写到 %rsp指向的位置。</p>
+
+<ul>
+  <li>push:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SUBQ $8, %rsp #%rsp指针指向地址减去8个字节
+MOVQ %rax, (%rsp) #将%rax移动到%rsp指向地址
+
+</code></pre></div></div>
+<ul>
+  <li>pop:操作与push刚好相反</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MOVQ (%rsp), %rax #将%rsp指针指向值，移动到%rax
+ADDQ $8, %rsp #%rsp指针值减8
+</code></pre></div></div>
+
+<h4 id="函数调用">函数调用</h4>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/swordmanwk/article/details/41626127">32位汇编语言学习笔记(13)–函数的调用</a>;<a href="https://blog.csdn.net/shanyongxu/article/details/47726015">数据传送指令详解</a></p>
+
+<p>在大多数汇编程序中(X86-64不是)，调用约定是简单的把每个参数都压栈，然后调用函数。被调用的函数从栈中获取参数，完成操作，把返回值保存到寄存器中并返回。调用方再把参数从栈pop出来(其实X86 32就是这样的)。</p>
+
+<p>X86-64(System V ABI)。 基本方法：</p>
+
+<ul>
+  <li>整数参数(包含指针）依次放在%rdi, %rsi, %rdx, %rcx, %r8, 和 %r9 寄存器中。</li>
+  <li>浮点参数依次放在寄存器%xmm0-%xmm7中。</li>
+  <li>寄存器不够用时，参数放到栈中。</li>
+  <li>可变参数哈函数(比如printf), 寄存器%eax需记录下浮点参数的个数。</li>
+  <li>被调用的函数可以使用任何寄存器，但它必须保证%rbx, %rbp, %rsp, and %r12-%r15恢复到原来的值（如果它改变了它们的值）。</li>
+  <li>返回值存储在 %eax中.</li>
+</ul>
+
+<p><strong>基本函数指令</strong></p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">call</code>: 调用函数指令；例如：<code class="language-plaintext highlighter-rouge">call main</code>;调用<code class="language-plaintext highlighter-rouge">main</code>函数</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ret</code>:终止当前函数的执行，将运行权交还给上层函数。当前函数的帧将被回收</li>
+</ul>
+
+<p><img src="https://img-blog.csdn.net/20171015115531621" alt="函数调用操作方法"></p>
+
+<p>调用函数前，先要把参数放到寄存器中。然后，调用方要把寄存器%r10 和%r11的值保存到栈中。之后，执行CALL指令，把IP指针的值保存到栈中，并跳到函数的起始地址执行。从函数返回后，恢复%r10 和%r11，并从%eax获取返回值。下面进行一个函数举例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nt</span> <span class="nf">func</span><span class="p">(</span> <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span> <span class="p">)</span>
+<span class="p">{</span>
+        <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="o">+</span><span class="n">c</span><span class="p">;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="mi">5</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>对下面的复杂函数有：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.globl func #定于全局函数
+func:
+    ##################### preamble of function sets up stack
+#int a, int b, int c
+    pushq %rbp          # save the base pointer
+    movq  %rsp, %rbp    # set new base pointer to esp
+
+    pushq %rdi          # save first argument (a) on the stack
+    pushq %rsi          # save second argument (b) on the stack
+    pushq %rdx          # save third argument (c) on the stack
+
+    subq  $16, %rsp     # allocate two more local variables
+
+    pushq %rbx          # save callee-saved registers
+    pushq %r12
+    pushq %r13
+    pushq %r14
+    pushq %r15
+
+    ######################## body of function starts here
+
+    movq  -8(%rbp),  %rbx  #a # load each arg into a scratch register
+    movq  -16(%rbp), %rcx  #b
+    movq  -24(%rbp), %rdx  #c
+
+    addq  %rdx, %rcx   #b=b+c    # add the args together 
+    addq  %rcx, %rbx   #a=a+b
+    movq  %rbx, -32(%rbp)   # store the result into local 0 (x)
+
+    movq  -32(%rbp), %rbx #a=x  # load local 0 (x) into a scratch register.
+    imulq  $5, %rbx   #a*=x     # multiply it by 5
+    movl  %rbx, -40(%ebp) #y=a   # store the result in local 1 (y)
+
+    movl  -20(%ebp), %eax   # move local 1 (y) into the result register
+
+    #################### epilogue of function restores the stack
+
+    popq %r15          # restore callee-saved registers
+    popq %r14
+    popq %r13
+    popq %r12
+    popq %rbx
+
+    movq %rbp, %rsp    # reset stack to base pointer.
+    popq %rbp          # restore the old base pointer
+
+    ret                # return to caller
+
+</code></pre></div></div>
+
+<p><strong>main 简单代码分析</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//test2.cpp</span>
+
+<span class="kt">long</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="kt">long</span> <span class="n">y</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"value: %d"</span><span class="p">,</span><span class="n">y</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    .file   "test2.cpp" #文件名 test2.cpp
+    .globl  x   #全局变量 x
+    .bss        #静态存储区域
+    .align 8    #内存对齐，插入8位，一个字节
+    .type   x, @object
+    .size   x, 8 #x 8字节
+x:
+    .zero   8 
+    .globl  y #设置全局变量  y
+    .data   
+    .align 8
+    .type   y, @object
+    .size   y, 8
+y:
+    .quad   10
+    .section    .rodata
+.LC0:
+    .string "value: %d"
+    .text
+    .globl  main
+    .type   main, @function
+main:
+.LFB2:
+    .cfi_startproc   #主函数开始
+    pushq   %rbp     
+    .cfi_def_cfa_offset 16 #
+    .cfi_offset 6, -16
+    movq    %rsp, %rbp    #设置栈指针
+    .cfi_def_cfa_register 6
+    movq    y(%rip), %rax #将值10移动到%rax
+    movq    %rax, x(%rip) #将%rax移动到栈中，并分配8个字节
+    movq    y(%rip), %rax #将y值复制到%rax寄存器
+    movq    %rax, %rsi #将参数压入%rsi
+    movl    $.LC0, %edi 
+    movl    $0, %eax # 记录浮点参数个数
+    call    printf #使用printf函数
+    movl    $0, %eax # 返回值0
+    popq    %rbp  #指针出站
+    .cfi_def_cfa 7, 8
+    ret
+    .cfi_endproc
+.LFE2:
+    .size   main, .-main
+    .ident  "GCC: (Ubuntu 5.4.0-6ubuntu1~16.04.11) 5.4.0 20160609"
+    .section    .note.GNU-stack,"",@progbits
+
+</code></pre></div></div>
+
+<h3 id="无优化汇编代码分析">无优化汇编代码分析</h3>
+
+<p>有了前面的基础知识，让我们再来看一下最开始的<code class="language-plaintext highlighter-rouge">a.s</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    .file   "a.c"  #指明源文件名
+    .section    .rodata #定义静态数据，只读
+.LC0: #定义标签LC0
+    .string "%d\n" #定义string 
+    .text #定义代码段
+    .globl  main #定义全局标签main
+    .type   main, @function #定义标签main 为一个函数
+main:
+.LFB2: #定义标签LFB2
+    .cfi_startproc #定义函数开始
+    pushq   %rbp #栈的基底地址
+    .cfi_def_cfa_offset 16 #CFA偏移16个字节
+    .cfi_offset 6, -16 #寄存器先前值保存在CFA 16字节偏移处
+    movq    %rsp, %rbp #栈顶指针指向栈底
+    .cfi_def_cfa_register 6 #定义新的标准地址为6
+    subq    $16, %rsp #栈指针向下分配16个字节
+    movl    $10, -4(%rbp) #将10移动到栈底四个字节处
+    movl    -4(%rbp), %eax #将10 复制到%eax-&gt; int a=10
+    imull   -4(%rbp), %eax #10*10-&gt; a*=a; a=100；(%eax)=100;
+    movl    %eax, -4(%rbp) #-4(%rbp)=100;
+    movl    -4(%rbp), %eax # 复制-4(%rbp)的值到%eax;即(%eax)=100;
+    subl    %eax, -4(%rbp) # -4(%rbp)=-4(%rbp)减(%eax);即100-100=0；-4(%rbp)=0；
+    movl    -4(%rbp), %eax # 复制-4(%rbp)到%eax,即(%eax)=0
+    addl    %eax, -4(%rbp) # -4(%rbp)=%eax+(-4(%rbp));即-4(%rbp)=0；
+    movl    -4(%rbp), %eax # 将-4(%rbp)复制到%eax;%eax=0;
+    movl    %eax, %esi     #%eax复制到%esi,结果存储在%esi中
+    movl    $.LC0, %edi   #载入LC0标签，到%edi
+    movl    $0, %eax      #将立即数0复制到%eax
+    call    printf      #调用打印函数
+    movl    $0, %eax   #复制0到%eax;return 0；
+    leave #返回main函数
+    .cfi_def_cfa 7, 8  #定义新的帧计算规则
+    ret #结束当前函数
+    .cfi_endproc #函数结束
+.LFE2:
+    .size   main, .-main
+    .ident  "GCC: (Ubuntu 5.4.0-6ubuntu1~16.04.11) 5.4.0 20160609"
+    .section    .note.GNU-stack,"",@progbits
+
+</code></pre></div></div>
+
+<p>从上面可以看出式<code class="language-plaintext highlighter-rouge">a+=a-=a*=a;</code>的执行顺序是：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">a*=a</code>:a=100</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">a-=a</code>:a=0;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">a+=a</code>:a=0;</li>
+</ul>
+
+<p>分析开启<code class="language-plaintext highlighter-rouge">-O3</code>优化后的代码如下：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//a1.s
+
+    .file   "a.c"
+    .section    .rodata.str1.1,"aMS",@progbits,1 
+.LC0:
+    .string "%d\n"  #声明 string 放在.text 区域 
+    .section    .text.unlikely,"ax",@progbits 
+.LCOLDB1:
+    .section    .text.startup,"ax",@progbits
+.LHOTB1:
+    .p2align 4,,15
+    .globl  main
+    .type   main, @function
+main:
+.LFB23:
+    .cfi_startproc
+    subq    $8, %rsp #设置栈顶指针值为8
+    .cfi_def_cfa_offset 16 #设置框架偏移
+    xorl    %edx, %edx #异或运算为0
+    movl    $.LC0, %esi #将字符串参数，添加到%esi寄存器
+    movl    $1, %edi #(%edi)寄存器赋值为1
+    xorl    %eax, %eax #继续进行异或运算，将结果参数放到eax寄存器
+    call    __printf_chk #输出函数
+    xorl    %eax, %eax #异或运算为0
+    addq    $8, %rsp #将8压入%rsp
+    .cfi_def_cfa_offset 8
+    ret    #返回
+    .cfi_endproc #函数结束
+.LFE23:
+    .size   main, .-main
+    .section    .text.unlikely
+.LCOLDE1:
+    .section    .text.startup
+.LHOTE1:
+    .ident  "GCC: (Ubuntu 5.4.0-6ubuntu1~16.04.11) 5.4.0 20160609"
+    .section    .note.GNU-stack,"",@progbits
+
+</code></pre></div></div>
+
+<table>
+  <tbody>
+    <tr>
+      <td>通过上面我们可以发现，编译器直接进行了一次亦或运算a=(a!</td>
+      <td>a)=0;迷之编译优化。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>下面是上面计算式的java代码</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//a.java</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">a</span><span class="o">{</span>
+      <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span><span class="n">agrs</span><span class="o">)</span>
+      <span class="o">{</span>
+          <span class="kt">int</span> <span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="o">;</span>
+          <span class="n">a</span><span class="o">+=</span><span class="n">a</span><span class="o">-=</span><span class="n">a</span><span class="o">*=</span><span class="n">a</span><span class="o">;</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"a value is:"</span><span class="o">+</span><span class="n">a</span><span class="o">);</span>
+      <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="c1">//编译指令：javac a.java</span>
+
+<span class="c1">//执行：java a</span>
+
+<span class="c1">//结果：a value is:-80</span>
+
+</code></pre></div></div>
+<p>可以看出同样的式子，和C++计算结果完全不同
+<em>参考链接：</em> <a href="https://blog.csdn.net/wangfantastic/article/details/79736860">Java反汇编及JVM指令集</a>;<a href="https://blog.csdn.net/ljheee/article/details/82218156">查看Java的汇编指令</a></p>
+
+<p>指令生成汇编代码<code class="language-plaintext highlighter-rouge"> javap -c a.class</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Compiled from "a.java"
+public class a {
+  public a();
+    Code:
+       0: aload_0 
+       1: invokespecial #1                  // Method java/lang/Object."&lt;init&gt;":()V
+       4: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: bipush        10 //将10压入栈
+       2: istore_1 //将int类型值存入局部变量1
+       3: iload_1  //读取局部变量1 注意这里读取了四个局部变量，每个都为10
+       4: iload_1   //读取局部变量1
+       5: iload_1   //读取局部变量1
+       6: iload_1   //读取局部变量1
+       7: imul    //执行乘法 10*10=100
+       8: dup     //复制一个栈顶内容 100
+       9: istore_1 //存入局部变量1 100
+      10: isub    //执行减法-&gt; 10-100=-90
+      11: dup   //复制栈顶元素 -90
+      12: istore_1 //存储元素 -90
+      13: iadd //加法： -90+10=-80；注意10一直在栈中没有取出
+      14: istore_1 //将-80存入局部变量1
+      15: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+      18: new           #3                  // class java/lang/StringBuilder
+      21: dup //复制栈顶内容 -80
+      22: invokespecial #4                  // Method java/lang/StringBuilder."&lt;init&gt;":()V 
+      25: ldc           #5                  // String a value is:
+      27: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      30: iload_1  //加载局部变量1 -80
+      31: invokevirtual #7                  // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
+      34: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      37: invokevirtual #9                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      40: return
+}
+
+</code></pre></div></div>
+<p>从上面汇编代码可以看出；Java执行是直接将四个初始化临时的变量，每个给予初始值10；依次进行<code class="language-plaintext highlighter-rouge">*</code>、<code class="language-plaintext highlighter-rouge">-</code>、<code class="language-plaintext highlighter-rouge">+</code>运算；每次的值变化为：100，-90，-80；因此最终结果是-80；所以c++和java的不同，是由于其内部的编译器语法解析方式所决定的。也可以看出，Java真的比较耗性能。</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/05/12/cplusplus_primer_learn_note_6/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(六)">
+                        Previous<br>
+                        <span>C++ Primer 学习笔记(六)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/05/17/cplusplus_theadpool/" data-toggle="tooltip" data-placement="top" title="C++ 线程池">
+                        Next<br>
+                        <span>C++ 线程池</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

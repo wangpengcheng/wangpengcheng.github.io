@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer 学习笔记(十) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/06/15/cplusplus_primer_learn_note_10/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                    </div>
+                    <h1>C++ Primer 学习笔记(十)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer 学习记录(十)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on June 15, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-06-15 21:38:56</p>
+</blockquote>
+
+<h2 id="第18章-用于大型程序的工具">第18章 用于大型程序的工具</h2>
+
+<h3 id="181-异常处理">18.1 异常处理</h3>
+
+<p><em>参考链接：</em> <a href="http://c.biancheng.net/cplus/exception/">C++异常处理（try catch）从入门到精通</a>;</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>一个异常如果没有被捕获，则它将终止当前的程序</li>
+  <li>在钱展开的过程中，运行类类型的局部叶象的析构函数，因为这些析构函数是自动执行的，所以它们不应该抛出异常_一旦在钱展开的过程中析构函数抛出了异常，并且析构函数自身没能捕获到该异常，则程序将被终止。</li>
+  <li>抛出指针要求在任何时应的处理代码存在的地方，指针所指的对象都必须存在。</li>
+  <li>通常情况下，如果catch接收的异常与额某个继承体系有关，则最好将该catch的参数定义成类型引用</li>
+  <li>如果在多个catch语句的类型之间存在着继承关系，则我们应该把继承链最底端的类(most derived type )放在前面，而将继承链最顶端的类(least derivedtype)放在后面。</li>
+</ul>
+
+<p>异常类型和catch声明的类型是精确匹配的：</p>
+
+<ul>
+  <li>允许从非常量向常量的类型转换</li>
+  <li>允许派生类向基类的转换</li>
+  <li>数组被转换成指向数组(元素)类型的指针，函数被转换成指向该函数类型的指针。</li>
+  <li>处理构造函数初始值异常的唯一方法是讲构造函数写成try语句块</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">catch(...)</code>可以匹配任意的异常类型。其通常与重新抛出语句一起使用，其中catch执行当前局部能完成的工作，随后重新抛出异常;当其与其它几个<code class="language-plaintext highlighter-rouge">catch</code>语句一起出现的时候，必须放在最后否则后面的语句永远不会被执行。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">manip</span><span class="p">(){</span>
+    <span class="k">try</span><span class="p">{</span>
+        <span class="c1">//这里的操作将引发并抛出一个异常</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(...){</span>
+        <span class="c1">//处理异常的某些特殊操作</span>
+        
+        <span class="k">throw</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>注意： 由于构造函数执行的时候，try语句可能还未能成功初始化，所以不能正常的抛出异常。我们必须将构造函数携程 <strong>函数try语句块</strong>的形式。才能正真使用。例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">temlate</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="n">Blob</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Blob</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">il</span><span class="p">)</span> <span class="k">try</span> <span class="o">:</span>
+    <span class="n">data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">il</span><span class="p">)){</span>
+        <span class="c1">// 函数体</span>
+        
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">:</span><span class="n">bad_alloc</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">){</span><span class="n">handle_out_of_memory</span><span class="p">(</span><span class="n">e</span><span class="p">);}</span>
+
+</code></pre></div></div>
+<h5 id="1814-noexcept-异常说明">18.1.4 noexcept 异常说明</h5>
+
+<p>C++11新标准中，可以通过提供noexceot说明，指定某个函数不会抛出异常。使用时关键字紧跟函数的参数列表后面。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">recoup</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="k">noexcept</span><span class="p">;</span> <span class="c1">//不会抛出异常</span>
+
+<span class="kt">void</span> <span class="nf">alloc</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>  <span class="c1">//可能抛出异常</span>
+
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>通常情况下，编译器不能也不必在编译时验证异常说明。</li>
+  <li>noexcept有两层含义:当跟在函数参数列表后面时它是异常说明符;而当作为noexcept异常说明的bool实参出现时，它是一个运算符。</li>
+</ul>
+
+<h5 id="1815-异常类层次">18.1.5 异常类层次</h5>
+
+<p><img src="https://wangpengcheng.github.io/img/error.png" alt="异常层次图"></p>
+
+<h3 id="182-命名空间">18.2 命名空间</h3>
+
+<h4 id="1822-命名空间的定义">18.2.2 命名空间的定义</h4>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>namespcae cplusplus_primer{
+    ...
+}
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>命名空间作用域后面无须分号；每个命名空间都是一个作用域</li>
+  <li>命名空间可以是不连续的
+    <ul>
+      <li>命名空间的部分成员的作川是定义类，以及声明作为类接口的函数及对象，则这个 成员应该放置几头文件中，这namespace,头文件将被包含在使用了这些成员的文件中。</li>
+      <li>命名空间成员的z义部分则置于另外的源文件中。</li>
+      <li>在程序III某此实体只能定义一次:如非内联函数、静态数据成员、变量等。</li>
+    </ul>
+  </li>
+  <li>定义多个类型不相关的命名空间应该使用单独的文件分别表示每个类型(或关联类型构成的集合)。</li>
+  <li>对于多个命名空间使用时可以使用<code class="language-plaintext highlighter-rouge">::spcaename::subspacename</code>的方式来寻找命名空间。</li>
+  <li>模板特例化必须定义在原始模板所属的命名空间中。</li>
+  <li>使用<code class="language-plaintext highlighter-rouge">::</code>全局作用域，隐式的将函数添加到全局作用域中。</li>
+  <li>未命名的命名空间仅仅在特定的文件内部有效，其作用范围不会横跨多个文件。</li>
+</ul>
+
+<p><strong>内联命名空间</strong></p>
+
+<p>内联命名空间和普通的嵌套命名空间不同，内联命名空间可以被外层命名空间直接使用。无需使用外层命名空间名字，就可以直接访问它。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">inline</span> <span class="k">namespace</span> <span class="n">FifthEd</span><span class="p">{</span>
+    <span class="c1">//使用内联命名空间</span>
+    
+<span class="p">}</span>
+
+<span class="k">namespace</span> <span class="n">FifthEd</span><span class="p">{</span> <span class="c1">//隐式内联</span>
+
+    <span class="k">class</span> <span class="nc">Query_base</span><span class="p">{</span>
+        <span class="cm">/**/</span>
+
+    <span class="p">};</span>
+    <span class="c1">//其它相关命名</span>
+    
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="1822-使用命名空间成员">18.2.2 使用命名空间成员</h4>
+
+<p>可以使用通用赋值给命名空间别名,例如：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="n">primer</span><span class="o">=</span><span class="n">cplusplus</span>
+
+<span class="k">namespace</span> <span class="n">Qlib</span><span class="o">=</span><span class="n">cplusplus_primer</span><span class="o">::</span><span class="n">Querylib</span><span class="p">;</span>
+</code></pre></div></div>
+<p>注意避免使用using 指示</p>
+
+<h4 id="1823-类命名空间与作用域">18.2.3 类、命名空间与作用域</h4>
+
+<p>对命名空间内部名字的查找遵循常规的查找规则:即由内向外依次查找每个外层作川域。外层作川域也可能是一个或多个嵌套的命名空间，直到最外层的个局命名空间查找过程终止。只有位于开放的块中且在使用点之前声的名字才被考虑:</p>
+
+<p>可以从函数的限定名推断出查找名字时检查作用域的次序，限定名以相反次序指出被查找的作用域。</p>
+
+<h4 id="1824-重载与命名空间">18.2.4 重载与命名空间</h4>
+
+<p>一个。using明引入的函数将重载声明语句所属作作用域已有的其他同名函数。如果using声明出现在局部作川域中，则引入的名字将隐藏外层作用域的相关声明。如果using声明所在的作用域中已经有一个函数与新引入的函数同名且形参列表相同，则该using声明将引发错误。除此之外，using声明将为引入的名字添加额外的重载实例，并最终扩充候选函数集的规模。</p>
+
+<p>using指示将命名空间的成员提升到外层作用域中，如果命名空间的某个函数与该命名空间所属作用域的函数同名，则命名空间的函数将被添加到重载集合。</p>
+
+<p>如果存在多个using指示，则来自每个命名空间的名字都会成为候选函数集的一部分。</p>
+
+<h3 id="183-多重继承与虚继承">18.3 多重继承与虚继承</h3>
+
+<p>注意：</p>
+
+<ul>
+  <li>如果从多个基类中继承了相同的构造函数（即形参列表完全相同），则程序将产生错误。</li>
+  <li>当一个类拥有多个基类时，有可能出现派生类从两个或更多基类中继承了同名成员的情况、此时，不加前缀限定符直接使用该名字将引发二义性。</li>
+</ul>
+
+<h4 id="1834-虚继承">18.3.4 虚继承</h4>
+
+<ul>
+  <li>在默认情况下，派生类中含有继承链上每个类对应的f-部分.如果某个类派生类，中出现了多次，则派之卜类中将包含该类的多个子对象。</li>
+  <li>为了解决上述多次继承的情况，设置了 <strong>虚继承</strong>它的是令某个类做出声明，承诺愿意共享它的基类。其中，共享的基类子对象称为虚基类( virtual base class ) 。在这种机制下，不论虚基类在继承体系中出现了多少次，在派生中都只包含唯一一个共享的虑基类子对象。</li>
+  <li>虚派生只影响从指定了虚基类的派生类中进一步派生出的类，它不会影响派生类本身。</li>
+  <li>虚继承在后续的派生类中共享虚基类的同一份实例。</li>
+  <li>对于相同虚函数的继承，可能存在二义性，最好的办法是在派生类中自定义实例。</li>
+</ul>
+
+<h4 id="1835-构造函数与虚继承">18.3.5 构造函数与虚继承</h4>
+
+<p>含有虚基类的对象的构造书序与一般的顺序稍有叙别：首先使用提供给最低层派生类（最低层公共部分）构造函数的初始值初始化该对象的虚基类子部分，接下来按照直接基类在派生表中出现的次序从左向右对其进行初始化。</p>
+
+<p>虚基类总是先于非虚基类构造，与它们在继承体系中的次序和位置无关。</p>
+
+<h2 id="第-19-章-特殊工具与技术">第 19 章 特殊工具与技术</h2>
+
+<h3 id="191-控制内存分配">19.1 控制内存分配</h3>
+
+<p>new 的过程：</p>
+
+<ul>
+  <li>分配内存空间</li>
+  <li>赋予初值。</li>
+  <li>指向该指针。</li>
+</ul>
+
+<p>delete过程</p>
+
+<ul>
+  <li>执行指针所指对象的析构函数</li>
+  <li>调用标准函数库，释放指针。</li>
+</ul>
+
+<p><strong>当只传入一个指针类型的实参时，定位new表达式构造对象但是不分配内存。</strong>
+<strong>调用析构函数会销毁对象，但是不会释放内存。</strong></p>
+
+<h3 id="192-运行时类型识别">19.2 运行时类型识别</h3>
+
+<p>运行时类型识别(run-time type identification,  RTTI)的功能由两个运算符实现:</p>
+
+<ul>
+  <li>typeid 运算符，用于返回表达式的类型；可以作用于任意类型的表达式。</li>
+  <li>dynamic_cast 运算符，用于将基类的指针或引用安全的转换成派生类的指针或者引用。</li>
+  <li>在条件部分执行dynamic cast操作可以确保类型转换和结果检查在同一条表达式中完成。</li>
+  <li>当typeid作用于指针时(而非指针所指的对象)，返回的结果是该指针的静态编译时类型。</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">type_info</code>类，用来鉴定类型是否相同。</p>
+
+<p>type_info类在不同的编译器上有所区别。有的编译器提供了额外的成员函数以提供程序中所用类型的额外信息。读者应该仔细阅读你所用编译器的使用手册，从而获取关于type-info的更多细节。</p>
+
+<h3 id="193-枚举类型">19.3 枚举类型</h3>
+
+<p>C++包含两种枚举类型：限定作用域的和不限定作用域的。
+限定作用域的枚举类型： enum class(struct) {…}。不限定枚举可以省略掉关键字class，枚举类型名字可选。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">enum</span> <span class="n">color</span> <span class="p">{</span><span class="n">red</span><span class="p">,</span><span class="n">yellow</span><span class="p">,</span><span class="n">green</span><span class="p">};</span>   <span class="c1">//不限定作用域的枚举类型</span>
+
+<span class="k">enum</span> <span class="n">stoplight</span> <span class="p">{</span><span class="n">red</span><span class="p">,</span><span class="n">yellow</span><span class="p">,</span><span class="n">green</span><span class="p">};</span>  <span class="c1">//错误：重复定义了枚举成员</span>
+
+<span class="k">enum</span> <span class="k">class</span> <span class="nc">peppers</span> <span class="p">{</span><span class="n">red</span><span class="p">,</span><span class="n">yellow</span><span class="p">,</span><span class="n">green</span><span class="p">};</span> <span class="c1">//正确：枚举成员被隐藏了</span>
+
+<span class="n">color</span> <span class="n">eyes</span><span class="o">=</span><span class="n">green</span><span class="p">;</span>  <span class="c1">//正确： 不限定作用域的枚举类型位于有效的作用域中</span>
+
+<span class="n">pepper</span> <span class="n">p</span><span class="o">=</span><span class="n">green</span><span class="p">;</span>   <span class="c1">// 错误：pepper的枚举成员不在有效的作用域中</span>
+
+<span class="n">color</span> <span class="n">hair</span><span class="o">=</span><span class="n">color</span><span class="o">::</span><span class="n">red</span><span class="p">;</span>  <span class="c1">//正确：允许显式地访问枚举成员</span>
+
+<span class="n">peppers</span> <span class="n">p2</span><span class="o">=</span><span class="n">pepper</span><span class="o">::</span><span class="n">red</span><span class="p">;</span>  <span class="c1">//正确：使用pappers的red</span>
+
+<span class="c1">//指定序号</span>
+
+<span class="k">enum</span> <span class="k">class</span> <span class="nc">intType</span><span class="p">{</span>
+    <span class="n">charTyp</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="n">shortTyp</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span><span class="n">intTyp</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">longTyp</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">long_longTyp</span><span class="o">=</span><span class="mi">64</span>
+<span class="p">}</span>
+
+<span class="c1">//利用冒号指定类型</span>
+
+<span class="k">enum</span> <span class="n">intValues</span><span class="o">:</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="p">{</span>
+    <span class="n">charType</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span><span class="n">shortTyp</span><span class="o">=</span><span class="mi">65535</span><span class="p">,</span>
+    <span class="p">......</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>即使某个整型值恰好与枚举成员的值相等，它也不能作为函数的enum实参使用。</li>
+  <li>但是可以使用强制类型转换，将enum提升成int或更大的整型。</li>
+</ul>
+
+<h3 id="194-指针类成员">19.4 指针类成员</h3>
+
+<p><strong>成员指针</strong> 是指可以指向类的排静态成员的指针。类的静态成员不属于任何对象。</p>
+
+<p>我们令其指向类的某个成员，但是不指定该成员所属的对象；直到使用成员指针时，才提供成员所属的对象。</p>
+
+<h4 id="1941-数据成员指针">19.4.1 数据成员指针</h4>
+
+<p>与普通指针不同的是成员指针必须包含成员所属的类</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//pdata可以指向一个常量(非常量)Screen对象的string成员</span>
+
+<span class="k">const</span> <span class="n">string</span> <span class="n">Screen</span><span class="o">::*</span><span class="n">pdata</span><span class="p">;</span>
+
+<span class="n">pdata</span><span class="o">=&amp;</span><span class="n">Screen</span><span class="o">::</span><span class="n">contents</span><span class="p">;</span><span class="c1">//获取成员对象</span>
+
+<span class="k">auto</span> <span class="n">pdata</span><span class="o">=&amp;</span><span class="n">Screen</span><span class="o">::</span><span class="n">contents</span><span class="p">;</span>
+<span class="c1">//使用成员指针</span>
+
+<span class="n">Screen</span> <span class="n">myScreen</span><span class="p">,</span><span class="o">*</span><span class="n">pScreen</span><span class="o">=&amp;</span><span class="n">myScreen</span><span class="p">;</span>
+<span class="c1">//.*解引用pdata以获得myScreen对象的contents成员</span>
+
+<span class="k">auto</span> <span class="n">s</span><span class="o">=</span><span class="n">primaryScreen</span><span class="p">.</span><span class="o">*</span><span class="n">pdata</span><span class="p">;</span>
+<span class="c1">//-&gt;*解引用pdata以获得pScreen所指对象的contents成员</span>
+
+<span class="n">s</span><span class="o">=</span><span class="n">pScreen</span><span class="o">-&gt;*</span><span class="n">pdata</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<h4 id="1942-成员函数指针">19.4.2 成员函数指针</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//利用auto关键字指向一个常量成员函数</span>
+<span class="c1">//前提是该函数不接受任何实参，并且返回一个char</span>
+
+<span class="k">auto</span> <span class="n">pmf</span><span class="o">=&amp;</span><span class="n">Screen</span><span class="o">::</span><span class="n">get_cursor</span><span class="p">;</span>
+<span class="c1">//指向含有两个形参的get</span>
+
+<span class="kt">char</span> <span class="p">(</span><span class="n">Screen</span><span class="o">::*</span><span class="n">pmf2</span><span class="p">)(</span><span class="n">Screen</span><span class="o">::</span><span class="n">pos</span><span class="p">,</span><span class="n">Screen</span><span class="o">::</span><span class="n">pos</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+<span class="n">pmf2</span><span class="o">=&amp;</span><span class="n">Screen</span><span class="o">::</span><span class="n">get</span><span class="p">;</span>
+<span class="c1">//成员函数的使用</span>
+
+<span class="n">Screen</span> <span class="n">myScreen</span><span class="err">，</span><span class="o">*</span><span class="n">pScreen</span><span class="o">=&amp;</span><span class="n">myScreen</span><span class="p">;</span>
+<span class="c1">//通过pScreen 所指的对象pmf所指的函数</span>
+
+<span class="kt">char</span> <span class="n">c1</span><span class="o">=</span><span class="p">(</span><span class="n">pScreen</span><span class="o">-&gt;*</span><span class="n">pmf</span><span class="p">)();</span>
+<span class="c1">//通过myScreen对象将实参0,0传给含有两个形参的get函数</span>
+
+<span class="kt">char</span> <span class="n">c2</span><span class="o">=</span><span class="p">(</span><span class="n">myScreen</span><span class="p">.</span><span class="o">*</span><span class="n">pmf2</span><span class="p">)(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="c1">//使用成员指针的类型别名</span>
+
+<span class="c1">//Action 是一种可以指向Screen成员函数的指针，它接受两个pos实参，返回一个char</span>
+
+<span class="k">using</span> <span class="n">Action</span><span class="o">=</span><span class="kt">char</span> <span class="p">(</span><span class="n">Screen</span><span class="o">::*</span><span class="p">)(</span><span class="n">Screen</span><span class="o">::</span><span class="n">pos</span><span class="p">,</span><span class="n">Screen</span><span class="o">::</span><span class="n">pos</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+
+<span class="n">Action</span> <span class="n">get</span><span class="o">=&amp;</span><span class="n">Screen</span><span class="o">::</span><span class="n">get</span><span class="p">;</span>  <span class="c1">//指向Screen的get成员。</span>
+
+<span class="c1">//使用函数指针成员表</span>
+<span class="k">class</span> <span class="nc">Screen</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Screen</span><span class="o">&amp;</span> <span class="n">home</span><span class="p">();</span>  <span class="c1">//光标移动函数</span>
+
+    <span class="n">Screen</span><span class="o">&amp;</span> <span class="n">forward</span><span class="p">();</span>
+    <span class="n">Screen</span><span class="o">&amp;</span> <span class="n">back</span><span class="p">();</span>
+    <span class="n">Screen</span><span class="o">&amp;</span> <span class="n">up</span><span class="p">();</span>
+    <span class="n">Screen</span><span class="o">&amp;</span> <span class="n">down</span><span class="p">();</span>
+
+    <span class="c1">//Action 是一个指针，可以用任意一个光标移动函数对其赋值</span>
+
+    <span class="k">using</span> <span class="n">Action</span><span class="o">=</span><span class="n">Screen</span><span class="o">&amp;</span> <span class="p">(</span><span class="n">Screen</span><span class="o">::*</span><span class="p">)();</span>
+    <span class="c1">//具体移动方向指定</span>
+    
+    <span class="k">enum</span> <span class="n">Directions</span> <span class="p">{</span><span class="n">HOME</span><span class="p">,</span><span class="n">FORWARD</span><span class="p">,</span><span class="n">BACK</span><span class="p">,</span><span class="n">UP</span><span class="p">,</span><span class="n">DOWN</span><span class="p">};</span>
+    <span class="n">Screen</span><span class="o">&amp;</span> <span class="n">move</span><span class="p">(</span><span class="n">Directions</span><span class="p">){</span>
+        <span class="c1">//运行this对象中索引值为cm的元素</span>
+        
+        <span class="k">return</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;*</span><span class="n">Menu</span><span class="p">[</span><span class="n">cm</span><span class="p">])();</span>  <span class="c1">//Menu[cm]指向一个函数成员</span>
+
+    <span class="p">};</span>
+<span class="nl">private:</span>
+    <span class="k">static</span> <span class="n">Action</span> <span class="n">Menu</span><span class="p">[];</span>  <span class="c1">//函数表</span>
+
+<span class="p">}</span>
+
+<span class="n">Screen</span> <span class="n">myScreen</span><span class="p">;</span>
+
+<span class="n">myScreen</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="n">Screen</span><span class="o">::</span><span class="n">HOME</span><span class="p">);</span>  <span class="c1">//调用myScreen.home</span>
+
+<span class="n">myScreen</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="n">Screen</span><span class="o">::</span><span class="n">DOWN</span><span class="p">);</span>  <span class="c1">//调用myScreen.down</span>
+
+<span class="c1">//初始化函数表</span>
+
+<span class="n">Screen</span><span class="o">::</span><span class="n">Action</span> <span class="n">Screen</span><span class="o">::</span><span class="n">Menu</span><span class="p">[]</span><span class="o">=</span><span class="p">{</span>
+    <span class="o">&amp;</span><span class="n">Screen</span><span class="o">::</span><span class="n">home</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="n">Screen</span><span class="o">::</span><span class="n">forword</span><span class="p">,</span>
+    <span class="p">...</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h4 id="1943-将成员函数用作可调用对象">19.4.3 将成员函数用作可调用对象</h4>
+
+<p><strong>使用function生成一个可调用对象</strong></p>
+
+<p>使用标准模板库function 可以凶函数指针获取可调用对象。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">function</span><span class="o">&lt;</span><span class="kt">bool</span> <span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">fcn</span><span class="o">=&amp;</span><span class="n">string</span><span class="o">::</span><span class="n">empty</span><span class="p">;</span>
+<span class="n">find_if</span><span class="p">(</span><span class="n">svec</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">svec</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">fcn</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><strong>使用mem_fn生成一个可调用对象</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">f</span><span class="o">=</span><span class="n">mem_fn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">string</span><span class="o">::</span><span class="n">empty</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><strong>使用bind生成一个可调用对象</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">it</span><span class="o">=</span><span class="n">find_if</span><span class="p">(</span><span class="n">svec</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">svec</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">bind</span><span class="p">(</span><span class="o">&amp;</span><span class="n">string</span><span class="o">::</span><span class="n">empty</span><span class="p">,</span><span class="n">_1</span><span class="p">));</span>
+
+</code></pre></div></div>
+
+<h3 id="195-嵌套类">19.5 嵌套类</h3>
+
+<p>一个类可以定义在另外一个类的内部。可以在类之外声明一个类内的嵌套类：
+<code class="language-plaintext highlighter-rouge">class class1_name::class2_name{}</code></p>
+
+<ul>
+  <li>在嵌套类在其外层类之外完成真正的定义之前，它都是一个不完全类型。</li>
+  <li>嵌套类的作用域查找，比一般类多了一个外层类作用域的查找。</li>
+  <li>外层类可以直接使用嵌套类的名字。</li>
+  <li>外层类和嵌套类相互独立，都各自只包含自己的成员名字。</li>
+</ul>
+
+<h3 id="196-union-一种节省空间的类">19.6 union: 一种节省空间的类</h3>
+
+<p>联合(( union )是一种特殊的类一个union 可以有多个数据成员，但是在仟愈时刻只有一个数据成员可以有直。当我们给union的某个成员赋值之后, 该union的其它成员就变成末定义的状态了。分配给一个union对象的存储空间至少要能容纳它的最大的数据成员。和其他类一样，一个union定义了一种新类型。</p>
+
+<p><strong>匿名union</strong></p>
+
+<p>是一个未命名的union,并且在符号之间没有任何声明。一旦我们定义了一个匿名union，编译器自动地位该union创建一个未命名的对象。在union的定义所在的作用域内该union的成员都是可以直接访问的。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>匿名union不能包含受保护的成员或者私有成员，也不能定义成员函数。</li>
+  <li>union中成员类中成员没有定义默认构造函数，则编译器删除类中的该成员。</li>
+</ul>
+
+<h3 id="197-局部类">19.7 局部类</h3>
+
+<p>定义在某个函数内部的类称为，局部类。局部类定义的类型只在定义它的作用域内可见。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>局部类的所有成员(包括函数在内)都必须完整定义在类的内部。因此，局部类的作用与嵌套类相比相差很远。</li>
+  <li>局部类只能访问外层作用域定义的类型名、静态变量以及枚举成员。</li>
+  <li>局部类不能使用函数作用域中的变量。</li>
+  <li>常规的访问保护规则对局部类同样适用。</li>
+</ul>
+
+<h3 id="198-固有的不可移植的特性">19.8 固有的不可移植的特性</h3>
+
+<p>是指因机器而异常的特性，当机器转移时，需要重新编写该程序。</p>
+
+<h4 id="1981-位域">19.8.1 位域</h4>
+
+<p><strong>位域在内存中的布局是与机器相关的</strong></p>
+
+<p>位域的类型必须是整型或枚举类型。因为带符号位域的行为是由具体实现确定的。
+位域的声明形式是成员名字后紧跟一个冒号以及一个常量表达式，该表达式用于指定成员所占的二进制位数。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">Bit</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">File</span><span class="p">{</span>
+    <span class="n">Bit</span> <span class="n">mode</span><span class="o">:</span> <span class="mi">2</span><span class="p">;</span>  <span class="c1">//mode占2位</span>
+    
+    <span class="n">Bit</span> <span class="n">modified</span><span class="o">:</span><span class="mi">1</span><span class="p">;</span>  <span class="c1">//占1位</span>
+    
+    <span class="p">...</span>
+
+<span class="nl">public:</span>
+    <span class="c1">//文件类型以八进制表示</span>
+    
+    <span class="k">enum</span> <span class="n">modes</span><span class="p">{</span><span class="n">READ</span><span class="o">=</span><span class="mo">01</span><span class="p">,</span><span class="n">WRITE</span><span class="o">=</span><span class="mo">02</span><span class="p">,</span><span class="n">EXECUTE</span><span class="o">=</span><span class="mo">03</span><span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>注意： 通常情况下最好将位域设为无符号类型，存储在带符号类型中的位域的行为将因具体实现而定。</p>
+
+<h4 id="1982-volatile-限定符">19.8.2 volatile 限定符</h4>
+
+<p>volatile的确切含义与机器有关，只能通过阅读编译器文档来理解、要想让使用了volatile的程序在移植到新机器或新编译器后仍然有效，通常需要对该程序进行某些改变。关键字volatile告诉编译器不应对这样的对象进行优化。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>关键字volatile告诉编译器不应对这样的对象进行优化。</li>
+  <li>合成的拷贝对volatile对象无效。</li>
+  <li>volatile 不能使用合成的拷贝/移动构造函数和赋值运算符初始化。</li>
+</ul>
+
+<h4 id="1983-链接指示-extern-c">19.8.3 链接指示: extern “C”</h4>
+
+<p>要想把c++代码和其他语言(包括c语言)编写的代码放在一起使用.要求我们必须有权访问该语言的编译器，并且这个编译器与当前的c++编译器是兼容的。</p>
+
+<p>当一个#include指示被放置在复合链接指示的花括号中时，文件中的所有普通函数声明都被认为是由链接指示的语言编写的。链接指示可以嵌套，因此如果头文件包含自带链接指示的函数，则该函数的链接不受影响。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ectern</span> <span class="s">"C"</span><span class="p">{</span>
+    <span class="cp">#include &lt;string.h&gt;
+</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>指向extern “C”函数的指针</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//pf指向一个c函数，该函数接受一个int返回void</span>
+
+<span class="k">extern</span> <span class="s">"C"</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">pf</span><span class="p">)(</span><span class="kt">int</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">pf1</span><span class="p">)(</span><span class="kt">int</span><span class="p">);</span>  <span class="c1">//指向一个c++函数</span>
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>有的C++编译器会接受之前的这种赋值操作并将其作为对语言的扩展，尽管从严格意义上来看它是非法的。</li>
+  <li>链接指示对整个声明都有效。当我们使用链接指示时，它不仅仅对函数有效，而且对作为返回内省或形参类型的函数指针也有效。</li>
+</ul>
+
+<p><strong>导出C++函数到其他语言</strong>
+通过使用链接器指示对函数进行定义，我们可以令一个C++函数在其它语言编写的程序中使用</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//calc 函数可以被C程序调用</span>
+
+<span class="k">extern</span> <span class="s">"C"</span> <span class="kt">double</span> <span class="nf">calc</span><span class="p">(</span><span class="kt">double</span> <span class="n">dparm</span><span class="p">){</span>
+    <span class="cm">/**/</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><strong>有时可以使用预处理器定义<code class="language-plaintext highlighter-rouge">__cplusplus</code>来有条件的包含代码</strong></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#if defined(__cplusplus) || defined (c_plusplus)
+</span><span class="k">extern</span> <span class="s">"C"</span>
+<span class="p">{</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include "libavcodec/avcodec.h"
+</span>
+<span class="cp">#include "libavformat/avformat.h"
+#include "libavutil/pixfmt.h"
+</span>
+<span class="cp">#include "libavutil/mathematics.h"
+</span>
+<span class="cp">#include "libavutil/time.h"
+</span>
+<span class="cp">#include "libswscale/swscale.h"
+</span>
+<span class="cp">#if defined(__cplusplus) || defined (c_plusplus)
+</span><span class="p">}</span>
+<span class="cp">#endif
+</span>
+</code></pre></div></div>
+
+<p>注意：extern “…“的重载和链接与语言本身有关。</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/06/08/cplusplus_primer_learn_note_9/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(九)">
+                        Previous<br>
+                        <span>C++ Primer 学习笔记(九)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/07/03/cplusplus_concurrency_in_action_01/" data-toggle="tooltip" data-placement="top" title="C++ 并发编程笔记(一)">
+                        Next<br>
+                        <span>C++ 并发编程笔记(一)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

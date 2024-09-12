@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>STL 源码剖笔记(三) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/07/06/cplusplus_annotated_stl_sources_03/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析">STL源码解析</a>
+                        
+                    </div>
+                    <h1>STL 源码剖笔记(三)</h1>
+                    
+                    
+                    <h2 class="subheading">STL 源码剖析笔记(三)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on July 6, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-08-02 16:09:52</p>
+</blockquote>
+
+<h2 id="算法">算法</h2>
+
+<h3 id="算法总览和分类">算法总览和分类</h3>
+
+<p><strong>STL算法总览</strong></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-16-13-21.png" alt="STL算法总览01"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-16-14-40.png" alt="STL算法总览02"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-16-18-06.png" alt="STL算法总览03"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-16-18-57.png" alt="STL算法总览04"></p>
+
+<p><strong>算法分类</strong></p>
+
+<ul>
+  <li>质变算法：会改变操作对象之值；如copy、swap、replace、fill、remove、permutation、aprtition、random shuffling、sort等</li>
+  <li>非质变算法：不改变操作对象之值：find、search、count、for_each、equal、mismatch、max、min等</li>
+</ul>
+
+<p><strong>STL算法的一般形式</strong></p>
+
+<p>质变算法一半提供两个版本：in-place–就地改变操作对象;copy–将操作对象的内容复制一份副本(通常以_copy结尾)，操作后返回。</p>
+
+<h3 id="63-数值算法">6.3 数值算法<stl_numeric.h></stl_numeric.h>
+</h3>
+
+<p>数值算法一般包含在表头<numeric>中，实现是在<stl_numeric.h>文件中</stl_numeric.h></numeric></p>
+
+<ul>
+  <li>accumulate 关键操作: init=init+<em>i(第一版本)、init=binary_op(init,</em>i*)(第二个版本)</li>
+  <li>adjacent_difference:计算相邻元素的差额关键代码： <em>i-</em>(i-1)；</li>
+  <li>inner_product:能够计算一般内积，<code class="language-plaintext highlighter-rouge">result=result+(*i)**(first2+(i-first))</code>
+</li>
+  <li>partial_sum计算局部总和</li>
+  <li>power:计算指数(<a href="https://blog.csdn.net/a1351937368/article/details/77746574/">C++中位运算的使用方法</a>;<a href="https://blog.csdn.net/u012062760/article/details/46401115">
+STL源码分析之power算法</a>;<a href="https://blog.csdn.net/MoreWindows/article/details/7174143">快速计算x的n次幂</a>)</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">T</span> <span class="nf">power</span><span class="p">(</span><span class="n">T</span> <span class="n">x</span><span class="p">,</span><span class="n">Integer</span> <span class="n">n</span><span class="p">,</span><span class="n">Monoidoperation</span> <span class="n">op</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+        <span class="k">return</span> <span class="n">identity_element</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="c1">//进行位运算直到为偶数，这里主要是为了过滤掉低位的0</span>
+
+        <span class="k">while</span><span class="p">((</span><span class="n">n</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+            <span class="n">n</span><span class="o">&gt;&gt;=</span><span class="mi">1</span><span class="p">;</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="c1">//重新计算x，n变为偶数</span>
+
+        <span class="n">T</span> <span class="n">result</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+        <span class="n">n</span><span class="o">&gt;&gt;=</span><span class="mi">1</span><span class="p">;</span>
+        <span class="c1">//</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="n">n</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">);</span>
+            <span class="c1">//发现是奇数;将奇数去除，即乘一个x</span>
+
+            <span class="k">if</span><span class="p">((</span><span class="n">n</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">){</span>
+                <span class="n">result</span><span class="o">=</span><span class="n">op</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="n">x</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="c1">//除以2</span>
+
+            <span class="n">n</span><span class="o">&gt;&gt;=</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="cm">/*
+
+第一步判断n是否为0；
+第一个while循环，尽可能的将底数变的更大，更好进行后续的计算，经过第一个while之后，n肯定是一个奇数了，再进入第二个循环，如果是1，则直接返回。
+第二个while循环感觉就是求当前底数（x的偶数次平方，y）的奇数（m）次平方的过程，也就是求m的二进制各个位是否为1的过程，如果当前位M为1，则结果额外乘以y的2^M次方~
+
+*/</span>
+
+</code></pre></div></div>
+
+<p>在这里顺道测试了一下GCC的stl的性能，发现结果比较感人啊，迷之编译器优化。。。。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include&lt;bits/stdc++.h&gt;
+#include&lt;cmath&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="c1">//朴素算法</span>
+<span class="kt">long</span> <span class="nf">pusu</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">num</span><span class="o">*=</span><span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">num</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//分治算法----快速幂</span>
+<span class="kt">long</span> <span class="nf">fenzhi</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">((</span><span class="n">n</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">num</span><span class="o">*=</span><span class="n">x</span><span class="p">;</span>
+            <span class="n">n</span><span class="o">--</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">x</span><span class="o">*=</span><span class="n">x</span><span class="p">;</span>
+        <span class="n">n</span><span class="o">/=</span><span class="mi">2</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">num</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//stl算法</span>
+<span class="kt">long</span> <span class="nf">stl_pow</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">while</span> <span class="p">((</span><span class="n">n</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">n</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="n">x</span> <span class="o">*=</span> <span class="n">x</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="n">n</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">n</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">x</span> <span class="o">*=</span> <span class="n">x</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">n</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">*=</span> <span class="n">x</span><span class="p">;</span>
+        <span class="n">n</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+    <span class="c1">//cin&gt;&gt;x&gt;&gt;n;</span>
+   <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">k</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+    <span class="o">++</span><span class="n">x</span><span class="p">;</span> 
+  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">k</span><span class="p">;</span><span class="o">++</span><span class="n">j</span><span class="p">){</span>
+    <span class="o">++</span><span class="n">n</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">result</span><span class="p">;</span>
+    <span class="kt">clock_t</span> <span class="n">start_time</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+    <span class="kt">long</span> <span class="n">temp1</span><span class="o">=</span><span class="n">pusu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"朴素算法结果:"</span><span class="o">&lt;&lt;</span><span class="n">temp1</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="kt">clock_t</span> <span class="n">end_time</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Running time is: %lfms</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="o">/</span><span class="n">CLOCKS_PER_SEC</span><span class="o">*</span><span class="mi">1000</span><span class="p">);</span>
+    <span class="kt">clock_t</span> <span class="n">start_time1</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+    <span class="kt">long</span> <span class="n">temp2</span><span class="o">=</span><span class="n">fenzhi</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"分治算法结果:"</span><span class="o">&lt;&lt;</span><span class="n">temp2</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="kt">clock_t</span> <span class="n">end_time1</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Running time is: %lfms</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end_time1</span><span class="o">-</span><span class="n">start_time1</span><span class="p">)</span><span class="o">/</span><span class="n">CLOCKS_PER_SEC</span><span class="o">*</span><span class="mi">1000</span><span class="p">);</span>
+    <span class="kt">clock_t</span> <span class="n">start_time2</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+   <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"STL_power:"</span><span class="o">&lt;&lt;</span><span class="n">stl_pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>    
+   <span class="kt">clock_t</span> <span class="n">end_time2</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+   <span class="n">printf</span><span class="p">(</span><span class="s">"Running time is: %lfms</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end_time2</span><span class="o">-</span><span class="n">start_time2</span><span class="p">)</span><span class="o">/</span><span class="n">CLOCKS_PER_SEC</span><span class="o">*</span><span class="mi">1000</span><span class="p">);</span>
+   <span class="kt">clock_t</span> <span class="n">start_time3</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+   <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"STL结果:"</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> 
+   <span class="kt">clock_t</span> <span class="n">end_time3</span><span class="o">=</span><span class="n">clock</span><span class="p">();</span>
+   <span class="n">printf</span><span class="p">(</span><span class="s">"Running time is: %lfms</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end_time3</span><span class="o">-</span><span class="n">start_time3</span><span class="p">)</span><span class="o">/</span><span class="n">CLOCKS_PER_SEC</span><span class="o">*</span><span class="mi">1000</span><span class="p">);</span>
+   <span class="n">printf</span><span class="p">(</span><span class="s">"x %d,n %d </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+   <span class="n">printf</span><span class="p">(</span><span class="s">"--------------------</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/* 结果
+
+朴素算法结果:4096
+Running time is: 0.097000ms
+分治算法结果:4096
+Running time is: 0.006000ms
+STL_power:4096
+Running time is: 0.009000ms
+STL结果:4096
+Running time is: 0.025000ms
+x 4,n 6 
+--------------------
+朴素算法结果:16384
+Running time is: 0.006000ms
+分治算法结果:16384
+Running time is: 0.005000ms
+STL_power:16384
+Running time is: 0.007000ms
+STL结果:16384
+Running time is: 0.009000ms
+x 4,n 7 
+--------------------
+朴素算法结果:390625
+Running time is: 0.005000ms
+分治算法结果:390625
+Running time is: 0.007000ms
+STL_power:390625
+Running time is: 0.007000ms
+STL结果:390625
+Running time is: 0.009000ms
+x 5,n 8 
+--------------------
+朴素算法结果:1953125
+Running time is: 0.006000ms
+分治算法结果:1953125
+Running time is: 0.007000ms
+STL_power:1953125
+Running time is: 0.006000ms
+STL结果:1.95312e+06
+Running time is: 0.009000ms
+x 5,n 9 
+--------------------
+
+*/</span>
+
+
+</code></pre></div></div>
+
+<h3 id="64-基本算法">6.4 基本算法</h3>
+
+<p>基本常用算法定义在<stl_algobase.h>中，其它算法定义于<stl_algo.h></stl_algo.h></stl_algobase.h></p>
+
+<p>基本函数有: equal,fill,fill_n,iter_swap,lexicographical_compare,max,min,mismatch,swap;这些在之前的c++primer阅读笔记中有介绍，不再过多赘述。</p>
+
+<p>lexicographical_compare：字典排列方式对两个序列，进行比较</p>
+
+<ul>
+  <li>如果第一序列的元素较小，返回true,否则返回false</li>
+  <li>如果达到last1而尚未达到last2,返回true</li>
+  <li>如果达到last2而尚未达到last1,返回false</li>
+  <li>同时达到，返回false</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-21-23-34.png" alt="copy算法的完整脉络"></p>
+
+<p>当复制位置的起点在复制区间内时，将会发生错误。为了防止上述错误的发生，一般都会先把目标区段使用memmove()复制下来，再进行操作。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-21-26-47.png" alt="copy算法需要特别注意区间重叠的情况"></p>
+
+<p>copy改变的是[result,result+(last-first))中的迭代器所指对象，而并非更改迭代器本身。它会为输出区间的元素赋予新值，而不是产生新的元素。它不能改变输出区间的迭代器个数。因此不能将元素插入空容器中。</p>
+
+<p><strong>copy_backward 反向拷贝</strong></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-21-42-23.png" alt="copy_backward操作示意图"></p>
+
+<h3 id="65-set-相关算法">6.5 set 相关算法</h3>
+
+<p>STL提供了四种set(集合)相关的算法，分别是并集(union),交集(intersection)，差集(difference)、对称集(symmetic difference)</p>
+
+<p>set_union:求并集–set_union(first1,last1,first2,last2,ostream_iterator<int>(cout,""));</int></p>
+
+<p>比较的关键代码：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator1</span><span class="p">,</span><span class="k">class</span> <span class="nc">InputIterator2</span><span class="p">,</span><span class="k">class</span> <span class="nc">OutputIterator</span><span class="p">&gt;</span>
+<span class="n">OutputIterator</span> <span class="nf">set_union</span><span class="p">(</span><span class="n">InputIterator1</span> <span class="n">first1</span><span class="p">,</span><span class="n">InputIterator1</span> <span class="n">last1</span><span class="p">,</span>
+                        <span class="n">InputIterator2</span> <span class="n">first2</span><span class="p">,</span><span class="n">InputIterator2</span> <span class="n">last2</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">first1</span><span class="o">!=</span><span class="n">last1</span><span class="o">&amp;&amp;</span><span class="n">first2</span><span class="o">!=</span><span class="n">last2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//在两个区间之内分别移动迭代器，首先将元素较小者(假设为A区)记录于目标区域；然后移动A区迭代器使之前进；同时另一个迭代器不懂，然后进行新一次的比较大小、记录值、迭代器、迭代器移动，直到两区中有一个区达到尾端。如果元素相等，取S1者记录于目标区，并同时移动两个迭代器</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">first1</span><span class="o">&lt;*</span><span class="n">first2</span><span class="p">){</span>
+            <span class="o">*</span><span class="n">result</span><span class="o">=*</span><span class="n">first1</span><span class="p">;</span>
+            <span class="o">++</span><span class="n">first1</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">first2</span><span class="o">&lt;*</span><span class="n">first1</span><span class="p">){</span>
+            <span class="o">*</span><span class="n">result</span><span class="o">=*</span><span class="n">first2</span><span class="p">;</span>
+            <span class="o">++</span><span class="n">first2</span><span class="p">;</span>
+        <span class="c1">//*first2==*first1</span>
+
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="o">*</span><span class="n">result</span><span class="o">=*</span><span class="n">first1</span><span class="p">;</span>
+            <span class="o">++</span><span class="n">first1</span><span class="p">;</span>
+            <span class="o">++</span><span class="n">first2</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="o">++</span><span class="n">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-21-52-12.png" alt="set_union分析"></p>
+
+<h4 id="652-set_intersection构造交集">6.5.2 set_intersection构造交集</h4>
+
+<p>基本上就是上面的条件判断反过来了，当相等时迭代器才增加。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-22-08-15.png" alt="set_intersection步进分析"></p>
+
+<h4 id="653-set_difference">6.5.3 set_difference</h4>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-22-12-26.png" alt="set_difference步进分析"></p>
+
+<h4 id="654-set_symmetric_difference-构造对称差集">6.5.4 set_symmetric_difference 构造对称差集</h4>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-22-14-24.png" alt="set_symmetric_difference"></p>
+
+<h3 id="67-其它算法">6.7 其它算法</h3>
+
+<p><strong>find_end:查找最后一次出现的点</strong></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-15-00-00.png" alt="find_end算法和find_first_of"></p>
+
+<p><strong>includes(应用于有序区间)</strong></p>
+
+<p>判断序列s2是否“涵盖于”序列s1。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-15-04-04.png" alt="includes算法的工作原理"></p>
+
+<p><strong>merge</strong>
+将两个经过排序的集合S1和S2，合并起来置于另一段空间。所得结果也是一个有序(sorted)序列。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-15-09-03.png" alt="merge算法的工作原理示意"></p>
+
+<p><strong>paritition</strong> 
+将区间中的元素重新排列，通过条件进行筛选。这个算法并不保证保留元素的原始相对位置，如果需要保留原始相对位置，应该使用stable_partition</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-15-16-55.png" alt=""></p>
+
+<p><strong>remove</strong></p>
+
+<p>remove并不真正的删除这个元素，而是将每一个不与value相等的匀速轮番赋值给first之后的空间。返回值表示重新整理之后的最后元素的下一个位置。例如{0,1,0,2,0,3,0,4};执行remove(0)；最终结果为{1,2,3,4,0,3,0,4};返回的Forwarallterator指向第五个位置。如果要进行删除需要使用erase()来将迭代器后面的数据进行删除。注意array不适合使用remove()和remove_if()；因为它无法缩小尺寸，导致残余数据永远存在。应该使用remove_copy()和remove_copy_if();</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-15-38-28.png" alt="remove相关参数"></p>
+
+<p><strong>rotate</strong></p>
+
+<p>rotate可以实现非对称的位置交换。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-15-50-41.png" alt="rotate操作示意图">
+关键代码：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">ForwardIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">Distance</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">__rotate</span><span class="p">(</span><span class="n">ForwardIterator</span> <span class="n">first</span><span class="p">,</span><span class="n">ForwardIterator</span> <span class="n">middle</span><span class="p">,</span><span class="n">ForwardIterator</span> <span class="n">last</span><span class="p">,</span><span class="n">Distance</span><span class="o">*</span><span class="p">,</span><span class="n">forward_iterator_tag</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">ForwardIterator</span> <span class="n">i</span><span class="o">=</span><span class="n">middle</span><span class="p">;;)</span>
+    <span class="p">{</span>
+        <span class="c1">//前段后段的元素一一交换</span>
+
+        <span class="n">iter_swap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">i</span><span class="p">);</span>
+        <span class="c1">//双双前景</span>
+
+        <span class="o">++</span><span class="n">first</span><span class="p">;</span>
+        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+        <span class="c1">//判断那个先行结束</span>
+
+        <span class="c1">//前段先行结束</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">first</span><span class="o">==</span><span class="n">middle</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">//后段同时结束，整个就结束了</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="n">last</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+            <span class="c1">//调整位置，对新的前后段再做交换</span>
+
+            <span class="n">middle</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+            <span class="c1">//后段先结束</span>
+
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="n">last</span><span class="p">){</span>
+            <span class="c1">//调整，准备对新的前后段再做交换</span>
+
+            <span class="n">i</span><span class="o">=</span><span class="n">middle</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-15-59-28.png" alt="rotate forward iterator版操作示意图"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-16-00-32.png" alt="rotate bidirectional iterator版操作示意图"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-16-02-20.png" alt="search_n的工作原理"></p>
+
+<p><strong>unique</strong>移除重复的元素</p>
+
+<p>注意:unique只移除相邻的重复元素，如果你想移除所有重复元素，必须先行排序。
+所有保留下来的元素，其原始值相对次序不变</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-18-29-47.png" alt="unique算法"></p>
+
+<p><strong>lower_bound/upper_bound(应用于有序区间)</strong></p>
+
+<p>这个是二分查找的一种版本，试图在已经排序的[first,last)中寻找匀速value。返回满嘴条件的第一个元素。upper_bound是返回最后一个值</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-18-33-55.png" alt=""></p>
+
+<p><strong>next_permutation</strong></p>
+
+<p>取得[first,last)所标示的下一个排列组合，有就返回true,否则返回false。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-19-16-15.png" alt=""></p>
+
+<p><strong>next_permutation</strong>
+与上面基本相同</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-19-17-59.png" alt="next_permutation算法流程"></p>
+
+<p><strong>random_shuffle</strong></p>
+
+<p>将元素次序随机重排。</p>
+
+<h4 id="679-sort">6.7.9 sort</h4>
+
+<p>这个算法接受两个RandomAccesslterators(随机存取迭代器)，然后将区间内的所有元素以渐增方式由小到大重新排列。并且存在允许用户使用仿函数来进行排序。STL的所有关系型容器都拥有自动排序功能(底层采用RB-tree)；所以不需要用到这个sort算法。序列式容器中的stack,queue,priority-queue都有特定的出入口，不允许用户对元素排序。vector和dequeue适合使用sort算法。list的迭代器鼠疫Bldirectionaltterators不适合使用sort算法。</p>
+
+<p>STL的sort算法数据量大的时候采用Quick Sort(现在已经开始使用IntroSort 最坏算法复杂度为O(NlogN)) ;数据量小的时候使用Insertion Sort。主要是因为插入排序在数据量很小的时候有不错的效果。并且没有额外的开销和负荷。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-19-32-57.png" alt="插入排序"></p>
+
+<p>注意:这里是采用交换的方式进行的排序，不是链表的指直接插入。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-19-36-26.png" alt="快排流程"></p>
+
+<p>快速排序的一般流程</p>
+
+<ol>
+  <li>如果S的元素个数为0或者1，结束</li>
+  <li>取S中的任何一个元素，当做轴(pivot)v。</li>
+  <li>将s分割为L,R；两段，使得L内的每一个元素都小于或者等于v,R内的每一个元素都大于或等于v。</li>
+  <li>对L,R递归执行Quick Sort</li>
+</ol>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-20-45-44.png" alt=""></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-20-46-22.png" alt=""></p>
+
+<p>下面是快速排序的具体代码</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">sort</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+                <span class="n">RandomAccessIterator</span> <span class="n">last</span>
+                <span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">first</span><span class="o">!=</span><span class="n">last</span><span class="p">){</span>
+        <span class="n">__introsort_loop</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">value_type</span><span class="p">(</span><span class="n">first</span><span class="p">),</span><span class="n">__lg</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">);</span>
+        <span class="n">__final_insertion_sort</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//__lg()用来控制分割恶化的情况</span>
+
+<span class="c1">//找出2^k&lt;=n的最大值K,例如n=7,k=2,n=20,k=4;</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Size</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="n">Size</span> <span class="nf">__lg</span><span class="p">(</span><span class="n">Size</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Size</span> <span class="n">k</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">;</span><span class="n">n</span><span class="o">&gt;&gt;=</span><span class="mi">1</span><span class="p">)</span> <span class="o">++</span><span class="n">k</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">k</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//返回a,b，c之间的居中者</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">__median</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="o">&lt;</span><span class="n">b</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="o">&lt;</span><span class="n">c</span><span class="p">){</span>
+            <span class="k">return</span> <span class="n">b</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="o">&lt;</span><span class="n">c</span><span class="p">){</span>
+            <span class="k">return</span> <span class="n">c</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="k">return</span> <span class="n">a</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="o">&lt;</span><span class="n">c</span><span class="p">){</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="o">&lt;</span><span class="n">c</span><span class="p">){</span>
+        <span class="k">return</span> <span class="n">c</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">b</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//数组分割返回分割后的右段的第一个位置</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="n">RandomAccessIterator</span> <span class="nf">__unguarded_partition</span><span class="p">(</span>
+                                            <span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+                                            <span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">,</span>
+                                            <span class="n">T</span> <span class="n">pivot</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">){</span>
+        <span class="c1">//找到&gt;=pivot的元素就停下来</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">first</span><span class="o">&lt;</span><span class="n">pivot</span><span class="p">){</span><span class="o">++</span> <span class="n">first</span><span class="p">;}</span>
+        <span class="c1">//调整指针位置</span>
+
+        <span class="o">--</span><span class="n">last</span><span class="p">;</span>
+        <span class="c1">//找到&lt;=pivot的元素就停下来。</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="n">pivot</span><span class="o">&lt;*</span><span class="n">last</span><span class="p">)</span> <span class="o">--</span><span class="n">last</span><span class="p">;</span>
+        <span class="c1">//注意一下只适用于 random iterator</span>
+        <span class="c1">//交错，结束循环</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">first</span><span class="o">&lt;</span><span class="n">last</span><span class="p">))</span> <span class="k">return</span> <span class="n">first</span><span class="p">;</span>
+        <span class="c1">//大小值交换</span>
+
+        <span class="n">iter_swap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">);</span>
+        <span class="c1">//调整</span>
+
+        <span class="o">++</span><span class="n">first</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">//当匀速个数为40时，__introsoft_loop()的最后一个参数将是5*2，意思是最多允许分割10层。IntroSort算法如下：</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span><span class="k">class</span> <span class="nc">Size</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">__introsort_loop</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+                      <span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">,</span>
+                      <span class="n">T</span><span class="o">*</span><span class="p">,</span>
+                      <span class="n">Size</span> <span class="n">depth_limit</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//__stl_threshold是一个全局常数，稍早定义为const int 16</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="o">&gt;</span><span class="n">__stl_threshold</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">depth_limit</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+            <span class="c1">//分割恶化，改用heapsort</span>
+
+            <span class="n">partial_sort</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">last</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="o">--</span><span class="n">depth_limit</span><span class="p">;</span>
+        <span class="c1">//选择一个够好的轴枢并决定分割点,并赋值给cut</span>
+
+        <span class="n">RandomAccessIterator</span> <span class="n">cut</span><span class="o">=</span><span class="n">__unguarded_partition</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">T</span><span class="p">(</span><span class="n">__median</span><span class="p">(</span><span class="o">*</span><span class="n">first</span><span class="p">,</span><span class="o">*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="o">*</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="mi">1</span><span class="p">))));</span>
+        <span class="c1">//根据cut对右半段递归进行sort</span>
+
+        <span class="n">__introsort_loop</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">value_type</span><span class="p">(</span><span class="n">first</span><span class="p">),</span><span class="n">depth_limit</span><span class="p">);</span>
+        <span class="n">last</span><span class="o">=</span><span class="n">cut</span><span class="p">;</span>
+
+        <span class="c1">//这里是回到while循环，准备对左半段递归进行sort</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h4 id="6710-equal_range应用于有序区间">6.7.10 equal_range(应用于有序区间)</h4>
+
+<p>是二分查找法的一个版本。试图在已排序的[first,last)中寻找value。它返回一对迭代器i和j,i是在不破坏次序的前提下，value可以插入的第一个位置，j则是最后一个。因此i-j内都是value。</p>
+
+<h4 id="6711-inplace_merge应用于有序区间">6.7.11 inplace_merge(应用于有序区间)</h4>
+
+<p>将两个已经有序的序列重新结合成为一个新的有序序列。注意，这个算法会使用额外的内存空间(暂时缓冲区)。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-21-16-48.png" alt=""></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-21-28-12.png" alt=""></p>
+
+<h4 id="6712-nth_element">6.7.12 nth_element</h4>
+
+<p>重新排列，使得迭代器nth所指的元素，与整个迭代队列完整排序之后，同一位置的元素同值。同时保证[nth,last)内没有任何一个元素不大于[first,nth)；但对于[first,nth)和[nth,last)两个子区间内的元素次序则无任何保证。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-03-22-07-31.png" alt="nth_element操作实例拆解"></p>
+
+<h4 id="6713-merge-sort">6.7.13 merge sort</h4>
+
+<p>利用分治思想，以各个击破的方式来对区间进行排序：</p>
+
+<ul>
+  <li>将区间对半分开，左右两段各自排序。</li>
+  <li>使用inplace_merge重新组合为一个完整的有序序列</li>
+  <li>递归对半操作，直到每一小段的长度为0或者1.</li>
+</ul>
+
+<p>merge sort的算法复杂度是是O(NlongN)但是因为使用了额外的资源，因此性能反而不如Quick Sort</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">BidirectorIter</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">mergesort</span><span class="p">(</span><span class="n">BidirectorIter</span> <span class="n">first</span><span class="p">,</span><span class="n">BidirectorIter</span> <span class="n">last</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">typename</span> <span class="n">iterator_traits</span><span class="o">&lt;</span><span class="n">BidirectorIter</span><span class="o">&gt;::</span><span class="n">difference_type</span> <span class="n">n</span><span class="o">=</span><span class="n">distance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="o">==</span><span class="mi">0</span><span class="o">||</span><span class="n">n</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="n">BidirectorIter</span> <span class="n">mid</span><span class="o">=</span><span class="n">first</span><span class="o">+</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+        <span class="n">mergesort</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">mid</span><span class="p">);</span>
+        <span class="n">mergesort</span><span class="p">(</span><span class="n">mid</span><span class="p">,</span><span class="n">last</span><span class="p">);</span>
+        <span class="n">inplace_merge</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">mid</span><span class="p">,</span><span class="n">last</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/07/06/cplusplus_annotated_stl_sources_02/" data-toggle="tooltip" data-placement="top" title="STL 源码剖笔记(二)">
+                        Previous<br>
+                        <span>STL 源码剖笔记(二)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/07/06/cplusplus_annotated_stl_sources_04/" data-toggle="tooltip" data-placement="top" title="STL 源码剖笔记(四)">
+                        Next<br>
+                        <span>STL 源码剖笔记(四)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

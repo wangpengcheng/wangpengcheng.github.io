@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer 学习笔记(六) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/05/12/cplusplus_primer_learn_note_6/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                    </div>
+                    <h1>C++ Primer 学习笔记(六)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer 学习记录(六)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on May 12, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <blockquote>
+    <p>2019-5-12 :19:44:52</p>
+  </blockquote>
+</blockquote>
+
+<h2 id="泛型算法">泛型算法</h2>
+
+<p>泛型算法是指使用迭代器为媒介的通用型算法；泛型算法本身不会执行容器的操作，他们只会运行于迭代器智商，执行迭代器的操作–算法永远不会改变底层容器的大小。算法可能改变容器中保存的元素值。</p>
+
+<p><strong><code class="language-plaintext highlighter-rouge">accumulate</code> 求和</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span><span class="n">accumulate</span><span class="p">(</span><span class="n">vec</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span><span class="n">vec</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span><span class="mi">0</span><span class="p">);</span><span class="c1">//对元素求和初值是0</span>
+
+<span class="n">string</span> <span class="n">sum</span><span class="o">=</span><span class="n">accumulate</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span><span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span><span class="n">string</span><span class="p">(</span><span class="err">''</span><span class="p">));</span><span class="c1">//字符串求和</span>
+
+<span class="n">equal</span><span class="p">(</span><span class="n">roster1</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span><span class="n">roster1</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span><span class="n">rosterl2</span><span class="p">.</span><span class="n">cbegin</span><span class="p">());</span><span class="c1">//比较元素，数量相同且一样多的时候才返回`true`</span>
+
+<span class="n">fill</span><span class="p">(</span><span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="o">+</span><span class="n">vec</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span><span class="c1">//将容器的一个子序列设置为10</span>
+
+<span class="n">back_inserter</span><span class="p">();</span><span class="c1">//插入元素，检查是否存在</span>
+
+<span class="n">copy</span><span class="p">(</span><span class="n">begin</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span><span class="n">end</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span><span class="n">a2</span><span class="p">);</span><span class="c1">//把a1的内容拷贝给a2</span>
+
+<span class="n">replace</span><span class="p">(</span><span class="n">ilist</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">ilist</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="mi">0</span><span class="p">,</span><span class="mi">42</span><span class="p">);</span><span class="c1">//查找所有元素为0的值，并将它更改为42</span>
+
+<span class="n">replace_copy</span><span class="p">(</span><span class="n">ilis</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span><span class="n">ilist</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span><span class="n">back_inserter</span><span class="p">(</span><span class="n">ivec</span><span class="p">),</span><span class="mi">0</span><span class="p">,</span><span class="mi">42</span><span class="p">);</span><span class="c1">//ilist指出调整序列之后的保存位置。</span>
+
+<span class="n">sort</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">word</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="c1">//按照字典排序</span>
+
+<span class="k">auto</span> <span class="n">end_unique</span><span class="o">=</span><span class="n">unique</span><span class="p">(</span><span class="n">words</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">words</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="c1">//除去重复单词</span>
+
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>算法不检查写操作</li>
+  <li>向目的位置迭代器写入数据的算法，假定目的位置足够大，能容纳要写入的元素。</li>
+</ul>
+
+<h3 id="定制操作">定制操作</h3>
+<p>许多算法的默认关键操作符，并不能满足我们的需求，因此，需要我们来重载<code class="language-plaintext highlighter-rouge">sort</code>的默认行为。</p>
+
+<h4 id="向算法传递函数">向算法传递函数</h4>
+<p>sort可以接受第三个参数，即谓词–一个可用的表达式，其返回结果是一个能用作条件的值。标准库中分为
+<strong>一元谓词</strong>(只接受单一参数)和<strong>二元谓词</strong>(他们有两个参数)。例如下面的代码，重载了sort函数的基础比较操作</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//排序函数</span>
+
+<span class="kt">bool</span> <span class="nf">isShorter</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s1</span><span class="p">,</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s2</span><span class="p">){</span>
+    <span class="k">return</span> <span class="n">s1</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">&lt;</span><span class="n">s2</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="c1">//按照长度由短到长排序</span>
+<span class="n">sort</span><span class="p">(</span><span class="n">words</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">words</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">isShorter</span><span class="p">);</span>
+
+<span class="n">elimDups</span><span class="p">(</span><span class="n">words</span><span class="p">);</span><span class="c1">//将words按照字典重新排序，并消除重复单词</span>
+
+<span class="n">stable_sort</span><span class="p">(</span><span class="n">words</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">words</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">isShorter</span><span class="p">)</span><span class="err">；</span><span class="c1">//按照长度重新排序，长度相同的单词维持字典序</span>
+
+<span class="c1">//无需拷贝字符串</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="n">s</span> <span class="o">:</span><span class="n">words</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">s</span><span class="o">&lt;&lt;</span><span class="s">""</span><span class="p">;</span><span class="c1">//打印每个元素，以空格分割</span>
+
+<span class="p">}</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+
+</code></pre></div></div>
+<h3 id="lambda-表达式">lambda 表达式</h3>
+
+<p><em>参考链接：</em> <a href="https://www.cnblogs.com/DswCnblog/p/5629165.html">c++11 lambda 表达式</a>;<a href="https://www.cnblogs.com/jimodetiantang/p/9016826.html">c++ lambda表达式</a>;</p>
+
+<p><strong>lambda表达式的声明</strong></p>
+
+<p><code class="language-plaintext highlighter-rouge">[capture list] (params list) mutable exception-&gt; return type { function body }</code>
+各项含义如下：</p>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">capture list</code>: 捕获外部变量列表</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">params list</code>: 形参列表</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mutable</code>:用来说明是否可以修改捕获的变量</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">exception</code>:异常设定</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">return type</code>:返回类型</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">function body</code>:函数体</li>
+</ol>
+
+<p>省略的常见表达式有：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">序号</th>
+      <th style="text-align: left">格式</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[capture list] (params list) -&gt; return type {function body}</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">2</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[capture list] (params list) {function body}</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">3</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[capture list] {function body}</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>其中：</p>
+
+<ul>
+  <li>格式1声明了const类型的表达式，这种类型的表达式不能修改捕获列表中的值。</li>
+  <li>格式2省略了返回值类型，但编译器可以根据以下规则推断出Lambda表达式的返回类型： （1）：如果function body中存在return语句，则该Lambda表达式的返回类型由return语句的返回类型确定； （2）：如果function body中没有return语句，则返回值为void类型。</li>
+  <li>格式3中省略了参数列表，类似普通函数中的无参函数。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">bool</span> <span class="nf">cmp</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span>  <span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">myvec</span><span class="p">{</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span> <span class="p">};</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">lbvec</span><span class="p">(</span><span class="n">myvec</span><span class="p">);</span>
+
+    <span class="n">sort</span><span class="p">(</span><span class="n">myvec</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">myvec</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">cmp</span><span class="p">);</span> <span class="c1">// 旧式做法</span>
+
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"predicate function:"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">it</span> <span class="o">:</span> <span class="n">myvec</span><span class="p">)</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="sc">' '</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="n">sort</span><span class="p">(</span><span class="n">lbvec</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">lbvec</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">bool</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">;</span> <span class="p">});</span>   <span class="c1">// Lambda表达式</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"lambda expression:"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">it</span> <span class="o">:</span> <span class="n">lbvec</span><span class="p">)</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="sc">' '</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>lambde表达式的外部捕获</p>
+
+<p>Lambda表达式通过在最前面的方括号[]来明确指明其内部可以访问的外部变量，这一过程也称过Lambda表达式“捕获”了外部变量。</p>
+
+<p>值捕获方式：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">捕获形式</th>
+      <th style="text-align: left">说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[]</code></td>
+      <td style="text-align: left">不捕获任何外部变量</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[变量名, …]</code></td>
+      <td style="text-align: left">默认以值得形式捕获指定的多个外部变量（用逗号分隔），如果引用捕获，需要显示声明（使用&amp;说明符）</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[this]</code></td>
+      <td style="text-align: left">以值的形式捕获this指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[=]</code></td>
+      <td style="text-align: left">以值的形式捕获所有外部变量</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[&amp;]</code></td>
+      <td style="text-align: left">以引用形式捕获所有外部变量</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[=, &amp;x]</code></td>
+      <td style="text-align: left">变量x以引用形式捕获，其余变量以传值形式捕获</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">[&amp;, x] </code></td>
+      <td style="text-align: left">变量x以值的形式捕获，其余变量以引用形式捕获</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：如果一个lambda体包含<code class="language-plaintext highlighter-rouge">return</code>之外的任何语句，则编译器假定lambda返回<code class="language-plaintext highlighter-rouge">void</code>；被推断<code class="language-plaintext highlighter-rouge">void</code>的lambda不能返回值。因此当重写排序等操作的时候，只能有一句<code class="language-plaintext highlighter-rouge">return</code>语句；例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">transform</span><span class="p">(</span><span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">vi</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+    <span class="p">[](</span><span class="kt">int</span> <span class="n">i</span><span class="p">){</span>
+        <span class="k">return</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">?-</span><span class="n">i</span><span class="o">:</span><span class="n">i</span><span class="p">;</span><span class="c1">//返回绝对值</span>
+
+    <span class="p">});</span>
+
+<span class="n">transform</span><span class="p">(</span><span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">vi</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+    <span class="p">[](</span><span class="kt">int</span> <span class="n">i</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">i</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//错误，有多余语句，判定返回void</span>
+
+    <span class="p">});</span>
+
+</code></pre></div></div>
+
+<p>因此当我们使用一个lambda定义返回类型的时候，必须使用尾置返回类型，声明返回类型；例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">transform</span><span class="p">(</span><span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">vi</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+    <span class="p">[](</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span><span class="o">-&gt;</span><span class="kt">int</span> 
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">i</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//返回绝对值</span>
+
+    <span class="p">});</span>
+</code></pre></div></div>
+
+<h4 id="lambda-参数绑定">lambda 参数绑定</h4>
+<p>lambda表达式，虽然可以进行简单的参数绑定，但是对于复杂的参数绑定而言，还是存在许多问题，因此可以利用函数对lambda表达式进行参数绑定。大致步骤如下：</p>
+
+<ol>
+  <li>使用<code class="language-plaintext highlighter-rouge">std:bind</code>函数对函数参数和函数进行绑定</li>
+  <li>使用<code class="language-plaintext highlighter-rouge">placeholderd</code>进行参数占位符的使用。</li>
+</ol>
+
+<p>调用<code class="language-plaintext highlighter-rouge">bind</code>一般形式为：
+<code class="language-plaintext highlighter-rouge">auto newCallable=bind(callable,arg_list);</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">newCallable</code>本身是一个可以调用对象，<code class="language-plaintext highlighter-rouge">arg_list</code>是一个逗号分隔的参数列表，对应给定的<code class="language-plaintext highlighter-rouge">callable</code>的参数，即调用的实际参数。
+<code class="language-plaintext highlighter-rouge">arg_list</code>中的参数可能包含形如<code class="language-plaintext highlighter-rouge">_n</code>的名字，其中<code class="language-plaintext highlighter-rouge">n</code>是一个整数。表示占位符，数值<code class="language-plaintext highlighter-rouge">n</code>表示生成的可调用对象中参数的位置：<code class="language-plaintext highlighter-rouge">_1</code>为<code class="language-plaintext highlighter-rouge">newCallble</code>的第一个参数，<code class="language-plaintext highlighter-rouge">_2</code>为第二个参数。<code class="language-plaintext highlighter-rouge">_n</code>为第<code class="language-plaintext highlighter-rouge">n</code>个参数。
+使用：
+<code class="language-plaintext highlighter-rouge">auto g=bind(f,a,b,_2,c,_1);</code>
+生成一个新的可调用函数对象，它有两个参数，分别使用占位符<code class="language-plaintext highlighter-rouge">_2</code>和<code class="language-plaintext highlighter-rouge">_1</code>表示。使得原本需要输入5个参数的函数变为，只需要2个参数的函数，对函数进行了再一次封装。<code class="language-plaintext highlighter-rouge">f(a,b,_1,c,_2)</code>等价于<code class="language-plaintext highlighter-rouge">g(_1,_2)</code>减少了函数的复杂程度。</p>
+
+<p><code class="language-plaintext highlighter-rouge">std::ref()</code>：传递给<code class="language-plaintext highlighter-rouge">bind</code>一个对象但是不拷贝它</p>
+
+<p>例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//1. 定义比较string大小函数</span>
+
+<span class="kt">bool</span> <span class="nf">check_size</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">,</span><span class="n">string</span><span class="o">::</span><span class="n">size_type</span> <span class="n">sz</span><span class="p">){</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">&gt;=</span><span class="n">sz</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//2. 使用bind绑定函数和参数</span>
+<span class="c1">//将输入比较顺序颠倒，将单词长度由长至短排序</span>
+
+<span class="n">sort</span><span class="p">(</span><span class="n">words</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">words</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">bind</span><span class="p">(</span><span class="n">isShorter</span><span class="p">,</span><span class="n">_2</span><span class="p">,</span><span class="n">_1</span><span class="p">));</span>
+
+<span class="c1">//使用lambda表达式，输出表达式，os是一个局部变量，引用一个输出流</span>
+
+<span class="n">for_each</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">words</span><span class="p">.</span><span class="n">end</span><span class="p">(),[</span><span class="o">&amp;</span><span class="n">os</span><span class="p">,</span><span class="n">c</span><span class="p">](</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">){</span>
+    <span class="n">os</span><span class="o">&lt;&lt;</span><span class="n">s</span><span class="o">&lt;&lt;</span><span class="n">c</span><span class="p">;</span>
+<span class="p">});</span>
+<span class="c1">//bind相同的效果 </span>
+
+<span class="n">ostream</span> <span class="o">&amp;</span><span class="n">print</span><span class="p">(</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">,</span><span class="kt">char</span> <span class="n">c</span><span class="p">){</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">&lt;&lt;</span><span class="n">s</span><span class="o">&lt;&lt;</span><span class="n">c</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//ref返回一个对象，包含给定的引用，此对象是可以拷贝的</span>
+
+<span class="n">for_each</span><span class="p">(</span><span class="n">words</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">words</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
+        <span class="n">bind</span><span class="p">(</span><span class="n">print</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">os</span><span class="p">),</span><span class="n">_1</span><span class="p">,</span><span class="sc">' '</span><span class="p">));</span>
+
+
+</code></pre></div></div>
+
+<h4 id="再探迭代器">再探迭代器</h4>
+
+<h5 id="插入迭代器">插入迭代器</h5>
+<p>插入迭代器有三种基本类型</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">back_inserter</code>: 创建一个使用<code class="language-plaintext highlighter-rouge">push_back</code>的迭代器。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">front_inserter</code>:创建一个使用<code class="language-plaintext highlighter-rouge">push_front</code>的迭代器。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">inserter</code>:创建一个使用<code class="language-plaintext highlighter-rouge">inserter</code>的迭代器。此函数接受第二个参数，这个参数必须是一个指向容器的迭代器。元素将被插入到给定迭代器所表示的元素制之前。</li>
+</ul>
+
+<p>注意： 只有在容器支持<code class="language-plaintext highlighter-rouge">push_front/push_back</code>的情况下，我们才可以使用<code class="language-plaintext highlighter-rouge">front_inserter/back_inserter</code>。</p>
+
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="o">*</span><span class="n">it</span><span class="o">=</span><span class="n">val</span><span class="p">;</span>
+<span class="n">it</span><span class="o">=</span><span class="n">c</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">it</span><span class="p">,</span><span class="n">val</span><span class="p">);</span><span class="c1">//it指向插入的新元素</span>
+
+<span class="o">++</span><span class="n">it</span><span class="p">;</span><span class="c1">//递增it使它指向原来的元素</span>
+
+<span class="n">list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">lst</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">};</span>
+<span class="n">list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">lst2</span><span class="err">，</span><span class="n">lst3</span><span class="p">;</span><span class="c1">//空list</span>
+<span class="c1">//拷贝完成之后，lst3包含1 2 3 4</span>
+
+<span class="n">copy</span><span class="p">(</span><span class="n">lst</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span><span class="n">lst</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span><span class="n">front_inserter</span><span class="p">(</span><span class="n">lst2</span><span class="p">));</span>
+<span class="c1">//拷贝完成之后，lst3包含1 2 3 4</span>
+
+<span class="n">copy</span><span class="p">(</span><span class="n">lst</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span><span class="n">lst</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span><span class="n">inserter</span><span class="p">(</span><span class="n">lst3</span><span class="p">,</span><span class="n">lst3</span><span class="p">.</span><span class="n">begin</span><span class="p">()));</span>
+
+</code></pre></div></div>
+
+<h5 id="iostream-迭代器">iostream 迭代器</h5>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">istream_iterator</code>:读取输入流。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ostream_iterator</code>:向输出流写数据。</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">istream_iterator</code>操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">istream_iterator&lt;T&gt; in(is)</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">in</code>从输入流<code class="language-plaintext highlighter-rouge">is</code>读取类型为<code class="language-plaintext highlighter-rouge">T</code>的值</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">istream_iterator&lt;T&gt; end</code></td>
+      <td style="text-align: left">读取类型为<code class="language-plaintext highlighter-rouge">T</code>的值的<code class="language-plaintext highlighter-rouge">istream_iterator</code>迭代器，表示尾后位置</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">in1=(!)=in2</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">in1</code>和<code class="language-plaintext highlighter-rouge">in2</code>必须读取相同类型。如果他们都是尾后迭代器，或绑定到相同输入，则二者相等</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">*in</code></td>
+      <td style="text-align: left">返回从流中读取的值</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">in-&gt;mem</code></td>
+      <td style="text-align: left">与<code class="language-plaintext highlighter-rouge">(*in).mem</code>的含义相同</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">++in,in++</code></td>
+      <td style="text-align: left">使用元素类型所定义的<code class="language-plaintext highlighter-rouge">&gt;&gt;</code>运算符从输入流中读取下一个值，并且前置版本返回一个指向递增后迭代器的引用，后置版本返回旧值</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>操作示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">istream_iterator</span><span class="o">&lt;</span><span class="kt">int</span> <span class="o">&gt;</span> <span class="n">int_it</span><span class="p">(</span><span class="n">cin</span><span class="p">);</span> <span class="c1">//从cin读取int</span>
+
+<span class="n">istream_iterator</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">int_eof</span><span class="p">;</span> <span class="c1">//尾后迭代器</span>
+
+<span class="n">ifstream</span> <span class="nf">in</span><span class="p">(</span><span class="s">"afile"</span><span class="p">);</span>  
+<span class="n">istream_iterator</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">str_it</span><span class="p">(</span><span class="n">in</span><span class="p">);</span> <span class="c1">//从"afile"读取字符串</span>
+
+<span class="c1">//读入数据并存储到vector向量组</span>
+
+<span class="k">while</span><span class="p">(</span><span class="n">int_it</span><span class="o">!=</span><span class="n">eof</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//后置递增运算读取流，返回迭代器的旧值</span>
+    <span class="c1">//解引用迭代器，获得从流读取的前一个值</span>
+
+    <span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">*</span><span class="n">in_iter</span><span class="o">++</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">//循环读取其中的int值存储在vec中</span>
+
+<span class="c1">//使用算法操作流迭代器</span>
+
+<span class="n">istream_iterator</span><span class="o">&lt;</span><span class="kt">int</span> <span class="o">&gt;</span> <span class="n">in</span><span class="p">(</span><span class="n">cin</span><span class="p">),</span><span class="n">eof</span><span class="p">;</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">accumulate</span><span class="p">(</span><span class="n">in</span><span class="p">,</span><span class="n">eof</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="c1">//输入：23 109 45 89 6 34 12 90 34 23 56 23 8 89 23</span>
+
+<span class="c1">//输出：664</span>
+
+
+</code></pre></div></div>
+<p>注意：当我们将一个<code class="language-plaintext highlighter-rouge">istream_iterator</code>绑定到一个流时，标准库并不保证迭代器立即从流中读取数据。直到使用迭代器时才正真读取。标准库中的实现所保证的是，我们第一次解引用迭代器之前，从六中的数据操作已经完成了。</p>
+
+<h5 id="ostream_iterator操作">
+<code class="language-plaintext highlighter-rouge">ostream_iterator</code>操作</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ostream_iterator&lt;T&gt; out(os)</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">out</code>将类型为<code class="language-plaintext highlighter-rouge">T</code>的值写入到流<code class="language-plaintext highlighter-rouge">os</code>中</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ostream_iterator&lt;T&gt; out(os,d)</code></td>
+      <td style="text-align: left">将类型为<code class="language-plaintext highlighter-rouge">T</code>的值写到输出流<code class="language-plaintext highlighter-rouge">os</code>中，每个值后面都输出一个<code class="language-plaintext highlighter-rouge">d</code>。<code class="language-plaintext highlighter-rouge">d</code>指向一个空字符结尾的字符数组</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">out=val</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">out</code>和<code class="language-plaintext highlighter-rouge">val</code>必须类型兼容。用运算符<code class="language-plaintext highlighter-rouge">&lt;&lt;</code>将<code class="language-plaintext highlighter-rouge">val</code>写入到<code class="language-plaintext highlighter-rouge">out</code>输出流中</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">*out,++out,out++</code></td>
+      <td style="text-align: left">这些运算符是存在的，但是不对<code class="language-plaintext highlighter-rouge">out</code>做任何事情。每个运算符都返回<code class="language-plaintext highlighter-rouge">out</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="泛型算法结构">泛型算法结构</h3>
+<p>对于向一个算法传递错误类别的迭代器的问题，很多编译器不会给出任何警告或者提示。因此需要迭代器类型的支持和认证。</p>
+
+<p><strong>迭代器类别</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">类别</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">输入迭代器</td>
+      <td style="text-align: left">只读，不写；单遍扫描，只能递增</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">输出迭代器</td>
+      <td style="text-align: left">只写，不读；单遍扫描，只能递增</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">前向迭代器</td>
+      <td style="text-align: left">可读写；多遍扫描，只能递增</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">双向迭代器</td>
+      <td style="text-align: left">可读写；多遍扫描，可递增递减</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">随机访问迭代器</td>
+      <td style="text-align: left">可读写；多遍扫描，支持全部迭代运算</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="第11章-关联容器">第11章 关联容器</h2>
+
+<p>关联容器支持高效的关键字查找和访问。两个主要的关联容器类型是<code class="language-plaintext highlighter-rouge">map</code>和<code class="language-plaintext highlighter-rouge">set</code>；关联容器不支持顺序容器的位置相关的操作。也不支持构造函数或者插入操作这些接受一个元素值和一个数量值的操作。</p>
+
+<p>使用示例：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">size_t</span><span class="p">;</span><span class="o">&gt;</span> <span class="n">word_count</span><span class="p">;</span><span class="c1">//空容器</span>
+
+<span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s">"the"</span><span class="p">,</span><span class="s">"but"</span><span class="p">,</span><span class="s">"and"</span><span class="p">,</span><span class="s">"or"</span><span class="p">,</span><span class="s">"an"</span><span class="p">,</span><span class="s">"a"</span><span class="p">};</span>
+
+<span class="c1">//三个元素；authors将姓映射为名</span>
+
+<span class="n">map</span><span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">authors</span><span class="o">=</span><span class="p">{</span>
+    <span class="p">{</span><span class="s">"Joyce"</span><span class="p">,</span><span class="s">"James"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"Austen"</span><span class="p">,</span><span class="s">"Jane"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">"Dickens"</span><span class="p">,</span><span class="s">"Charles"</span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>注意：一个<code class="language-plaintext highlighter-rouge">map</code>或者<code class="language-plaintext highlighter-rouge">set</code>中的关键字必须是唯一的。但是<code class="language-plaintext highlighter-rouge">multimap</code>和<code class="language-plaintext highlighter-rouge">multiset</code>没有这个限制。允许多个元素，拥有相同的关键字。</p>
+
+<h4 id="1122-关键字类型要求">11.2.2 关键字类型要求</h4>
+<p>传递给排序算法的可调用对象，必须满足于关联容器中关键字一样的类型要求。</p>
+
+<h4 id="1123-pair类型">11.2.3 <code class="language-plaintext highlighter-rouge">pair</code>类型</h4>
+
+<p><code class="language-plaintext highlighter-rouge">pair</code>主要保存，两个数据成员，必须提供2个类型名，<code class="language-plaintext highlighter-rouge">pair</code>的数据成员，将具有应对的类型。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">anon</span><span class="p">;</span> <span class="c1">//保存两个string</span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="kt">size_t</span><span class="o">&gt;</span> <span class="n">word_count</span><span class="p">;</span> <span class="c1">//保存一个string和一个size_t</span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">line</span><span class="p">;</span> <span class="c1">//保存string和vector&lt;int&gt;</span>
+
+</code></pre></div></div>
+
+<p><strong><code class="language-plaintext highlighter-rouge">pair</code>上的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">pair &lt;T1,T2&gt; p</code></td>
+      <td style="text-align: left">p是一个<code class="language-plaintext highlighter-rouge">pair</code>，两个类型分别为<code class="language-plaintext highlighter-rouge">T1</code>和<code class="language-plaintext highlighter-rouge">T2</code>的成员都进行了初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">pair &lt;T1,T2&gt; p(v1,v2)</code></td>
+      <td style="text-align: left">p是一个<code class="language-plaintext highlighter-rouge">pair</code>，两个类型分别为<code class="language-plaintext highlighter-rouge">T1</code>和<code class="language-plaintext highlighter-rouge">T2</code>的<code class="language-plaintext highlighter-rouge">v1</code>和<code class="language-plaintext highlighter-rouge">v2</code>都进行了初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">pair &lt;T1,T2&gt; p={v1,v2}</code></td>
+      <td style="text-align: left">意义同上</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">make_pair(v1,v2)</code></td>
+      <td style="text-align: left">返回一个用<code class="language-plaintext highlighter-rouge">v1</code>,<code class="language-plaintext highlighter-rouge">v2</code>初始化的<code class="language-plaintext highlighter-rouge">pair</code>。<code class="language-plaintext highlighter-rouge">pair</code>的类型从<code class="language-plaintext highlighter-rouge">v1</code>和<code class="language-plaintext highlighter-rouge">v2</code>的类型中推断出来</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p.first</code></td>
+      <td style="text-align: left">返回<code class="language-plaintext highlighter-rouge">p</code>的名称为<code class="language-plaintext highlighter-rouge">first</code>的公有数据成员</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">p1 relop p2</code></td>
+      <td style="text-align: left">关系运算符(&lt;、&gt;、&lt;=、&gt;=)按照字典序定义：例如对应成立时返回<code class="language-plaintext highlighter-rouge">true</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="113-关联容器操作">11.3 关联容器操作</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作类型</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">key_type</code></td>
+      <td style="text-align: left">此容器类型的关键字类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">mapped_type</code></td>
+      <td style="text-align: left">每个关键字关联的类型；只适用于<code class="language-plaintext highlighter-rouge">map</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">value_type</code></td>
+      <td style="text-align: left">对于<code class="language-plaintext highlighter-rouge">set</code>,与<code class="language-plaintext highlighter-rouge">key_type</code>相同；对于<code class="language-plaintext highlighter-rouge">map</code>，为<code class="language-plaintext highlighter-rouge">pair&lt;const key_type,mapped_type&gt;</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">value_type</span> <span class="n">v1</span><span class="p">;</span> <span class="c1">//v1是一个string</span>
+
+<span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">key_type</span> <span class="n">v2</span><span class="p">;</span> <span class="c1">//v2是一个string</span>
+
+<span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">value_type</span> <span class="n">v3</span><span class="p">;</span><span class="c1">//v3是一个pair &lt;const string ,int&gt;</span>
+
+<span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">key_type</span> <span class="n">v4</span><span class="p">;</span> <span class="c1">//v4是一个string</span>
+
+<span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">mapped_type</span> <span class="n">v5</span><span class="p">;</span> <span class="c1">//v5是一个int</span>
+
+</code></pre></div></div>
+<p>注意：</p>
+
+<ul>
+  <li>一个<code class="language-plaintext highlighter-rouge">map</code>的<code class="language-plaintext highlighter-rouge">value_type</code>是一个<code class="language-plaintext highlighter-rouge">pair</code>,我们可以改变<code class="language-plaintext highlighter-rouge">pair</code>的值，但不能改变关键字成员的值。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">set</code>的迭代器是<code class="language-plaintext highlighter-rouge">const</code>的，只能读取，不能修改。</li>
+</ul>
+
+<h4 id="1131-关联容器迭代器">11.3.1 关联容器迭代器</h4>
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">map_it</span><span class="o">=</span><span class="n">word_count</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>  <span class="c1">//*map_it 是一个指向pair&lt;const string,size_t&gt;对象的引用</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">map_it</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">;</span> <span class="c1">//打印此元素的关键字</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">""</span><span class="o">&lt;&lt;</span><span class="n">map_it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span> <span class="c1">//打印此元素的值</span>
+
+<span class="n">map_it</span><span class="o">-&gt;</span><span class="n">first</span><span class="o">=</span><span class="s">"new key"</span><span class="p">;</span> <span class="c1">//错误：关键字是const的</span>
+
+<span class="o">++</span><span class="n">map_it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span> <span class="c1">//正确：我们可以通过迭代器改变元素</span>
+
+</code></pre></div></div>
+<p>因为关联容器<code class="language-plaintext highlighter-rouge">set</code>的迭代元素是<code class="language-plaintext highlighter-rouge">const</code>的，<code class="language-plaintext highlighter-rouge">map</code>中的元素是<code class="language-plaintext highlighter-rouge">pair</code>，其第一个成员是<code class="language-plaintext highlighter-rouge">const</code>的，因此关联容器，通常用于值读取元素的算法,多为搜索排序。
+同时使用<code class="language-plaintext highlighter-rouge">insert</code>来添加元素</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ivec</span><span class="o">=</span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">10</span><span class="p">};</span><span class="c1">//ivec有8个元素</span>
+
+<span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">set2</span><span class="p">;</span> <span class="c1">//空集合</span>
+
+<span class="n">set2</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ivec</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span><span class="n">ivec</span><span class="p">.</span><span class="n">cend</span><span class="p">());</span><span class="c1">//set2有4个元素</span>
+
+<span class="n">set2</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">});</span><span class="c1">//set2现在有8个元素</span>
+
+</code></pre></div></div>
+<p>关联容器操作：
+<code class="language-plaintext highlighter-rouge">emplace(args)</code>:对于<code class="language-plaintext highlighter-rouge">map</code>和<code class="language-plaintext highlighter-rouge">set</code>,只有当元素的关键字不在<code class="language-plaintext highlighter-rouge">c</code>中时才插入(或者构造)元素。函数返回一个<code class="language-plaintext highlighter-rouge">pair</code>,包含一个迭代器，指向具体有指定关键字的元素，以及一个指示插入是否成功的bool值。</p>
+
+<p>注意插入操作返回的是一个<code class="language-plaintext highlighter-rouge">pair</code>对象，第一个元素是差诶迭代器的坐标，第二个值是一个<code class="language-plaintext highlighter-rouge">bool</code>值，确定是否插入成功。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//统计每个单词在输入中出现的次数</span>
+
+<span class="n">map</span><span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="kt">size_t</span><span class="o">&gt;</span> <span class="n">word_count</span><span class="p">;</span><span class="c1">//从string到size_t的空map</span>
+
+<span class="n">string</span> <span class="n">word</span><span class="p">;</span>
+
+<span class="k">while</span><span class="p">(</span><span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">word</span><span class="p">){</span>
+    <span class="c1">//插入一个元素，关键字等于word，值为1；</span>
+    <span class="c1">//若word已载word_count中，insert什么也不做</span>
+    <span class="k">auto</span> <span class="n">ret</span><span class="o">=</span><span class="n">word_count</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="n">word</span><span class="p">,</span><span class="mi">1</span><span class="p">});</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">ret</span><span class="p">.</span><span class="n">second</span><span class="p">)</span>  <span class="c1">//word已经在word_count中</span>
+
+        <span class="o">++</span><span class="n">ret</span><span class="p">.</span><span class="n">first</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span> <span class="c1">//递增计数器</span>
+
+<span class="cm">/*
+
+等价形式 ++((ret.first)-&gt;second);
+ret 保存insert返回的值，是一个pair
+ret.first 是pair的第一个成员，是一个map迭代器，指向具有给定关键字的元素
+ret.first-&gt; 解引用此迭代器，提取map中的元素，元素也是一个pair
+ret.first-&gt;second; map中元素值的部分
+++ ret.first-&gt;second; 递增此值
+*/</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h4 id="1133-删除元素">11.3.3 删除元素</h4>
+<p>使用<code class="language-plaintext highlighter-rouge">erase</code>函数来删除和释放元素;</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">cnt</span><span class="o">=</span><span class="n">authors</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="s">"Barth,Johns"</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h4 id="1134-map的下表操作">11.3.4 map的下表操作</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c[k]</code></td>
+      <td style="text-align: left">返回关键字为<code class="language-plaintext highlighter-rouge">k</code>的元素；如果<code class="language-plaintext highlighter-rouge">k</code>不在<code class="language-plaintext highlighter-rouge">c</code>中，添加一个关键字为<code class="language-plaintext highlighter-rouge">k</code>的元素，对其进行值初试化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.at(k)</code></td>
+      <td style="text-align: left">访问管家字为<code class="language-plaintext highlighter-rouge">k</code>的元素</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>示例：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">map</span> <span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="kt">size_t</span><span class="o">&gt;</span> <span class="n">word_count</span><span class="p">;</span> <span class="c1">//empty map</span>
+
+<span class="c1">//插入一个关键字为Anna的元素，关联值进行值初试化；然后将1赋予它</span>
+
+<span class="n">word_count</span><span class="p">[</span><span class="s">"Anna"</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+
+</code></pre></div></div>
+<p>注意：</p>
+
+<ul>
+  <li>对一个<code class="language-plaintext highlighter-rouge">map</code>使用下表操作，使用一个不在容器中的关键字作为下表，会添加一个具有此关键字的元素到<code class="language-plaintext highlighter-rouge">map</code>中</li>
+  <li>与<code class="language-plaintext highlighter-rouge">vector</code>与<code class="language-plaintext highlighter-rouge">string</code>不同，<code class="language-plaintext highlighter-rouge">map</code>的下标运算符，返回的类型与解引用<code class="language-plaintext highlighter-rouge">map</code>迭代器得到的类型不同。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">map</code>使用<code class="language-plaintext highlighter-rouge">find</code>代替下标操作</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">lower_bound</code>和<code class="language-plaintext highlighter-rouge">upper_bound</code>不适用于无序容器</li>
+  <li>下标和<code class="language-plaintext highlighter-rouge">at</code>操作只适用于非<code class="language-plaintext highlighter-rouge">const</code>的<code class="language-plaintext highlighter-rouge">map</code>和<code class="language-plaintext highlighter-rouge">unordered_map</code>
+</li>
+</ul>
+
+<p><strong>关联容器中查找元素的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.find(k)</code></td>
+      <td style="text-align: left">返回一个迭代器，指向第一个关键字为<code class="language-plaintext highlighter-rouge">k</code>的元素，若<code class="language-plaintext highlighter-rouge">k</code>不在容器中则返回尾后迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.count(k)</code></td>
+      <td style="text-align: left">返回关键字等于<code class="language-plaintext highlighter-rouge">k</code>的元素的数量。对于不允许重复关键字的容器，返回值永远是0或者1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.lower_bound(k)</code></td>
+      <td style="text-align: left">返回一个迭代器，指向第一个关键字不小于<code class="language-plaintext highlighter-rouge">k</code>的元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.upper_bound(k)</code></td>
+      <td style="text-align: left">返回一个迭代器，指向第一个关键字不大于<code class="language-plaintext highlighter-rouge">k</code>的元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.equal_range(k)</code></td>
+      <td style="text-align: left">返回一个迭代器<code class="language-plaintext highlighter-rouge">pair</code>，指向第一个关键字等于<code class="language-plaintext highlighter-rouge">k</code>的元素</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ul>
+  <li>当我们遍历一个<code class="language-plaintext highlighter-rouge">multimap</code>或者<code class="language-plaintext highlighter-rouge">multiset</code>时，保证可以得到序列中所有具有给定关键字的元素。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">lower_bound</code>返回的迭代器可能指向一个具有给定关键字的元素，但也可能不指向。如果关键字不在容器中，则<code class="language-plaintext highlighter-rouge">lower_bound</code>会返回关键字的第一个安全插入点–不影响容器中元素顺序的插入位置。</li>
+  <li>如果<code class="language-plaintext highlighter-rouge">lower_bound</code>和<code class="language-plaintext highlighter-rouge">upper_bound</code>返回相同的迭代器，则给定关键字不在容器中。</li>
+</ul>
+
+<h3 id="114-无序容器">11.4 无序容器</h3>
+<p>无序关联容器总共有4个：<code class="language-plaintext highlighter-rouge">unordered_map</code>和<code class="language-plaintext highlighter-rouge">unordered_set</code>;</p>
+
+<p><strong>桶管理</strong>
+无序容器在存储组织上为一组桶，每个桶保存0个或者多个元素。无序容器使用一个哈希函数将元素映射到桶。</p>
+
+<p><strong>无序容器管理操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><strong>桶接口</strong></td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.bucket_count()</code></td>
+      <td style="text-align: left">正在使用的桶的数目</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.max_bucket_count()</code></td>
+      <td style="text-align: left">容器能容纳的最多的桶的数量</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.bucket_size(n)</code></td>
+      <td style="text-align: left">第n个桶中有多少个元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.bucket(k)</code></td>
+      <td style="text-align: left">关键字为<code class="language-plaintext highlighter-rouge">k</code>的元素在那个桶中</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2"><strong>桶迭代</strong></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">local_iterator</code></td>
+      <td style="text-align: left">可以用来访问桶中元素的迭代器类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">const_local_iterator</code></td>
+      <td style="text-align: left">桶迭代器的<code class="language-plaintext highlighter-rouge">const</code>版本</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.begin(n),c.end(n)</code></td>
+      <td style="text-align: left">与前两个函数类似，但返回<code class="language-plaintext highlighter-rouge">const_local_iterator</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2"><strong>哈希策略</strong></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.load_factor()</code></td>
+      <td style="text-align: left">每个桶的平均元素数量。返回<code class="language-plaintext highlighter-rouge">float</code>值</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.max_load_factor()</code></td>
+      <td style="text-align: left">c维护桶的大小，返回<code class="language-plaintext highlighter-rouge">float</code>值。c会在需要时添加新的桶。以使得<code class="language-plaintext highlighter-rouge">load_factor&lt;=max_load_factor</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.rehash(n)</code></td>
+      <td style="text-align: left">重组存储，使得<code class="language-plaintext highlighter-rouge">bucket_count&gt;=n</code>且<code class="language-plaintext highlighter-rouge">bucket_count&gt;size/max_load_factor</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.reserve(n)</code></td>
+      <td style="text-align: left">重组存储，使得c可以保存<code class="language-plaintext highlighter-rouge">n</code>个元素且不必<code class="language-plaintext highlighter-rouge">rehash</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/05/05/cplusplus_primer_learn_note_5/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记 (五)">
+                        Previous<br>
+                        <span>C++ Primer 学习笔记 (五)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/05/12/c_peator_problem/" data-toggle="tooltip" data-placement="top" title="C/C++ 的一个符号操作问题">
+                        Next<br>
+                        <span>C/C++ 的一个符号操作问题</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

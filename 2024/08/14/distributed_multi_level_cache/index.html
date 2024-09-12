@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>分布式多级缓存 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2024/08/14/distributed_multi_level_cache/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E5%88%86%E5%B8%83%E5%BC%8F" title="分布式">分布式</a>
+                        
+                        <a class="tag" href="/tags/#%E5%A4%9A%E7%BA%A7%E7%BC%93%E5%AD%98" title="多级缓存">多级缓存</a>
+                        
+                        <a class="tag" href="/tags/#redis/cache" title="redis/cache">redis/cache</a>
+                        
+                    </div>
+                    <h1>分布式多级缓存</h1>
+                    
+                    
+                    <h2 class="subheading">分布式多级缓存学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on August 14, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2024-08-14 15:20:58</p>
+</blockquote>
+
+<p><em>参考链接</em>：</p>
+
+<ul>
+  <li><a href="https://github.com/gin-gonic/contrib/tree/master/cache">gin-cache</a></li>
+  <li><a href="https://github.com/beego/beego-cache">beego-cache</a></li>
+  <li><a href="https://github.com/allegro/bigcache">bigcache</a></li>
+  <li><a href="https://cloud.tencent.com/developer/article/2337543">分布式多级缓存SDK设计的思考</a></li>
+  <li><a href="https://developer.aliyun.com/article/1126957">实战干货–分布式多级缓存设计方案</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/543438986">常见缓存更新策略</a></li>
+  <li><a href="https://juejin.cn/post/7278246015194447887">jetcache-go多级缓存</a></li>
+  <li><a href="https://www.51cto.com/article/668874.html">统一缓存帝国 - 实战 Spring Cache</a></li>
+  <li><a href="https://www.51cto.com/article/782076.html">Golang 高性能无 GC 的缓存库 bigcache 是怎么实现的？</a></li>
+  <li><a href="https://www.sohu.com/a/532687715_100093134">请收藏！golang本地缓存选型对比及原理总结</a></li>
+  <li><a href="https://marksuper.xyz/2022/08/26/groupcache/">Go 语言分布式缓存 Groupcache – 用法，源码深度解读</a></li>
+  <li><a href="https://developer.aliyun.com/article/1238415">spring boot cache 多级缓存</a></li>
+  <li><a href="https://www.iminho.me/wiki/blog-39.html">鹅厂微创新Golang缓存组件TCache介绍</a></li>
+  <li><a href="https://cloud.tencent.com/developer/article/2171041">使用go设置多缓存驱动</a></li>
+  <li><a href="https://www.cnblogs.com/paulwhw/p/17120966.html">kratos中使用rockscache介绍</a></li>
+  <li><a href="https://xie.infoq.cn/article/58e07307f546badafb6ac6b38">分布式多级缓存系统设计与实战</a></li>
+  <li><a href="https://github.com/alibaba/jetcache/blob/master/introduce_CN.md">jetcache</a></li>
+  <li><a href="https://cloud.tencent.com/developer/article/2171041">使用Go设计多缓存驱动</a></li>
+  <li><a href="https://www.cnblogs.com/crazymakercircle/p/17673609.html">多缓存架构设计</a></li>
+  <li><a href="http://github.com/eko/gocache">gocache</a></li>
+</ul>
+
+<h2 id="开源方案调研">开源方案调研</h2>
+
+<h3 id="gin-cache">gin-cache</h3>
+
+<p>gin cache 中使用统一的 cache store 接口来进行本地和redis的缓存设置。关键核心代码如下：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">https</span><span class="o">:</span><span class="c">//github.com/gin-contrib/cache/master/blob/persistence/cache_store.go</span>
+<span class="k">type</span> <span class="n">CacheStore</span> <span class="k">interface</span> <span class="p">{</span>
+    <span class="c">// Get retrieves an item from the cache. Returns the item or nil, and a bool indicating</span>
+    <span class="c">// whether the key was found.</span>
+    <span class="n">Get</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">value</span> <span class="k">interface</span><span class="p">{})</span> <span class="kt">error</span>
+
+    <span class="c">// Set sets an item to the cache, replacing any existing item.</span>
+    <span class="n">Set</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">value</span> <span class="k">interface</span><span class="p">{},</span> <span class="n">expire</span> <span class="n">time</span><span class="o">.</span><span class="n">Duration</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="c">// Add adds an item to the cache only if an item doesn't already exist for the given</span>
+    <span class="c">// key, or if the existing item has expired. Returns an error otherwise.</span>
+    <span class="n">Add</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">value</span> <span class="k">interface</span><span class="p">{},</span> <span class="n">expire</span> <span class="n">time</span><span class="o">.</span><span class="n">Duration</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="c">// Replace sets a new value for the cache key only if it already exists. Returns an</span>
+    <span class="c">// error if it does not.</span>
+    <span class="n">Replace</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">data</span> <span class="k">interface</span><span class="p">{},</span> <span class="n">expire</span> <span class="n">time</span><span class="o">.</span><span class="n">Duration</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="c">// Delete removes an item from the cache. Does nothing if the key is not in the cache.</span>
+    <span class="n">Delete</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">error</span>
+
+    <span class="c">// Increment increments a real number, and returns error if the value is not real</span>
+    <span class="n">Increment</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">data</span> <span class="kt">uint64</span><span class="p">)</span> <span class="p">(</span><span class="kt">uint64</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+
+    <span class="c">// Decrement decrements a real number, and returns error if the value is not real</span>
+    <span class="n">Decrement</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">data</span> <span class="kt">uint64</span><span class="p">)</span> <span class="p">(</span><span class="kt">uint64</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+
+    <span class="c">// Flush deletes all items from the cache.</span>
+    <span class="n">Flush</span><span class="p">()</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>gin-cache 通过统一定义缓存接口的方式实现缓存抽象，但是并没有进行统一的缓存管理，更没有做多级缓存管理，没有解决缓存穿透、雪崩、击穿等问题。</p>
+
+<h3 id="jetcache-go">jetcache-go</h3>
+
+<p>jetcache 在多级缓存上进行了进一步的缓存封装，并允许通过自定义函数的方式进行，调用下级函数进行实际的值填充。</p>
+
+<p>cache 核心接口代码</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// https://github.com/mgtv-tech/jetcache-go/blob/7570bd5d950b4e016cf241b45e3536c50e49cd56/cache.go</span>
+<span class="k">type</span> <span class="p">(</span>
+    <span class="c">// Cache interface is used to define the cache implementation.</span>
+    <span class="n">Cache</span> <span class="k">interface</span> <span class="p">{</span>
+        <span class="c">// Set sets the cache with ItemOption</span>
+        <span class="n">Set</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">ItemOption</span><span class="p">)</span> <span class="kt">error</span>
+        <span class="c">// Once gets the opts.value for the given key from the cache or</span>
+        <span class="c">// executes, caches, and returns the results of the given opts.do,</span>
+        <span class="c">// making sure that only one execution is in-flight for a given key</span>
+        <span class="c">// at a time. If a duplicate comes in, the duplicate caller waits for the</span>
+        <span class="c">// original to complete and receives the same results.</span>
+        <span class="n">Once</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">ItemOption</span><span class="p">)</span> <span class="kt">error</span>
+        <span class="c">// Delete deletes cached val with key.</span>
+        <span class="n">Delete</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">error</span>
+        <span class="c">// DeleteFromLocalCache deletes local cached val with key.</span>
+        <span class="n">DeleteFromLocalCache</span><span class="p">(</span><span class="n">key</span> <span class="kt">string</span><span class="p">)</span>
+        <span class="c">// Exists reports whether val for the given key exists.</span>
+        <span class="n">Exists</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span>
+        <span class="c">// Get gets the val for the given key and fills into val.</span>
+        <span class="n">Get</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">val</span> <span class="n">any</span><span class="p">)</span> <span class="kt">error</span>
+        <span class="c">// GetSkippingLocal gets the val for the given key skipping local cache.</span>
+        <span class="n">GetSkippingLocal</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">val</span> <span class="n">any</span><span class="p">)</span> <span class="kt">error</span>
+        <span class="c">// TaskSize returns Refresh task size.</span>
+        <span class="n">TaskSize</span><span class="p">()</span> <span class="kt">int</span>
+        <span class="c">// CacheType returns cache type</span>
+        <span class="n">CacheType</span><span class="p">()</span> <span class="kt">string</span>
+        <span class="c">// Close closes the cache. This should be called when cache refreshing is</span>
+        <span class="c">// enabled and no longer needed, or when it may lead to resource leaks.</span>
+        <span class="n">Close</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="n">jetCache</span> <span class="k">struct</span> <span class="p">{</span>
+        <span class="n">sync</span><span class="o">.</span><span class="n">Mutex</span> <span class="c">// 分布式锁</span>
+        <span class="n">Options</span>  <span class="c">// 选择函数</span>
+        <span class="n">group</span>          <span class="n">singleflight</span><span class="o">.</span><span class="n">Group</span> <span class="c">// 避免同时执行重复的函数</span>
+        <span class="n">safeRand</span>       <span class="o">*</span><span class="n">util</span><span class="o">.</span><span class="n">SafeRand</span>     <span class="c">// 线程安全的随机数生成器</span>
+        <span class="n">refreshTaskMap</span> <span class="n">sync</span><span class="o">.</span><span class="n">Map</span>           <span class="c">// 更新任务map</span>
+        <span class="n">eventCh</span>        <span class="k">chan</span> <span class="o">*</span><span class="n">Event</span>        <span class="c">// 事件管道</span>
+        <span class="n">stopChan</span>       <span class="k">chan</span> <span class="k">struct</span><span class="p">{}</span>      <span class="c">// 停止管道</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div></div>
+<p>其中 <code class="language-plaintext highlighter-rouge">Options</code> 使用了操作链模式，进行了依赖反转，可以通过函数链，进行快速的参数设置，值得学习， 定义如下：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="p">(</span>
+    <span class="c">// Options are used to store cache options.</span>
+    <span class="n">Options</span> <span class="k">struct</span> <span class="p">{</span>
+        <span class="n">name</span>                       <span class="kt">string</span>             <span class="c">// Cache name, used for log identification and metric reporting</span>
+        <span class="n">remote</span>                     <span class="n">remote</span><span class="o">.</span><span class="n">Remote</span>      <span class="c">// Remote is distributed cache, such as Redis.</span>
+        <span class="n">local</span>                      <span class="n">local</span><span class="o">.</span><span class="n">Local</span>        <span class="c">// Local is memory cache, such as FreeCache.</span>
+        <span class="n">codec</span>                      <span class="kt">string</span>             <span class="c">// Value encoding and decoding method. Default is "msgpack.Name". You can also customize it.</span>
+        <span class="n">errNotFound</span>                <span class="kt">error</span>              <span class="c">// Error to return for cache miss. Used to prevent cache penetration.</span>
+        <span class="n">remoteExpiry</span>               <span class="n">time</span><span class="o">.</span><span class="n">Duration</span>      <span class="c">// Remote cache ttl, Default is 1 hour.</span>
+        <span class="n">notFoundExpiry</span>             <span class="n">time</span><span class="o">.</span><span class="n">Duration</span>      <span class="c">// Duration for placeholder cache when there is a cache miss. Default is 1 minute.</span>
+        <span class="n">offset</span>                     <span class="n">time</span><span class="o">.</span><span class="n">Duration</span>      <span class="c">// Expiration time jitter factor for cache misses.</span>
+        <span class="n">refreshDuration</span>            <span class="n">time</span><span class="o">.</span><span class="n">Duration</span>      <span class="c">// Interval for asynchronous cache refresh. Default is 0 (refresh is disabled).</span>
+        <span class="n">stopRefreshAfterLastAccess</span> <span class="n">time</span><span class="o">.</span><span class="n">Duration</span>      <span class="c">// Duration for cache to stop refreshing after no access. Default is refreshDuration + 1 second.</span>
+        <span class="n">refreshConcurrency</span>         <span class="kt">int</span>                <span class="c">// Maximum number of concurrent cache refreshes. Default is 4.</span>
+        <span class="n">statsDisabled</span>              <span class="kt">bool</span>               <span class="c">// Flag to disable cache statistics.</span>
+        <span class="n">statsHandler</span>               <span class="n">stats</span><span class="o">.</span><span class="n">Handler</span>      <span class="c">// Metrics statsHandler collector.</span>
+        <span class="n">sourceID</span>                   <span class="kt">string</span>             <span class="c">// Unique identifier for cache instance.</span>
+        <span class="n">syncLocal</span>                  <span class="kt">bool</span>               <span class="c">// Enable events for syncing local cache (only for "Both" cache type).</span>
+        <span class="n">eventChBufSize</span>             <span class="kt">int</span>                <span class="c">// Buffer size for event channel (default: 100).</span>
+        <span class="n">eventHandler</span>               <span class="k">func</span><span class="p">(</span><span class="n">event</span> <span class="o">*</span><span class="n">Event</span><span class="p">)</span> <span class="c">// Function to handle local cache invalidation events.</span>
+    <span class="p">}</span>
+
+    <span class="c">// Option defines the method to customize an Options.</span>
+    <span class="n">Option</span> <span class="k">func</span><span class="p">(</span><span class="n">o</span> <span class="o">*</span><span class="n">Options</span><span class="p">)</span>  <span class="c">// Option 修改函数</span>
+
+<span class="p">)</span>
+
+
+<span class="k">func</span> <span class="n">WithName</span><span class="p">(</span><span class="n">name</span> <span class="kt">string</span><span class="p">)</span> <span class="n">Option</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">func</span><span class="p">(</span><span class="n">o</span> <span class="o">*</span><span class="n">Options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">WithRemote</span><span class="p">(</span><span class="n">remote</span> <span class="n">remote</span><span class="o">.</span><span class="n">Remote</span><span class="p">)</span> <span class="n">Option</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">func</span><span class="p">(</span><span class="n">o</span> <span class="o">*</span><span class="n">Options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">remote</span> <span class="o">=</span> <span class="n">remote</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="n">WithLocal</span><span class="p">(</span><span class="n">local</span> <span class="n">local</span><span class="o">.</span><span class="n">Local</span><span class="p">)</span> <span class="n">Option</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">func</span><span class="p">(</span><span class="n">o</span> <span class="o">*</span><span class="n">Options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">o</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">local</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">func</span> <span class="n">newOptions</span><span class="p">(</span><span class="n">opts</span> <span class="o">...</span><span class="n">Option</span><span class="p">)</span> <span class="n">Options</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="n">o</span> <span class="n">Options</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">opt</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">opts</span> <span class="p">{</span>
+        <span class="n">opt</span><span class="p">(</span><span class="o">&amp;</span><span class="n">o</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// 使用代码示例如下：</span>
+<span class="c">// o := newOptions(</span>
+<span class="c">//    WithOffset(30 * time.Second),</span>
+<span class="c">//    WithRefreshConcurrency(16),</span>
+<span class="c">//    WithCodec(json.Name),</span>
+<span class="c">// )</span>
+</code></pre></div></div>
+
+<p>下面让我们以值插入和查询为例进行核心的代码分析:</p>
+<ol>
+  <li>写入示例， 对应的写入示例如下：</li>
+</ol>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="n">Example_advancedUsage</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c">// 创建redis ring</span>
+    <span class="n">ring</span> <span class="o">:=</span> <span class="n">redis</span><span class="o">.</span><span class="n">NewRing</span><span class="p">(</span><span class="o">&amp;</span><span class="n">redis</span><span class="o">.</span><span class="n">RingOptions</span><span class="p">{</span>
+        <span class="n">Addrs</span><span class="o">:</span> <span class="k">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
+        <span class="s">"localhost"</span><span class="o">:</span> <span class="s">":6379"</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">})</span>
+    <span class="c">// 创建cache</span>
+    <span class="n">mycache</span> <span class="o">:=</span> <span class="n">cache</span><span class="o">.</span><span class="n">New</span><span class="p">(</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">WithName</span><span class="p">(</span><span class="s">"any"</span><span class="p">),</span>                                          <span class="c">// 指定名称</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">WithRemote</span><span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">NewGoRedisV8Adaptor</span><span class="p">(</span><span class="n">ring</span><span class="p">)),</span>             <span class="c">// 添加远程redis缓存</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">WithLocal</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">NewFreeCache</span><span class="p">(</span><span class="m">256</span><span class="o">*</span><span class="n">local</span><span class="o">.</span><span class="n">MB</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">Minute</span><span class="p">)),</span> <span class="c">// 添加本地缓存</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">WithErrNotFound</span><span class="p">(</span><span class="n">errRecordNotFound</span><span class="p">),</span>                       <span class="c">// 指定无数据异常</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">WithRefreshDuration</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">Minute</span><span class="p">),</span>                         <span class="c">// 指定刷新时间</span>
+    <span class="p">)</span>
+
+    <span class="n">ctx</span> <span class="o">:=</span> <span class="n">context</span><span class="o">.</span><span class="n">TODO</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">:=</span> <span class="s">"mykey:1"</span>
+    <span class="n">obj</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="n">object</span><span class="p">)</span>
+    <span class="c">// 查询对应值</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">mycache</span><span class="o">.</span><span class="n">Once</span><span class="p">(</span>
+        <span class="n">ctx</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">,</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>     <span class="c">// 设置值类型</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">TTL</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">Hour</span><span class="p">),</span> <span class="c">// 设置TTL时间</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">Refresh</span><span class="p">(</span><span class="no">true</span><span class="p">),</span>  <span class="c">// 是否进行刷新</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">Do</span><span class="p">(</span>
+        <span class="k">func</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="p">(</span><span class="n">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">mockDBGetObject</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="c">// 值处理函数--当出现缓存not found 时调用此函数</span>
+    <span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="c">// 输出最终对象</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Println</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="c">// Output: &amp;{mystring 42}</span>
+    <span class="c">// 关闭缓存块</span>
+    <span class="n">mycache</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>once 函数实现：使用once 函数进行值设置和读取。核心关键代码如下：</li>
+</ol>
+
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">// https://github.com/mgtv-tech/jetcache-go/blob/7570bd5d950b4e016cf241b45e3536c50e49cd56/cache.go</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">c</span> <span class="o">*</span><span class="n">jetCache</span><span class="p">)</span> <span class="n">Once</span><span class="p">(</span><span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">key</span> <span class="kt">string</span><span class="p">,</span> <span class="n">opts</span> <span class="o">...</span><span class="n">ItemOption</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="c">// 创建新的item</span>
+    <span class="n">item</span> <span class="o">:=</span> <span class="n">newItemOptions</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">opts</span><span class="o">...</span><span class="p">)</span>
+    <span class="c">// 更新刷线任务</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">addOrUpdateRefreshTask</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="c">// 设置item</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">cached</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">getSetItemBytesOnce</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">err</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">bytes</span><span class="o">.</span><span class="n">Compare</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">notFoundPlaceholder</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">errNotFound</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="no">nil</span> <span class="o">||</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="no">nil</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">Unmarshal</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="c">// 解析异常的，需要先进行删除</span>
+        <span class="c">// 再次尝试获取</span>
+        <span class="k">if</span> <span class="n">cached</span> <span class="p">{</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Delete</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">Once</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">opts</span><span class="o">...</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">err</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>这里是整体的获取逻辑，关键在于获取失败的会自动进行重试。值查询的核心在于<code class="language-plaintext highlighter-rouge">getSetItemBytesOnce</code> 进行核心的值查询</p>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">getSetItemBytesOnce</code> 兼顾了值查询与写入，核心的处理逻辑如下：</li>
+</ol>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="p">(</span><span class="n">c</span> <span class="o">*</span><span class="n">jetCache</span><span class="p">)</span> <span class="n">getSetItemBytesOnce</span><span class="p">(</span><span class="n">item</span> <span class="o">*</span><span class="n">item</span><span class="p">)</span> <span class="p">(</span><span class="n">b</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="n">cached</span> <span class="kt">bool</span><span class="p">,</span> <span class="n">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="o">!</span><span class="n">item</span><span class="o">.</span><span class="n">skipLocal</span> <span class="o">&amp;&amp;</span> <span class="n">c</span><span class="o">.</span><span class="n">local</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="c">// 先统local 进行值查询</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">ok</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="c">// 更新对应命中率</span>
+        <span class="k">if</span> <span class="n">ok</span> <span class="p">{</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">statsHandler</span><span class="o">.</span><span class="n">IncrHit</span><span class="p">()</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">statsHandler</span><span class="o">.</span><span class="n">IncrLocalHit</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">bytes</span><span class="o">.</span><span class="n">Compare</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">notFoundPlaceholder</span><span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">errNotFound</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="no">nil</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c">// 使用group.Do 保证一次只有一个再执行</span>
+    <span class="n">v</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">_</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">Do</span><span class="p">(</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="c">// key 用于锁住函数</span>
+        <span class="c">// 核心的执行函数</span>
+        <span class="k">func</span><span class="p">()</span> <span class="p">(</span><span class="n">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c">// 查询对应值--</span>
+            <span class="n">b</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">getBytes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Context</span><span class="p">(),</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">skipLocal</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+                <span class="n">cached</span> <span class="o">=</span> <span class="no">true</span>
+                <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">nil</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">errors</span><span class="o">.</span><span class="n">Is</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">errNotFound</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">cached</span> <span class="o">=</span> <span class="no">true</span>
+                <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">errNotFound</span>
+            <span class="p">}</span>
+            <span class="c">// 缓存中不存在该值--缓存穿透了--执行对应是饥饿中加密手机</span>
+            <span class="n">b</span><span class="p">,</span> <span class="n">ok</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span> <span class="p">{</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">EventTypeSetByOnce</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">nil</span>
+            <span class="p">}</span>
+
+        <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="no">false</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="p">([]</span><span class="kt">byte</span><span class="p">),</span> <span class="n">cached</span><span class="p">,</span> <span class="no">nil</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>这里核心还是去调用了set 函数，进行值的更新和设置,getValue 会主动调用<code class="language-plaintext highlighter-rouge">Do</code>钩子，通过用户注入函数，进行值的获取</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="p">(</span><span class="n">c</span> <span class="o">*</span><span class="n">jetCache</span><span class="p">)</span> <span class="n">set</span><span class="p">(</span><span class="n">item</span> <span class="o">*</span><span class="n">item</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">bool</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c">// 先查询对象是否存在</span>
+    <span class="n">val</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">item</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+    <span class="c">// 设置函数非空，新增参数</span>
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">do</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">statsHandler</span><span class="o">.</span><span class="n">IncrQuery</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">IsNotFound</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">setNotFound</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Context</span><span class="p">(),</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">skipLocal</span><span class="p">);</span> <span class="n">e</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">"setNotFound(%s) error(%v)"</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">notFoundPlaceholder</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="no">nil</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">statsHandler</span><span class="o">.</span><span class="n">IncrQueryFail</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="no">false</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">}</span>
+
+    <span class="n">b</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">Marshal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="no">false</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">}</span>
+    <span class="c">// 设置本地缓存</span>
+    <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">local</span> <span class="o">!=</span> <span class="no">nil</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">item</span><span class="o">.</span><span class="n">skipLocal</span> <span class="p">{</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">Set</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">remote</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">local</span> <span class="o">==</span> <span class="no">nil</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="n">ErrRemoteLocalBothNil</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="no">nil</span>
+    <span class="p">}</span>
+    <span class="c">// 查询剩余存在时间</span>
+    <span class="n">ttl</span> <span class="o">:=</span> <span class="n">item</span><span class="o">.</span><span class="n">getTtl</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">remoteExpiry</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ttl</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="no">nil</span>
+    <span class="p">}</span>
+    <span class="c">// 设置远端缓存</span>
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">setXX</span> <span class="p">{</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">remote</span><span class="o">.</span><span class="n">SetXX</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Context</span><span class="p">(),</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">setNX</span> <span class="p">{</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">remote</span><span class="o">.</span><span class="n">SetNX</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Context</span><span class="p">(),</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="n">err</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">remote</span><span class="o">.</span><span class="n">SetEX</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Context</span><span class="p">(),</span> <span class="n">item</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">func</span> <span class="p">(</span><span class="n">item</span> <span class="o">*</span><span class="n">item</span><span class="p">)</span> <span class="n">getValue</span><span class="p">()</span> <span class="p">(</span><span class="n">any</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">do</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="c">// 执行数据处理--使用用户注入钩子进行处理</span>
+        <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">do</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Context</span><span class="p">())</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="no">nil</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="no">nil</span><span class="p">,</span> <span class="no">nil</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="spring-cloud-cache">spring cloud cache</h3>
+
+<ul>
+  <li><a href="https://juejin.cn/post/7066990990715781151">spring-cache源码分析图文详解</a></li>
+</ul>
+
+<h3 id="gocache"><a href="https://github.com/eko/gocache">gocache</a></h3>
+
+<h3 id="本地缓存方案">本地缓存方案</h3>
+
+<p>本地缓存直接使用内存存储即可，添加使用redis订阅发布，增加分布式同步功能。</p>
+
+<h2 id="核心业务处理">核心业务处理</h2>
+
+<h3 id="缓存查询">缓存查询</h3>
+
+<ol>
+  <li>分级查询</li>
+  <li>查询到后更新前几级的值</li>
+  <li>最终查询不到，直接异常</li>
+</ol>
+
+<p><img src="https://camo.githubusercontent.com/1e62128676297eb2c3703e2550e5349bfec8de23f41bea7f5ae8fe7e418a0fbf/68747470733a2f2f692e6c6f6c692e6e65742f323032302f30392f32372f64624d69596877544275725a4b34792e706e67" alt="缓存查询更新"></p>
+
+<h3 id="缓存更新">缓存更新</h3>
+
+<ol>
+  <li>更新最后一层缓存</li>
+  <li>删除二级缓存</li>
+  <li>删除一级缓存</li>
+</ol>
+
+<h3 id="缓存添加">缓存添加</h3>
+
+<ol>
+  <li>添加二级缓存</li>
+</ol>
+
+<h3 id="缓存删除">缓存删除</h3>
+
+<h2 id="存在问题">存在问题</h2>
+
+<ul>
+  <li><a href="https://xiaolincoding.com/redis/cluster/cache_problem.html">什么是缓存雪崩、击穿、穿透</a></li>
+</ul>
+
+<h3 id="缓存击穿">缓存击穿</h3>
+
+<p>热点数据过期，导致无法从缓存中访问数据，直接从数据库中访问。导致数据库被请求冲垮。</p>
+
+<h4 id="解决方案">解决方案</h4>
+
+<ol>
+  <li>互斥锁：保证同一时间只有一个业务线程更新缓存，未能获取互斥锁的请求。等待锁释放后重新读取缓存。要么返回空值或者默认值</li>
+  <li>不设置过期时间：由后台异步更新缓存，在热点数据要过期前，提前通知后台线程更新缓存以及重新设置过期时间。</li>
+</ol>
+
+<h3 id="缓存雪崩">缓存雪崩</h3>
+
+<p>缓存数据同一时间大量过期，导致数据大量击中mysql导致异常。</p>
+
+<h4 id="解决方案-1">解决方案</h4>
+
+<ol>
+  <li>
+    <p>均匀设置过期时间
+给缓存数据设置过期时间，可以在对数据设置过期时间时，添加随机数，保证数据不会在同一时间过期</p>
+  </li>
+  <li>
+    <p>互斥锁</p>
+  </li>
+</ol>
+
+<p>发现访问数据不在Redis里，就加个互斥锁，保证同一时间内只有一个请求来构建缓存(从数据库读取数据，再将数据更新到redis中)。构建完成后再进行锁释放。未能获取互斥锁的请求，等锁释放后重新读取缓存。</p>
+
+<ol>
+  <li>后台更新缓存</li>
+</ol>
+
+<ul>
+  <li>设置缓存“永久有效”，<strong>并将更新缓存的工作交给后台线程定时更新</strong>
+</li>
+  <li>通过消息队列发送缓存失效数据，保证缓存失效后，重新进行更新。即：缓存预热</li>
+</ul>
+
+<h3 id="缓存穿透">缓存穿透</h3>
+
+<p>用户访问的数据，<strong>既不在缓存中，也不再数据库中</strong>。导致请求在访问缓存时，发现缓存缺失。访问数据库中也没有构建缓存数据。大量请求时导致缓存数据库压力增加。</p>
+
+<h3 id="一级缓存本地缓存一致性问题">一级缓存(本地缓存)一致性问题</h3>
+
+<p>使用一级缓存后，在分布式场景下，存在redis数据已经更新，但是另外一个实例的一级缓存并未更新的情况。导致本地缓存与redis数据不一致。</p>
+
+<h4 id="解决方法">解决方法</h4>
+
+<p>使用redis发布订阅模式，实现多级缓存key的删除。</p>
+
+<h3 id="一级缓存本地缓存数据污染问题">一级缓存(本地缓存)数据污染问题</h3>
+
+<p>缓存污染问题指的是留存在缓存中的数据，实际不会再被访问了，但是又占据了缓存空间。</p>
+
+<h3 id="热key问题">热key问题</h3>
+
+<p>部分数据访问量较高，缓存过期之后，会存在瞬间的穿透。</p>
+
+<h4 id="解决方案-2">解决方案</h4>
+<ul>
+  <li>设置查询延期，针对不同层的参数，可以指定key的默认存在时间。每次查询后，对重新增强当前key的过期时间</li>
+  <li>查询频率延期：在查询延期的基础上，设置查询频率延期的策略，越是高热点数据，默认缓存延期时间越长</li>
+</ul>
+
+<h4 id="解决方法-1">解决方法</h4>
+
+<p>设置本地缓存超时时间，对超时的缓存进行清理。</p>
+
+<p>使用定时清理的方式进行缓存清除</p>
+
+<h2 id="综合解决方案">综合解决方案</h2>
+
+<ol>
+  <li>缓存雪崩：涉及到key过期问题，应由使用方自行解决。
+    <ul>
+      <li>key过期时间梯度设置：将key的过期时间进行梯度设置，保证前一层的过期时间小于后一层。进行层层拦截</li>
+      <li>随机过期时间：使用参数，决定是否加入随机过期时间，防止缓存雪崩。</li>
+    </ul>
+  </li>
+  <li>缓存穿透：
+    <ul>
+      <li>多层缓存中，key 设置下层对应的miss 次数和limit_qps, 当miss 次数超过limit下一层的limit 时不再进行，下层访问：而是直接返回empty</li>
+      <li>层访问qos limit: 每层设置下一层的访问与当前访问qps,  qps limit。超过此限制时，直接返回异常</li>
+      <li>最大QPS: mysql: 1800, redis(ba): 100,000(3-5万)。单机（nginx）:120w~150w,</li>
+    </ul>
+  </li>
+  <li>
+    <p>缓存击穿：互斥锁使用，保证同一时间只有一个会进行更新，加层限制后避免</p>
+  </li>
+  <li>本地缓存一致性：
+    <ul>
+      <li>使用redis发布订阅，删除本地缓存。</li>
+      <li>给本地缓存设置一个较短的生存时间，尽量降低污染影响</li>
+    </ul>
+  </li>
+  <li>本地缓存选型：</li>
+</ol>
+
+<p>综合考虑，本地缓存选型为freecache 与ristretto 缓存</p>
+
+<ol>
+  <li>层级锁：
+    <ul>
+      <li>更新(删除/更新)下级缓存时，需要先拿到层级锁后再进行操作。避免本地线程争抢问题</li>
+    </ul>
+  </li>
+</ol>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2024/07/25/libvirt_code_learn/" data-toggle="tooltip" data-placement="top" title="libvirt源码学习">
+                        Previous<br>
+                        <span>libvirt源码学习</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2024/08/14/gateway_desgin/" data-toggle="tooltip" data-placement="top" title="微服务API网关设计">
+                        Next<br>
+                        <span>微服务API网关设计</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>protobuf学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2020/10/25/protobuf_learn_note/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%BA%8F%E5%88%97%E5%8C%96" title="序列化">序列化</a>
+                        
+                    </div>
+                    <h1>protobuf学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">protobuf学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on October 25, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="protobuf-学习笔记">protobuf 学习笔记</h1>
+
+<blockquote>
+  <p>2020-10-08 19:57:58</p>
+</blockquote>
+
+<h2 id="0-参考链接">0 参考链接</h2>
+<ul>
+  <li><a href="https://developers.google.com/protocol-buffers/docs/reference/cpp-generated">官方文档</a></li>
+  <li><a href="https://www.jianshu.com/p/73c9ed3a4877">深入 ProtoBuf-编码</a></li>
+  <li><a href="https://www.jianshu.com/p/62f0238beec8">深入 ProtoBuf - 序列化源码解析</a></li>
+  <li><a href="https://colobu.com/2015/01/07/Protobuf-language-guide/">Protobuf 语法指南</a></li>
+  <li><a href="https://github.com/protocolbuffers/protobuf">protobuff源码</a></li>
+  <li><a href="https://github.com/google/flatbuffers">flatbuffers源码</a></li>
+</ul>
+
+<h2 id="1-基础语法">1. 基础语法</h2>
+<p>下面是一个简单的使用示例:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">message</span> <span class="n">SearchRequest</span> <span class="p">{</span>
+  <span class="n">required</span> <span class="n">string</span> <span class="n">query</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">optional</span> <span class="n">int32</span> <span class="n">page_number</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="n">optional</span> <span class="n">int32</span> <span class="n">result_per_page</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="p">[</span><span class="k">default</span><span class="o">=</span><span class="mi">10</span><span class="p">]</span> <span class="c1">//设置默认值</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>其中后面的数字编号表示；二进制格式中识别各个字段的，一旦开始使用就不能再改变，[1,15]之内的标识号在编码的时候会占用一个字节，之后的[16,2047]会占用两个字节</p>
+
+<h3 id="11-指定字段规则">1.1 指定字段规则:</h3>
+<ul>
+  <li>required: 表示该字段必须</li>
+  <li>optional: 可选项，表示该字段必须有0个或者1个值(不超过一个)</li>
+  <li>repeated: 可重复值，相当于List
+基本数值类型的repeated的字段并没有被尽可能地高效编码。在新的代码中，用户应该使用特殊选项[packed=true]来保证更高效的编码。如：</li>
+</ul>
+
+<p><strong>注意:在proto3中没有这些选项</strong></p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>repeated int32 samples <span class="o">=</span> 4 <span class="o">[</span><span class="nv">packed</span><span class="o">=</span><span class="nb">true</span><span class="o">]</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="12-基本数据类型">1.2 基本数据类型</h3>
+
+<p>proto中定义的基本数据类型会对应不同语言的基本数据类型如下:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">.proto Type</th>
+      <th style="text-align: left">Notes</th>
+      <th style="text-align: center">C++ Type</th>
+      <th style="text-align: center">Java Type</th>
+      <th style="text-align: center">Python Type</th>
+      <th style="text-align: center">Go Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">double</td>
+      <td style="text-align: left"> </td>
+      <td style="text-align: center">double</td>
+      <td style="text-align: center">double</td>
+      <td style="text-align: center">float</td>
+      <td style="text-align: center">*float64</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">float</td>
+      <td style="text-align: left"> </td>
+      <td style="text-align: center">float</td>
+      <td style="text-align: center">float</td>
+      <td style="text-align: center">float</td>
+      <td style="text-align: center">*float32</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">int32</td>
+      <td style="text-align: left">Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</td>
+      <td style="text-align: center">int32</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">*int32</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">int64</td>
+      <td style="text-align: left">Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</td>
+      <td style="text-align: center">int64</td>
+      <td style="text-align: center">long</td>
+      <td style="text-align: center">int/long</td>
+      <td style="text-align: center">*int64</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">uint32</td>
+      <td style="text-align: left">Uses variable-length encoding.</td>
+      <td style="text-align: center">uint32</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">int/long</td>
+      <td style="text-align: center">*uint32</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">uint64</td>
+      <td style="text-align: left">Uses variable-length encoding.</td>
+      <td style="text-align: center">uint64</td>
+      <td style="text-align: center">long</td>
+      <td style="text-align: center">int/long</td>
+      <td style="text-align: center">*uint64</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sint32</td>
+      <td style="text-align: left">Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</td>
+      <td style="text-align: center">int32</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">*int32</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sint64</td>
+      <td style="text-align: left">Usesvariable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</td>
+      <td style="text-align: center">int64</td>
+      <td style="text-align: center">long</td>
+      <td style="text-align: center">int/long</td>
+      <td style="text-align: center">*int64</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">fixed32</td>
+      <td style="text-align: left">Always four bytes. More efficient than uint32 if values are often greater than 228.</td>
+      <td style="text-align: center">uint32</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">int/long</td>
+      <td style="text-align: center">*uint32</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">fixed64</td>
+      <td style="text-align: left">Always eight bytes. More efficient than uint64 if values are often greater than 256.</td>
+      <td style="text-align: center">uint64</td>
+      <td style="text-align: center">long</td>
+      <td style="text-align: center">int/long</td>
+      <td style="text-align: center">*uint64</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sfixed32</td>
+      <td style="text-align: left">Always four bytes.</td>
+      <td style="text-align: center">int32</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">*int32</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">sfixed64</td>
+      <td style="text-align: left">Always eight bytes.</td>
+      <td style="text-align: center">int64</td>
+      <td style="text-align: center">long</td>
+      <td style="text-align: center">int/long</td>
+      <td style="text-align: center">*int64</td>
+    </tr>
+    <tr>
+      <td style="text-align: center" colspan="2">bool</td>
+      <td style="text-align: left">bool</td>
+      <td style="text-align: center">boolean</td>
+      <td style="text-align: center">bool</td>
+      <td style="text-align: center">*bool</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: center">string</td>
+      <td style="text-align: left">A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+      <td style="text-align: center">string</td>
+      <td style="text-align: center">String</td>
+      <td style="text-align: center">unicode (Python 2) or str (Python 3)</td>
+      <td style="text-align: center">*string</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">bytes</td>
+      <td style="text-align: left">May contain any arbitrary sequence of bytes.</td>
+      <td style="text-align: center">string</td>
+      <td style="text-align: center">ByteString</td>
+      <td style="text-align: center">bytes</td>
+      <td style="text-align: center">[]byte</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="13-枚举">1.3 枚举</h3>
+
+<p>proto 中可以使用枚举类型作为关键的选择类；同时可以为枚举常量定义别名。需要设置allow_alias option 为 true, 否则 protocol编译器会产生错误信息。</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>enum EnumAllowingAlias <span class="o">{</span>
+  option allow_alias <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  UNKNOWN <span class="o">=</span> 0<span class="p">;</span>
+  STARTED <span class="o">=</span> 1<span class="p">;</span>
+  RUNNING <span class="o">=</span> 1<span class="p">;</span>
+<span class="o">}</span>
+
+enum EnumNotAllowingAlias <span class="o">{</span>
+  UNKNOWN <span class="o">=</span> 0<span class="p">;</span>
+  STARTED <span class="o">=</span> 1<span class="p">;</span>
+  // RUNNING <span class="o">=</span> 1<span class="p">;</span>  // Uncommenting this line will cause a compile error inside Google and a warning message outside.
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="14-扩展">1.4 扩展</h3>
+
+<p>proto中允许使用扩展，通过定义相关的序列化字段，允许子类进行进一步的扩展；使用示例如下:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// 
+message Foo <span class="o">{</span>
+  // ...
+  // 定义可扩展字段
+  extensions 100 to 199<span class="p">;</span>
+<span class="o">}</span>
+
+// 继承并定义
+
+extend Foo <span class="o">{</span>
+  optional int32 bar <span class="o">=</span> 126<span class="p">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="15-导入定义">1.5 导入定义</h3>
+
+<p>可以通过导入（importing）其他.proto文件中的定义来使用它们。要导入其他.proto文件的定义，你需要在你的文件中添加一个导入声明，如：</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import <span class="s2">"myproject/other_protos.proto"</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="16-oneof">1.6 Oneof</h3>
+
+<p>如果你的消息中有很多可选字段， 并且同时至多一个字段会被设置， 你可以加强这个行为，使用oneof特性节省内存.</p>
+
+<p>Oneof字段就像可选字段， 除了它们会共享内存， 至多一个字段会被设置。 设置其中一个字段会清除其它oneof字段。 你可以使用case()或者WhichOneof() 方法检查哪个oneof字段被设置，使用示例如下:</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>message SampleMessage <span class="o">{</span>
+  oneof test_oneof <span class="o">{</span>
+     string name <span class="o">=</span> 4<span class="p">;</span>
+     SubMessage sub_message <span class="o">=</span> 9<span class="p">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>然后你可以增加oneof字段到 oneof 定义中. 你可以增加任意类型的字段, 但是不能使用 required, optional, repeated 关键字.</p>
+
+<p>在产生的代码中, oneof字段拥有同样的 getters 和setters， 就像正常的可选字段一样. 也有一个特殊的方法来检查到底那个字段被设置. 你可以在相应的语言API中找到oneof API介绍.</p>
+
+<p>Oneof 特性:</p>
+<ul>
+  <li>设置oneof会自动清楚其它oneof字段的值. 所以设置多次后，只有最后一次设置的字段有值.</li>
+  <li>oneof不支持扩展.</li>
+  <li>oneof不能 repeated.</li>
+  <li>反射API对oneof 字段有效.</li>
+  <li>如果使用C++,需确保代码不会导致内存泄漏. 下面的代码会崩溃， 因为sub_message 已经通过set_name()删除了.</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">SampleMessage</span> <span class="n">message</span><span class="p">;</span>
+<span class="n">SubMessage</span><span class="o">*</span> <span class="n">sub_message</span> <span class="o">=</span> <span class="n">message</span><span class="p">.</span><span class="n">mutable_sub_message</span><span class="p">();</span>
+<span class="n">message</span><span class="p">.</span><span class="n">set_name</span><span class="p">(</span><span class="err">“</span><span class="n">name</span><span class="err">”</span><span class="p">);</span>      <span class="c1">// Will delete sub_message</span>
+<span class="n">sub_message</span><span class="p">.</span><span class="n">set_</span><span class="err">…</span>         
+</code></pre></div></div>
+
+<h3 id="17-包package">1.7 包(package)</h3>
+
+<p>当然可以为.proto文件新增一个可选的package声明符，用来防止不同的消息类型有命名冲突</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>package foo.bar<span class="p">;</span>
+message Open <span class="o">{</span> ... <span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="18-定义服务service">1.8 定义服务(Service)</h3>
+
+<p>可以在.proto文件中定义一个RPC服务接口，protocol buffer编译器将会根据所选择的不同语言生成服务接口代码及存根。如，想要定义一个RPC服务并具有一个方法，该方法能够接收 SearchRequest并返回一个SearchResponse，此时可以在.proto文件中进行如下定义：</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>service SearchService <span class="o">{</span>
+  rpc Search <span class="o">(</span>SearchRequest<span class="o">)</span> returns <span class="o">(</span>SearchResponse<span class="o">)</span><span class="p">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>protocol编译器将产生一个抽象接口SearchService以及一个相应的存根实现。存根将所有的调用指向RpcChannel，它是一 个抽象接口，必须在RPC系统中对该接口进行实现。如，可以实现RpcChannel以完成序列化消息并通过HTTP方式来发送到一个服务器。换句话说， 产生的存根提供了一个类型安全的接口用来完成基于protocolbuffer的RPC调用，而不是将你限定在一个特定的RPC的实现中。C++中的代码 如下所示：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">google</span><span class="o">::</span><span class="n">protobuf</span><span class="p">;</span>
+<span class="n">protobuf</span><span class="o">::</span><span class="n">RpcChannel</span><span class="o">*</span> <span class="n">channel</span><span class="p">;</span>
+<span class="n">protobuf</span><span class="o">::</span><span class="n">RpcController</span><span class="o">*</span> <span class="n">controller</span><span class="p">;</span>
+<span class="n">SearchService</span><span class="o">*</span> <span class="n">service</span><span class="p">;</span>
+<span class="n">SearchRequest</span> <span class="n">request</span><span class="p">;</span>
+<span class="n">SearchResponse</span> <span class="n">response</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">DoSearch</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// You provide classes MyRpcChannel and MyRpcController, which implement</span>
+  <span class="c1">// the abstract interfaces protobuf::RpcChannel and protobuf::RpcController.</span>
+  <span class="n">channel</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyRpcChannel</span><span class="p">(</span><span class="s">"somehost.example.com:1234"</span><span class="p">);</span>
+  <span class="n">controller</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyRpcController</span><span class="p">;</span>
+  <span class="c1">// The protocol compiler generates the SearchService class based on the</span>
+  <span class="c1">// definition given above.</span>
+  <span class="n">service</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SearchService</span><span class="o">::</span><span class="n">Stub</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+  <span class="c1">// Set up the request.</span>
+  <span class="n">request</span><span class="p">.</span><span class="n">set_query</span><span class="p">(</span><span class="s">"protocol buffers"</span><span class="p">);</span>
+  <span class="c1">// Execute the RPC.</span>
+  <span class="n">service</span><span class="o">-&gt;</span><span class="n">Search</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">protobuf</span><span class="o">::</span><span class="n">NewCallback</span><span class="p">(</span><span class="o">&amp;</span><span class="n">Done</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="kt">void</span> <span class="nf">Done</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">delete</span> <span class="n">service</span><span class="p">;</span>
+  <span class="k">delete</span> <span class="n">channel</span><span class="p">;</span>
+  <span class="k">delete</span> <span class="n">controller</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>所有service类都必须实现Service接口，它提供了一种用来调用具体方法的方式，即在编译期不需要知道方法名及它的输入、输出类型。在服务器端，通过服务注册它可以被用来实现一个RPC Server。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="n">google</span><span class="o">::</span><span class="n">protobuf</span><span class="p">;</span>
+<span class="k">class</span> <span class="nc">ExampleSearchService</span> <span class="o">:</span> <span class="k">public</span> <span class="n">SearchService</span> <span class="p">{</span>
+ <span class="nl">public:</span>
+  <span class="kt">void</span> <span class="n">Search</span><span class="p">(</span><span class="n">protobuf</span><span class="o">::</span><span class="n">RpcController</span><span class="o">*</span> <span class="n">controller</span><span class="p">,</span>
+              <span class="k">const</span> <span class="n">SearchRequest</span><span class="o">*</span> <span class="n">request</span><span class="p">,</span>
+              <span class="n">SearchResponse</span><span class="o">*</span> <span class="n">response</span><span class="p">,</span>
+              <span class="n">protobuf</span><span class="o">::</span><span class="n">Closure</span><span class="o">*</span> <span class="n">done</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">query</span><span class="p">()</span> <span class="o">==</span> <span class="s">"google"</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">response</span><span class="o">-&gt;</span><span class="n">add_result</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">set_url</span><span class="p">(</span><span class="s">"http://www.google.com"</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">query</span><span class="p">()</span> <span class="o">==</span> <span class="s">"protocol buffers"</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">response</span><span class="o">-&gt;</span><span class="n">add_result</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">set_url</span><span class="p">(</span><span class="s">"http://protobuf.googlecode.com"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">done</span><span class="o">-&gt;</span><span class="n">Run</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// You provide class MyRpcServer.  It does not have to implement any</span>
+  <span class="c1">// particular interface; this is just an example.</span>
+  <span class="n">MyRpcServer</span> <span class="n">server</span><span class="p">;</span>
+  <span class="n">protobuf</span><span class="o">::</span><span class="n">Service</span><span class="o">*</span> <span class="n">service</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExampleSearchService</span><span class="p">;</span>
+  <span class="n">server</span><span class="p">.</span><span class="n">ExportOnPort</span><span class="p">(</span><span class="mi">1234</span><span class="p">,</span> <span class="n">service</span><span class="p">);</span>
+  <span class="n">server</span><span class="p">.</span><span class="n">Run</span><span class="p">();</span>
+  <span class="k">delete</span> <span class="n">service</span><span class="p">;</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="19-选项options">1.9 选项（Options）</h3>
+
+<p>在定义.proto文件时能够标注一系列的options。Options并不改变整个文件声明的含义，但却能够影响特定环境下处理方式。完整的可用选项可以在google/protobuf/descriptor.proto找到。</p>
+
+<p>一些选项是文件级别的，意味着它可以作用于最外范围，不包含在任何消息内部、enum或服务定义中。一些选项是消息级别的，意味着它可以用在消息定 义的内部。当然有些选项可以作用在域、enum类型、enum值、服务类型及服务方法中。到目前为止，并没有一种有效的选项能作用于所有的类型。</p>
+
+<p>常用选项类型如下:</p>
+<ul>
+  <li>optimize_for (fileoption): 可以被设置为 SPEED, CODE_SIZE,or LITE_RUNTIME。这些值将通过如下的方式影响C++及java代码的生成：
+    <ul>
+      <li>SPEED (default): protocol buffer编译器将通过在消息类型上执行序列化、语法分析及其他通用的操作。这种代码是最优的。</li>
+      <li>CODE_SIZE: protocol buffer编译器将会产生最少量的类，通过共享或基于反射的代码来实现序列化、语法分析及各种其它操作。采用该方式产生的代码将比SPEED要少得多， 但是操作要相对慢些。当然实现的类及其对外的API与SPEED模式都是一样的。这种方式经常用在一些包含大量的.proto文件而且并不盲目追求速度的 应用中。</li>
+      <li>LITE_RUNTIME: protocol buffer编译器依赖于运行时核心类库来生成代码（即采用libprotobuf-lite 替代libprotobuf）。这种核心类库由于忽略了一 些描述符及反射，要比全类库小得多。这种模式经常在移动手机平台应用多一些。编译器采用该模式产生的方法实现与SPEED模式不相上下，产生的类通过实现 MessageLite接口，但它仅仅是Messager接口的一个子集。</li>
+    </ul>
+  </li>
+  <li>cc_generic_services, java_generic_services, py_generic_services (file options):protocol buffer编译器是否应该基于服务定义产生抽象服务代码。</li>
+  <li>message_set_wire_format (message option)：如果该值被设置为true，该消息将使用一种不同的二进制格式来与Google内部的MessageSet的老格式相兼容。对于Google外部的用户来说，该选项将不会被用到。</li>
+  <li>packed (field option): 如果该选项在一个整型基本类型上被设置为真，则采用更紧凑的编码方式。</li>
+</ul>
+
+<h3 id="110-自定义选项">1.10 自定义选项</h3>
+
+<p>ProtocolBuffers允许自定义并使用选项。该功能应该属于一个高级特性，对于大部分人是用不到的。由于options是定在 google/protobuf/descriptor.proto中的，因此你可以在该文件中进行扩展，定义自己的选项。如：</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import <span class="s2">"google/protobuf/descriptor.proto"</span><span class="p">;</span>
+extend google.protobuf.MessageOptions <span class="o">{</span>
+  optional string my_option <span class="o">=</span> 51234<span class="p">;</span>
+<span class="o">}</span>
+message MyMessage <span class="o">{</span>
+  option <span class="o">(</span>my_option<span class="o">)</span> <span class="o">=</span> <span class="s2">"Hello world!"</span><span class="p">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>在上述代码中，通过对MessageOptions进行扩展定义了一个新的消息级别的选项。当使用该选项时，选项的名称需要使用（）包裹起来，以表明它是一个扩展。在C++代码中可以看出my_option是以如下方式被读取的。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">string</span> <span class="n">value</span> <span class="o">=</span> <span class="n">MyMessage</span><span class="o">::</span><span class="n">descriptor</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">options</span><span class="p">().</span><span class="n">GetExtension</span><span class="p">(</span><span class="n">my_option</span><span class="p">);</span>
+<span class="k">continue</span>
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/10/20/cude_by_example/" data-toggle="tooltip" data-placement="top" title="CUDA高性能编程实战">
+                        Previous<br>
+                        <span>CUDA高性能编程实战</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2021/08/14/jekyll_spaceship_test/" data-toggle="tooltip" data-placement="top" title="jekyll-spcaeship相关功能测试">
+                        Next<br>
+                        <span>jekyll-spcaeship相关功能测试</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

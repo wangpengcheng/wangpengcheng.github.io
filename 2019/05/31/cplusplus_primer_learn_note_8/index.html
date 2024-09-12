@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer 学习笔记(八) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/05/31/cplusplus_primer_learn_note_8/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                    </div>
+                    <h1>C++ Primer 学习笔记(八)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer 学习记录(八)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on May 31, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h2 id="第15章-面向对象程序设计">第15章 面向对象程序设计</h2>
+
+<h3 id="151-oop概述">15.1 oop:概述</h3>
+<p>面向对象程序设计的核心思想是数据抽象、继承和动态绑定。</p>
+
+<p><strong>虚函数：</strong> 基类希望它的派生类各自定义适合自身版本，将这些函数声明为<strong>虚函数</strong>；派生类必须通过派生类列表明确指明他是从那个基类继承而来的。即 <strong>基类希望派生类能进行覆盖的函数</strong></p>
+
+<p><strong>动态绑定</strong>
+通过<strong>动态绑定</strong>，我们能用同一段代码分别处理不同的对象。相同函数，根据动态绑定的对象实质进行区别。在运行时选择函数的版本，所以动态绑定有时又被称为 <strong>运行时绑定</strong></p>
+
+<p>注意：</p>
+
+<ul>
+  <li>在c++语言中，当我们使用基类的引用(或者指针)调用一个虚函数时将发生动态绑定。</li>
+</ul>
+
+<h3 id="152-定义基类和派生类">15.2 定义基类和派生类</h3>
+
+<p>注意：</p>
+
+<ul>
+  <li>基类同城都应该定义一个虚析构函数，计时该函数不执行任何实际操作也是如此。</li>
+  <li>如果一个派生类没有覆盖其基类中的某个虚函数，则该函数的行为类似于其他成员，派生类会直接继承其在基类中的版本。</li>
+  <li>同一个对象中，继承自基类的部分和派生类自定义的部分不一定是连续存储的。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Quote</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Quote</span><span class="p">()</span><span class="o">=</span><span class="k">default</span><span class="p">;</span>
+    <span class="n">Quote</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span><span class="n">book</span><span class="p">,</span><span class="kt">double</span> <span class="n">sales_price</span><span class="p">)</span><span class="o">:</span><span class="n">bookNo</span><span class="p">(</span><span class="n">book</span><span class="p">),</span><span class="n">price</span><span class="p">(</span><span class="n">sales_price</span><span class="p">){}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">isbn</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">bookNo</span><span class="p">;}</span>
+    <span class="c1">//返回给定数量的书籍的销售总额</span>
+    
+    <span class="c1">//派生类负责改写并使用不同的折扣计算算法</span>
+    
+    <span class="k">virtual</span> <span class="kt">double</span> <span class="n">net_price</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="k">const</span>
+    <span class="p">{</span><span class="k">return</span> <span class="n">n</span><span class="o">*</span><span class="n">price</span><span class="p">;}</span>
+
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">Quote</span><span class="p">()</span><span class="o">=</span><span class="k">default</span><span class="p">;</span> <span class="c1">//对析构函数进行动态绑定</span>
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">bookNo</span><span class="p">;</span>  <span class="c1">//书籍编号</span>
+
+<span class="nl">protected:</span>
+    <span class="kt">double</span> <span class="n">price</span><span class="o">=</span><span class="mf">0.0</span>   <span class="c1">//普通状态下不打折扣的价格 </span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>可以将派生类的对象当成基类来使用，而且也能将基类的指针或者引用绑定到派生类对象中的基类部分上。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Quote</span> <span class="n">item</span><span class="p">;</span>  <span class="c1">//基类对象</span>
+
+<span class="n">Bulk_quote</span> <span class="n">bulk</span><span class="p">;</span>  <span class="c1">//派生类对象</span>
+
+<span class="n">Quote</span> <span class="o">*</span><span class="n">p</span><span class="o">=&amp;</span><span class="n">item</span><span class="p">;</span>  <span class="c1">//p指向Quote对象</span>
+
+<span class="n">p</span><span class="o">=&amp;</span><span class="n">bulk</span><span class="p">;</span> <span class="c1">//p指向bulk的Quote的部分</span>
+
+<span class="n">Quote</span> <span class="o">&amp;</span><span class="n">r</span><span class="o">=</span><span class="n">bulk</span><span class="p">;</span>  <span class="c1">//r绑定到bulk的Quote部分</span>
+
+</code></pre></div></div>
+<p>上述转换可以把派生类对象的指针用在需要基类指针的地方。
+注意：</p>
+
+<ul>
+  <li>在派生类对象中含有与基类对应的组成部分，这一事实是继承的关键。</li>
+  <li>派生类不能直接初始化继承的基类成员，必须使用基类的构造函数来初始化它的基类部分；每个类控制它自己的成员初始化过程。</li>
+  <li>除非我们特别指出，否则派生类的基类部分会像数据成员一样执行默认初始化。如果需要使用基类的构造函数需要，使用<code class="language-plaintext highlighter-rouge">基类名(参数1，参数2)</code> 的形式进行显式调用。否则进行一般空参数的默认初始化。</li>
+  <li>首先初始化基类的部分，然后按照声明的顺序依次初始化派生类的成员。</li>
+  <li><strong>c++中类，是在实例化时才会查找相关代码，没有使用就不会生成对应代码，函数无论使用都会生成。</strong></li>
+  <li>类会自动生成一个<code class="language-plaintext highlighter-rouge">namespace</code>,其中的静态成员和静态变量，相当于<code class="language-plaintext highlighter-rouge">namespace</code>中的变量和函数。</li>
+  <li>如果基类定义了一个静态成员，则在整个继承体系中只存在该成员的唯一定义。不论从基类中派生出来多少个派生类，对于每个静态成员来说都只存在唯一的实例。</li>
+  <li>如果我们想要某个类用作基类，则该类函数必须已经定义而非仅仅声明。主要是构造函数和成员变量必须定义，因为子类的构造函数必须使用父类的构造函数。</li>
+  <li>在类后面添加关键字<code class="language-plaintext highlighter-rouge">final</code>可以有效防止类被继承。</li>
+  <li>和内置指针一样，智能指针类也支持派生类向基类的类型转换，意味着我们可以将一个派生类对象的指针存储在一个基类指针的只能指针内。</li>
+</ul>
+
+<p><strong>基类和派生类</strong></p>
+
+<p>不存在基类向派生类的隐式类型转换，但是当编译器无法确定某个特定的转换在运行时是否安全的时候，则可以，但这是很危险的，并且基类函数的析构函数最好是虚析构函数。(<a href="https://www.cnblogs.com/lit10050528/p/3874703.html">C++中虚析构函数的作用</a>)</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Bulk_quote</span> <span class="n">bulk</span><span class="p">;</span>
+<span class="n">Quote</span> <span class="o">*</span><span class="n">itemP</span><span class="o">=&amp;</span><span class="n">bulk</span><span class="p">;</span>  <span class="c1">//正确；动态类型是Bulk_quote</span>
+
+<span class="n">Bulk_quote</span> <span class="o">*</span><span class="n">bulkP</span><span class="o">=</span><span class="n">itemP</span><span class="p">;</span>  <span class="c1">//错误，不能将基类转换成派生类</span>
+
+</code></pre></div></div>
+
+<p>派生类向基类的自动类型转换，支队指针或者引用类型有效，在派生类类型和基类类型之间不存在这样的转换。</p>
+
+<p>当我们用一个派生类对象为一个基类对象初始化或赋值时，只有该派生类对象中的基类部分会被拷贝、移动或赋值，它的派生类部分将被忽略掉。</p>
+
+<p>存在继承关系的类型之间的转换规则</p>
+
+<ul>
+  <li>从派生类向基类的类型转换只对指针或引用类型有效</li>
+  <li>基类向派生类不存在隐式类型转换</li>
+  <li>和任何其他成员一样，派生类向基类的类型转换也可能会由于访问受限而变得不可行。</li>
+</ul>
+
+<h3 id="153-虚函数">15.3 虚函数</h3>
+
+<p><strong>虚函数的调用可能在运行时才被解析</strong></p>
+
+<p>注意：</p>
+
+<ul>
+  <li>一旦某个函数被声明成虚函数，则在所有派生类中它都是虚函数。</li>
+  <li>一个派生类的函数如果覆盖了继承来的虚函数，则它的形参类型必须被它覆盖的基类函数完全一致;返回类型也必须相同。形参列表不同时会产生新的函数，继承的基类函数仍旧有效。</li>
+  <li>使用<code class="language-plaintext highlighter-rouge">override</code>关键字可以明确重载，原函数中没有函数，或者参数不对应则都会产生错误。</li>
+  <li>如果虚函数使用默认实参，则基类和派生类中定义的默认实参最好一致。</li>
+</ul>
+
+<p><strong>回避虚函数的机制</strong></p>
+
+<p>可以使用作用域运算符，实现虚函数的强行绑定，而非动态绑定；例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">double</span> <span class="n">undiscounted</span><span class="o">=</span><span class="n">baseP</span><span class="o">-&gt;</span><span class="n">Quote</span><span class="o">::</span><span class="n">net_price</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+<span class="c1">//强行调用基类中定义的函数版本而不管baseP的动态类型到底是什么</span>
+
+</code></pre></div></div>
+
+<p>通常情况下，只有成员函数(或者友元)中的代码才需要使用作用域运算符来回避虚函数的机制。通常是一个派生类的虚函数调用它覆盖的基类的虚函数版本时。</p>
+
+<p>注意：如果一个派生类虚函数需要调用它的基类版本，但是没有使用作用域运算符，则在运行时该调用将被解析为对派生类版本自身的调用，从而导致无限递归。</p>
+
+<h3 id="154-抽象基类">15.4 抽象基类</h3>
+
+<p>含有纯虚函数的类是抽象基类；不能创建抽象基类的对象，只能被继承</p>
+
+<p>重构：负责重新设计类的体系以便将操作或数据从一个类移动到另外一个类中。</p>
+
+<h3 id="155-访问控制与继承">15.5 访问控制与继承</h3>
+
+<p>protect:希望派生类分享但是不想被其他公共访问使用的成员。</p>
+
+<ul>
+  <li>受保护的成员对于类的用户来说是不可访问的。</li>
+  <li>受保护的成员，对于派生类的成员和友元来说是可以访问的</li>
+  <li>派生类或友元只能通过派生类对象来访问基类的受保护成员。派生类对于一个基类的受保护成员没有任何访问特权。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Base</span><span class="p">{</span>
+<span class="nl">protected:</span>
+    <span class="kt">int</span> <span class="n">prot_mem</span><span class="p">;</span>  <span class="c1">//protected 成员</span>
+
+<span class="p">};</span>
+<span class="k">class</span> <span class="nc">Sneaky</span><span class="o">:</span><span class="k">public</span> <span class="n">Base</span><span class="p">{</span>
+    <span class="k">friend</span> <span class="kt">void</span> <span class="n">clobber</span><span class="p">(</span><span class="n">Sneaky</span><span class="o">&amp;</span><span class="p">);</span>  <span class="c1">//能访问Sneaky::prot_mem</span>
+
+    <span class="k">friend</span> <span class="kt">void</span> <span class="n">clobber</span><span class="p">(</span><span class="n">Base</span><span class="o">&amp;</span><span class="p">);</span>  <span class="c1">//不能访问Base::prot_mem</span>
+
+    <span class="kt">int</span> <span class="n">j</span><span class="p">;</span>  
+<span class="p">}</span>
+<span class="kt">void</span> <span class="nf">clobber</span><span class="p">(</span><span class="n">Sneaky</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span><span class="n">s</span><span class="p">.</span><span class="n">j</span><span class="o">=</span><span class="n">s</span><span class="p">.</span><span class="n">prot_mem</span><span class="o">=</span><span class="mi">0</span><span class="p">;}</span> <span class="c1">//正确能访问Sneaky对象的private和protected成员</span>
+
+<span class="kt">void</span> <span class="nf">clobber</span><span class="p">(</span><span class="n">Base</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">){</span><span class="n">b</span><span class="p">.</span><span class="n">prot_mem</span><span class="o">=</span><span class="mi">0</span><span class="p">;}</span><span class="c1">//错误不能访问protected的成员</span>
+
+</code></pre></div></div>
+<p>private 不影响派生类的访问权限，主要影响，相关函数的使用。</p>
+
+<p><strong>派生类向基类转换的可访问性</strong></p>
+
+<ul>
+  <li>只有当D公有地继承B时，用户代码才能够使用派生类向基类的转换；如果D继承B的方式是保护的或者私有的，则用户代码不能使用该转换。</li>
+  <li>不论D以什么方式继承B,D的成员函数和友元都能使用派生类向基类的的转换；派生类向其会直接基类的类型转换对于派生类的成员和友元来说是永远可以访问的。</li>
+  <li>如果D继承B的方式是公有的或者受保护的，则D的派生类的成员和友元可以使用D向B的类型转换；反之，如果D继承B的方式是私有的，则不能使用</li>
+  <li>对于代码中的某个给定节点来说，如果基类的公有成员是可以访问的，则派生类向基类的类型转换也是可访问的；反之则不行。</li>
+</ul>
+
+<p><strong>友元与继承</strong></p>
+
+<p>友元关系不能继承，友元关系也不能传递，基类的友元在访问派生类成员时，不具有特殊性，类似的，派生类的友元也不能随意访问基类的成员。– <strong>不能继承友元关系，每个类负责控制各自成员的访问权限</strong></p>
+
+<p><strong>改变个别成员的可访问性</strong></p>
+
+<p>通过<code class="language-plaintext highlighter-rouge">using</code>声明可以改变派生类继承的某个名字的访问级别。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Base</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">n</span><span class="p">;}</span>
+<span class="nl">protected:</span>
+    <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">Derived</span><span class="o">:</span> <span class="k">private</span> <span class="n">Base</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">using</span> <span class="n">Base</span><span class="o">::</span><span class="n">size</span><span class="p">;</span>  <span class="c1">//保持对象尺寸相关的成员的访问级别</span>
+
+<span class="nl">protected:</span>
+    <span class="k">using</span> <span class="n">Base</span><span class="o">::</span><span class="n">n</span><span class="p">;</span> <span class="c1">//使用using关键字改变成员变量的访问级别。</span>
+
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">private using</code> 该名字能被类的成员和友元访问；</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">public using</code> 类的所有成员都能访问。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">protectde using</code> 类的成员、友元和派生类是可访问的。</li>
+</ul>
+
+<h3 id="156-继承中的类作用域">15.6 继承中的类作用域</h3>
+
+<p>每个类定义自己的作用域，；当存在继承关系时，派生类的作用域嵌套在其基类的作用域之内。如果一个名字在派生类的作用域内无法正常解析，则编译器将继续在外层的基类作用域中寻找该名字的定义。例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Bulk_quote</span> <span class="n">bulk</span><span class="p">;</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">bulk</span><span class="p">.</span><span class="n">isbn</span><span class="p">();</span>
+
+<span class="c1">//查找步骤：先找自身作用域内函数，再找父类，和父类的父类</span>
+
+</code></pre></div></div>
+<p>静态类型：在编译时总是已知的，它是变量声明时的类型或表达式生成的类型
+动态类型：变量或表达式表示的内存中的对象的类型。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>派生类的成员将隐藏同名的基类成员</li>
+  <li>可用通过作用域运算符来使用一个呗隐藏的基类成员</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">Derived</span><span class="o">:</span><span class="n">Base</span><span class="p">{</span>
+    <span class="kt">int</span> <span class="n">get_base_mem</span><span class="p">(){</span>
+        <span class="k">return</span> <span class="n">Base</span><span class="o">::</span><span class="n">mem</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>除了覆盖继承而来的虚函数之外，派生类最好不要中庸其它定义在基类中的名字。</li>
+</ul>
+
+<p><strong>关键概念:名字夜找与继承</strong></p>
+
+<hr>
+
+<p>理解函数调用的解析过程刘一于理解C++的继承至关重要，假定我们调用<code class="language-plaintext highlighter-rouge">p-&gt;mem()</code>(或者obj.mem())，则依次执行以下4个步骤:</p>
+
+<ul>
+  <li>首先确定p(或obj)的静态类型因为我们调用的是一个成员，所以该类型必然是类类型</li>
+  <li>在p(或。bj)的静态类型对应的类中查找mem如果找不到，则依次在直接基类中不断查找直至到达继承链的顶端如果找遍了该类及其基类仍然找不到，则编译器将报错</li>
+  <li>一旦找到了mem,就进行常规的类型检查(参见6.1节，第183页)以确认对于当前找到的mem，本次调用是否合法</li>
+  <li>假设调用合法，则编译器将根据调用的是否是虚函数而产生不同的代码:      一如果mem是虚函数且我们是通过引用或指针进行的调用，则编译器产生的代          码将在运行时确定到底运行该虚函数的哪个版本，依据是对象的动态类型、      一反之，如果mem不是虚函数或者我们是通过对象(而非引用或指针)进行的          调用，则编译器将产生一个常规函数调用。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">Base</span><span class="p">{</span>      
+<span class="kt">int</span>  <span class="n">memfcn</span><span class="p">();</span>
+<span class="p">};</span>
+<span class="k">struct</span> <span class="nc">DerivPd</span><span class="o">:</span><span class="n">Base</span><span class="p">{</span>
+    <span class="kt">int</span> <span class="n">memfcn</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>  <span class="c1">//隐藏基类的memfn</span>
+
+<span class="p">};</span>
+
+<span class="n">Derived</span> <span class="n">d</span><span class="p">;</span><span class="n">Base</span> <span class="n">b</span><span class="p">;</span>
+
+<span class="n">b</span><span class="p">.</span><span class="n">memfcn</span><span class="p">();</span>  <span class="c1">//调用Base::memfn</span>
+
+<span class="n">d</span><span class="p">.</span><span class="n">memfcn</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>  <span class="c1">//调用Derived::memfcn</span>
+
+<span class="n">d</span><span class="p">.</span><span class="n">memfcn</span><span class="p">();</span>   <span class="c1">//错误：参数列表为空的memfcn被隐藏了</span>
+
+<span class="n">d</span><span class="p">.</span><span class="n">Base</span><span class="o">::</span><span class="n">memfcn</span><span class="p">();</span>  <span class="c1">//正确：调用Base::memfcn()</span>
+
+</code></pre></div></div>
+<p><strong>通过基类调用隐藏的虚函数</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Base</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">virtual</span> <span class="kt">int</span> <span class="n">fcn</span><span class="p">();</span>
+<span class="p">};</span>
+<span class="k">class</span> <span class="nc">D1</span><span class="o">:</span><span class="k">public</span> <span class="n">Base</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">//隐藏基类的fcn,这个fcn不是虚函数</span>
+    
+    <span class="c1">//D1继承了Base::fcn()的定义</span>
+
+    <span class="kt">int</span> <span class="n">fcn</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>  <span class="c1">//形参列表与Base中的fcn不一致</span>
+
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">f2</span><span class="p">();</span>  <span class="c1">//是一个新的虚函数，在Base中不存在</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">D2</span><span class="o">:</span><span class="k">public</span> <span class="n">D1</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="kt">int</span> <span class="n">fcn</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>   <span class="c1">//一个非虚函数，隐藏了D1::fcn(int)</span>
+
+    <span class="kt">int</span> <span class="n">fcn</span><span class="p">();</span>    <span class="c1">//覆盖了Base的虚函数fcn</span>
+
+    <span class="kt">void</span> <span class="n">f2</span><span class="p">();</span>  <span class="c1">// 覆盖了D1的虚函数f2</span>
+<span class="p">}</span>
+
+
+
+<span class="n">Base</span> <span class="n">bobj</span><span class="p">;</span>
+<span class="n">D1</span> <span class="n">d1obj</span><span class="p">;</span>
+<span class="n">D2</span> <span class="n">d2obj</span><span class="p">;</span>
+
+<span class="n">Base</span> <span class="o">*</span><span class="n">bp1</span><span class="o">=&amp;</span><span class="n">bobj</span><span class="p">,</span><span class="o">*</span><span class="n">bp2</span><span class="o">=&amp;</span><span class="n">d1obj</span><span class="p">,</span><span class="o">*</span><span class="n">bp3</span><span class="o">=&amp;</span><span class="n">d2obj</span><span class="p">;</span>
+
+<span class="n">bp1</span><span class="o">-&gt;</span><span class="n">fcn</span><span class="p">();</span>  <span class="c1">//虚调用，将在运行时调用Base::fcn()</span>
+
+<span class="n">bp2</span><span class="o">-&gt;</span><span class="n">fcn</span><span class="p">();</span>  <span class="c1">//虚调用，将在运行时调用Base::fcn()</span>
+
+<span class="n">bp2</span><span class="o">-&gt;</span><span class="n">fcn</span><span class="p">();</span>  <span class="c1">//虚调用，将在运行时调用D2::fcn()</span>
+
+<span class="n">Base</span> <span class="o">*</span><span class="n">pd</span><span class="o">=&amp;</span><span class="n">d2obj</span><span class="p">;</span>
+<span class="n">D1</span> <span class="o">*</span><span class="n">p2</span><span class="o">=&amp;</span><span class="n">d2obj</span><span class="p">;</span>
+<span class="n">D2</span> <span class="o">*</span><span class="n">p3</span><span class="o">=&amp;</span><span class="n">d2obj</span><span class="p">;</span>
+
+<span class="n">p1</span><span class="o">-&gt;</span><span class="n">fcn</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>  <span class="c1">//错误：Base中没有接受一个int的fcn</span>
+
+<span class="n">p2</span><span class="o">-&gt;</span><span class="n">fcn</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>  <span class="c1">//静态绑定，调用D1::fcn(int)</span>
+
+<span class="n">p3</span><span class="o">-&gt;</span><span class="n">fcn</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>  <span class="c1">//静态绑定，调用D2::fcn(int)</span>
+
+</code></pre></div></div>
+
+<p>类内using声明的一般规则同样适用于重载函数的名字，基类函数的每个实例在派生类中都必须是可访问的，对派生类没有重新定义的重载版本的访问，实际上是对using 声明点的访问。</p>
+
+<h3 id="157-构造函数与拷贝控制">15.7 构造函数与拷贝控制</h3>
+
+<p>虚析构函数将阻止合成移动操作：
+如果一个类定义了析构函数，即使它通过<code class="language-plaintext highlighter-rouge">=default</code>的形式使用了合成的版本，编译器也不会为这个类合成移动操作。</p>
+
+<p><strong>派生类中删除的拷贝控制与基类的关系</strong></p>
+
+<p>某此定义基类的万式也可能导致有的派产仁类成员成为被删除的函数：</p>
+
+<ul>
+  <li>如果基类中的默认构造函数、拷贝构造函数、拷贝赋值运算符或析构函数是被删除的函数或艺不可访问，则派生类中对应的成员将是被删除的，原因是编译器小能使用基类成员来执行派生类对象基类部分的构造、赋值或销毁操作。</li>
+  <li>如果在基类中有一个不可访问或删除掉的析构函数，则派生类中合成的默认拷贝和构造函数将是被删除的，因为编译器无法销毁派生类对象的基类部分。</li>
+  <li>和过去一样，编译器将不会合成一个删除掉的移动操作。当我们使用=default请求一个移动操作时，如果基类中的对应操作是删除的或不可访问的，那么派生类中该函数将是被删除的，原因是派生类对象的基类部分不可移动，如果基类的析构函数是删除或不可访问的，则派牛类的移动构造函数也将是被删除的。</li>
+</ul>
+
+<p>注意：</p>
+
+<ul>
+  <li>当派生类定义了拷贝或者移动操作时，该操作负责拷贝或移动包括基类部分成员在内的整个对象。</li>
+  <li>在默认情况下，基类默认构造函数初始化派生类对象的基类部分如果我想拷贝(或移动)基类部分，则必须在派生类的构造函数初始值列表中显地使用基类的拷贝(或移动)构造函数。</li>
+  <li>如果构造函数或析构函数调用了某个虚函数，则我们应该执行与构造函数或析构函数所属类型相对应的虚函数版本。</li>
+  <li>构造函数的using 声明不会改变该构造函数的访问级别。</li>
+  <li>基类构造函数的默认实参，并不会被继承。相反，派生类将获得多个继承的构造函数，其中每个构造函数分别省略掉一个含有默认实参的形参。如果一个构造函数接收两个形参后一个由模式实参，则派生类将获得两个构造函数一个函数接受两个形参(没有默认实参)，另外一个构造函数只接受一个形参，它对应于基类中最左侧的没有默认值的那个形参。</li>
+  <li>如果派生类定义的构造函数与基类的构造函数具有相同的参数列表，则该构造函数将不会被继承。定义在派生类中的构造函数将替换继承来的构造函数</li>
+  <li>继承的构造函数不会被作为用户定义的构造函数来使用，如果一个类只含有继承的构造函数，则他也将拥有一个合成的默认构造函数。</li>
+</ul>
+
+<h3 id="158-容器与继承">15.8 容器与继承</h3>
+
+<p><strong>当派生类对象被赋值给基类对象的时候，其中的派生部分将被“切掉”，因此容器和存在继承关系的类型无法兼容；因此最好在容器中放置(智能)指针而非对象</strong></p>
+
+<p><strong>模拟拷贝</strong>
+给类添加一个虚拷贝函数，该函数将申请一份当前对象的拷贝。处理动态的内存分配</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span>  <span class="nc">Quote</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="c1">//该虚函数返回当前对象的一份动态分配的拷贝</span>
+    
+    <span class="k">virtual</span> <span class="n">Quote</span><span class="o">*</span> <span class="n">clone</span><span class="p">()</span> <span class="k">const</span><span class="o">&amp;</span> <span class="p">{</span><span class="k">return</span> <span class="k">new</span> <span class="n">Quote</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);}</span> <span class="c1">// const&amp; 是对this的修饰,标明这个this是 const引用</span>
+    <span class="k">virtual</span> <span class="n">Quote</span><span class="o">*</span> <span class="n">clone</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="p">{</span><span class="k">return</span> <span class="k">new</span> <span class="n">Quote</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">));}</span>  <span class="c1">// &amp;&amp; 也是对this的修饰,表示由对象this指针生成的一个右值</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="第16章-模板与泛型编程">第16章 模板与泛型编程</h2>
+
+<p>通用函数模板实现函数的泛化(<a href="https://blog.csdn.net/Raptor_2017/article/details/77689009">函数模板的定义实现分别放在.h和cpp中将会遭遇symbol问题参考</a>)：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">v1</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">v2</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">v1</span><span class="o">&lt;</span><span class="n">v2</span><span class="p">)</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">v2</span><span class="o">&lt;</span><span class="n">v1</span><span class="p">)</span> <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> 
+<span class="p">}</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">compare</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span><span class="c1">// T为int</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">compare</span><span class="p">(</span><span class="n">vec1</span><span class="p">,</span><span class="n">vec2</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>  <span class="c1">// T 为vector&lt;int &gt;</span>
+</code></pre></div></div>
+<p>注意： 在模板定义中模板参列表不能为空</p>
+
+<p>当使用模板的时候，我们指定模板实参，将其绑定到模板参数上。
+模板类型参数，可以像内置类型或者类类型说明符一样使用。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span><span class="k">class</span> <span class="nc">u</span><span class="p">&gt;</span> <span class="n">T</span> <span class="nf">foo</span> <span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span><span class="n">u</span> <span class="n">test</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">T</span> <span class="n">tmp</span><span class="o">=*</span><span class="n">p</span><span class="p">;</span>  <span class="c1">//tmp的类型将是指针p指向的类型</span>
+    <span class="c1">//...</span>
+    
+    <span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><strong>非类型模板参数</strong></p>
+
+<p>可以在模板中定义非类型模板参数。一个非类型模板参数表示一个值而非一个类型。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="kt">unsigned</span> <span class="n">N</span><span class="p">,</span><span class="kt">unsigned</span> <span class="n">M</span><span class="p">&gt;</span>
+
+<span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">p1</span><span class="p">)[</span><span class="n">N</span><span class="p">],</span><span class="k">const</span> <span class="kt">char</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">p2</span><span class="p">)[</span><span class="n">M</span><span class="p">])</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">compare</span><span class="p">(</span><span class="s">"hi"</span><span class="p">,</span><span class="s">"mom"</span><span class="p">);</span>
+<span class="c1">//编译器实例化版本</span>
+
+<span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">p1</span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span><span class="k">const</span> <span class="kt">char</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">p2</span><span class="p">)[</span><span class="mi">4</span><span class="p">]);</span>
+</code></pre></div></div>
+<p>注意：</p>
+
+<ul>
+  <li>非类型模板参数的模板实参必须是常量表达式。</li>
+  <li>模板程序应该尽量减少对实参类型的要求。</li>
+  <li>编译器遇到一个模板定义的时，并不生成代码。只有当我们实例化出模板的一个特定版本时，编译器才会生成代码。</li>
+  <li>保证传递给模板的实参支持模板所要求的操作，以及这些操作在模板中能够正确工作，是调用者的责任。</li>
+</ul>
+
+<p><strong>inline和constexpr的函数模板</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//正确：inline说明符跟在模板参数列表之后</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kr">inline</span> <span class="n">T</span> <span class="nf">min</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="c1">//错误：inline说明符的位置不正确</span>
+
+<span class="kr">inline</span> <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="n">T</span> <span class="nf">min</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">);</span>
+</code></pre></div></div>
+<h4 id="1612-类模板">16.1.2 类模板</h4>
+<p>编译器不能为类模板推断模板参数类型，为了使用类模板，我们必须在模板名后的尖括号中提供额外的信息。用来代替模板参数的模板实参列表。这也决定了使用模板的时候需要我们提供 <strong>显示模板实参</strong>；</p>
+
+<p>注意：</p>
+
+<p>一个类模板的每个实例都形成了一个独立的类。类型<code class="language-plaintext highlighter-rouge">Blob&lt;string&gt;</code>与任何其他Blob类型都没有关联，也不会对任何其它Blob类型的成员有特殊访问权限。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//定义模板类</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="k">class</span> <span class="nc">Blob</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">typedef</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">size_type</span> <span class="n">size_type</span><span class="p">;</span>
+    <span class="n">Blob</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">il</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="c1">//模板类成员</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="n">T</span><span class="o">&amp;</span> <span class="n">Blob</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">back</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">check</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s">"back on empty Blob"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">-&gt;</span><span class="n">back</span><span class="p">();</span>
+<span class="p">}</span> 
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="n">T</span><span class="o">&amp;</span> <span class="n">Blob</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//如果i太大，check会抛出异常，阻止访问一个不存在的元素</span>
+    
+    <span class="n">check</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="s">"subscript out of range"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)[</span><span class="n">i</span><span class="p">];</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>默认情况下，一个类模板的成员函数只有当程序用到它时才进行实例化。如果成员函数没有被使用，则它不会被实例化。</p>
+
+<p><strong>在类模板自己的作用域中，我们可以直接使用模板名而不提供实参</strong></p>
+
+<p><strong>在类模板外使用类模板名时，我们并不在类的作用域中，直到遇到类名才表示进入类的作用域</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="n">BlobPtr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">BlobPtr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="k">operator</span><span class="o">++</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//此处无需检查；调用前置递增时会进行检查</span>
+
+    <span class="n">BlobPtr</span> <span class="n">ret</span><span class="o">=*</span><span class="k">this</span><span class="p">;</span>  <span class="c1">//保存当前值</span>
+
+    <span class="o">++*</span><span class="k">this</span><span class="p">;</span> <span class="c1">//推进一个元素；前置++检查递增是否合法</span>
+
+    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>  <span class="c1">//返回保存的状态</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>在一个类模板的作用域内，我们可以指直接使用模板名而不必指定模板实参。</p>
+
+<p>可以使用typedef来定义模板类的别名。
+一个<code class="language-plaintext highlighter-rouge">static</code>成员函数只有在使用的时候才会实例化。</p>
+
+<h4 id="1613-模板参数">16.1.3 模板参数</h4>
+<p>一个模板参数名的可用范围是在其声明之后，至模板声明或定义结束之前。模板参数会隐藏外层作用域中声明的相同的名字。与大多数其他上下文不同，在模板内不能重用模板参数名。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="kt">double</span> <span class="n">A</span><span class="p">;</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">A</span><span class="p">,</span><span class="k">typename</span> <span class="nc">B</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="n">A</span> <span class="n">a</span><span class="p">,</span><span class="n">B</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">A</span> <span class="n">tmp</span><span class="o">=</span><span class="n">a</span><span class="p">;</span><span class="c1">// tmp的类型为模板参数A的类型，而非double</span>
+
+    <span class="kt">double</span> <span class="n">B</span><span class="p">;</span> <span class="c1">//错误： 重声明模板参数</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><strong>模板声明</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//声明但不定义compare和Blob</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">int</span> <span class="n">compare</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">)</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="k">class</span> <span class="nc">Blob</span><span class="p">;</span>
+</code></pre></div></div>
+<p>一个特定文件所需要的所有模板的声明通常一起放置在文件开始位置，出现与任何使用这些模板的代码之前</p>
+
+<p>注意：
+当我们希望通知班一起一个名字表示类型的时候，必须使用关键字<code class="language-plaintext highlighter-rouge">typename</code>,而不能使用<code class="language-plaintext highlighter-rouge">class</code>；</p>
+
+<p>对于static修饰的函数使用函数模板的时候，为了处理模板，编译器必须知道名字是否表示一个类型。默认情况下，c++语言假定通过作用域运算访问的名字不是类型。使用一个模板类型参数的类型成员，就必须显示告诉编译器该名字是一个类型，使用<code class="language-plaintext highlighter-rouge">typename</code>实现</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">value_type</span> <span class="nf">top</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">c</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">c</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+    <span class="k">else</span>
+        <span class="n">retrun</span> <span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">value_type</span><span class="p">();</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p><strong>默认模板实参</strong>
+c++11允许为函数和类模板提供默认实参。例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span><span class="k">typename</span> <span class="nc">F</span><span class="o">=</span><span class="n">less</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="o">&gt;</span>
+<span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">v1</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">v2</span><span class="p">,</span> <span class="n">F</span> <span class="n">f</span><span class="o">=</span><span class="n">F</span><span class="p">())</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">))</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span><span class="n">v1</span><span class="p">))</span> <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//compare 有一个默认模板实参 less&lt;T&gt; 和一个默认函数实参F()</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">=</span><span class="kt">int</span><span class="p">&gt;</span> <span class="k">class</span> <span class="nc">Numbers</span><span class="p">{</span> <span class="c1">//T 默认为int</span>
+    
+<span class="nl">public:</span>
+        <span class="n">Numbers</span><span class="p">(</span><span class="n">T</span> <span class="n">v</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="n">val</span><span class="p">(</span><span class="n">v</span><span class="p">){}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h4 id="1614-成员模板">16.1.4 成员模板</h4>
+<p>一个类可以包含本身就是模板的成员函数。这种成员被称为 <strong>成员模板</strong>。成员模板不能是函数。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">DebugDelete</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">DebugDelete</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">s</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="p">)</span><span class="o">:</span><span class="n">os</span><span class="p">(</span><span class="n">s</span><span class="p">){}</span>
+    <span class="c1">//与任何函数模板相同，T的类型由编译器推断</span>
+
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="k">operator</span><span class="p">()</span> <span class="p">(</span><span class="n">T</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="k">const</span>
+    <span class="p">{</span><span class="n">os</span><span class="o">&lt;&lt;</span><span class="s">"deleting unique_ptr"</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="k">delete</span> <span class="n">p</span><span class="p">;}</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">;</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h4 id="1615-控制实例化">16.1.5 控制实例化</h4>
+<p>模板使用的时候会通过编译器推断，生成对应类型的函数。当两个或者多个独立编译的源文件使用了相同的模板，并提供了相同的模板参数时，每个文件中就都会有该模板的一个示例，使得相同模板的额外开销特别严重。在新标准中通过 <strong>显示实例化</strong>来避免这种开销。 先声明再实例化，但是<code class="language-plaintext highlighter-rouge">extern</code> 声明必须出现在任何使用实例化版本的代码之前。<a href="https://blog.csdn.net/Raptor_2017/article/details/77689009">参考链接</a></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">extern</span> <span class="k">template</span> <span class="n">declaration</span><span class="p">;</span>  <span class="c1">//示例化声明</span>
+
+<span class="k">template</span> <span class="n">declaration</span><span class="p">;</span>  <span class="c1">//实例化定义</span>
+
+<span class="c1">//下面的这些模板类型必须在程序其它位置进行实例化</span>
+
+<span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="p">&gt;;</span>
+<span class="k">extern</span> <span class="k">template</span> <span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">.</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="n">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">sa1</span><span class="p">,</span><span class="n">sa2</span><span class="p">;</span>  <span class="c1">//示例化会出现在其它位置</span>
+
+<span class="n">Blob</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">a1</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">};</span>
+<span class="n">Blob</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">a2</span><span class="p">(</span><span class="n">a1</span><span class="p">);</span>  <span class="c1">//拷贝构造函数在本文件中实例化</span>
+
+<span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">compare</span><span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">a2</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>  <span class="c1">//实例化出现在其它位置</span>
+
+<span class="c1">//templateBuild.cc</span>
+
+<span class="c1">//实例化文件必须为每个在其它文件中声明为extern的类型和函数提供一个(非extern)的定义</span>
+
+<span class="k">template</span> <span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">template</span> <span class="k">class</span> <span class="nc">Blob</span><span class="o">&lt;</span><span class="n">string</span><span class="p">&gt;;</span>  
+<span class="c1">//实例化类模板的所有成员</span>
+
+</code></pre></div></div>
+<p>当编译器遇到一个实例化定义(与声明相对)时，它为其生成代码。需要将生成的.o文件链接到一起。</p>
+
+<p>注意：</p>
+<ul>
+  <li>对每个实例化声明，在程序中某个位置必须有其显示的实例化定义。</li>
+  <li>一个类模板的示例化定义会实例化该模板的所有成员，包括内联的成员函数。</li>
+  <li>在一个类模板的实例化定义中，所用类型必须能用于模板的所有成员函数。</li>
+</ul>
+
+<h3 id="162-模板实参推断">16.2 模板实参推断</h3>
+
+<p>编译器利用调用中的函数实参来确定其模板参数的过程被称为 <strong>模板实参推断</strong>。在模板实参推断过程中，编译器使用函数调用中的实参类型来寻找模板实参，用这些模板实参生成的函数版本与给定的函数调用最为匹配。</p>
+
+<ul>
+  <li>顶层<code class="language-plaintext highlighter-rouge">const</code>无论是在形参还是实参中，都会被忽略。</li>
+  <li>const转换：可以将一个非const对象的引用（或指针）传递给一个const的引用(或指针)形参。</li>
+  <li>数组或函数指针转换：如果函数形参不是引用来兴，则可以对数组或者函数类型的实惨应用正常的指针转换。一个数组实参可以转化为一个指向其首元素的指针。类似的，一个函数实参可以转换为一个该函数类型的指针。</li>
+</ul>
+
+<p><strong>不能应用与函数模板的转换</strong></p>
+
+<ul>
+  <li>算术转换</li>
+  <li>派生类向基类的转换</li>
+  <li>用户定义的转换
+使用示例：</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="n">T</span> <span class="nf">fobj</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">T</span><span class="p">);</span> <span class="c1">//实参拷贝</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="n">T</span> <span class="nf">fref</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">//引用</span>
+
+<span class="n">string</span> <span class="nf">s1</span><span class="p">(</span><span class="s">"a value"</span><span class="p">);</span>
+
+<span class="k">const</span> <span class="n">string</span> <span class="nf">s2</span><span class="p">(</span><span class="s">"nihao "</span><span class="p">);</span>
+<span class="n">fobj</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">);</span> <span class="c1">//调用fobj(string，string)；const 被忽略</span>
+
+<span class="n">fref</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="n">s2</span><span class="p">);</span><span class="c1">//调用fref(const string&amp;,const string&amp;) 将s1转换为const是允许的</span>
+
+<span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span><span class="n">b</span><span class="p">[</span><span class="mi">42</span><span class="p">];</span>
+
+<span class="n">fobj</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>  <span class="c1">//调用 f(int*,int*)</span>
+
+<span class="n">fref</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>  <span class="c1">//错误：数组类型不匹配；如果形参是一个引用，则数组不会转换为指针，大小不匹配因此不合法。</span>
+
+</code></pre></div></div>
+
+<p>注意：</p>
+<ul>
+  <li>将实参传递给带模板类型的函数形参时，能够自动应用的类型转换只有const转换及数组或函数到指针的转换。</li>
+  <li>如果函数参数类型不是模板参数，则对实参进行正常的类型转换。</li>
+</ul>
+
+<h4 id="1622-函数模板显示实参">16.2.2 函数模板显示实参</h4>
+
+<p><strong>指定显式模板实参</strong></p>
+
+<p>定义返回类型的第三个模板参数，从而允许用户控制返回类型：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T1</span><span class="p">,</span><span class="k">typename</span> <span class="nc">T2</span><span class="p">,</span><span class="k">typename</span> <span class="nc">T3</span><span class="p">&gt;</span>
+<span class="n">T1</span> <span class="nf">sum</span><span class="p">(</span><span class="n">T2</span><span class="p">,</span><span class="n">T3</span><span class="p">);</span> 
+<span class="c1">//编译器无法推断T1，它未出现在函数参数列表中</span>
+
+<span class="c1">//显示指定T1帮助实参进行类型推断。</span>
+
+<span class="k">auto</span> <span class="n">val3</span><span class="o">=</span><span class="n">sum</span><span class="o">&lt;</span><span class="kt">long</span> <span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">lng</span><span class="p">);</span> <span class="c1">// long long sum(int ,long)</span>
+
+<span class="c1">//用户必须指定所有三个模板参数</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T1</span><span class="p">,</span><span class="k">typename</span> <span class="nc">T2</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">T3</span><span class="p">&gt;</span>
+<span class="n">T3</span> <span class="nf">alternative_sum</span><span class="p">(</span><span class="n">T2</span><span class="p">,</span><span class="n">T1</span><span class="p">);</span>
+<span class="c1">//错误：不能推断前几个模板参数</span>
+
+<span class="k">auto</span> <span class="n">val3</span><span class="o">=</span><span class="n">alternative_sum</span><span class="o">&lt;</span><span class="kt">long</span> <span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">lng</span><span class="p">);</span>
+<span class="c1">//正确： 显示指定了所有三个参数</span>
+
+<span class="k">auto</span> <span class="n">val2</span><span class="o">=</span><span class="n">alternative_sum</span><span class="o">&lt;</span><span class="kt">long</span> <span class="kt">long</span> <span class="p">,</span><span class="kt">int</span><span class="p">,</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">lng</span><span class="p">);</span>
+
+
+</code></pre></div></div>
+<p><strong>显式模板实参按照由左至右的顺序与对应的参数模板匹配</strong></p>
+
+<h4 id="1623-尾置返回类型与类型转换">16.2.3 尾置返回类型与类型转换</h4>
+
+<p>尾置返回允许我们在参数累彪之后声明返回类型；编译器会根据实例化的输入，动态判断返回类型。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">It</span><span class="p">&gt;</span>
+<span class="k">auto</span> <span class="nf">fcn</span><span class="p">(</span><span class="n">It</span> <span class="n">beg</span><span class="p">,</span><span class="n">It</span> <span class="n">end</span><span class="p">)</span><span class="o">-&gt;</span><span class="k">decltype</span><span class="p">(</span><span class="o">*</span><span class="n">beg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//处理序列</span>
+
+    <span class="k">return</span> <span class="o">*</span><span class="n">beg</span><span class="p">;</span> <span class="c1">// 返回序列中一个元素的引用</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">It</span><span class="p">&gt;</span>
+<span class="k">auto</span> <span class="n">fcn2</span><span class="p">(</span><span class="n">It</span> <span class="n">beg</span><span class="p">,</span><span class="n">It</span> <span class="n">end</span><span class="p">)</span><span class="o">-&gt;</span>
+    <span class="k">typename</span> <span class="n">remove_reference</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="o">*</span><span class="n">beg</span><span class="p">)</span><span class="o">&gt;::</span><span class="n">type</span> <span class="c1">//获取元素类型</span>
+
+    <span class="c1">//decltype(*beg)返回元素类型的引用类型</span>
+    
+    <span class="c1">//remove_reference::type 脱去引用，剩下元素类型本身</span>
+
+<span class="p">{</span>
+    <span class="c1">//处理序列</span>
+
+    <span class="k">return</span> <span class="o">*</span><span class="n">beg</span><span class="p">;</span> <span class="c1">// 返回序列中一个元素的拷贝</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p><strong>标准类型转换模板</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">对<code class="language-plaintext highlighter-rouge">Mod&lt;T&gt;</code>,其中<code class="language-plaintext highlighter-rouge">Mod</code>为</th>
+      <th style="text-align: left">若<code class="language-plaintext highlighter-rouge">T</code>为</th>
+      <th style="text-align: left">则<code class="language-plaintext highlighter-rouge">Mod&lt;T&gt;::type</code>为</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">remove_reference</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">X&amp;</code>或<code class="language-plaintext highlighter-rouge">X&amp;&amp;</code>
+</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">add_const</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">X&amp;</code>或<code class="language-plaintext highlighter-rouge">const X</code>或函数</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">T</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">add_lvalue_reference</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X&amp;</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">T</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X&amp;&amp;</code></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">add_rvalue_reference</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">X&amp;</code>或<code class="language-plaintext highlighter-rouge">X&amp;&amp;</code>
+</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">T</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">remove_pointer</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X*</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">add_pointer</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">X&amp;</code>或<code class="language-plaintext highlighter-rouge">X&amp;&amp;</code>
+</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X*</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">make_signed</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">unsigned X</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">make_unsigned</code></td>
+      <td style="text-align: left">带符号类型</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">unsigned X</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">remove_extent</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X[n]</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">remove_all_extent</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X[n1][n2]...</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">X</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      <td style="text-align: left">否则</td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="1624-函数指针和实参推断">16.2.4 函数指针和实参推断</h4>
+<p>可以使用指针指向模板函数的实例;</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>template &lt;typename T&gt; int compare(const T&amp;,const T&amp;);
+//指针pf1指向实例 int compare(const int&amp;, const int&amp;)
+
+int (*pf1)(const int&amp; ,const int&amp;)=compare
+//pf1中参数的类型决定了T的模板实参的类型
+
+
+</code></pre></div></div>
+
+<p>当参数是一个函数模板实例的地址时，程序上下文必须满足对每个模板参数，能唯一确定其类型或值。</p>
+
+<h4 id="1625-模板实参推断和引用">16.2.5 模板实参推断和引用</h4>
+
+<p><strong>从左值引用函数参数推断类型</strong></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="nf">f1</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">//实参必须是一个左值</span>
+<span class="c1">//实参类型为模板参数类型</span>
+
+<span class="n">f1</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> <span class="c1">// i是int T是int</span>
+
+<span class="n">f1</span><span class="p">(</span><span class="n">ci</span><span class="p">);</span><span class="c1">//ci 是const int;模板参数T是const int</span>
+
+<span class="n">f1</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span> <span class="c1">// 错误传递给&amp;参数的实参必须是一个左值 </span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="nf">f2</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">// 可以接受一个右值</span>
+
+<span class="c1">//f2中的参数是const &amp;;实参中的const 是无关的。</span>
+
+<span class="c1">//在每个调用中，f2的函数参数都被推断为 const int&amp;</span>
+
+<span class="n">f2</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>  <span class="c1">//模板参数是int</span>
+
+<span class="n">f2</span><span class="p">(</span><span class="n">ci</span><span class="p">);</span> <span class="c1">// 模板参数是 int </span>
+
+<span class="n">f2</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span> <span class="c1">//一个const &amp;参数可以绑定到一个右值；T是int</span>
+
+</code></pre></div></div>
+
+<p><strong>从右值引用函数参数推断类型</strong></p>
+
+<p>类型推断过程类似普通左值引用函数参数的推断过程。</p>
+
+<p><strong>引用折叠和右值引用参数</strong></p>
+
+<ul>
+  <li>当文将一个左值传递给函数的右值引用参数，且此右值引用指向模板类型参数(T&amp;&amp;)时，编译器推断模板类型参数为实参的左值引用类型。因此，当使用f3(i)时，编译器推断T的类型为int&amp;,而非int</li>
+  <li>如果我们间接创建一个引用的引用，则这些引用形成了“折叠”。在所有情况下，引用会折叠成一个普通的左值引用类型。</li>
+  <li>特殊情况下，引用会折叠成右值引用：右值引用的右值引用。即，对于一个给定类型X:
+    <ul>
+      <li>X&amp; &amp;、X&amp; &amp;&amp;和X&amp;&amp; &amp;都折叠成类型X&amp;</li>
+      <li>类型X&amp;&amp; &amp;&amp; 折叠成X&amp;&amp;</li>
+    </ul>
+  </li>
+  <li>引用折叠只能应用于间接创建的引用的引用，如类型别名或模板参数。</li>
+</ul>
+
+<p>折叠规则和右值引用的特殊类型推断规则结合在一起的时候，可以左值调用<code class="language-plaintext highlighter-rouge">f3</code>,编译器推断<code class="language-plaintext highlighter-rouge">T</code>为一个左值引用类型：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f3</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> <span class="c1">//实参是一个左值；模板参数T是 int&amp;</span>
+
+<span class="n">f3</span><span class="p">(</span><span class="n">ci</span><span class="p">);</span> <span class="c1">//实参是一个左值；模板参数T是一个const int&amp;</span>
+
+<span class="kt">void</span> <span class="n">f3</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&amp;&gt;</span><span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="o">&amp;&amp;</span><span class="p">);</span> <span class="c1">//当T是int&amp;时，函数参数为int&amp; &amp;&amp;</span>
+
+<span class="kt">void</span> <span class="n">f3</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&amp;&gt;</span><span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">//当T是int&amp;时，函数参数折叠为 int&amp; </span>
+
+</code></pre></div></div>
+<p>结果：</p>
+
+<ul>
+  <li>如果一个函数参数是一个指向模板类型参数的右值引用(如，T&amp;&amp;),则它可以被绑定到一个左值；可以传递给它任意类型的实参。</li>
+  <li>如果一个左值传递给这样的参数，则函数参数被示例化为一个普通的左值引用(T&amp;)。</li>
+</ul>
+
+<p>接受右值引用参数的模板函数</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="nf">f3</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">val</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">T</span> <span class="n">t</span><span class="o">=</span><span class="n">val</span><span class="p">;</span> <span class="c1">//右值调用f3，f3(42),T为int ;左值i调用f3，T为int&amp;；t类型为 int&amp; .t的初始化值绑定到了val，对t赋值时，也改变了val的值。在下面的判断中永远得到true</span>
+
+    <span class="n">t</span><span class="o">=</span><span class="n">fcn</span><span class="p">(</span><span class="n">t</span><span class="p">);</span><span class="c1">//当T为右值时，职高部t，当T为左值时，都改变</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">val</span><span class="o">==</span><span class="n">t</span><span class="p">){</span>
+        <span class="cm">/*
+        若T是引用类型，则一直为true
+        */</span>
+
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="p">);</span>  <span class="c1">//绑定到非const右值</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">);</span>  <span class="c1">//左值和const右值</span>
+
+</code></pre></div></div>
+<h4 id="1626-理解stdmove">16.2.6 理解std::move</h4>
+
+<p>std::move的定义：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+
+<span class="k">typename</span> <span class="n">remove_reference</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">remove_reference</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&amp;&amp;</span> <span class="o">&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">// move的函数参数T&amp;&amp;是一个指向模板类型参数的右值引用。通过引用折叠，参数可以与任何类型的实参匹配。</span>
+
+<span class="c1">//接下来使用remove_reference获取T的真实类型</span>
+
+<span class="c1">//最后使用静态指针变量使得获得指针的右值引用。</span>
+
+</code></pre></div></div>
+
+<h4 id="1627-转发">16.2.7 转发</h4>
+<ul>
+  <li>如果一个函数参数是指向模板类型参数的右值引用(如T&amp;&amp;),它对应的实参的const属性和左值/右值属性将得到保持。</li>
+  <li>当用于一个指向模板参数类型的右值引用函数参数(T&amp;&amp;)时，forward会保持实参类型的所有细节。</li>
+  <li>与<code class="language-plaintext highlighter-rouge">std::move</code>相同，对<code class="language-plaintext highlighter-rouge">std::forward</code>不使用<code class="language-plaintext highlighter-rouge">using</code>声明是一个号主意。</li>
+</ul>
+
+<p>对于模板函数，尽量使用右值引用，避免被使用时，末班类型的推导失去<code class="language-plaintext highlighter-rouge">&amp;</code>符号，造成拷贝使用。相关参数不能使用。</p>
+
+<h3 id="163-重载与模板">16.3 重载与模板</h3>
+
+<p>函数匹配规则与影响：</p>
+
+<ul>
+  <li>对于一个调用，其候选函数包括所有模板实参推断成功的函数模板实例。</li>
+  <li>候选的函数模板总是可行的，因为模板实参推断会排除任何不可行的模板</li>
+  <li>可行函数(模板与非模板)按照类型转换来排序；可以用于函数模板调用的类型转换是非常有限的。</li>
+  <li>如果存在多个匹配函数则：
+    <ul>
+      <li>同样号的函数中只有一个是非模板函数，选择此函数</li>
+      <li>没有非模板函数，其中一个模板比其它模板更特例话，则选择此模板</li>
+      <li>不符合上述两条规则，此调用有歧义。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>注意： 正确定义一组重载的函数模板需要对类型间的关系及模板函数允许的有限的实参类型转换有深刻的理解。</p>
+
+<p><strong>编写重载模板</strong></p>
+
+<p>例如:<code class="language-plaintext highlighter-rouge">debug_rep(const T&amp;)</code>;本质上可以用于任何类型，包括指针类型。</p>
+
+<p>注意：</p>
+<ul>
+  <li>当有多个重载模板对一个调用提供童颜好的匹配时，应该选择最特例化的版本。</li>
+  <li>对于一个调用，如果一个非函数模板与一个函数模板提供同样好的匹配，则选择非模板版本。</li>
+</ul>
+
+<p>对于<code class="language-plaintext highlighter-rouge">cout&lt;&lt;debug_rep("hi word!")&lt;&lt;endl;</code>而言有：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">debug_rep(const T&amp;)</code> ,T被绑定到<code class="language-plaintext highlighter-rouge">char[10]</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">debug_rep(T*)</code> ,T被绑定到<code class="language-plaintext highlighter-rouge">const char</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">debug_rep(const string&amp;)</code> ,要求从<code class="language-plaintext highlighter-rouge">const char*</code>到<code class="language-plaintext highlighter-rouge">string</code>的类型转换。</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">T*</code>版本更加特例化，编译器会选择它。</p>
+
+<p>注意:
+在定义任何函数之前，记得声明所有重载的函数版本。这样就不必担心编译器由于未遇到你希望调用的函数而实例化一个非你所需要的版本。</p>
+
+<h3 id="164-可变参数模板">16.4 可变参数模板</h3>
+
+<p><strong>可变参数模板</strong>：接受一个可变数目参数的模板函数或模板类。可变数目的参数被称为 <strong>参数包</strong>。</p>
+
+<p>参数包分为两种：</p>
+
+<ul>
+  <li>模板参数包：表示0或者对个模板参数。</li>
+  <li>函数参数包：表示0或者多个函数参数。</li>
+</ul>
+
+<p>使用<code class="language-plaintext highlighter-rouge">class...</code>或者<code class="language-plaintext highlighter-rouge">typename...</code>指出接下来的参数表示0个或者多个类型的列表；一个类型名后面跟一个省略号表示0或者多个给定类型的非类型参数的列表。例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//Args 是一个模板参数包；rest 是一个函数参数包</span>
+
+<span class="c1">//Args 表示0个或多个模板类型参数</span>
+
+<span class="c1">//rest 表示0个或者多个函数参数</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span><span class="k">typename</span><span class="o">...</span> <span class="nc">Args</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">t</span><span class="p">,</span><span class="k">const</span> <span class="n">Args</span><span class="o">&amp;</span> <span class="p">...</span> <span class="n">rest</span><span class="p">);</span>
+<span class="c1">//使用</span>
+
+<span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="kt">double</span> <span class="n">d</span><span class="o">=</span><span class="mf">3.14</span><span class="p">;</span>
+<span class="n">string</span> <span class="n">s</span><span class="o">=</span><span class="s">"how now brown cow"</span><span class="p">;</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="n">d</span><span class="p">);</span><span class="c1">//包中有三个参数</span>
+
+<span class="n">foo</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="s">"hi"</span><span class="p">);</span><span class="c1">//包中有两个参数</span>
+
+<span class="n">foo</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">s</span><span class="p">);</span> <span class="c1">//包中有一个参数</span>
+
+<span class="n">foo</span><span class="p">(</span><span class="s">"hi"</span><span class="p">);</span> <span class="c1">//空包</span>
+
+<span class="c1">//编译器会分别为他们实例化不同的版本。</span>
+
+<span class="c1">//可以使用sizeof...运算符，计算包中有多少个元素</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="o">...</span> <span class="nc">Args</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="nf">g</span><span class="p">(</span><span class="n">Args</span> <span class="p">...</span><span class="n">args</span><span class="p">){</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">Args</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//类型参数的数目</span>
+
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="k">sizeof</span><span class="p">...(</span><span class="n">args</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//函数参数的数目</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h5 id="1641-编写可变参函数模板">16.4.1 编写可变参函数模板</h5>
+
+<p>可变参函数通常是递归的。第一步调用处理包中的第一个实参，然后用剩余实参调用自身。我们的print函数也是这样的模式，每次递归调用将第二个实参打印到第一个实参表示的流中。为了终止递归，我们还需要定义一个非可变参数的print 函数，它接受一个流和一个对象。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="c1">//最后一次会优先调用它</span>
+
+<span class="n">ostream</span> <span class="o">&amp;</span><span class="n">print</span><span class="p">(</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">t</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">&lt;&lt;</span><span class="n">t</span><span class="p">;</span> <span class="c1">//包中最后一个元素之后不打印分隔符</span>
+
+<span class="p">}</span>
+
+<span class="c1">//包中除了最后一个元素之外的其它元素都会调用这个版本的print</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span><span class="k">typename</span><span class="o">...</span> <span class="nc">Args</span><span class="p">&gt;</span>
+<span class="n">ostream</span> <span class="o">&amp;</span><span class="n">print</span><span class="p">(</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">t</span><span class="p">,</span><span class="k">const</span> <span class="n">Args</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">rest</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">os</span><span class="o">&lt;&lt;</span><span class="n">t</span><span class="o">&lt;&lt;</span><span class="s">","</span><span class="p">;</span> <span class="c1">//打印第一个实参</span>
+
+    <span class="k">return</span> <span class="n">print</span><span class="p">(</span><span class="n">os</span><span class="p">,</span><span class="n">rest</span><span class="p">...);</span><span class="c1">//递归调用，打印其它实参</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p>当定义可变参数版本的<code class="language-plaintext highlighter-rouge">print</code>时，非可变参数版本的声明必须在作用域中。否则，可变参数版本会无限递归。</p>
+
+<h4 id="1642-包扩展">16.4.2 包扩展</h4>
+
+<p>包括展：将它分解为构成的元素，对每个元素应用模式，获得扩展后的列表。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span><span class="k">typename</span><span class="o">...</span> <span class="nc">Args</span><span class="p">&gt;</span>
+<span class="n">ostream</span> <span class="o">&amp;</span><span class="n">print</span><span class="p">(</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">t</span><span class="p">,</span><span class="k">const</span> <span class="n">Args</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">rest</span><span class="p">)</span><span class="c1">//扩展Args</span>
+
+<span class="p">{</span>
+    <span class="n">os</span><span class="o">&lt;&lt;</span><span class="n">t</span><span class="o">&lt;&lt;</span><span class="s">","</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">print</span><span class="p">(</span><span class="n">os</span><span class="p">,</span><span class="n">rest</span><span class="p">...);</span>  <span class="c1">//扩展rest</span>
+
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+<p>注意：</p>
+
+<p>扩展中的模式会独立地应用与包中的每个元素。</p>
+
+<h5 id="1643-转发参数包">16.4.3 转发参数包</h5>
+<p><em>参考链接：</em> <a href="https://zh.cppreference.com/w/cpp/utility/forward">std::forward</a>;<a href="https://blog.csdn.net/coolwriter/article/details/80970718">c++11 完美转发 std::forward()</a>; <a href="https://blog.csdn.net/guoxiaojie_415/article/details/79902278">C++11 std::move和std::forward</a></p>
+
+<p>使用可变参数模板与<code class="language-plaintext highlighter-rouge">forward</code>机制来编写函数，实现将实参不变地传递给其它函数。使用示例如下：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">StrVec</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="o">...</span> <span class="nc">Args</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="n">emplace_back</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...);</span>
+    <span class="p">...</span>
+<span class="p">};</span>
+<span class="c1">//函数实现</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="o">...</span> <span class="nc">Args</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="n">StrVec</span><span class="o">::</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">chk_n_alloc</span><span class="p">();</span> <span class="c1">//如果需要的话，重新分配StrVec内存空间</span>
+
+    <span class="n">alloc</span><span class="p">.</span><span class="n">construct</span><span class="p">(</span><span class="n">frist_free</span><span class="o">++</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>使用扩展<code class="language-plaintext highlighter-rouge">std::forward&lt;Args&gt;(args)...</code>它即扩展了模板参数包<code class="language-plaintext highlighter-rouge">Args</code>，也扩展了函数参数包<code class="language-plaintext highlighter-rouge">args</code>。生成如下形式元素：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>`std::forward&lt;Ti&gt;(ti)`
+</code></pre></div></div>
+
+<p>对于<code class="language-plaintext highlighter-rouge">std::forward&lt;Ti&gt;(ti)</code>;其中Ti表示模板参数包中第i个元素的类型，ti表示函数参数包中第i个元素。例如：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">svec</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="sc">'c'</span><span class="p">);</span> <span class="c1">//将c*10添加为新的尾部元素</span>
+
+</code></pre></div></div>
+<p>construct调用中的模式会扩展出：
+<code class="language-plaintext highlighter-rouge">std::forward&lt;int&gt;(10),std::forward&lt;char&gt;(c)</code>。</p>
+
+<h3 id="165-模板特例化">16.5 模板特例化</h3>
+
+<p>特例化版本就是模板的一个独立定义，在其中一个或多个模板参数被指定为特定的类型。
+<strong>定义函模板特例话</strong></p>
+
+<p>特例话一个模板时，必须为原模板中的每个模板参数都提供实参。为了指出我们正在实例化一个模板，应使用关键字<code class="language-plaintext highlighter-rouge">template</code>后跟一个空尖括号对(<code class="language-plaintext highlighter-rouge">&lt;&gt;</code>`)。指出我们将为原模板的所有模板参数提供实参：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//compare 的特殊版本，处理字符串数组的指针</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="p">&gt;</span>
+<span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="o">&amp;</span><span class="n">p1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="o">&amp;</span><span class="n">p2</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><strong>在使用特例化版本时，函数参数类型必须与一个先前声明的模板中对应的类型匹配。</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">int</span> <span class="nf">compare</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">);</span>
+</code></pre></div></div>
+<p>特例化版本的本质上是一个实例化模板，而非重载它。因此，特例化不影响函数匹配。
+特例化版本主要是为了，提供特殊函数优先级，方便在使用函数时，优先搜索。
+<strong>类模板特例化</strong>
+示例：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">namespace</span> <span class="n">std</span><span class="p">{</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="p">&gt;</span> <span class="c1">//定义特例化版本，模板参数为Sales_data</span>
+
+    <span class="k">struct</span> <span class="nc">hash</span><span class="o">&lt;</span><span class="n">Sales_data</span><span class="o">&gt;</span> <span class="c1">//特例化模板名为hash</span>
+
+    <span class="p">{</span>
+        <span class="p">...</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>注意：特例化版本应该尽量在头文件中事先定义。</p>
+
+<p><strong>类模板部分特例化</strong></p>
+
+<p>我们只能部分特例化类模板函数，而不能部分特例化函数模板。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//原始的最通用版本</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="k">struct</span> <span class="nc">remove_reference</span>
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="c1">// 部分特例化版本，将用于左值引用和右值引用</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="k">struct</span> <span class="nc">remove_reference</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&amp;&gt;</span> <span class="c1">//左值引用</span>
+
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="k">struct</span> <span class="nc">remove_reference</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&amp;&amp;&gt;</span> <span class="c1">//右值引用</span>
+
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span>    
+<span class="p">};</span>
+
+<span class="c1">//使用</span>
+
+<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+<span class="c1">//decltype(42)为int,使用原始模板</span>
+
+<span class="n">remove_reference</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">a</span><span class="p">;</span>
+<span class="c1">//decltype(i)为int&amp;,使用第一个(T&amp;)部分特例化版本</span>
+
+<span class="n">remove_reference</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">b</span><span class="p">;</span>
+<span class="c1">//decltype(std::move(i))为int&amp;&amp; ,使用第二个(即 T&amp;&amp;)部分特例化版本</span>
+
+<span class="n">remove_reference</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">c</span><span class="p">;</span>
+
+</code></pre></div></div>
+<p><strong>特例化成员</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="k">struct</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+    <span class="n">Foo</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">t</span><span class="o">=</span><span class="n">T</span><span class="p">())</span><span class="o">:</span><span class="n">mem</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">Bar</span><span class="p">()</span> <span class="p">{</span><span class="cm">/*...*/</span><span class="p">}</span>
+
+    <span class="n">T</span> <span class="n">mem</span><span class="p">;</span>
+
+    <span class="p">...</span>
+    
+<span class="p">};</span>
+<span class="c1">//特例化模板函数</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">Foo</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">Bar</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//进行应用于int的特例化处理</span>
+
+<span class="p">}</span>
+<span class="c1">//实例化操作</span>
+
+<span class="n">Foo</span><span class="o">&lt;</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">fs</span><span class="p">;</span> <span class="c1">//实例化Foo&lt;string&gt;::Foo()</span>
+
+<span class="n">fs</span><span class="p">.</span><span class="n">Bar</span><span class="p">();</span>  <span class="c1">//实例化 Foo&lt;string&gt;::Bar()</span>
+
+<span class="n">Foo</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">fi</span><span class="p">;</span> <span class="c1">//实例化 Foo&lt;string&gt;::Foo()</span>
+
+<span class="n">fi</span><span class="p">.</span><span class="n">Bar</span><span class="p">();</span>  <span class="c1">//使用我们特例化版本的Foo&lt;int&gt;::Bar()</span>
+
+
+
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/05/26/cplusplus_primer_learn_note_7/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(七)">
+                        Previous<br>
+                        <span>C++ Primer 学习笔记(七)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/06/08/cplusplus_primer_learn_note_9/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(九)">
+                        Next<br>
+                        <span>C++ Primer 学习笔记(九)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

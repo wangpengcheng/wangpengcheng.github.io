@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>虚拟化/KVM面经 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2023/04/01/virtualization_kvm_interview/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#KVM" title="KVM">KVM</a>
+                        
+                        <a class="tag" href="/tags/#QEMU" title="QEMU">QEMU</a>
+                        
+                        <a class="tag" href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化">虚拟化</a>
+                        
+                        <a class="tag" href="/tags/#%E9%9D%A2%E8%AF%95" title="面试">面试</a>
+                        
+                    </div>
+                    <h1>虚拟化/KVM面经</h1>
+                    
+                    
+                    <h2 class="subheading">虚拟化KVM面经</h2>
+                    
+                    <span class="meta">Posted by 敬方 on April 1, 2023</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="参考链接">参考链接</h1>
+<ul>
+  <li><a href="https://wangpengcheng.github.io/2023/04/11/virtualization_engineer_router/">虚拟化工程师之路</a></li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[KVM虚拟化常见面试题</td>
+          <td>常用命令整理](https://blog.csdn.net/weixin_43313333/article/details/128904292)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="https://developer.aliyun.com/article/1072584">常用虚拟化命令</a></li>
+  <li><a href="https://engineeringinterviewquestions.com/kvm-interview-questions-answers-pdf/">kvm面试题</a></li>
+  <li><a href="https://www.linuxtechi.com/linux-virtualization-interview-questions/">20 Linux Virtualization Interview Questions and Answers</a></li>
+  <li><a href="https://www.nowcoder.com/feed/main/detail/2e58841b38774b048cf98a0a6d670027?sourceSSR=search">腾讯云csig虚拟化部门一面面经</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/51984152">30 个 Openstack 经典面试问题和解答</a></li>
+  <li><a href="https://yuuuuuy.top/2019/02/26/KVM%E8%99%9A%E6%8B%9F%E6%9C%BAqcow2%E7%A1%AC%E7%9B%98%E6%89%A9%E5%AE%B9/">磁盘扩容</a></li>
+</ul>
+
+<h1 id="1-kvm-常用操作">1. kvm 常用操作</h1>
+
+<h2 id="11-如何修改虚拟机密码">1.1 如何修改虚拟机密码</h2>
+<p>用户密码重设通常使用libguestfs-tools 工具集内的virt-customize命令重设</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#0. 安装libguestfs-tools</span>
+yum <span class="nt">-y</span> <span class="nb">install </span>libguestfs-tools
+<span class="c">#1. 确认实例已关机</span>
+virsh  list <span class="nt">--all</span> | <span class="nb">grep</span> <span class="k">${</span><span class="nv">instance_name</span><span class="k">}</span>
+
+<span class="c">#2.  修改其系统盘密码</span>
+virt-customize <span class="nt">-a</span> /opt/<span class="k">${</span><span class="nv">instance_name</span><span class="k">}</span>.img <span class="nt">--root-password</span> password:test-123456
+
+<span class="c">#3. 重启登录</span>
+virsh start <span class="k">${</span><span class="nv">instance_name</span><span class="k">}</span>
+virsh console <span class="k">${</span><span class="nv">instance_name</span><span class="k">}</span>
+<span class="c"># ctrl+']' 退出登录</span>
+
+</code></pre></div></div>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="https://developer.aliyun.com/article/1072584">常用虚拟化命令</a>;<a href="https://www.cnblogs.com/mrwuzs/p/11600018.html">常用kvm命令</a>
+</li>
+</ul>
+
+<h2 id="12-如何制作镜像">1.2 如何制作镜像</h2>
+
+<p>使用官网标准镜像创建虚拟机，并进行安装。以rock-linux为例</p>
+<ol>
+  <li>创建数据盘
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="c"># 拉取最新的 Rocky 镜像</span>
+wget <span class="nt">-c</span> https://download.rockylinux.org/pub/rocky/9/isos/x86_64/Rocky-9.3-x86_64-minimal.iso /tmp/
+<span class="c"># 创建系统盘</span>
+qemu-img create <span class="nt">-f</span> qcow2  /tmp/rocky-test-disk1.qcow2 50G
+</code></pre></div>    </div>
+  </li>
+  <li>创建虚拟机</li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+virt-install <span class="se">\</span>
+    <span class="nt">--name</span> rocky-test <span class="se">\ </span><span class="c"># 设置名称</span>
+    <span class="nt">--graphics</span> vnc,listen<span class="o">=</span><span class="s1">'0.0.0.0'</span>,port<span class="o">=</span>5920 <span class="se">\ </span><span class="c"># 设置vnc</span>
+    <span class="nt">--memory</span><span class="o">=</span>8192,maxmemory<span class="o">=</span>16384 <span class="se">\ </span> <span class="c"># 设置内存8~16GB</span>
+    <span class="nt">--vcpus</span><span class="o">=</span>2,maxvcpus<span class="o">=</span>4 <span class="se">\ </span><span class="c"># 设置cpu</span>
+    <span class="nt">--cdrom</span><span class="o">=</span>/tmp/Rocky-9.3-x86_64-minimal.iso <span class="se">\ </span> <span class="c"># 设置启动镜像</span>
+    <span class="nt">--disk</span> /tmp/rocky-test-disk1.qcow2,size<span class="o">=</span>50,format<span class="o">=</span>qcow2 <span class="se">\ </span><span class="c"># 添加数据磁盘</span>
+    <span class="nt">--network</span> <span class="nv">bridge</span><span class="o">=</span>bridge0,model<span class="o">=</span>virtio <span class="se">\ </span><span class="c"># 设置网络为bridge0 模式</span>
+    <span class="nt">--hvm</span> <span class="se">\</span>
+    <span class="nt">--virt-type</span> kvm <span class="se">\ </span><span class="c">#设置虚拟化方式</span>
+    <span class="nt">--autostart</span> <span class="se">\</span>
+    <span class="nt">--os-type</span><span class="o">=</span>linux <span class="se">\</span>
+    <span class="nt">--os-variant</span><span class="o">=</span>rocky9.3 // 这行如果报错的话可以去掉
+</code></pre></div></div>
+
+<ol>
+  <li>vnc 登录安装
+前往<a href="https://www.realvnc.com/en/connect/download/viewer/">vnc官网</a>，下载VNC-viewer。并使用<code class="language-plaintext highlighter-rouge">${宿主机地址}:5920</code> 进行VNC登录。成功后进行如下设置
+    <ul>
+      <li>设置Time &amp; Date (一般都是Shanghai)</li>
+      <li>设置ROOT 登录密码(RootPassword)</li>
+      <li>选择软件最小安装（Software Selection）</li>
+      <li>设置网络和主机名</li>
+      <li>设置设置安装位置并对系统盘进行分区</li>
+      <li>安装完后重启</li>
+    </ul>
+  </li>
+  <li>关闭防火墙和selinux</li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 关闭防火墙</span>
+systemctl disable firewalld.service <span class="nt">--now</span>
+<span class="c"># 关闭selinux</span>
+vim  /etc/selinux/config
+<span class="c"># 设置SELINUX=disabled</span>
+<span class="c"># 设置强制</span>
+setenforce 0
+<span class="c"># 查询信息</span>
+getenforce
+</code></pre></div></div>
+
+<ol>
+  <li>清除个性化设置并压缩镜像</li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 清除主机个性化设置</span>
+virt-sysprep <span class="nt">-d</span> rocky-test
+<span class="c"># 压缩镜像</span>
+virt-sparsify <span class="nt">--compress</span> rocky-test.qcow2 rocky-test-02.qcow2
+</code></pre></div></div>
+
+<h2 id="13-virsh-常用命令">1.3 virsh 常用命令</h2>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh</code>：直接进交互模式</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh nodeinfo</code>：查看KVM节点（服务器）信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh list</code>：列出正在运行的虚拟机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh list --all</code>：列出所有虚拟机（包括未启动的）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh dominfo</code> 虚拟机名称：查看指定虚拟机的信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh start</code> 虚拟机名称：将指定的虚拟机开机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh reboot</code> 虚拟机名称：将指定的虚拟机重启</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh shutdown</code> 虚拟机名称：将指定的虚拟机正常关机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh destroy</code> 虚拟机名称：将指定的虚拟机强制关机（相当于拔电源）</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh autostart</code> 虚拟机名称：将指定的虚拟机设置随KVM自动开机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh autostart --disable</code> 虚拟机名称：禁止自动开机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh dumpxml centos7-2 &gt; /tmp/vm.xml</code>: 导出虚拟机配置</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh console ins-xx</code>:进入虚拟机控制台</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virt-clone -o 【原虚拟机】 -n 【新虚拟机】 -f 【新虚拟机镜像名（含路径）】</code>: 复制虚拟机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">qemu-img info vm.img</code>: 查看虚拟机镜像</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh snapshot-create vm</code>: 创建快照(快照包含内存信息)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh snapshot-list vm</code>: 查询虚拟机快照</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh snapshot-create-as 【虚拟机名】 【快照名】</code>: 根据快照创建虚拟机</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh snapshot-current vm</code>: 查询虚拟机当前快照</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh snapshot-revert 【虚拟机名】 【快照名】</code>: 将虚拟机恢复至快照状态</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh snapshot-delet vm snapshot-vm</code>: 删除快照</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh pool-define-as vmdisk --type dir --target /data/vmfs</code>: 定义存储池与目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh pool-build vmdisk</code>: 创建已定义的存储池(<a href="https://www.cnblogs.com/mo-xiao-tong/p/12838733.html">kvm存储池和存储卷</a>,<a href="https://blog.51cto.com/manual/2467163">KVM存储池</a>,<a href="https://www.cnblogs.com/ygbh/p/17418666.html">kvm-存储池基础介绍、创建</a>)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh pool-start vmdisk</code>: 激活已经定义的存储池</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh pool-autostart vmdisk</code>: 启动已定义存储池</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh pool-list --all</code>: 查询所有存储池</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virsh vol-create-as vmdisk test.qcow2 3G --format qcow2</code>: 在存储池中创建虚拟机存储卷</li>
+</ol>
+
+<h2 id="14-实例创建和恢复快照">1.4 实例创建和恢复快照</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. 创建快照</span>
+virsh snapshot-create-as linux_mini new-snapshot
+<span class="c"># 2. 查询快照</span>
+virsh snapshot-list linux_mini
+<span class="c"># 3. 使用快照恢复虚拟机</span>
+ virsh snapshot-revert   linux_mini new-snapshot
+<span class="c"># 4. 查询虚拟机当前快照</span>
+virsh snapshot-current linux_mini
+<span class="c"># 5. 删除快照--存在未删除快照，无法undefine实例</span>
+virsh snapshot-delete linux_mini linux_min-snap
+</code></pre></div></div>
+
+<p>注意：存在hostdev 设备的不支持闪照</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>error: Operation not supported: cannot migrate a domain with &lt;hostdev <span class="nv">mode</span><span class="o">=</span><span class="s1">'subsystem'</span> <span class="nb">type</span><span class="o">=</span><span class="s1">'pci'</span>
+</code></pre></div></div>
+<p>针对这种情况需要弃盘迁移。不能支持快照和冷迁移。腾讯云也是这么玩的</p>
+
+<h2 id="15-实例热迁移">1.5 实例热迁移</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 迁移到目标地址</span>
+virsh migrate &lt;虚拟机名称&gt; qemu+ssh://&lt;目标主机IP地址&gt;/system
+<span class="c"># 迁移并指定参数</span>
+virsh migrate <span class="nt">--live</span> &lt;虚拟机名称&gt; qemu+ssh://&lt;目标主机IP地址&gt;/system
+<span class="c"># 查询迁移进度</span>
+virsh domjobinfo &lt;虚拟机名称&gt;
+<span class="c"># 取消迁移</span>
+virsh migrate-cancel &lt;虚拟机名称&gt;
+
+</code></pre></div></div>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="https://www.cnblogs.com/sammyliu/p/4572287.html">实例热迁移</a>;<a href="https://blog.csdn.net/Tony_stark_L/article/details/132668909">KVM实例热迁移</a>
+</li>
+</ul>
+
+<h2 id="16-实例重装镜像">1.6 实例重装镜像</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 0. 关闭对应实例</span>
+virsh shutdown ins-xxx
+<span class="c"># 1. 删除实例原有系统盘镜像</span>
+<span class="nb">mv</span> /data/instance/ins-xxx/ldisk-xxx.qcow2 /data/instance/ins-xxx/ldisk-xxx-bak.qcow2 
+<span class="c"># 2. 创建新的实例系统盘</span>
+wget <span class="nt">-c</span> xxxx.qcow2 /data/instance/ins-xxx/ldisk-xxx.qcow2
+<span class="c"># 3. 设置网卡基本信息</span>
+<span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'/^IPADDR=/c'</span><span class="nv">IPADDR</span><span class="o">=</span><span class="nv">$instanceIP</span> ifcfg-eth0
+<span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'/^GATEWAY=/c'</span><span class="nv">GATEWAY</span><span class="o">=</span><span class="nv">$gateway</span> ifcfg-eth0
+<span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'/^NETMASK=/c'</span><span class="nv">NETMASK</span><span class="o">=</span><span class="nv">$netmask</span> ifcfg-eth0
+<span class="c"># 4. 将网卡配置文件拷贝到目标镜像中</span>
+<span class="c">## linux</span>
+virt-copy-in <span class="nt">-a</span> /data/instance/ins-xxx/ldisk-xxx.qcow2 ifcfg-eth0 /etc/sysconfig/network-scripts/
+<span class="c">## windows</span>
+yum <span class="nb">install </span>libguestfs-winsupport.x86_64 dos2unix <span class="nt">-y</span>
+unix2dos ifcfg-eth0
+virt-copy-in <span class="nt">-a</span> <span class="s2">"</span><span class="nv">$imgPath</span><span class="s2">/</span><span class="nv">$diskID</span><span class="s2">"</span>.qcow2 ifcfg-eth0 /<span class="s2">"Windows"</span>/
+
+<span class="c"># 5. 重新拉起实例 </span>
+virsh define 
+</code></pre></div></div>
+<p>注意：虚拟机vnc登录，使用端口号加<code class="language-plaintext highlighter-rouge">:</code>的形式进行登录
+使用如下命令查询，实例对应的vnc端口</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>virsh vncdisplay ins-xxxx
+<span class="c"># :0 表示5900</span>
+<span class="c"># :1 表示5901</span>
+</code></pre></div></div>
+
+<h2 id="16-加载usb设备">1.6 <a href="https://www.cnblogs.com/dewan/p/16788525.html">加载usb设备</a>
+</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. 查询主机对应usb</span>
+<span class="nb">sudo </span>yum <span class="nt">-y</span> <span class="nb">install </span>usbutils pciutils
+lsusb 
+<span class="c"># Bus 001 Device 004: ID 287f:00f8</span>
+<span class="c"># 2. 生成usb.xml</span>
+<span class="nb">sudo </span>yum <span class="nb">install</span> <span class="nt">-y</span> virt-install
+virt-xml <span class="nt">--build-xml</span> <span class="nt">--hostdev</span> 287f:00f8,type<span class="o">=</span>usb   <span class="o">&gt;</span> add-usb.xml
+<span class="c">#&lt;hostdev mode="subsystem" type="usb" managed="yes"&gt;</span>
+<span class="c">#  &lt;source&gt;</span>
+<span class="c">#    &lt;vendor id="0x287f"/&gt;</span>
+<span class="c">#    &lt;product id="0x00f8"/&gt;</span>
+<span class="c">#  &lt;/source&gt;</span>
+<span class="c"># &lt;/hostdev&gt;</span>
+
+
+<span class="c"># 3. 进行挂载</span>
+virsh attach-device amzn2 add-usb.xml <span class="nt">--live</span>
+<span class="c">#OPTIONS</span>
+<span class="c">#    [--domain] &lt;string&gt;  domain name, id or uuid</span>
+<span class="c">#    [--file] &lt;string&gt;  XML file</span>
+<span class="c">#    --persistent     make live change persistent</span>
+<span class="c">#    --config         affect next boot</span>
+<span class="c">#    --live           affect running domain</span>
+<span class="c">#    --current        affect current domain</span>
+
+<span class="c"># 4. 进行移除</span>
+virsh detach-device amzn2 add-usb.xml
+
+<span class="c"># 快速步骤</span>
+<span class="c"># 添加</span>
+virt-xml amzn2 <span class="nt">--update</span> <span class="nt">--add-device</span>  <span class="nt">--hostdev</span> 21c4:0cd1,type<span class="o">=</span>usb
+<span class="c"># 删除</span>
+virt-xml amzn2 <span class="nt">--update</span> <span class="nt">--remove-device</span> <span class="nt">--hostdev</span> 21c4:0cd1,type<span class="o">=</span>usb
+</code></pre></div></div>
+
+<h1 id="2-腾讯云csig虚拟化部门一面面经">2. <a href="https://www.nowcoder.com/feed/main/detail/2e58841b38774b048cf98a0a6d670027?sourceSSR=search">腾讯云csig虚拟化部门一面面经</a>
+</h1>
+
+<h2 id="21-启动一个vm的流程libvirtqemukvm分别都做了哪些工作">2.1 启动一个vm的流程，libvirt,qemu,kvm分别都做了哪些工作</h2>
+
+<p>在启动一个虚拟机的过程中，libvirt会通过调用QEMU和KVM的API来创建并启动虚拟机。具体的流程包括以下步骤：</p>
+
+<ol>
+  <li>libvirt加载虚拟机的定义和配置信息。</li>
+  <li>libvirt调用QEMU创建虚拟机的运行环境，并加载虚拟机的镜像文件。</li>
+  <li>QEMU启动虚拟机，并模拟虚拟机的硬件设备。</li>
+  <li>KVM管理虚拟机的内存和CPU资源，并将虚拟机的指令转换为物理主机的指令。</li>
+</ol>
+
+<ul>
+  <li>参考：<a href="https://libvirt.org/">libvirt官方文档</a>
+</li>
+</ul>
+
+<h2 id="22-虚拟内存槽memslot">2.2 虚拟内存槽memslot</h2>
+
+<p>虚拟内存槽主要是指 kvm_memslot 是虚拟机用来组织物理内存结构的关键数据结构。
+维护了GPA到HVA的映射关系</p>
+
+<p>也是虚拟机内存管理的核心关键。其主要操作流程如下所示：</p>
+
+<p><img src="https://pic2.zhimg.com/80/v2-9afeb71bd8159893b268a704b0b27c99_720w.webp" alt="memslot"></p>
+
+<ul>
+  <li><a href="https://zhuanlan.zhihu.com/p/596776561">一文分析Linux虚拟化KVM-Qemu分析之内存虚拟化</a></li>
+</ul>
+
+<h2 id="23-热迁移了解多少迁移流程">2.3 热迁移了解多少，迁移流程</h2>
+
+<h2 id="24-脏页迭代流程脏页位图脏环pml">2.4 脏页迭代流程，脏页位图，脏环，pml</h2>
+
+<h2 id="25-gva到hpa转换过程">2.5 gva到hpa转换过程</h2>
+
+<h2 id="26-ebpf简要介绍一下介绍ebpf项目中的vm-exit-mmu-page-faulthalt-polling">2.6 ebpf简要介绍一下，介绍ebpf项目中的vm exit ，mmu page fault，halt polling</h2>
+
+<h2 id="27-使用ebpf技术对kvm进行观测会对虚拟机产生性能影响吗">2.7 使用ebpf技术对kvm进行观测，会对虚拟机产生性能影响吗</h2>
+
+<h2 id="28-kvm内存虚拟化是怎么是怎么实现的">2.8 KVM内存虚拟化是怎么是怎么实现的？</h2>
+<p>追问：EPT页表如何实现
+追问：Guest通过EPT页表访问要经过多少次访存
+追问：SPT和EPT的优缺点，什么场合适合使用SPT或者EPT</p>
+
+<h2 id="29-kvm中cpu虚拟化是如何实现的">2.9 KVM中CPU虚拟化是如何实现的</h2>
+
+<h2 id="210-问了一下kvm和openstackxen的区别">2.10 问了一下KVM和OpenStack/XEN的区别</h2>
+
+<h2 id="211-docker的命名空间有哪些">2.11 Docker的命名空间有哪些</h2>
+
+<h2 id="212-docker的四种网络类型">2.12 Docker的四种网络类型</h2>
+
+<h2 id="213-iommu-介绍一下">2.13 IOMMU 介绍一下</h2>
+
+<p>IOMMU 是一种硬件功能，于将输入/输出设备的内存访问隔离，以防止设备对系统内存的非法访问。这对于虚拟化环境特别有用，因为它允许虚拟机对硬件设备进行独占访问，并且不会影响到其他虚拟机。</p>
+
+<p>如果您正在使用虚拟化软件，并且需要为虚拟机提供独占访问硬件设备，那么您应该开启 IOMMU 功能。但是，如果您不使用虚拟化软件，或者不需要独占访问硬件设备，那么您可以不开启 IOMMU 功能。</p>
+
+<ul>
+  <li>参考： <a href="https://zhuanlan.zhihu.com/p/365408539">IOMMU</a>;<a href="https://blog.51cto.com/u_12891/7741285">IOMMU</a>
+</li>
+</ul>
+
+<h1 id="3-字节二面面经">3. <a href="https://www.nowcoder.com/discuss/353159400808456192?sourceSSR=search">字节二面面经</a>
+</h1>
+
+<h2 id="31-qemu-kvm的虚拟化过程讲一讲">3.1 qemu-kvm的虚拟化过程讲一讲？</h2>
+
+<h2 id="32-虚拟机上硬件设备如何模拟的">3.2 虚拟机上硬件设备如何模拟的？</h2>
+
+<h2 id="33-vruntime和进程的优先级有什么关系查阅之后虚拟运行时间-vruntime--实际运行时间-delta_exec--nice_0_load-权重">3.3 vruntime和进程的优先级有什么关系？(查阅之后：虚拟运行时间 vruntime += 实际运行时间 delta_exec * NICE_0_LOAD/ 权重)</h2>
+
+<h2 id="34-virtio中的vm-exit状态了解吗什么时候会出现这个状态">3.4 virtio中的VM Exit状态了解吗？什么时候会出现这个状态？</h2>
+
+<h2 id="35-调度系统中的sched_entity知道吗">3.5 调度系统中的sched_entity知道吗？</h2>
+
+<h2 id="36-操作系统中的虚拟地址转换物理地址的全过程">3.6 操作系统中的虚拟地址转换物理地址的全过程？</h2>
+
+<h2 id="37-了解内存虚拟化的影子页表ept技术吗">3.7 了解内存虚拟化的影子页表，EPT技术吗？</h2>
+
+<h2 id="4-百度一面">4. <a href="https://www.nowcoder.com/discuss/353154553833005056?sourceSSR=search">百度一面</a>
+</h2>
+
+<h2 id="1-linux-kvmgpu-直通sriov">1 Linux kvm，GPU 直通，SRIOV</h2>
+
+<h2 id="2-cpu架构nuamsmp">2. CPU架构，NUAM，SMP</h2>
+
+<h2 id="3-guest-os发个网络请求到host-os再到硬件的过程">3. Guest OS发个网络请求，到Host OS，再到硬件的过程</h2>
+
+<h2 id="4-cpu-结构是否共享">4. CPU ***结构，是否共享</h2>
+
+<h1 id="5-腾讯os内核虚拟化面经">5. <a href="https://www.nowcoder.com/discuss/538358005318930432?sourceSSR=search">腾讯os内核虚拟化面经</a>
+</h1>
+
+<h1 id="6-kvm-常见面试题">6. <a href="https://blog.csdn.net/weixin_43313333/article/details/128904292">KVM 常见面试题</a>
+</h1>
+
+<h2 id="1-简单介绍一下kvm">1. 简单介绍一下KVM</h2>
+
+<p>KVM是Kernel-based Virtual Machine的简称，一个开源的系统虚拟化模块，使用Linux自身的调度器进行管理，KVM的虚拟化需要硬件支持（如Intel VT技术或者AMD V技术)。是基于硬件的完全虚拟化。</p>
+
+<h2 id="2-kvm的三个组件及作用">2. KVM的三个组件及作用</h2>
+
+<ol>
+  <li>KVM：内核虚拟化模块，负责CPU虚拟化与内存虚拟化</li>
+  <li>qemu: 负责设备虚拟化，包含IO设备、usb设备，串口设备等</li>
+  <li>libvirt: 虚拟化综合管理工具，封装kvm/qemu接口，用于快速操作虚拟机</li>
+</ol>
+
+<h2 id="3-磁盘镜像格式raw和qcow2的区别">3. 磁盘镜像格式raw和qcow2的区别</h2>
+
+<p>虚拟机常见的磁盘格式有如下几种:</p>
+<ul>
+  <li>qcow2(cow/qcow/qcow3): qemu 主要镜像格式。支持写复制、动态扩容、压缩、AES加密，但是读写性能相对raw较差。</li>
+  <li>raw: 原始数据格式，可以直接由dd命令生成。较为原始。创建时占用全部容量，不支持动态扩容，不支持快照，性能好</li>
+  <li>vmdk: VMware的格式，使用较少</li>
+  <li>格式转换：可以使用如下命令进行格式转换</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># qcow2 -&gt; raw</span>
+qemu-img convert <span class="nt">-f</span> qcow2 <span class="nt">-O</span> raw /var/lib/libvirt/images/centos7.0.qcow2 /var/lib/libvirt/images/centos7.0.raw
+
+<span class="c"># 使用StarWind V2V Image Converter 工具进行镜像格式转换</span>
+
+</code></pre></div></div>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="https://access.redhat.com/documentation/zh-cn/red_hat_virtualization/4.0/html/technical_reference/qcow2">虚拟磁盘镜像的存储格式</a>;<a href="https://www.cnblogs.com/diantong/p/11490152.html">虚拟机镜像格式对比</a>;<a href="https://blog.csdn.net/qq_33932782/article/details/54943854">各种虚拟化镜像格式</a>
+</li>
+</ul>
+
+<h2 id="4-虚拟机文件中配置文件和硬盘文件分别在哪些路径下">4. 虚拟机文件中配置文件和硬盘文件分别在哪些路径下</h2>
+
+<ul>
+  <li>虚拟机配置文件，XML文件，位置 ：/etc/libvirt/qemu/</li>
+  <li>虚拟机硬盘文件，位置：/var/lib/libvirt/images</li>
+</ul>
+
+<h2 id="5-kvm虚拟机的网络配置有哪两种模式默认使用哪一种">5. kvm虚拟机的网络配置有哪两种模式？默认使用哪一种？</h2>
+
+<ul>
+  <li>NAT模式：也是用户模式，数据包由NAT方式通过主机的接口进行传送，可以访问公网，但是无法从外部访问虚拟机网络，kvm默认用的这种网络。</li>
+  <li>Bridge：也就是桥接模式，这种模式允许虚拟机像一个独立的主机一样拥有网络，外部的机器可以直接访问到虚拟机内部，但需要网卡支持，一般有线网卡都支持。</li>
+</ul>
+
+<h2 id="6-kvm三种工作模式">6. KVM三种工作模式</h2>
+
+<ol>
+  <li>客户模式：执行非I/O的客户代码，虚拟机运行在这个模式下</li>
+  <li>用户模式：用户执行I/O代码，QEMU运行在这个模式下</li>
+  <li>内核模式：CPU调度和内存管理相关，KVM内核模块运行在该模式下</li>
+</ol>
+
+<h2 id="7-什么是虚拟化技术">7. 什么是虚拟化技术</h2>
+
+<p>虚拟化技术是一种资源管理技术，是将计算机的各种实体资源（CPU、内存、磁盘空间、网络适配器等），予以抽象、转换后呈现出来并可供分割、组合为一个或多个电脑配置环境。</p>
+
+<h2 id="8-kvm支持哪些虚拟磁盘格式">8. kvm支持哪些虚拟磁盘格式?</h2>
+
+<p>kvm从qemu继承了丰富的磁盘格式, 包括裸映象(raw images), 原始qemu格式(qcow), VMware格式和更多</p>
+
+<h2 id="9-libvirt-包含-哪3-个组件">9. Libvirt 包含 哪3 个组件？</h2>
+
+<ul>
+  <li>libvirtd: 宿主机daemon程序，用于接收和处理 API 请求；</li>
+  <li>virsh： 常用KVM命令管理工具</li>
+  <li>api库：常用的libvirt开发高级工具，如  virt-manager</li>
+</ul>
+
+<h2 id="10-说一下kvm虚拟化架构">10. 说一下KVM虚拟化架构</h2>
+
+<p>KVM 主要虚拟化架构如下：</p>
+
+<p><img src="https://img-blog.csdnimg.cn/2f5e91fdbeb74ae7bf8a441a0c0ded14.png" alt="kvm虚拟化架构"></p>
+
+<h2 id="11-virsh-shutdown与destory的区别">11. <a href="https://blog.csdn.net/wcs_sdu/article/details/99674181">virsh shutdown与destory的区别</a>
+</h2>
+
+<h2 id="12-添加usb设备">12. <a href="https://access.redhat.com/documentation/zh-cn/red_hat_enterprise_linux/6/html/virtualization_administration_guide/sect-managing_guest_virtual_machines_with_virsh-attaching_and_updating_a_device_with_virsh">添加USB设备</a>
+</h2>
+
+<h2 id="13-腾讯云设备对比">13. 腾讯云设备对比</h2>
+<ul>
+  <li><a href="https://cloud.tencent.com/document/product/213/11518#IT5">高IO型IT5</a></li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.5GHz Intel® Xeon® Cascade Lake 处理器，计算性能稳定。
+搭配最新一代六通道 DDR4 内存。
+最高可支持23Gbps内网带宽，满足极高的内网传输需求。
+采用 NVMe SSD 的实例存储，提供低延迟、超高的 IOPS。
+单盘随机读性能高达65万 IOPS（4KB块大小），顺序读吞吐能力高达2.8GB/s（128KB块大小）。
+整机随机读性能高达205万 IOPS（4KB块大小），顺序读吞吐能力均高达11GB/s（128KB块大小）。
+支持关闭或开启超线程配置。
+</code></pre></div></div>
+
+<p>内部高IO</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+
+<p>一个机架4个机位100台</p>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2023/02/16/inside_the_linux_virtualization_principle_and_implementation/" data-toggle="tooltip" data-placement="top" title="深度探索Linux系统虚拟化(一)">
+                        Previous<br>
+                        <span>深度探索Linux系统虚拟化(一)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2023/04/11/body_photography/" data-toggle="tooltip" data-placement="top" title="人体摄影学习">
+                        Next<br>
+                        <span>人体摄影学习</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

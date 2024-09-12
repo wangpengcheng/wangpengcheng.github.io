@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ 并发编程笔记(三) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/07/06/cplusplus_concurrency_in_action_03/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B" title="多线程编程">多线程编程</a>
+                        
+                    </div>
+                    <h1>C++ 并发编程笔记(三)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ 并发编程笔记(三)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on July 6, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-07-11 20:09:48</p>
+</blockquote>
+
+<h2 id="第6章--基于锁的并发数据结构设计">第6章  基于锁的并发数据结构设计</h2>
+
+<h3 id="61-并发设计的意义">6.1 并发设计的意义</h3>
+
+<p>同过合理设计互斥量，让多个线程可以并发的访问这个数据，线程可以对这个数据结构做相同或者不同的操作。</p>
+
+<p><strong>序列化(serialzation)</strong>:线程轮流访问被保护的数据。这其实是对数据进行串行的访问,而非并发。</p>
+
+<p>一般进行并发数据结构设计的思路都是：减少保护区域,减少序列化操作,就能提升并发访问的潜力。</p>
+
+<h4 id="611--数据结构并发设计的指导与建议指南">6.1.1  数据结构并发设计的指导与建议(指南)</h4>
+
+<p>数据结构线程安全条件:</p>
+
+<ul>
+  <li>确保无线程能够看到,数据结构的“不变量”破坏时的状态。</li>
+  <li>小心那些会引起条件竞争的接口,提供完整操作的函数,而非操作步骤。</li>
+  <li>注意数据结构的行为是否会产生异常,从而确保“不变量”的状态稳定。</li>
+  <li>将死锁的概率降到最低。使用数据结构时,需要限制锁的范围,且避免嵌套锁的存在。</li>
+</ul>
+
+<p>需要考虑的问题：</p>
+
+<ul>
+  <li>锁的范围中的操作,是否允许在锁外执行?</li>
+  <li>数据结构中不同的区域是否能被不同的互斥量所保护?</li>
+  <li>所有操作都需要同级互斥量保护吗?</li>
+  <li>能否对数据结构进行简单的修改,以增加并发访问的概率,且不影响操作语义?</li>
+</ul>
+
+<h3 id="62-基于锁的并发数据结构">6.2 基于锁的并发数据结构</h3>
+
+<p>基于锁的并发数据结构设计,核心在于 <strong>保证程序安全的情况下，保证线程持有锁的时间最短</strong>。</p>
+
+<p>线程安全的<code class="language-plaintext highlighter-rouge">stack</code>和<code class="language-plaintext highlighter-rouge">queue</code>示例，第三、四章中，在此不做过多叙述</p>
+
+<h4 id="623--线程安全队列使用细粒度锁和条件变量">6.2.3  线程安全队列——使用细粒度锁和条件变量</h4>
+
+<p>首先先看一个单线程的队列：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">queue</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">T</span> <span class="n">data</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">next</span><span class="p">;</span>
+
+        <span class="n">node</span><span class="p">(</span><span class="n">T</span> <span class="n">data_</span><span class="p">);</span>
+        <span class="n">data_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">data_</span><span class="p">))</span>
+        <span class="p">{}</span>
+    <span class="p">};</span>
+    <span class="c1">//头部指针</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">head</span><span class="p">;</span>
+    <span class="c1">//队尾部指针</span>
+
+    <span class="n">node</span><span class="o">*</span> <span class="n">tail</span><span class="p">;</span>
+<span class="nl">public:</span>
+    <span class="n">queue</span><span class="p">(){}</span>
+    <span class="n">queue</span><span class="p">(</span><span class="k">const</span> <span class="n">queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">queue</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">try_pop</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">){</span>
+            <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="k">const</span> <span class="n">res</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)));</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="k">const</span> <span class="n">old_head</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">head</span><span class="p">);</span>
+        <span class="c1">//将head指针指向下一个</span>
+
+        <span class="n">head</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="c1">//尾部插入</span>
+
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="n">new_value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">new_value</span><span class="p">)));</span>
+        <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">new_tail</span><span class="o">=</span><span class="n">p</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">tail</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">head</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">tail</span><span class="o">=</span><span class="n">new_tail</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>这里可以看到，单线程情况下，基本使用良好，但是对于多线程而言，在push和pop中没有对头尾指针添加保护锁，同时，为了防止在队列只有一个元素时的时候，head==tail；所以push和try_pop间接访问了这个头尾指针，因此需要对tail添加保护锁。
+不过这里使用更简便的方法，减少锁的使用：预分配一个空节点，永远指向队列尾部，这样避免了头尾指针能够被间接访问。但是使用了一个间接层次的指针数据作为虚拟节点。</p>
+
+<p>更改完成时候，在push操作中只用考虑尾部指针tail在pop函数中虽然可以访问tail但是tail只在最初阶段进行比较，更多需要考虑head。同时，添加虚拟节点意味着pop和push不能同时对同一个节点进行操作。</p>
+
+<p>最终，除了操作的元素外需要上锁外，push只对tail上锁，try_pop,先对head上锁，一旦被改变之后就不再加锁。</p>
+
+<p>最终结果：</p>
+
+<p>线程安全队列–细粒度锁版</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">threadsafe_queue</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">data</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">next</span><span class="p">;</span>
+        
+    <span class="p">};</span>
+    <span class="c1">//头部节点</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">head</span><span class="p">;</span>
+    <span class="c1">//尾部节点</span>
+    <span class="n">node</span><span class="o">*</span> <span class="n">tail</span><span class="p">;</span>
+    <span class="c1">//头部互斥保护</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">head_mutex</span><span class="p">;</span>
+    <span class="c1">//尾部信号量</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">tail_mutex</span><span class="p">;</span>
+<span class="nl">public:</span>
+    <span class="n">threadsafe_queue</span><span class="p">()</span><span class="o">:</span><span class="n">head</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="p">),</span><span class="n">tail</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">get</span><span class="p">){}</span>
+    <span class="o">~</span><span class="n">threadsafe_queue</span><span class="p">();</span>
+    <span class="n">threadsafe_queue</span><span class="p">(</span><span class="k">const</span> <span class="n">threadsafe_queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">threadsafe_queue</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">threadsafe_queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+
+
+    <span class="n">node</span><span class="o">*</span> <span class="n">get_tail</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">tail_lock</span><span class="p">(</span><span class="n">tail_mutex</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">tail</span><span class="p">;</span>
+    <span class="p">}</span> 
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">pop_head</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">head_lock</span><span class="p">(</span><span class="n">head_mutex</span><span class="p">);</span>
+        <span class="c1">//使用git_tail 保护尾部指针一次</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="o">==</span><span class="n">get_tail</span><span class="p">()){</span>
+            <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">old_head</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">head</span><span class="p">);</span>
+        <span class="n">head</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">old_head</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="n">new_value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">new_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">new_value</span><span class="p">)));</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="p">);</span>
+        <span class="k">const</span><span class="o">*</span> <span class="k">const</span> <span class="n">new_tail</span><span class="o">=</span><span class="n">p</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+        <span class="c1">//tail 加锁</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">tail_lock</span><span class="p">(</span><span class="n">tail_mutex</span><span class="p">);</span>
+        <span class="n">tail</span><span class="o">-&gt;</span><span class="n">data</span><span class="o">=</span><span class="n">new_value</span><span class="p">;</span>
+        <span class="n">tail</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+        <span class="n">tail</span><span class="o">=</span><span class="n">new_tail</span><span class="p">;</span> 
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">try_pop</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">old_head</span><span class="o">=</span><span class="n">pop_head</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">old_head</span><span class="o">?</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">data</span><span class="o">:</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<p>在此基础之上添加，可上锁和等待的线程安全队列；但是由于wait_and_pop等操作会降低程序的性能。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">threadsafe_queue</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span>  <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">data</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">next</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">head_mutex</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">head</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">mutex</span>  <span class="n">tail_mutex</span><span class="p">;</span>
+    <span class="n">node</span><span class="o">*</span> <span class="n">tail</span><span class="p">;</span>
+    <span class="c1">//环境信号变量</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">condition_variable</span> <span class="n">data_cond</span><span class="p">;</span>
+<span class="nl">public:</span>
+    <span class="n">threadsafe_queue</span><span class="p">()</span><span class="o">:</span><span class="n">head</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="p">),</span><span class="n">tail</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">get</span><span class="p">()){}</span>
+    <span class="n">threadsafe_queue</span><span class="p">(</span><span class="k">const</span> <span class="n">threadsafe_queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">threadsafe_queue</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">threadsafe_queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">node</span><span class="o">*</span> <span class="n">get_tail</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">tail_lock</span><span class="p">(</span><span class="n">tail_mutex</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">tail</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">pop_head</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">old_head</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">head</span><span class="p">);</span>
+        <span class="n">head</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">old_head</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//数据等待线程锁</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">wait_for_data</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">head_lock</span><span class="p">(</span><span class="n">head_mutex</span><span class="p">);</span>
+        <span class="c1">//等待环境唤醒</span>
+
+        <span class="n">data_cond</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="n">head_lock</span><span class="p">,[</span><span class="o">&amp;</span><span class="p">]{</span><span class="k">return</span> <span class="n">head</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="o">!=</span><span class="n">get_tail</span><span class="p">();});</span>
+        <span class="c1">//将锁的实例，返回给调用者</span>
+
+        <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">head_lock</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">wait_pop_head</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//添加数据等待线程锁</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">head_lock</span><span class="p">(</span><span class="n">wait_for_data</span><span class="p">());</span>
+
+        <span class="k">return</span> <span class="n">pop_head</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">wait_pop_head</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">head_lock</span><span class="p">(</span><span class="n">wait_for_data</span><span class="p">());</span>
+        <span class="c1">//获取头部数据</span>
+
+        <span class="n">value</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="n">pop_head</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">wait_and_pop</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="k">const</span> <span class="n">old_head</span><span class="o">=</span><span class="n">wait_pop_head</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">//试着拿出头部</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">try_pop_head</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">head_lock</span><span class="p">(</span><span class="n">head_mutex</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="o">==</span><span class="n">get_tail</span><span class="p">())</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">pop_head</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">try_pop_head</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">head_lock</span><span class="p">(</span><span class="n">head_mutex</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="o">==</span><span class="n">get_tail</span><span class="p">())</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">pop_head</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">try_pop</span><span class="p">();</span>
+    <span class="kt">bool</span> <span class="n">try_pop</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">wait_and_pop</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">wait_and_pop</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span>  <span class="n">new_value</span><span class="p">);</span>
+    <span class="kt">bool</span> <span class="n">empty</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="c1">//推入新节点</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">threadsafe_queue</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="n">new_data</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span> <span class="n">new_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">new_value</span><span class="p">)));</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="p">);</span>
+    <span class="p">{</span>
+        <span class="c1">//尾部加锁</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">tail_lock</span><span class="p">(</span><span class="n">tail_mutex</span><span class="p">);</span>
+        <span class="n">tail</span><span class="o">-&gt;</span><span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">;</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">new_tail</span><span class="o">=</span><span class="n">p</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+        <span class="n">tail</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+        <span class="n">tail</span><span class="o">=</span><span class="n">new_tail</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//发射环境信号</span>
+
+    <span class="n">data_cond</span><span class="p">.</span><span class="n">notify_one</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">//线程安全队列</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">threadsafe_queue</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">wait_and_pop</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="k">const</span> <span class="n">old_head</span><span class="o">=</span><span class="n">wait_pop_head</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">old_head</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">threadsafe_queue</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">wait_and_pop</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//传递值，然后返回取出的头部</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="k">const</span> <span class="n">old_head</span><span class="o">=</span><span class="n">wait_pop_head</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span> <span class="n">threadsafe_queue</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">try_pop</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">old_head</span><span class="o">=</span><span class="n">try_pop_head</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">old_head</span><span class="o">?</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">data</span><span class="o">:</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span>
+<span class="kt">bool</span> <span class="n">threadsafe_queue</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">try_pop</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">old_head</span><span class="o">=</span><span class="n">try_pop_head</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">old_head</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span>
+<span class="kt">bool</span> <span class="nf">empty</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">head_lock</span><span class="p">(</span><span class="n">head_mutex</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="o">==</span><span class="n">get_tail</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="63-基于锁设计更加复杂的数据结构">6.3 基于锁设计更加复杂的数据结构</h3>
+
+<p>这里主要以定义一个简单的线程安全查询表和链表为例，进行工作</p>
+
+<h4 id="631-一个线程安全的查询表">6.3.1 一个线程安全的查询表</h4>
+
+<p>首先明确查询表的基本操作有：</p>
+
+<ul>
+  <li>添加一队“键值-数据”</li>
+  <li>修改指定键值所对应的数据</li>
+  <li>删除一组值</li>
+  <li>通过给定键值，获取对应数据</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">std::map</code>椎间盘美好常见的关联容器和比较</p>
+
+<ul>
+  <li>二叉树；比如：红黑树：并不会提高对高并发的访问，每一个都要访问根节点，根节点需要时常上锁</li>
+  <li>有序数组：是最坏的选择，无法提前感知那个有序</li>
+  <li>哈希表：结合桶，对每个桶进行互斥加锁，提高并发性能。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//定义模板：关键字、值、hash映射</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Key</span><span class="p">,</span><span class="k">typename</span> <span class="nc">Value</span><span class="p">,</span><span class="k">typename</span> <span class="nc">Hash</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">hash</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">&gt;</span> <span class="o">&gt;</span>
+
+
+
+<span class="k">class</span> <span class="nc">threadsafe_lookup_table</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="c1">//定义桶的基本类型</span>
+
+    <span class="k">class</span> <span class="nc">bucket_type</span>
+    <span class="p">{</span>
+    <span class="nl">private:</span>
+        <span class="c1">//设置键值对基本类型</span>
+
+        <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="o">&gt;</span>    <span class="n">bucket_value</span><span class="p">;</span>
+        <span class="c1">//设置键值队列表</span>
+
+        <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">bucket_value</span><span class="o">&gt;</span> <span class="n">bucket_data</span><span class="p">;</span>
+        <span class="c1">//定义列表迭代器</span>
+
+        <span class="k">typedef</span> <span class="k">typename</span> <span class="n">bucket_data</span><span class="o">::</span><span class="n">iterator</span> <span class="n">bucket_iterator</span><span class="p">;</span>
+        <span class="c1">//定义桶中的数据列表</span>
+
+        <span class="n">bucket_data</span> <span class="n">data</span><span class="p">;</span>
+        <span class="c1">//桶的互斥信号变量</span>
+
+        <span class="k">mutable</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_mutex</span> <span class="n">mutex</span><span class="p">;</span>
+        <span class="c1">//通过关键字查找迭代器</span>
+
+        <span class="n">bucket_iterator</span> <span class="n">find_entry_for</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span> <span class="k">const</span>
+        <span class="p">{</span>
+            <span class="k">return</span>  <span class="n">std</span><span class="o">::</span><span class="n">find_if</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+                <span class="n">data</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
+                <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="n">bucket_value</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">item</span><span class="p">){</span><span class="k">return</span> <span class="n">item</span><span class="p">.</span><span class="n">first</span><span class="o">==</span><span class="n">key</span><span class="p">;}</span>
+                <span class="p">);</span>
+        <span class="p">}</span>
+    <span class="nl">public:</span>
+        <span class="c1">//通过引入的方式，查找数据</span>
+
+        <span class="n">Value</span> <span class="n">value_for</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span><span class="n">Value</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">default_value</span><span class="p">)</span> <span class="k">const</span>
+        <span class="p">{</span>
+            <span class="n">boost</span><span class="o">::</span><span class="n">shared_lock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">shared_mutex</span><span class="o">&gt;</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+            <span class="n">bucket_iterator</span> <span class="k">const</span> <span class="n">found_entry</span><span class="o">=</span><span class="n">find_entry_for</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+            <span class="c1">//返回查找的关键值</span>
+
+            <span class="k">return</span> <span class="p">(</span><span class="n">found_entry</span><span class="o">==</span><span class="n">data</span><span class="p">.</span><span class="n">end</span><span class="p">())</span><span class="o">?</span><span class="n">default_value</span><span class="o">:</span><span class="n">found_entry</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//更新键值对</span>
+
+        <span class="kt">void</span> <span class="n">add_or_update_mapping</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span><span class="n">Value</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">shared_mutex</span><span class="o">&gt;</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+            <span class="n">bucket_iterator</span> <span class="k">const</span> <span class="n">found_entry</span><span class="o">=</span><span class="n">find_entry_for</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">found_entry</span><span class="o">==</span><span class="n">data</span><span class="p">.</span><span class="n">end</span><span class="p">())</span>
+            <span class="p">{</span>
+                <span class="n">data</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">bucket_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">value</span><span class="p">));</span>
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="n">found_entry</span><span class="o">-&gt;</span><span class="n">second</span><span class="o">=</span><span class="n">value</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">//移除关键字</span>
+
+        <span class="kt">void</span> <span class="n">remove_mapping</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">shared_mutex</span><span class="o">&gt;</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+            <span class="n">bucket_iterator</span> <span class="k">const</span> <span class="n">found_entry</span><span class="o">=</span><span class="n">find_entry_for</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">found_entry</span><span class="o">!=</span><span class="n">data</span><span class="p">.</span><span class="n">end</span><span class="p">())</span>
+            <span class="p">{</span>
+               <span class="n">data</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">found_entry</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+    <span class="c1">//end define bucket_type</span>
+
+    <span class="c1">//定义查询的基本桶向量容器</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">bucket_type</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">buckets</span><span class="p">;</span>
+    <span class="c1">//hash映射表</span>
+
+    <span class="n">Hash</span> <span class="n">hasher</span><span class="p">;</span>
+    <span class="c1">//根据关键字查找桶</span>
+
+    <span class="n">bucket_type</span><span class="o">&amp;</span> <span class="n">get_bucket</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="k">const</span> <span class="n">bucket_index</span><span class="o">=</span><span class="n">hasher</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">%</span><span class="n">buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+        <span class="k">return</span> <span class="o">*</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket_index</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="c1">//公共的类接口</span>
+
+<span class="nl">public:</span>
+    <span class="c1">//定义关键字类型</span>
+
+    <span class="k">typedef</span> <span class="n">Key</span> <span class="n">key_type</span><span class="p">;</span>
+    <span class="c1">//定义映射的值</span>
+
+    <span class="k">typedef</span> <span class="n">Value</span> <span class="n">mapped_type</span><span class="p">;</span>
+    <span class="c1">//定义hash函数</span>
+
+    <span class="k">typedef</span> <span class="n">Hash</span> <span class="n">hash_type</span><span class="p">;</span>
+    <span class="c1">//基本的构造函数</span>
+
+    <span class="n">threadsafe_lookup_table</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">num_buckets</span><span class="o">=</span><span class="mi">19</span><span class="p">,</span>
+                            <span class="n">Hash</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">hasher_</span><span class="o">=</span><span class="n">Hash</span><span class="p">())</span><span class="o">:</span>
+                            <span class="n">buckets</span><span class="p">(</span><span class="n">num_buckets</span><span class="p">),</span>
+                            <span class="n">hasher</span><span class="p">(</span><span class="n">hasher_</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">num_buckets</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">reset</span><span class="p">(</span><span class="k">new</span> <span class="n">bucket_type</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">threadsafe_lookup_table</span><span class="p">(</span><span class="n">threadsafe_lookup_table</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">threadsafe_lookup_table</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">threadsafe_lookup_table</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="c1">//根据关键字查找值</span>
+
+    <span class="n">Value</span> <span class="n">value_for</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span>
+                    <span class="n">Value</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">default_value</span><span class="o">=</span><span class="n">Value</span><span class="p">())</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">get_bucket</span><span class="p">(</span><span class="n">key</span><span class="p">).</span><span class="n">value_for</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">default_value</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="kt">void</span> <span class="n">add_or_update_mapping</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span><span class="n">Value</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">get_bucket</span><span class="p">(</span><span class="n">key</span><span class="p">).</span><span class="n">add_or_update_mapping</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">value</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">remove_mapping</span><span class="p">(</span><span class="n">Key</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">get_bucket</span><span class="p">(</span><span class="n">key</span><span class="p">).</span><span class="n">remove_mapping</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h4 id="632--编写一个使用锁的线程安全链表">6.3.2  编写一个使用锁的线程安全链表</h4>
+
+<p>链表的基本功能：</p>
+
+<p>链表的基本操作</p>
+
+<ul>
+  <li>向列表添加一个元素</li>
+  <li>当某个条件满足时,就从链表中删除某个元素</li>
+  <li>当某个条件满足时,从链表中查找某个元素</li>
+  <li>当某个条件满足时,更新链表中的某个元素</li>
+  <li>将当前容器中链表中的每个元素,复制到另一个容器中</li>
+</ul>
+
+<p>线程安全的迭代器</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//定义模板类</span>
+
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span>   <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">threadsafe_list</span>
+<span class="p">{</span>
+    <span class="c1">//链表数据节点</span>
+
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">m</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">data</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">next</span><span class="p">;</span>
+        <span class="c1">//构造函数</span>
+
+        <span class="n">node</span><span class="p">()</span><span class="o">:</span><span class="n">next</span><span class="p">(){}</span>
+        <span class="c1">//数值构造函数</span>
+
+        <span class="n">node</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span><span class="n">data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">)){}</span>
+    <span class="p">};</span>
+    <span class="c1">//定义头部节点</span>
+
+    <span class="n">node</span> <span class="n">head</span><span class="p">;</span>
+<span class="nl">public:</span>
+        <span class="n">threadsafe_list</span><span class="p">(){}</span>
+        <span class="o">~</span><span class="n">threadsafe_list</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="n">remove_if</span><span class="p">([](</span><span class="n">node</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">){</span><span class="k">return</span> <span class="nb">true</span><span class="p">;});</span>
+        <span class="p">}</span>
+        <span class="n">threadsafe_list</span><span class="p">(</span><span class="n">threadsafe_list</span> <span class="k">const</span><span class="o">&amp;</span>  <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+        <span class="n">threadsafe_list</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">threadsafe_list</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+        <span class="c1">//从头部插入</span>
+
+        <span class="kt">void</span> <span class="n">push_front</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">//创建新节点</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">new_node</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
+            <span class="c1">//头部节点加锁</span>
+
+            <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+            <span class="n">new_node</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">next</span><span class="p">);</span>
+            <span class="n">head</span><span class="p">.</span><span class="n">next</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">new_node</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="c1">//定义迭代函数</span>
+
+        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Function</span><span class="p">&gt;</span>
+        <span class="kt">void</span> <span class="n">for_each</span><span class="p">(</span><span class="n">Function</span> <span class="n">f</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">node</span><span class="o">*</span> <span class="n">current</span><span class="o">=&amp;</span><span class="n">head</span><span class="p">;</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+            <span class="c1">//便利链表</span>
+
+            <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">next</span><span class="o">=</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">.</span><span class="n">get</span><span class="p">())</span>
+            <span class="p">{</span>
+                <span class="c1">//保护下一个节点数据</span>
+
+                <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">next_lk</span><span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">m</span><span class="p">);</span>
+                <span class="c1">//上一个节点解锁</span>
+
+                <span class="n">lk</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+                <span class="c1">//执行函数</span>
+
+                <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+                <span class="c1">//更改当前指针</span>
+
+                <span class="n">current</span><span class="o">=</span><span class="n">next</span><span class="p">;</span>
+                <span class="c1">//移动对象</span>
+
+                <span class="n">lk</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">next_lk</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">//查找一个条件的元素</span>
+        <span class="c1">//定义查找关键函数模板</span>
+
+        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Predicate</span><span class="p">&gt;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">find_first_if</span><span class="p">(</span><span class="n">Predicate</span> <span class="n">p</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">node</span><span class="o">*</span> <span class="n">current</span><span class="o">=&amp;</span><span class="n">head</span><span class="p">;</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="k">const</span>   <span class="n">next</span><span class="o">=</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">.</span><span class="n">get</span><span class="p">())</span>
+            <span class="p">{</span>
+
+                <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">next_lk</span><span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">m</span><span class="p">);</span>
+                <span class="n">lk</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">(</span><span class="o">*</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span>
+                <span class="p">{</span>
+                    <span class="k">return</span> <span class="n">next</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">current</span><span class="o">=</span><span class="n">next</span><span class="p">;</span>
+                <span class="n">lk</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">next_lk</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="c1">//按照条件删除元素</span>
+
+        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Predicate</span><span class="p">&gt;</span>
+        <span class="kt">void</span> <span class="n">remove_if</span><span class="p">(</span><span class="n">Predicate</span> <span class="n">p</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">node</span><span class="o">*</span> <span class="n">current</span><span class="o">=&amp;</span><span class="n">head</span><span class="p">;</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">next</span><span class="o">=</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">.</span><span class="n">get</span><span class="p">())</span>
+            <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">next_lk</span><span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">m</span><span class="p">);</span>
+                <span class="c1">//是否符合查找条件</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">(</span><span class="o">*</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span>
+                <span class="p">{</span>
+                    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span> <span class="n">old_next</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+                    <span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+                    <span class="n">next_lk</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+                <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                    <span class="c1">//解锁下一个</span>
+
+                    <span class="n">lk</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+                    <span class="c1">//移动当前指针</span>
+
+                    <span class="n">current</span><span class="o">=</span><span class="n">next</span><span class="p">;</span>
+                    <span class="c1">//移动下一个锁</span>
+
+                    <span class="n">lk</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">next_lk</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h2 id="第7章--无锁并发数据结构设计">第7章  无锁并发数据结构设计</h2>
+
+<h3 id="71-定义和意义">7.1 定义和意义</h3>
+
+<p>使用互斥量、条件变量,以及“期望”来同步阻塞数据的算法和数据结构。</p>
+
+<p><strong>无锁数据结构</strong>：作为无锁结构,就意味着线程可以并发的访问这个数据结构。但是一般，这样的线程不能做相同的操作，并且在无锁算法中的循环会让一些线程处于”饥饿”状态。
+<strong>无等待数据结构</strong>：首先,是无锁数据结构;并且,每个线程都能在有限的步数内完成操作,暂且不管其他线程是如何工作的。</p>
+
+<p><strong>活锁</strong>：活锁的产生是,两个线程同时尝试修改数据结构,但每个线程所做的修改操作都会让另一个线程重启,所以两个线程就会陷入循环,多次的尝试完成自己的操作。</p>
+
+<p>这就是“无锁-无等待”代码的缺点:虽然提高了并发访问的能力,减少了单个线程的等待时间,但是其可能会将整体性能拉低。</p>
+
+<h3 id="72-无锁数据结构的例子">7.2 无锁数据结构的例子</h3>
+
+<p>一个简单的线程安全栈结构</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">lock_free_stack</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="c1">//获取指针数据</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">data</span><span class="p">;</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+        <span class="n">node</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">data_</span><span class="p">)</span><span class="o">:</span><span class="n">data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">data_</span><span class="p">)){}</span>
+
+    <span class="p">};</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">node</span><span class="o">*&gt;</span> <span class="n">head</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="n">lock_free_stack</span><span class="p">();</span>
+    <span class="o">~</span><span class="n">lock_free_stack</span><span class="p">();</span>
+    <span class="c1">//push函数</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">new_node</span><span class="o">=</span><span class="k">new</span> <span class="n">node</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+        <span class="c1">//加载数据</span>
+
+        <span class="n">new_node</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="c1">//用原子操作替换节点</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span><span class="n">new_node</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span><span class="n">new_node</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pop</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">result</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="c1">//使用原子操作替换节点</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="n">old_head</span><span class="o">&amp;&amp;!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span><span class="n">old_head</span><span class="p">,</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">));</span>
+        <span class="c1">//返回指针值</span>
+
+        <span class="k">return</span> <span class="n">old_head</span><span class="o">?</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">data</span><span class="o">:</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="p">}</span>
+    
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h4 id="722-停止内存泄露使用无锁数据结构管理内存">7.2.2 停止内存泄露：使用无锁数据结构管理内存</h4>
+
+<p>可以添加原子变量让栈变为线程安全的栈,同时添加引用计数，帮助</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">lock_free_stack</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="c1">//原子变量</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="o">&gt;</span> <span class="n">threads_in_pop</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">try_reclaim</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">old_head</span><span class="p">);</span>
+<span class="nl">public:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pop</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//在做事之前,计数值加1</span>
+
+        <span class="o">++</span><span class="n">threads_in_pop</span><span class="p">;</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">old_head</span><span class="o">&amp;&amp;!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span><span class="n">old_head</span><span class="p">,</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">));</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">res</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">old_head</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">//回收删除的节点</span>
+
+            <span class="n">res</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>       
+        <span class="p">}</span>
+        <span class="c1">//从节点中直接提取数据,而非拷贝指针</span>
+
+        <span class="n">try_reclaim</span><span class="p">(</span><span class="n">old_head</span><span class="p">);</span>
+        <span class="k">return</span>  <span class="n">res</span><span class="p">;</span>
+        <span class="p">}</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><strong>采用引用计数的回收机制</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span>   <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">lock_free_stack</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="c1">//即将被删除的数</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">node</span><span class="o">*&gt;</span>  <span class="n">to_be_deleted</span><span class="p">;</span>
+    <span class="k">static</span> <span class="kt">void</span> <span class="n">delete_nodes</span><span class="p">(</span><span class="n">node</span><span class="o">*</span>  <span class="n">nodes</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">node</span><span class="o">*</span> <span class="n">next</span><span class="o">=</span><span class="n">nodes</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+            <span class="k">delete</span> <span class="n">nodes</span><span class="p">;</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="n">next</span><span class="p">;</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+    <span class="c1">//删除头部节点</span>
+
+    <span class="kt">void</span> <span class="n">try_reclaim</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">old_head</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//是否为第一次删除</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">threads_in_pop</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">//声明 “可删除”列表</span>
+
+            <span class="n">node</span><span class="o">*</span> <span class="n">nodes_to_delete</span><span class="o">=</span><span class="n">to_be_deleted</span><span class="p">.</span><span class="n">exchange</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span>
+            <span class="c1">//是否只有一个线程调用pop</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="o">!--</span><span class="n">threads_in_pop</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">delete_nodes</span><span class="p">(</span><span class="n">nodes_to_delete</span><span class="p">);</span>
+            <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">nodes_to_delete</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">chain_pending_nodes</span><span class="p">(</span><span class="n">nodes_to_delete</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="c1">//删除节点</span>
+
+            <span class="k">delete</span> <span class="n">old_head</span><span class="p">;</span>
+
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">chain_pending_nodes</span><span class="p">(</span><span class="n">old_head</span><span class="p">);</span>
+            <span class="o">--</span><span class="n">threads_in_pop</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">chain_pending_nodes</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">nodes</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">last</span><span class="o">=</span><span class="n">nodes</span><span class="p">;</span>
+        <span class="c1">//让next指针指向链表的末尾</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">next</span><span class="o">=</span><span class="n">last</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">last</span><span class="o">=</span><span class="n">next</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">chain_pending_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span><span class="n">last</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">chain_pending_nodes</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">first</span><span class="p">,</span><span class="n">node</span><span class="o">*</span> <span class="n">last</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//last标记为即将删除</span>
+
+        <span class="n">last</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">to_be_deleted</span><span class="p">;</span>
+        <span class="c1">//用循环来保证last-&gt;next的正确性</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">to_be_deleted</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span><span class="n">last</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span><span class="n">first</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">chain_pending_node</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">chain_pending_nodes</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+    <span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="723-检测使用风险指针不可回收的节点">7.2.3 检测使用风险指针(不可回收)的节点</h3>
+
+<p><strong>风险指针</strong> :当有线程去访问要被(其他线程)删除的对象时,会先设置对这个对象设置一个风险指针,而后通知其他线程,删除这个指针是一个危险的行为。一旦这个对象不再被需要,那么就可以清除风险指针了。</p>
+
+<p>利用风险指针实现pop操作</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pop</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//获取风险指针</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;&amp;</span> <span class="n">hp</span><span class="o">=</span><span class="n">get_hazard_pointer_for_current_thread</span><span class="p">();</span>
+    <span class="n">node</span><span class="o">*</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+    <span class="c1">//比较交换操作失败，则重置操作1</span>
+
+    <span class="k">do</span>
+    <span class="p">{</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">temp</span><span class="p">;</span>
+        <span class="c1">//  1   直到将风险指针设为head指针</span>
+
+        <span class="k">do</span>
+        <span class="p">{</span>
+            <span class="n">temp</span><span class="o">=</span><span class="n">old_head</span><span class="p">;</span>
+            <span class="n">hp</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">old_head</span><span class="p">);</span>
+            <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">old_head</span><span class="o">!=</span><span class="n">temp</span><span class="p">);</span>
+    <span class="c1">//检查head==old_head?head=old_head-&gt;next:head=old_head;</span>
+
+    <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">old_head</span><span class="o">&amp;&amp;!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span><span class="n">old_head</span><span class="p">,</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">));</span>
+    <span class="c1">//  2   当声明完成,清除风险指针</span>
+
+    <span class="n">hp</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">old_head</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">res</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+        <span class="c1">//  3   在删除之前对风险指针引用的节点进行检查</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">outstanding_hazard_pointers_for</span><span class="p">(</span><span class="n">old_head</span><span class="p">))</span>       
+        <span class="p">{</span>
+            <span class="c1">//将其放在链表中，之后进行回收</span>
+
+            <span class="n">reclaim_later</span><span class="p">(</span><span class="n">old_head</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="k">delete</span>  <span class="n">old_head</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//检查并删除风险节点</span>
+
+        <span class="n">delete_nodes_with_no_hazards</span><span class="p">();</span>
+    <span class="p">}</span>
+        <span class="k">return</span>  <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<p>get_hazard_pointer_for_current_thread()函数的简单实现</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kt">unsigned</span> <span class="k">const</span> <span class="n">max_hazard_pointers</span><span class="o">=</span><span class="mi">100</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="nc">hazard_pointer</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">::</span><span class="n">id</span><span class="o">&gt;</span> <span class="n">id</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span> <span class="n">pointer</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="c1">//异常节点数组</span>
+
+<span class="n">hazard_pointer</span> <span class="n">hazard_pointers</span><span class="p">[</span><span class="n">max_hazard_pointers</span><span class="p">];</span>
+
+<span class="k">class</span> <span class="nc">hp_owner</span>
+<span class="p">{</span>
+    <span class="n">hazard_pointer</span><span class="o">*</span> <span class="n">hp</span><span class="p">;</span>
+<span class="nl">public:</span>
+    <span class="n">hp_owner</span><span class="p">(</span><span class="n">hp_owner</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">hp_owner</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">hp_owner</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">hp_owner</span><span class="p">()</span><span class="o">:</span><span class="n">hp</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">max_hazard_pointers</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">::</span><span class="n">id</span> <span class="n">old_id</span><span class="p">;</span>
+            <span class="c1">//检查old_id是否含有hazard_pointers中的异常指针</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">hazard_pointers</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">id</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span><span class="n">old_id</span><span class="p">.</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">::</span><span class="n">get_id</span><span class="p">()))</span>
+            <span class="p">{</span>
+                <span class="c1">//如果含有则hp指向该异常指针，</span>
+
+                <span class="n">hp</span><span class="o">=&amp;</span><span class="n">hazard_pointers</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">//如果不含有风险指针就抛出异常</span>
+        
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"No hazard pointer available"</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">void</span> <span class="o">*&gt;&amp;</span><span class="n">get_pointer</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">hp</span><span class="o">-&gt;</span><span class="n">pointer</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="o">~</span><span class="n">hp_owner</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">hp</span><span class="o">-&gt;</span><span class="n">pointer</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span>
+        <span class="n">hp</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="o">::</span><span class="n">id</span><span class="p">());</span>
+    <span class="p">}</span>
+
+<span class="p">};</span>
+<span class="c1">//获取当前的风险指针</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">void</span> <span class="o">*&gt;&amp;</span> <span class="n">get_hazard_pointer_for_current_thread</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//每个线程都有自己的风险指针</span>
+
+    <span class="k">thread_local</span> <span class="k">static</span> <span class="n">hp_owner</span> <span class="n">hazard</span><span class="p">;</span>
+    <span class="c1">//获取指针数目</span>
+
+    <span class="k">return</span> <span class="n">hazard</span><span class="p">.</span><span class="n">get_pointer</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="c1">//搜索风险表，查找对应记录</span>
+
+<span class="kt">bool</span> <span class="nf">outstanding_hazard_pointers_for</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">p</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">max_hazard_pointers</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">hazard_pointers</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pointer</span><span class="p">.</span><span class="n">load</span><span class="p">()</span><span class="o">==</span><span class="n">p</span><span class="p">){</span>
+            <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="c1">//风险指针的回收函数</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">do_delete</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">p</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">delete</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">//删除缓冲队列</span>
+
+<span class="k">struct</span> <span class="nc">data_to_reclaim</span>
+<span class="p">{</span>
+    <span class="kt">void</span><span class="o">*</span> <span class="n">data</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">Function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="p">)</span><span class="o">&gt;</span> <span class="n">deleter</span><span class="p">;</span>
+    <span class="n">data_to_reclaim</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+    <span class="c1">//删除缓冲链中元素</span>
+
+    <span class="n">data_to_reclaim</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">p</span><span class="p">)</span><span class="o">:</span><span class="n">data</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="n">deleter</span><span class="p">(</span><span class="o">&amp;</span><span class="n">do_delete</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">),</span><span class="n">next</span><span class="p">(</span><span class="mi">0</span><span class="p">){}</span>
+    <span class="o">~</span><span class="n">data_to_reclaim</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">deleter</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+<span class="c1">//定义释放节点</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">data_to_reclaim</span><span class="o">*&gt;</span> <span class="n">nodes_to_reclaim</span><span class="p">;</span>
+<span class="c1">//头插法将数据插入</span>
+
+<span class="kt">void</span> <span class="nf">add_to_reclaim_list</span><span class="p">(</span><span class="n">data_to_reclaim</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//指针指向下一个</span>
+
+    <span class="n">node</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">nodes_to_reclaim</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+    <span class="c1">//将数据节点与head相交换，因此最终插入到头结点之后</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">nodes_to_reclaim</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span><span class="n">node</span><span class="p">));</span>   
+<span class="p">}</span>
+<span class="c1">//创建相关实例，将数据添加到待删除队列</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">reclaim_later</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">add_to_reclaim_list</span><span class="p">(</span><span class="k">new</span> <span class="n">data_to_reclaim</span><span class="p">(</span><span class="n">data</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="c1">//删除相关指针，将已经声明的链表节点进行回收</span>
+
+<span class="kt">void</span> <span class="nf">delete_nodes_with_no_hazards</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">data_to_reclaim</span><span class="o">*</span> <span class="n">current</span><span class="o">=</span><span class="n">nodes_to_reclaim</span><span class="p">.</span><span class="n">exchange</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span>
+    <span class="c1">//当节点不为空的时候</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">data_to_reclaim</span><span class="o">*</span> <span class="k">const</span> <span class="n">next</span><span class="o">=</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="c1">//判断节点是否属于风险指针</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">outstanding_hazard_pointers_for</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="c1">//没有指针就安全删除</span>
+
+            <span class="k">delete</span> <span class="n">current</span><span class="p">;</span>
+
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="c1">//是风险指针就把节点添加到链表的后面，再统一删除</span>
+
+            <span class="n">add_to_reclaim_list</span><span class="p">(</span><span class="n">current</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">current</span><span class="o">=</span><span class="n">next</span><span class="p">;</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<h4 id="724-检测使用引用计数的节点">7.2.4 检测使用引用计数的节点</h4>
+
+<p>通过增加外部引用计数,保证指针在访问期间的合法性。</p>
+
+<p>分离计数方式的无锁栈</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">lock_free_stack</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span> <span class="nc">node</span><span class="p">;</span>
+    <span class="c1">//指向下一个指针的节点</span>
+
+    <span class="k">struct</span> <span class="nc">counted_node_ptr</span>
+    <span class="p">{</span>
+        <span class="c1">//外部引用计数</span>
+
+        <span class="kt">int</span> <span class="n">external_count</span><span class="p">;</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">ptr</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">data</span><span class="p">;</span>
+        <span class="c1">//节点的内部引用计数</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">internal_count</span><span class="p">;</span>
+        <span class="c1">//下一个指针节点</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">next</span><span class="p">;</span>
+        <span class="n">node</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">)</span><span class="o">:</span><span class="n">data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">data_</span><span class="p">)),</span><span class="n">internal_count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+
+        <span class="p">}</span>
+    <span class="p">};</span>
+    <span class="c1">//头部节点，它只有引用指针和计数，数据直接是node</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">counted_node_ptr</span><span class="o">&gt;</span> <span class="n">head</span><span class="p">;</span>
+    <span class="c1">//增加头部的引用计数</span>
+
+    <span class="kt">void</span> <span class="n">increase_head_count</span><span class="p">(</span><span class="n">counted_node_ptr</span><span class="o">&amp;</span> <span class="n">old_counter</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//创建新的计数指针</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">new_counter</span><span class="p">;</span>
+        <span class="k">do</span><span class="p">{</span>
+            <span class="c1">//new_counter指向新的指针</span>
+
+            <span class="n">new_counter</span><span class="o">=</span><span class="n">old_counter</span><span class="p">;</span>
+            <span class="c1">//增加外部引用计数</span>
+
+            <span class="o">++</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_count</span><span class="p">;</span>
+            <span class="c1">//循环直到，old_counter指向头部，head指向new_counter;</span>
+
+        <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span><span class="n">old_counter</span><span class="p">,</span><span class="n">new_counter</span><span class="p">));</span>
+        <span class="c1">//修改指针的外部引用次数，每被引用一次，计数+1</span>
+
+        <span class="n">old_counter</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_count</span><span class="p">;</span>
+
+    <span class="p">}</span>
+<span class="nl">public:</span>
+    <span class="o">~</span><span class="n">lock_free_stack</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">pop</span><span class="p">());</span>
+    <span class="p">}</span>
+    <span class="c1">//添加函数</span>
+
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//新的下一个指针</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">new_node</span><span class="p">;</span>
+        <span class="n">new_node</span><span class="p">.</span><span class="n">ptr</span><span class="o">=</span><span class="k">new</span> <span class="n">node</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+        <span class="n">new_node</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+        <span class="c1">//新节点的下一个节点指向,old head</span>
+
+        <span class="n">new_node</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="c1">//便利指针，直到new_node.ptr的下一个指针是head;即现在最前面的指针是new_node,将head指针指向new_node;</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span><span class="n">new_node</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span><span class="n">new_node</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="c1">//pop弹出函数</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pop</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">counted_node_ptr</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="k">for</span><span class="p">(;;)</span>
+        <span class="p">{</span>
+            <span class="n">increase_head_count</span><span class="p">(</span><span class="n">old_head</span><span class="p">);</span>
+            <span class="c1">//获取头部数据指针</span>
+
+            <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">ptr</span><span class="o">=</span><span class="n">old_head</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+            <span class="c1">//如果是一个空指针</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">ptr</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="c1">//将head指针后移</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span><span class="n">old_head</span><span class="p">,</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="c1">//返回指针数据</span>
+
+                <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">;</span>
+
+                <span class="n">res</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+                <span class="c1">//取出节点后，头部节点的引用计数-2</span>
+
+                <span class="kt">int</span> <span class="k">const</span> <span class="n">count_increase</span><span class="o">=</span><span class="n">old_head</span><span class="p">.</span><span class="n">external_count</span><span class="o">-</span><span class="mi">2</span><span class="p">;</span>
+                <span class="c1">//如果现在的内部引用计数为0</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">internal_count</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="n">count_increase</span><span class="p">)</span><span class="o">==-</span><span class="n">count_increase</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="c1">//直接删除指针</span>
+
+                    <span class="k">delete</span> <span class="n">ptr</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+                <span class="c1">//如果指针的内部引用计数为2</span>
+
+            <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">internal_count</span><span class="p">.</span><span class="n">fetch_sub</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span>
+                <span class="c1">//删除指针</span>
+
+                <span class="k">delete</span> <span class="n">ptr</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h4 id="725-应用于无锁栈上的内存模型">7.2.5 应用于无锁栈上的内存模型</h4>
+
+<p>对于不同的多线程相互数据，在修改内存之前，需要检查一下操作之间的依赖关系。然后再去确定适合这种需求关系的最小内存。</p>
+
+<p>对于push操作，接受数据之后，先构造节点，再插入队列–设置head,因此push中的唯一原子操作就是<code class="language-plaintext highlighter-rouge">compare_exchange_weak()</code>函数，对于同push()操作没有必要考虑，它需要和pop()之中的<code class="language-plaintext highlighter-rouge">head.compare_exchange_strong</code>有严格的内存顺序。</p>
+
+<p>对于pop()操作，必须在访问<code class="language-plaintext highlighter-rouge">next</code>值之前使用<code class="language-plaintext highlighter-rouge">std::memory_order_acquire</code>或者更加严格的内存操作顺序，保证<code class="language-plaintext highlighter-rouge">next</code>指针指向的内容不被改变。因为在<code class="language-plaintext highlighter-rouge">increase_head_count()</code>中使用<code class="language-plaintext highlighter-rouge">compare_exchange_strong()</code>就获取<code class="language-plaintext highlighter-rouge">next</code>指针指向的旧值。因此在交换成功的时候必须使用严格内存序，但是当交换失败时，因为只涉及到内部操作，因此可以使用松散内存序。然后循环直到交换成功。</p>
+
+<p>基于引用计数和松散原子操作的无锁线程</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">lock_free_stack</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span> <span class="nc">node</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">counted_node_ptr</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">external_count</span><span class="p">;</span>
+        <span class="n">node</span><span class="o">*</span>   <span class="n">ptr</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="k">struct</span>  <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">node</span><span class="p">(</span><span class="n">T</span>  <span class="k">const</span><span class="o">&amp;</span>  <span class="n">data_</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">data_</span><span class="p">)),</span>
+                        <span class="n">internal_count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="p">{}</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">data</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">internal_count</span><span class="p">;</span>
+        <span class="n">counted_node_ptr</span>    <span class="n">next</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">counted_node_ptr</span><span class="o">&gt;</span>   <span class="n">head</span><span class="p">;</span>
+
+    <span class="kt">void</span> <span class="n">increase_head_count</span><span class="p">(</span><span class="n">counted_node_ptr</span><span class="o">&amp;</span> <span class="n">old_counter</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">counted_node_ptr</span> <span class="n">new_counter</span><span class="p">;</span>
+        <span class="k">do</span>
+        <span class="p">{</span>
+            <span class="n">new_counter</span><span class="o">=</span><span class="n">old_counter</span><span class="p">;</span>
+            <span class="o">++</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_count</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+            <span class="n">old_counter</span><span class="p">,</span>
+            <span class="n">new_counter</span><span class="p">,</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">,</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span>
+            <span class="p">));</span>
+        <span class="n">old_counter</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_count</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nl">public:</span>
+    <span class="o">~</span><span class="n">lock_free_stack</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">pop</span><span class="p">());</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">counted_node_ptr</span> <span class="n">new_node</span><span class="p">;</span>
+        <span class="n">new_node</span><span class="p">.</span><span class="n">ptr</span><span class="o">=</span><span class="k">new</span> <span class="n">node</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+        <span class="n">new_node</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+        <span class="c1">//加载head数据</span>
+
+        <span class="n">new_node</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">)</span>
+        <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span>
+            <span class="n">new_node</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span>
+            <span class="n">new_node</span><span class="p">,</span>
+            <span class="c1">//这里必须要和increase_head_count的compare_exchange_strong中成功时有序</span>
+
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_release</span><span class="p">,</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span>
+            <span class="p">));</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pop</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//加载头部指针，因为这里的载入没有强制的竞争行为，所以可以是relaxed的</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+        <span class="k">for</span><span class="p">(;;)</span>
+        <span class="p">{</span>
+            <span class="n">increase_head_count</span><span class="p">(</span><span class="n">old_head</span><span class="p">);</span>
+            <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">ptr</span><span class="o">=</span><span class="n">old_head</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">ptr</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span><span class="n">old_head</span><span class="p">,</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">;</span>
+                <span class="n">res</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+                <span class="kt">int</span> <span class="k">const</span> <span class="n">count_increase</span><span class="o">=</span><span class="n">old_head</span><span class="p">.</span><span class="n">external_count</span><span class="o">-</span><span class="mi">2</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">internal_count</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="n">count_increase</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_release</span><span class="p">)</span><span class="o">==-</span><span class="n">count_increase</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="k">delete</span> <span class="n">ptr</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+            <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span>
+                <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">internal_count</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span>
+                <span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">internal_count</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">);</span>
+                <span class="k">delete</span> <span class="n">ptr</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h4 id="726-写一个无锁的线程安全队列">7.2.6 写一个无锁的线程安全队列</h4>
+
+<p>先看一个简单的生产者/单消费者模型下的无锁队列</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span>   <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span>   <span class="nc">lock_free_queue</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">data</span><span class="p">;</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+        <span class="n">node</span><span class="p">()</span><span class="o">:</span><span class="n">next</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">)</span>
+        <span class="p">{}</span>
+    <span class="p">};</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">node</span><span class="o">*&gt;</span>  <span class="n">head</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">node</span><span class="o">*&gt;</span>  <span class="n">tail</span><span class="p">;</span>
+    <span class="n">node</span><span class="o">*</span> <span class="n">pop_head</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">old_head</span><span class="o">==</span><span class="n">tail</span><span class="p">.</span><span class="n">load</span><span class="p">())</span>
+        <span class="p">{</span>
+            <span class="k">return</span>  <span class="nb">nullptr</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">head</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+        <span class="k">return</span>  <span class="n">old_head</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nl">public:</span>
+    <span class="n">lock_free_queue</span><span class="p">()</span><span class="o">:</span><span class="n">head</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="p">),</span><span class="n">tail</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">())</span>
+    <span class="p">{}</span>
+    <span class="n">lock_free_queue</span><span class="p">(</span><span class="k">const</span> <span class="n">lock_free_queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="n">lock_free_queue</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">lock_free_queue</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span><span class="o">=</span><span class="k">delete</span><span class="p">;</span>
+    <span class="o">~</span><span class="n">lock_free_queue</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">())</span>
+        <span class="p">{</span>
+            <span class="n">head</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+            <span class="k">delete</span>  <span class="n">old_head</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pop</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//获取头节点</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">old_head</span><span class="o">=</span><span class="n">pop_head</span><span class="p">();</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">old_head</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span>  <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="c1">//获取头部数据</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="k">const</span> <span class="n">res</span><span class="p">(</span><span class="n">old_head</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+        <span class="k">delete</span> <span class="n">old_head</span><span class="p">;</span>
+        <span class="c1">//返回头部数据</span>
+
+        <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="n">new_value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">new_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">new_value</span><span class="p">));</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">p</span><span class="o">=</span><span class="k">new</span> <span class="n">node</span><span class="p">;</span>
+        <span class="c1">//获取尾部节点</span>
+
+        <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">old_tail</span><span class="o">=</span><span class="n">tail</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="c1">//将尾部数据和新指针交换</span>
+
+        <span class="n">old_tail</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">new_data</span><span class="p">);</span>
+        <span class="c1">//更换尾部数据</span>
+        <span class="n">old_tail</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">p</span><span class="p">;</span>
+        <span class="c1">//尾指针存储p</span>
+
+        <span class="n">tail</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<p>对于线程安全的队列而言，需要注意的地方是在尾部节点插入的地方和头部节点删除的地方，可以借鉴内外部的引用计数的方法，在删除和添加操作中，使用原子操作，避免线程之间的相互竞争。</p>
+
+<p>线程安全队列的完全代码,这里全部写出来，注意看代码的注释</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">lock_free_queue</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span> <span class="nc">node</span><span class="p">;</span>
+    <span class="c1">//节点之间的链接类</span>
+
+    <span class="k">struct</span> <span class="nc">counted_node_ptr</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">external_count</span><span class="p">;</span>
+        <span class="n">node</span><span class="o">*</span> <span class="n">ptr</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="c1">//头指针</span>
+    
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">counted_node_ptr</span><span class="o">&gt;</span> <span class="n">head</span><span class="p">;</span>
+    <span class="c1">//尾部指针</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">counted_node_ptr</span><span class="o">&gt;</span> <span class="n">tail</span><span class="p">;</span>
+    <span class="c1">//引用计数器</span>
+
+    <span class="k">struct</span> <span class="nc">node_counter</span>
+    <span class="p">{</span>
+        <span class="c1">//内部引用计数,大小为30bit </span>
+
+        <span class="kt">unsigned</span> <span class="n">internal_count</span><span class="o">:</span><span class="mi">30</span><span class="p">;</span>
+        <span class="c1">//外部引用计数,大小为2bit 即0-3</span>
+
+        <span class="kt">unsigned</span> <span class="n">external_counters</span><span class="err">：</span><span class="mi">2</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="c1">//定义元素节点</span>
+
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="c1">//基本构造函数</span>
+        <span class="n">node</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="n">node_counter</span> <span class="n">new_count</span><span class="p">;</span>
+            <span class="n">new_count</span><span class="p">.</span><span class="n">internal_count</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+            <span class="c1">//当新节点加入队列中时,都会被tail和上一个节点的next指针所指向</span>
+
+            <span class="n">new_count</span><span class="p">.</span><span class="n">external_counts</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+            <span class="c1">//存储新值</span>
+
+            <span class="n">count</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">new_count</span><span class="p">);</span>
+            <span class="c1">//下一个节点指针为空指针</span>
+
+            <span class="n">next</span><span class="p">.</span><span class="n">ptr</span><span class="o">=</span><span class="nb">nullptr</span><span class="p">;</span>
+            <span class="c1">//下一个指针的外部引用计数为0</span>
+
+            <span class="n">next</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//释放一个节点引用</span>
+
+        <span class="kt">void</span> <span class="n">release_ref</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="c1">//获取计数器指针</span>
+
+            <span class="n">node_counter</span> <span class="n">old_counter</span><span class="o">=</span><span class="n">count</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+            <span class="n">node_counter</span> <span class="n">new_counter</span><span class="p">;</span>
+            <span class="k">do</span>
+            <span class="p">{</span>
+                <span class="c1">//将旧计数器，存入新的临时变量中</span>
+
+                <span class="n">new_counter</span><span class="o">=</span><span class="n">old_counter</span><span class="p">;</span>
+                <span class="c1">//外部引用计数--</span>
+
+                <span class="o">--</span><span class="n">new_counter</span><span class="p">.</span><span class="n">internal_count</span><span class="p">;</span>
+                <span class="c1">//当count与old_count相同时结束循环</span>
+
+            <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">count</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+                <span class="n">old_counter</span><span class="p">,</span>
+                <span class="n">new_counter</span><span class="p">,</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">,</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span>
+                <span class="p">));</span>
+            <span class="c1">//当内外部引用都为空的时候，删除指针</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">new_counter</span><span class="p">.</span><span class="n">internal_count</span><span class="o">&amp;&amp;</span>
+                <span class="o">!</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_counters</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">delete</span> <span class="k">this</span><span class="p">;</span>
+            <span class="p">}</span>
+
+        <span class="p">}</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span> <span class="n">data</span><span class="p">;</span>
+        <span class="c1">//节点计数器，记录内外部引用次数</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">node_counter</span><span class="o">&gt;</span> <span class="n">count</span><span class="p">;</span>
+        <span class="c1">//链接关系类，next指针</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">next</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="c1">//增加一个外部节点的引用</span>
+
+    <span class="k">static</span> <span class="kt">void</span> <span class="n">increase_external_count</span><span class="p">(</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">counted_node_ptr</span><span class="o">&gt;&amp;</span> <span class="n">counter</span><span class="p">,</span>
+        <span class="n">counted_node_ptr</span><span class="o">&amp;</span> <span class="n">old_counter</span>
+        <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//临时记录变量</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">new_counter</span><span class="p">;</span>
+        <span class="k">do</span>
+        <span class="p">{</span>
+            <span class="c1">//暂存旧计数器</span>
+
+            <span class="n">new_counter</span><span class="o">=</span><span class="n">old_counter</span><span class="p">;</span>
+            <span class="c1">//增加外部引用</span>
+
+            <span class="o">++</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_count</span><span class="p">;</span>
+            <span class="c1">//当counter和old_counter指向相同时，跳出循环</span>
+
+        <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">counter</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+            <span class="n">old_counter</span><span class="p">,</span>
+            <span class="n">new_counter</span><span class="p">,</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">,</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span>
+            <span class="p">));</span>
+        <span class="c1">//计算结构存入old_counter中</span>
+
+        <span class="n">old_counter</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_count</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//删除外部节点的引用</span>
+
+    <span class="k">static</span> <span class="kt">void</span> <span class="n">free_external_counter</span><span class="p">(</span><span class="n">counted_node_ptr</span><span class="o">&amp;</span> <span class="n">old_node_ptr</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//获取旧指针的临时变量</span>
+
+        <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">ptr</span><span class="o">=</span><span class="n">old_node_ptr</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+        <span class="c1">//和添加时相反，减少两个外部引用</span>
+
+        <span class="kt">int</span> <span class="k">const</span> <span class="n">count_increase</span><span class="o">=</span><span class="n">old_node_ptr</span><span class="p">.</span><span class="n">external_count</span><span class="o">-</span><span class="mi">2</span><span class="p">;</span>
+        <span class="c1">//获取计数器</span>
+
+        <span class="n">node_counter</span> <span class="n">old_counter</span><span class="o">=</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">count</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+        <span class="c1">//创建新计数器</span>
+
+        <span class="n">node_counter</span> <span class="n">new_counter</span><span class="p">;</span>
+
+        <span class="k">do</span>
+        <span class="p">{</span>
+            <span class="n">new_counter</span><span class="o">=</span><span class="n">old_counter</span><span class="p">;</span>
+            <span class="c1">//外部计数器--</span>
+
+            <span class="o">--</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_counters</span><span class="p">;</span>
+            <span class="c1">//拷贝引用数目</span>
+
+            <span class="n">new_counter</span><span class="p">.</span><span class="n">internal_count</span><span class="o">+=</span><span class="n">count_increase</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">count</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+            <span class="n">old_counter</span><span class="p">,</span>
+            <span class="n">new_counter</span><span class="p">,</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">,</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span>
+            <span class="p">));</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">new_counter</span><span class="p">.</span><span class="n">internal_count</span><span class="o">&amp;&amp;</span>
+            <span class="o">!</span><span class="n">new_counter</span><span class="p">.</span><span class="n">external_counters</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">delete</span> <span class="n">ptr</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="nl">public:</span>
+    <span class="n">lock_free_queue</span><span class="p">();</span>
+    <span class="o">~</span><span class="n">lock_free_queue</span><span class="p">();</span>
+    <span class="c1">//添加新元素函数</span>
+
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="n">new_value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//创建智能指针</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">new_data</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">(</span><span class="n">new_value</span><span class="p">));</span>
+        <span class="c1">//下一个指向链接</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">new_next</span><span class="p">;</span>
+        <span class="n">new_next</span><span class="p">.</span><span class="n">ptr</span><span class="o">=</span><span class="k">new</span> <span class="n">node</span><span class="p">;</span>
+        <span class="n">new_next</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+        <span class="c1">//暂存旧的尾部指针</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">old_tail</span><span class="o">=</span><span class="n">tail</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="k">for</span><span class="p">(;;)</span>
+        <span class="p">{</span>
+            <span class="c1">//增加现有指针和尾部指针的外部引用计数</span>
+
+            <span class="n">increase_external_count</span><span class="p">(</span><span class="n">tail</span><span class="p">,</span><span class="n">old_tail</span><span class="p">);</span>
+            <span class="n">T</span><span class="o">*</span> <span class="n">old_data</span><span class="o">=</span><span class="nb">nullptr</span><span class="p">;</span>
+            <span class="c1">//将尾部指针的数据更换为新数据，将tail指针指向新尾部</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+                <span class="n">old_data</span><span class="p">,</span>
+                <span class="n">new_data</span><span class="p">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="p">))</span>
+                <span class="c1">//当old_data=old_tail.ptr-&gt;data时成立</span>
+
+            <span class="p">{</span>
+                <span class="c1">//更新尾指针指向</span>
+
+                <span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">new_next</span><span class="p">;</span>
+                <span class="c1">//将旧指针移动到old_tail</span>
+
+                <span class="n">old_tail</span><span class="o">=</span><span class="n">tail</span><span class="p">.</span><span class="n">exchange</span><span class="p">(</span><span class="n">new_next</span><span class="p">);</span>
+                <span class="c1">//释放外部计数指针</span>
+
+                <span class="n">free_external_counter</span><span class="p">(</span><span class="n">old_tail</span><span class="p">);</span>
+                <span class="c1">//释放指针所有权</span>
+
+                <span class="n">new_data</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+                <span class="c1">//跳出循环</span>
+
+                <span class="k">break</span><span class="p">;</span>
+
+            <span class="p">}</span>
+            <span class="c1">//释放指针所有权</span>
+
+            <span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">release_ref</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">//出队列相关函数</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pop</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//加载头节点</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">old_head</span><span class="o">=</span><span class="n">head</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+        <span class="k">for</span><span class="p">(;;)</span>
+        <span class="p">{</span>
+            <span class="c1">//增加外部计数器</span>
+
+            <span class="n">increase_external_count</span><span class="p">(</span><span class="n">head</span><span class="p">,</span><span class="n">old_head</span><span class="p">);</span>
+            <span class="c1">//获取临时头节点中的node指针</span>
+
+            <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">ptr</span><span class="o">=</span><span class="n">old_head</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+            <span class="c1">//首尾节点指向一处，即队列为空</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">ptr</span><span class="o">==</span><span class="n">tail</span><span class="p">.</span><span class="n">load</span><span class="p">().</span><span class="n">ptr</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">release_ref</span><span class="p">();</span>
+                <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="c1">//将head指针，指向old_head旧指针指向的节点</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">head</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span><span class="n">old_head</span><span class="p">,</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="c1">//获取左值</span>
+
+                <span class="n">T</span><span class="o">*</span> <span class="k">const</span> <span class="n">res</span><span class="o">=</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">exchange</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span>
+                <span class="c1">//释放外部引用计数</span>
+
+                <span class="n">free_external_counter</span><span class="p">(</span><span class="n">old_head</span><span class="p">);</span>
+                <span class="c1">//返回获取的指针</span>
+
+                <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">res</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="c1">//释放旧节点</span>
+
+            <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">release_ref</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h5 id="无锁队列中的线程间互助">无锁队列中的线程间互助</h5>
+
+<p>通过在node节点中设置next指针可以在pop()函数中通过对<code class="language-plaintext highlighter-rouge">next</code>指针的读取方便快速的使用compare_exchange_strong,进行头指针移动；对于push的实现稍微复杂一点</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span>   <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">lock_free_queue</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="k">struct</span> <span class="nc">node</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span> <span class="n">data</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">node_counter</span><span class="o">&gt;</span> <span class="n">count</span><span class="p">;</span>
+        <span class="c1">//下一个指针</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">counted_node_ptr</span><span class="o">&gt;</span> <span class="n">next</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="kt">void</span> <span class="n">set_new_tail</span><span class="p">(</span>
+    <span class="n">counted_node_ptr</span> <span class="o">&amp;</span><span class="n">old_tail</span><span class="p">,</span>
+    <span class="n">counted_node_ptr</span> <span class="k">const</span> <span class="o">&amp;</span><span class="n">new_tail</span>
+    <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//获取旧尾指针</span>
+
+        <span class="n">node</span><span class="o">*</span> <span class="k">const</span> <span class="n">current_tail_ptr</span><span class="o">=</span><span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">tail</span><span class="p">.</span><span class="n">compare_exchange_weak</span><span class="p">(</span><span class="n">old_tail</span><span class="p">,</span><span class="n">new_tail</span><span class="p">)</span><span class="o">&amp;&amp;</span><span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">==</span><span class="n">current_tail_ptr</span><span class="p">);</span>
+        <span class="c1">//当前尾部指针与旧指针相同</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">==</span><span class="n">current_tail_ptr</span><span class="p">)</span>
+            <span class="c1">//释放外部计数</span>
+
+            <span class="n">free_external_counter</span><span class="p">(</span><span class="n">old_tail</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="c1">//否则释放当前指针</span>
+
+            <span class="n">current_tail_ptr</span><span class="o">-&gt;</span><span class="n">release_ref</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">T</span> <span class="n">new_value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//新数据</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">new_data</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">(</span><span class="n">new_value</span><span class="p">));</span>
+        <span class="c1">//新节点</span>
+
+        <span class="n">counted_node_ptr</span> <span class="n">new_next</span><span class="p">;</span>
+        <span class="n">new_next</span><span class="p">.</span><span class="n">ptr</span><span class="o">=</span><span class="k">new</span> <span class="n">node</span><span class="p">;</span>
+        <span class="c1">//外部引用设置为1</span>
+
+        <span class="n">new_next</span><span class="p">.</span><span class="n">external_count</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+        <span class="n">counted_node_ptr</span> <span class="n">old_tail</span><span class="o">=</span><span class="n">tail</span><span class="p">.</span><span class="n">load</span><span class="p">();</span>
+        <span class="k">for</span><span class="p">(;;)</span>
+        <span class="p">{</span>
+            <span class="c1">//增加外部引用</span>
+
+            <span class="n">increase_external_count</span><span class="p">(</span><span class="n">tail</span><span class="p">,</span><span class="n">old_tail</span><span class="p">);</span>
+            <span class="c1">//获取旧数据</span>
+
+            <span class="n">T</span><span class="o">*</span> <span class="n">old_data</span><span class="o">=</span><span class="nb">nullptr</span><span class="p">;</span>
+            <span class="c1">//旧尾指针数据与old_data相同</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+                                    <span class="n">old_data</span><span class="p">,</span>
+                                    <span class="n">new_data</span><span class="p">.</span><span class="n">get</span><span class="p">()</span>
+                                    <span class="p">))</span>
+            <span class="p">{</span>
+                <span class="c1">//初始化next指针，准备交换数据</span>
+                <span class="n">counted_node_ptr</span> <span class="n">old_next</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+                <span class="c1">//当尾指针指向新节点时</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+                                            <span class="n">old_next</span><span class="p">,</span>
+                                            <span class="n">new_next</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">{</span>
+
+                    <span class="c1">//删除新节点</span>
+
+                    <span class="k">delete</span> <span class="n">new_next</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+                    <span class="c1">//新next指针指向原指针指向</span>
+
+                    <span class="n">new_next</span><span class="o">=</span><span class="n">old_next</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">set_new_tail</span><span class="p">(</span><span class="n">old_tail</span><span class="p">,</span><span class="n">new_next</span><span class="p">);</span>
+                <span class="n">new_data</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="c1">//初始化新的尾指针</span>
+                <span class="n">counted_node_ptr</span> <span class="n">old_next</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+                <span class="c1">//如果旧尾指针next指向为old_next,将next指针指向新next</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="n">old_tail</span><span class="p">.</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">.</span><span class="n">compare_exchange_strong</span><span class="p">(</span>
+                                            <span class="n">old_next</span><span class="p">,</span><span class="n">new_next</span><span class="p">))</span>
+                <span class="p">{</span>
+                        <span class="n">old_next</span><span class="o">=</span><span class="n">new_next</span><span class="p">;</span>
+                        <span class="n">new_next</span><span class="p">.</span><span class="n">ptr</span><span class="o">=</span><span class="k">new</span> <span class="n">node</span><span class="p">;</span>
+                <span class="p">}</span>
+                    <span class="n">set_new_tail</span><span class="p">(</span><span class="n">old_tail</span><span class="p">,</span><span class="n">old_next</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h3 id="73-对于设计无锁数据结构的指导建议">7.3 对于设计无锁数据结构的指导建议</h3>
+
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/weixin_36145588/article/details/78873917">c++11 内存模型解读</a></p>
+
+<p><img src="http://images2015.cnblogs.com/blog/416650/201704/416650-20170406205142128-2029792592.png" alt="几种内存模型回顾"></p>
+
+<p>通常情况下我们把atomic成员函数可使用memory_order值分为以下3组:</p>
+
+<ul>
+  <li>原子存储操作(store)可使用:memory_order_relaxed、memory_order_release、memory_order_seq_cst</li>
+  <li>原子读取操作(load)可使用:memory_order_relaxed、memory_order_consume、memory_order_acquire、memory_order_seq_cst</li>
+  <li>RMW操作(read-modify-write)即同时读写的操作,如atomic_flag.test_and_set()操作,atomic.atomic_compare_exchange()等都是需要同时读写的。可使用:memory_order_relaxed、memory_order_consume、memory_order_acquire、memory_order_release、memory_order_acq_rel、memory_order_seq_cst</li>
+</ul>
+
+<p>根据memory_order使用情况,我们可以将其为 3 类:</p>
+
+<ul>
+  <li>顺序一致性模型:std::memory_order_seq_cst;最稳定，代价最高；原子操作默认的模型,在C++11中的原子类型的变量在线程中总是保持着顺序执行的特性。</li>
+  <li>Acquire-Release 模型:std::memory_order_consume, std::memory_order_acquire, std::memory_order_release, std::memory_order_acq_rel；若线程A中的一个原子store带memory_order_release标签，而线程B中来自同一变量的原子load带memory_order_acquire标签，从线程A的视角发生先于原子store的所有内存写入(non-atomic and relaxed atomic)，在线程B中成为可见副作用，一旦线程B中的原子加载完成，则保证线程B能观察到线程A写入内存的所有内容。</li>
+</ul>
+
+<p>注意：同步仅建立在release和acquire同一原子对象的线程之间，其他线程可能看到与被同步线程的一者或两者相异的内存访问顺序。</p>
+
+<ul>
+  <li>Relax 模型:std::memory_order_relaxed；最不稳定，代价最低</li>
+</ul>
+
+<h4 id="731-使用stdmemory_order_seq_cst的原型">7.3.1 使用<code class="language-plaintext highlighter-rouge">std::memory_order_seq_cst</code>的原型</h4>
+
+<p>std::memory_order_seq_cst比起其他内存序要简单的多，因为所有操作都将其作为总序。本章的所有例子,都是从std::memory_order_seq_cst开始,只有当基本操作正常工作的时候,才放宽内存序的选择。</p>
+
+<h4 id="732-对无锁内存的回收策略">7.3.2 对无锁内存的回收策略</h4>
+
+<p>当有其他线程对节点进行访问的时候,节点无法被任一线程删除;为避免过多的内存使用,还是希望这个节点在能删除的时候尽快删除。本章中介绍了三种技术来保证内存可以被安全的回收:</p>
+
+<ul>
+  <li>等待无线程对数据结构进行访问时,删除所有等待删除的对象。</li>
+  <li>使用风险指针来标识正在被线程访问的对象。</li>
+  <li>对对象进行引用计数,当没有线程对对象进行引用时,将其删除。</li>
+</ul>
+
+<h4 id="733--指导建议小心aba问题">7.3.3  指导建议:小心ABA问题</h4>
+
+<p>在“基于比较/交换”的算法中要格外小心“ABA问题”。其流程是:</p>
+
+<ol>
+  <li>线程1读取原子变量x,并且发现其值是A。</li>
+  <li>线程1对这个值进行一些操作,比如,解引用(当其是一个指针的时候),或做查询,或其他操作。</li>
+  <li>操作系统将线程1挂起。</li>
+  <li>其他线程对x执行一些操作,并且将其值改为B。</li>
+  <li>另一个线程对A相关的数据进行修改(线程1持有),让其不再合法。可能会在释放指针指向的内存时,代码产生剧烈的反应(大问题);或者只是修改了相关值而已(小问题)。</li>
+  <li>再来一个线程将x的值改回为A。如果A是一个指针,那么其可能指向一个新的对象,只是与旧对象共享同一个地址而已。</li>
+  <li>线程1继续运行,并且对x执行“比较/交换”操作,将A进行对比。这里,“比较/交换”成功
+(因为其值还是A),不过这是一个错误的A(the wrong A value)。从第2步中读取的数据不再合法,但是线程1无法言明这个问题,并且之后的操作将会损坏数据结构。</li>
+</ol>
+
+<p>解决方案：解决这个问题的一般方法是,让变量x中包含一个ABA计数器。“比较/交换”会对加入计数器的x进行操作。每次的值都不一样,计数随之增长,所以在x还是原值的前提下,即使有线程对x进行修改,“比较/交换”还是会失败。</p>
+
+<h4 id="734--指导建议识别忙等待循环和帮助其他线程">7.3.4  指导建议:识别忙等待循环和帮助其他线程</h4>
+
+<p>在最终队列的例子中,已经见识到线程在执行push操作时,必须等待另一个push操作流程的完成。等待线程就会被孤立,将会陷入到忙等待循环中,当线程尝试失败的时候,会继续循环,这样就会浪费CPU的计算周期。当忙等待循环结束时,就像一个阻塞操作解除,和使用互斥锁的行为一样。通过对算法的修改,当之前的线程还没有完成操作前,让等待线程执行未完成的步骤,就能让忙等待的线程不再被阻塞(<strong>减小锁的粒度</strong>)。在队列例中,需要将一个数据成员转换为一个原子变量,而不是使用非原子变量和使用“比较/交换”操作来做这件事;要是在更加复杂的数据结构中,这将需要更加多的变化来满足需求。</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/07/06/cplusplus_concurrency_in_action_02/" data-toggle="tooltip" data-placement="top" title="C++ 并发编程笔记(二)">
+                        Previous<br>
+                        <span>C++ 并发编程笔记(二)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/07/06/cplusplus_concurrency_in_action_04/" data-toggle="tooltip" data-placement="top" title="C++ 并发编程笔记(四)">
+                        Next<br>
+                        <span>C++ 并发编程笔记(四)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

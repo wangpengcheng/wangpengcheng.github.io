@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>图说设计模式 学习笔记 (一) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/11/07/design_patterns_01/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F" title="设计模式">设计模式</a>
+                        
+                        <a class="tag" href="/tags/#UML" title="UML">UML</a>
+                        
+                    </div>
+                    <h1>图说设计模式 学习笔记 (一)</h1>
+                    
+                    
+                    <h2 class="subheading">图说设计模式 学习笔记 (一) 创建型模式</h2>
+                    
+                    <span class="meta">Posted by 敬方 on November 7, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-11-07 10:58:49</p>
+</blockquote>
+
+<h1 id="图说设计模式阅读笔记">图说设计模式阅读笔记</h1>
+
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://github.com/me115/design_patterns">github地址</a></li>
+  <li><a href="https://blog.csdn.net/Bing_Lee/article/details/87640606">23种设计模式C++实现</a></li>
+  <li><a href="https://design-patterns.readthedocs.io/zh_CN/latest/">图说设计模式</a></li>
+  <li><a href="https://www.jianshu.com/c/c3f6140b8315">设计模式C++实现笔记</a></li>
+  <li><a href="https://blog.csdn.net/liang19890820/article/details/66974516">C++ 设计模式</a></li>
+  <li><a href="https://github.com/Waleon/DesignPatterns">C++设计模式代码地址</a></li>
+  <li><a href="https://pan.baidu.com/disk/home#/all?path=%2FLearning_Note%2F%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E4%B9%A6%2F%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%92%8C%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86&vmode=list">设计模式(可复用面向对象的软件的基础)</a></li>
+  <li><a href="https://www.bilibili.com/video/av52251106">C++设计模式视频</a></li>
+</ul>
+
+<h1 id="0-c-面向对象设计">0 C++ 面向对象设计</h1>
+
+<ul>
+  <li>封装：隐藏内部实现</li>
+  <li>继承：复用现有代码</li>
+  <li>多态：改写对象行为</li>
+</ul>
+
+<p>设计模式关键在于分解和抽象;</p>
+
+<p>设计模式的主要目的是<strong>易于变化</strong></p>
+
+<p><strong>面向对象设计原则–比设计模式更加重要</strong>
+违背了设计原则，设计模式是错误的。</p>
+
+<ul>
+  <li>依赖倒置原则(DIP)–实现隔离变化
+    <ul>
+      <li>高层模块(稳定)不应该依赖于底层模块(变化)，二者都应该依赖于抽象(稳定)。</li>
+      <li>抽象(稳定)不应该依赖于实现细节(变化)，细节应该依赖于抽象(稳定)。</li>
+      <li>解释，将需要变动的部分，作为稳定公共抽象基类的子类，将公共方法写在基类中，关键方法作为虚函数交给子类实现。调用公共函数时，只用管理基类指针，使用基类指针调用公共虚函数，就可以调用对应的子函数。实现稳定与不稳定的隔离。</li>
+    </ul>
+  </li>
+  <li>开放封闭原则(OCP):
+    <ul>
+      <li>对扩展开放，对更改封闭</li>
+      <li>类模块应该是可扩展的，但是不可修改。</li>
+      <li>解释：增加中间抽象，避免过多的更改，保证可扩展性。</li>
+    </ul>
+  </li>
+  <li>单一职责原则(SRP)
+    <ul>
+      <li>一个类应该仅有一个引起它变化的原因。</li>
+      <li>变化的方向隐含着类的责任</li>
+    </ul>
+  </li>
+  <li>Liskov替换原则(LSP)
+    <ul>
+      <li>子类必须能够替换他们的基类(IS-A)</li>
+      <li>继承表达抽象。</li>
+    </ul>
+  </li>
+  <li>接口隔离(ISP)
+    <ul>
+      <li>不应该强迫客户程序依赖它们不用的方法。</li>
+      <li>接口应该小而完备。</li>
+    </ul>
+  </li>
+  <li>优先使用对象组合，而不是类继承
+    <ul>
+      <li>继承类通常为”白箱复用”，对象组合通常为”黑箱复用”。</li>
+      <li>继承在某种程度上破坏了封装性，子类父类耦合度高。</li>
+      <li>对象组合则只被要求被组合的对象具有良好定义的接口，耦合度低。</li>
+    </ul>
+  </li>
+  <li>封装变化点
+    <ul>
+      <li>使用封装来创建对象之间的分界层，让设计者可以在分界层中任意一侧进行修改，而不会对另外一侧产生不良的影响，从而实现层次间的松耦合。</li>
+    </ul>
+  </li>
+  <li>针对接口编程，而不是针对实现编程
+    <ul>
+      <li>不将变量类型声明为某个具体的类，而是声明为某个接口。</li>
+      <li>客户端程序无需获知对象的具体类型，只需要知道对象所具有的接口。</li>
+      <li>减少系统中各个部分的依赖关系，从而实现“高内聚”、“松耦合”的类型设计方案。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="接口标准化">接口标准化</h2>
+
+<ul>
+  <li>设计习语：描述与特定编程语言相关的低层模式，技巧，惯用法(例如，effictive C++等)</li>
+  <li>设计模式：描述“类与相互通信的对象之间的组织关系，包括它们的角色，职责，协作方式等方面”。</li>
+  <li>架构模式：描述系统中与基本结构组织关系密切的高层模式，包括子系统划分，职责，以及如果组织它们之间关系的规则。</li>
+</ul>
+
+<h1 id="01-c-模板化方法">0.1 C++ 模板化方法</h1>
+
+<p>COF-23设计模式分类</p>
+
+<ul>
+  <li>从目的来看
+    <ul>
+      <li>创建型：将对象的部分创建工作延迟到子类，或者其它对象，从而应对需求变化为对象创建具体的类时，带来的冲击</li>
+      <li>结构型：通过类的继承或者对象的组合获得更加灵活的结构，从而应对需求变化为对象的结构带来的冲击。</li>
+      <li>行为型：通过类继承或者对象的组合，明确类与对象间的职责，从而应对需求变化为多个交互的对象的冲击。</li>
+    </ul>
+  </li>
+  <li>从范围来看：
+    <ul>
+      <li>类模式处理与子类的静态关系</li>
+      <li>对象模式处理对象之间的动态关系。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="从封装变化角度对模式分类">从封装变化角度对模式分类</h2>
+
+<h3 id="重构的关键技法">重构的关键技法</h3>
+
+<ul>
+  <li>静态-&gt; 动态</li>
+  <li>早绑定 -&gt; 晚绑定：前调用后—&gt;后调用前</li>
+  <li>继承 -&gt; 组合</li>
+  <li>编译时依赖  -&gt; 运行时依赖</li>
+  <li>紧耦合 -&gt; 松耦合</li>
+</ul>
+
+<h3 id="组建协作模式">“组建协作”模式：</h3>
+
+<ul>
+  <li>“框架与应用”分离，“组件协作”模式通过晚期绑定,来实现框架与应用之间的松耦合，是二者之间协作时常用的模式。</li>
+</ul>
+
+<h4 id="模板方法">模板方法</h4>
+
+<p>定义一个操作中的算法的骨架(稳定)，而将一些操作(变化)延迟到子类(通常使用虚函数)。Temlpate Method使得子类可以(复用)一个算法的结构即可重定义(override重写)；某些特定的步奏。</p>
+
+<p><strong>设计模式的核心，在于查找稳定部分非稳定部分，用不同的模式，来设计两者之间的关系</strong></p>
+
+<p><img src="https://img-blog.csdn.net/2018051615452165?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1dpS2lfU3U=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="设计模式"></p>
+
+<h1 id="看懂uml类图和时序图">看懂UML类图和时序图</h1>
+
+<h2 id="图说设计模式阅读笔记-创建型模式">图说设计模式阅读笔记-创建型模式</h2>
+
+<h2 id="简单工厂模式-simple-factory-pattern-">简单工厂模式( Simple Factory Pattern )</h2>
+<p>========================================</p>
+
+<h3 id="11-模式动机">1.1 模式动机</h3>
+<hr>
+<p>考虑一个简单的软件应用场景，一个软件系统可以提供多个外观不同的按钮（如圆形按钮、矩形按钮、菱形按钮等），
+这些按钮都源自同一个基类，不过在继承基类后不同的子类修改了部分属性从而使得它们可以呈现不同的外观，如果我们希望在使用这些按钮时，不需要知道这些具体按钮类的名字，只需要知道表示该按钮类的一个参数，并提供一个调用方便的方法，把该参数传入方法即可返回一个相应的按钮对象，此时，就可以使用简单工厂模式。</p>
+
+<h3 id="12-模式定义">1.2 模式定义</h3>
+<hr>
+<p>简单工厂模式(Simple Factory Pattern)：又称为静态工厂方法(Static Factory Method)模式，它属于类创建型模式。在简单工厂模式中，可以根据参数的不同返回不同类的实例。简单工厂模式专门定义一个类来负责创建其他类的实例，被创建的实例通常都具有共同的父类。</p>
+
+<h3 id="13-模式结构">1.3 模式结构</h3>
+<hr>
+<p>简单工厂模式包含如下角色：</p>
+
+<ul>
+  <li>Factory：工厂角色
+  工厂角色负责实现创建所有实例的内部逻辑</li>
+  <li>Product：抽象产品角色
+  抽象产品角色是所创建的所有对象的父类，负责描述所有实例所共有的公共接口</li>
+  <li>ConcreteProduct：具体产品角色
+  具体产品角色是创建目标，所有创建的对象都充当这个角色的某个具体类的实例。</li>
+</ul>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/SimpleFactory.jpg" alt="_static/SimpleFactory.jpg"></p>
+
+<h3 id="14-时序图">1.4 时序图</h3>
+<hr>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_SimpleFactory.jpg" alt="时序图"></p>
+
+<h3 id="15-代码分析">1.5 代码分析</h3>
+<hr>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">///////////////////////////////////////////////////////////</span>
+<span class="c1">//  Factory.cpp</span>
+<span class="c1">//  Implementation of the Class Factory</span>
+<span class="c1">//  Created on:      01-十月-2014 18\:41\:33</span>
+<span class="c1">//  Original author: colin</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+
+<span class="cp">#include "Factory.h"
+#include "ConcreteProductA.h"
+#include "ConcreteProductB.h"
+</span><span class="n">Product</span><span class="o">*</span> <span class="n">Factory</span><span class="o">::</span><span class="n">createProduct</span><span class="p">(</span><span class="n">string</span> <span class="n">proname</span><span class="p">){</span>
+	<span class="k">if</span> <span class="p">(</span> <span class="s">"A"</span> <span class="o">==</span> <span class="n">proname</span> <span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">return</span> <span class="k">new</span> <span class="n">ConcreteProductA</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="s">"B"</span> <span class="o">==</span> <span class="n">proname</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">return</span> <span class="k">new</span> <span class="n">ConcreteProductB</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">return</span>  <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="16-模式分析">1.6 模式分析</h3>
+<hr>
+
+<ul>
+  <li>将对象的创建和对象本身业务处理分离可以降低系统的耦合度，使得两者修改起来都相对容易。</li>
+  <li>在调用工厂类的工厂方法时，由于工厂方法是静态方法，使用起来很方便，可通过类名直接调用，而且只需要传入一个简单的参数即可，在实际开发中，还可以在调用时将所传入的参数保存在XML等格式的配置文件中，修改参数时无须修改任何源代码。</li>
+  <li>简单工厂模式最大的问题在于工厂类的职责相对过重，增加新的产品需要修改工厂类的判断逻辑，这一点与开闭原则是相违背的。</li>
+  <li>简单工厂模式的要点在于：当你需要什么，只需要传入一个正确的参数，就可以获取你所需要的对象，而无须知道其创建细节。</li>
+</ul>
+
+<h3 id="实例">实例</h3>
+<hr>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* Product.h */</span>
+<span class="cm">/* 定义产品 */</span>
+
+<span class="k">class</span> <span class="nc">Product</span>
+<span class="p">{</span>
+
+<span class="nl">public:</span>
+	<span class="n">Product</span><span class="p">();</span>
+	<span class="k">virtual</span> <span class="o">~</span><span class="n">Product</span><span class="p">();</span>
+	
+	<span class="k">virtual</span> <span class="kt">void</span> <span class="n">Use</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="p">};</span>
+
+<span class="cm">/* 定义不同的产品 */</span>
+<span class="cp">#include "Product.h"
+#include &lt;string&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">ConcreteProductA</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Product</span>
+<span class="p">{</span>
+
+<span class="nl">public:</span>
+	<span class="n">ConcreteProductA</span><span class="p">();</span>
+	<span class="k">virtual</span> <span class="o">~</span><span class="n">ConcreteProductA</span><span class="p">();</span>
+	<span class="k">virtual</span> <span class="kt">void</span> <span class="n">Use</span><span class="p">();</span>
+
+<span class="p">};</span>
+<span class="kt">void</span> <span class="n">ConcreteProductA</span><span class="o">::</span><span class="n">Use</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"use productB"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">ConcreteProductB</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Product</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+	<span class="n">ConcreteProductB</span><span class="p">();</span>
+	<span class="k">virtual</span> <span class="o">~</span><span class="n">ConcreteProductB</span><span class="p">();</span>
+	
+	<span class="k">virtual</span> <span class="kt">void</span> <span class="n">Use</span><span class="p">();</span>
+
+<span class="p">};</span>
+<span class="kt">void</span> <span class="n">ConcreteProductB</span><span class="o">::</span><span class="n">Use</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"use productB"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>	
+<span class="p">}</span>
+<span class="cm">/* 定义工厂类 */</span>
+<span class="k">class</span> <span class="nc">Factory</span>
+<span class="p">{</span>
+
+<span class="nl">public:</span>
+	<span class="n">Factory</span><span class="p">();</span>
+	<span class="k">virtual</span> <span class="o">~</span><span class="n">Factory</span><span class="p">();</span>
+
+	<span class="k">static</span> <span class="n">Product</span> <span class="o">*</span> <span class="n">createProduct</span><span class="p">(</span><span class="n">string</span> <span class="n">proname</span><span class="p">);</span>
+
+<span class="p">};</span>
+<span class="cm">/* 工厂类的实现函数 */</span>
+<span class="n">Product</span><span class="o">*</span> <span class="n">Factory</span><span class="o">::</span><span class="n">createProduct</span><span class="p">(</span><span class="n">string</span> <span class="n">proname</span><span class="p">){</span>
+	<span class="k">if</span> <span class="p">(</span> <span class="s">"A"</span> <span class="o">==</span> <span class="n">proname</span> <span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">return</span> <span class="k">new</span> <span class="n">ConcreteProductA</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="s">"B"</span> <span class="o">==</span> <span class="n">proname</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">return</span> <span class="k">new</span> <span class="n">ConcreteProductB</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">return</span>  <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* 使用实例 */</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+	<span class="n">Product</span> <span class="o">*</span> <span class="n">prod</span> <span class="o">=</span> <span class="n">Factory</span><span class="o">::</span><span class="n">createProduct</span><span class="p">(</span><span class="s">"A"</span><span class="p">);</span>
+	<span class="n">prod</span><span class="o">-&gt;</span><span class="n">Use</span><span class="p">();</span>
+	<span class="k">delete</span> <span class="n">prod</span><span class="p">;</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="简单工厂模式的优点">简单工厂模式的优点</h2>
+
+<ul>
+  <li>工厂类含有必要的判断逻辑，可以决定在什么时候创建哪一个产品类的实例，客户端可以免除直接创建产品对象的责任，而仅仅“消费”产品；简单工厂模式通过这种做法实现了对责任的分割，它提供了专门的工厂类用于创建对象。</li>
+  <li>客户端无须知道所创建的具体产品类的类名，只需要知道具体产品类所对应的参数即可，对于一些复杂的类名，通过简单工厂模式可以减少使用者的记忆量。</li>
+  <li>通过引入配置文件，可以在不修改任何客户端代码的情况下更换和增加新的具体产品类，在一定程度上提高了系统的灵活性。</li>
+</ul>
+
+<h2 id="简单工厂模式的缺点">简单工厂模式的缺点</h2>
+
+<ul>
+  <li>由于工厂类集中了所有产品创建逻辑，一旦不能正常工作，整个系统都要受到影响。</li>
+  <li>使用简单工厂模式将会增加系统中类的个数，在一定程序上增加了系统的复杂度和理解难度。</li>
+  <li>系统扩展困难，一旦添加新产品就不得不修改工厂逻辑，在产品类型较多时，有可能造成工厂逻辑过于复杂，不利于系统的扩展和维护。</li>
+  <li>简单工厂模式由于使用了静态工厂方法，造成工厂角色无法形成基于继承的等级结构。</li>
+</ul>
+
+<h2 id="适用环境">适用环境</h2>
+<p>在以下情况下可以使用简单工厂模式：</p>
+
+<ul>
+  <li>工厂类负责创建的对象比较少：由于创建的对象较少，不会造成工厂方法中的业务逻辑太过复杂。</li>
+  <li>客户端只知道传入工厂类的参数，对于如何创建对象不关心：客户端既不需要关心创建细节，甚至连类名都不需要记住，只需要知道类型所对应的参数。</li>
+</ul>
+
+<h2 id="模式应用">模式应用</h2>
+<ol>
+  <li>JDK类库中广泛使用了简单工厂模式，如工具类java.text.DateFormat，它用于格式化一个本地日期或者时间。</li>
+</ol>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">static</span> <span class="nc">DateFormat</span> <span class="nf">getDateInstance</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">static</span> <span class="nc">DateFormat</span> <span class="nf">getDateInstance</span><span class="o">(</span><span class="kt">int</span> <span class="n">style</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kd">static</span> <span class="nc">DateFormat</span> <span class="nf">getDateInstance</span><span class="o">(</span><span class="kt">int</span> <span class="n">style</span><span class="o">,</span><span class="nc">Locale</span> 
+    <span class="n">locale</span><span class="o">);</span>
+</code></pre></div></div>
+<ol>
+  <li>Java加密技术</li>
+</ol>
+
+<p>获取不同加密算法的密钥生成器::</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nc">KeyGenerator</span> <span class="n">keyGen</span><span class="o">=</span><span class="nc">KeyGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DESede"</span><span class="o">);</span>
+</code></pre></div></div>
+<p>创建密码器::</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nc">Cipher</span> <span class="n">cp</span><span class="o">=</span><span class="nc">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">"DESede"</span><span class="o">);</span>
+</code></pre></div></div>
+<h3 id="112-总结">1.12 总结</h3>
+<hr>
+
+<ul>
+  <li>创建型模式对类的实例化过程进行了抽象，能够将对象的创建与对象的使用过程分离。</li>
+  <li>简单工厂模式又称为静态工厂方法模式，它属于类创建型模式。在简单工厂模式中，可以根据参数的不同返回不同类的实例。简单工厂模式专门定义一个类来负责创建其他类的实例，被创建的实例通常都具有共同的父类。</li>
+  <li>简单工厂模式包含三个角色：工厂角色负责实现创建所有实例的内部逻辑；抽象产品角色是所创建的所有对象的父类，负责描述所有实例所共有的公共接口；具体产品角色是创建目标，所有创建的对象都充当这个角色的某个具体类的实例。</li>
+  <li>简单工厂模式的要点在于：当你需要什么，只需要传入一个正确的参数，就可以获取你所需要的对象，而无须知道其创建细节。</li>
+  <li>简单工厂模式最大的优点在于实现对象的创建和对象的使用分离，将对象的创建交给专门的工厂类负责，但是其最大的缺点在于工厂类不够灵活，增加新的具体产品需要修改工厂类的判断逻辑代码，而且产品较多时，工厂方法代码将会非常复杂。</li>
+  <li>简单工厂模式适用情况包括：工厂类负责创建的对象比较少；客户端只知道传入工厂类的参数，对于如何创建对象不关心。</li>
+</ul>
+
+<h2 id="2-工厂方法模式factory-method-pattern">2 工厂方法模式(Factory Method Pattern)</h2>
+
+<h3 id="21-模式动机">2.1 模式动机</h3>
+
+<p>不仅仅只是调用对应的创建函数，更多的是定义具体的相关方法和属性(根据输入请求)；现在对该系统进行修改，不再设计一个按钮工厂类来统一负责所有产品的创建，而是将具体按钮的创建过程交给专门的工厂子类去完成，我们先定义一个抽象的按钮工厂类，再定义具体的工厂类来生成圆形按钮、矩形按钮、菱形按钮等，它们实现在抽象按钮工厂类中定义的方法。这种抽象化的结果使这种结构可以在不修改具体工厂类的情况下引进新的产品，如果出现新的按钮类型，只需要为这种新类型的按钮创建一个具体的工厂类就可以获得该新按钮的实例，这一特点无疑使得工厂方法模式具有超越简单工厂模式的优越性，更加符合“开闭原则”。</p>
+
+<h3 id="22-模式定义">2.2 模式定义</h3>
+
+<p>工厂方法模式(Factory Method Pattern)又称为工厂模式，也叫虚拟构造器(Virtual Constructor)模式或者多态工厂(Polymorphic Factory)模式，它属于类创建型模式。在工厂方法模式中，工厂父类负责定义创建产品对象的公共接口，而工厂子类则负责生成具体的产品对象，这样做的目的是将产品类的实例化操作延迟到工厂子类中完成，即通过工厂子类来确定究竟应该实例化哪一个具体产品类。</p>
+
+<h3 id="23-模式结构和时序图">2.3 模式结构和时序图</h3>
+
+<ul>
+  <li>Product：抽象产品</li>
+  <li>ConcreteProduct：具体产品</li>
+  <li>Factory：抽象工厂</li>
+  <li>ConcreteFactory：具体工厂</li>
+</ul>
+
+<p>模式结构：</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/FactoryMethod.jpg" alt="模式结构"></p>
+
+<p>时序图：</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_FactoryMethod.jpg" alt="时序图"></p>
+
+<h3 id="24-代码分析">2.4 代码分析</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">///////////////////////////////////////////////////////////</span>
+<span class="c1">//  ConcreteFactory.cpp</span>
+<span class="c1">//  Implementation of the Class ConcreteFactory</span>
+<span class="c1">//  Created on:      02-十月-2014 10\:18\:58</span>
+<span class="c1">//  Original author: colin</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+
+<span class="cp">#include "Factory.h"
+#include "ConcreteFactory.h"
+#include "Product.h"
+#include &lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="n">Product</span><span class="o">*</span> <span class="n">ConcreteFactory</span><span class="o">::</span><span class="n">factoryMethod</span><span class="p">(){</span>
+
+	<span class="k">return</span>  <span class="k">new</span> <span class="n">ConcreteProduct</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="c1">//创建对应的工厂</span>
+	<span class="n">Factory</span> <span class="o">*</span> <span class="n">fc</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConcreteFactory</span><span class="p">();</span>
+	<span class="c1">//创建对应产品</span>
+    <span class="n">Product</span> <span class="o">*</span> <span class="n">prod</span> <span class="o">=</span> <span class="n">fc</span><span class="o">-&gt;</span><span class="n">factoryMethod</span><span class="p">();</span>
+	<span class="n">prod</span><span class="o">-&gt;</span><span class="n">use</span><span class="p">();</span>
+	
+	<span class="k">delete</span> <span class="n">fc</span><span class="p">;</span>
+	<span class="k">delete</span> <span class="n">prod</span><span class="p">;</span>
+	
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="26-模式分析">2.6 模式分析</h3>
+
+<p>工厂方法模式是简单工厂模式的进一步抽象和推广，将产品细分到各个子场中去。使用不同的厂来创建对应的产品。在工厂方法模式中，核心的工厂类不再负责所有产品的创建，而是将具体创建工作交给子类去做。这个核心类仅仅负责给出具体工厂必须实现的接口，而不负责哪一个产品类被实例化这种细节，这使得工厂方法模式可以允许系统在不修改工厂角色的情况下引进新产品。</p>
+
+<h3 id="27-实例">2.7 实例</h3>
+
+<p>日志记录器</p>
+
+<p>某系统日志记录器要求支持多种日志记录方式，如文件记录、数据库记录等，且用户可以根据要求动态选择日志记录方式， 现使用工厂方法模式设计该系统。</p>
+
+<p>结构图：</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/loger.jpg" alt="结构图"></p>
+
+<p>时序图：</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_loger.jpg" alt="时序图"></p>
+
+<h3 id="28-工厂方法模式的优先">2.8 工厂方法模式的优先</h3>
+
+<ul>
+  <li>工厂无需关心细节，甚至无序知道具体产品的类名称。</li>
+  <li>工厂角色和茶农角色的多态性设计是工厂方法模式的关键。它能确定创建的产品对象；创建细节完全封装在具体工厂内部。所有的具体工厂类都具有同一抽象父类。</li>
+  <li>添加新产品时，只需要添加一个具体的工厂和具体产品就可以了，系统的扩展性较好，完全符合”开闭原则”。</li>
+</ul>
+
+<h3 id="29-工厂模式的缺点">2.9 工厂模式的缺点</h3>
+
+<ul>
+  <li>添加新产品时，需要编写新的具体产品类，而且需要提供与之赌赢的工厂类，系统中类的个数将成对增加，会带来额外的编译开销。</li>
+  <li>由于考虑到系统的可扩展性，需要引入抽象层，在客户端代码中均使用抽象层进行定义，增加了系统的抽象性和理解难度，且在实现时可能需要用到DOM、反射等技术，增加了系统的实现难度。</li>
+</ul>
+
+<h3 id="210-适用环境">2.10 适用环境</h3>
+
+<p>在以下情况下可以使用工厂方法模式：</p>
+
+<ul>
+  <li>一个类不知道它所需要的对象的类：在工厂方法模式中，客户端不需要知道具体产品类的类名，只需要知道所对应的工厂即可，具体的产品对象由具体工厂类创建；客户端需要知道创建具体产品的工厂类。</li>
+  <li>一个类通过其子类来指定创建哪个对象：在工厂方法模式中，对于抽象工厂类只需要提供一个创建产品的接口，而由其子类来确定具体要创建的对象，利用面向对象的多态性和里氏代换原则，在程序运行时，子类对象将覆盖父类对象，从而使得系统更容易扩展。</li>
+  <li>将创建对象的任务委托给多个工厂子类中的某一个，客户端在使用时可以无须关心是哪一个工厂子类创建产品子类，需要时再动态指定，可将具体工厂类的类名存储在配置文件或数据库中。</li>
+</ul>
+
+<h3 id="212-扩展模式">2.12 扩展模式</h3>
+
+<ul>
+  <li>使用多个工厂方法：在抽象工厂角色中可以定义多个工厂方法，从而使具体工厂角色实现这些不同的工厂方法，这些方法可以包含不同的业务逻辑，以满足对不同的产品对象的需求。</li>
+  <li>产品对象的重复使用：工厂对象将已经创建过的产品保存到一个集合（如数组、List等）中，然后根据客户对产品的请求，对集合进行查询。如果有满足要求的产品对象，就直接将该产品返回客户端；如果集合中没有这样的产品对象，那么就创建一个新的满足要求的产品对象，然后将这个对象在增加到集合中，再返回给客户端。</li>
+  <li>多态性的丧失和模式的退化：如果工厂仅仅返回一个具体产品对象，便违背了工厂方法的用意，发生退化，此时就不再是工厂方法模式了。一般来说，工厂对象应当有一个抽象的父类型，如果工厂等级结构中只有一个具体工厂类的话，抽象工厂就可以省略，也将发生了退化。当只有一个具体工厂，在具体工厂中可以创建所有的产品对象，并且工厂方法设计为静态方法时，工厂方法模式就退化成简单工厂模式。</li>
+</ul>
+
+<h3 id="213-总结">2.13 总结</h3>
+
+<ul>
+  <li>工厂方法模式又称为工厂模式，它属于类创建型模式。产品类的是咯花操作延迟到工厂子类中完成，即通过工厂子类来确定具体实例化的类。</li>
+  <li>工厂方法模式包含四个角色：抽象产品是定义产品的接口，是工厂方法模式所创建对象的超类型，即产品对象的共同父类或接口；具体产品实现了抽象产品接口，某种类型的具体产品由专门的具体工厂创建，它们之间往往一一对应；抽象工厂中声明了工厂方法，用于返回一个产品，它是工厂方法模式的核心，任何在模式中创建对象的工厂类都必须实现该接口；具体工厂是抽象工厂类的子类，实现了抽象工厂中定义的工厂方法，并可由客户调用，返回一个具体产品类的实例。</li>
+  <li>系统可以在不修改工厂角色的情况下，引进新产品。</li>
+  <li>适合情况：
+    <ul>
+      <li>一个类不需要直到它所需要的对象的类;</li>
+      <li>一个类通过其子类来指定创建哪个对象；</li>
+      <li>客户端产品在使用时无序关心是哪个工厂子类创建子产品，需要时再动态指定。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-抽象工厂模式">3 抽象工厂模式</h2>
+
+<h3 id="31-模式动机">3.1 模式动机</h3>
+
+<ul>
+  <li>工厂模式中，需要一个模式能够提供多个产品对象。因此需要细化产品，通过产品等级结构(即产品的继承结构)、和产品族(同一个工厂生产的，位于不同产品等级结构的一组产品)</li>
+  <li>当系统所提供的工厂所需生产的具体产品并不是一个简单的对象，而是多个位于不同产品等级结构中属于不同类型的具体产品时需要使用抽象工厂模式。</li>
+  <li>抽象工厂模式是所有形式的工厂模式中最为抽象和最具一般性的一种形态。</li>
+  <li>抽象工厂模式与工厂方法模式最大的区别在于，工厂方法模式针对的是一个产品等级结构，而抽象工厂模式则需要面对多个产品等级结构，一个工厂等级结构可以负责多个不同产品等级结构中的产品对象的创建 。当一个工厂等级结构可以创建出分属于不同产品等级结构的一个产品族中的所有对象时，抽象工厂模式比工厂方法模式更为简单、有效率。</li>
+  <li>抽象工厂模式是所有形式的工厂模式中最为抽象和最具一般性的一种形态。</li>
+  <li>抽象工厂模式相对于工厂模式，更加抽象化。</li>
+</ul>
+
+<h3 id="32-模式定义">3.2 模式定义</h3>
+
+<p>抽象工厂模式(Abstract Factory Pattern)：提供一个创建一系列相关或相互依赖对象的接口，而无须指定它们具体的类。抽象工厂模式又称为Kit模式，属于对象创建型模式。</p>
+
+<h3 id="33-模式结构和时序图">3.3 模式结构和时序图</h3>
+
+<p>抽象工厂模式包含如下角色：</p>
+
+<ul>
+  <li>AbstractFactory：抽象工厂</li>
+  <li>ConcreteFactory：具体工厂</li>
+  <li>AbstractProduct：抽象产品</li>
+  <li>Product：具体产品</li>
+</ul>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/AbatractFactory.jpg" alt="抽象工厂模式"></p>
+
+<p>时序图：</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_AbatractFactory.jpg" alt="时序图"></p>
+
+<h3 id="35-代码分析">3.5 代码分析</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include "AbstractFactory.h"
+#include "AbstractProductA.h"
+#include "AbstractProductB.h"
+#include "ConcreteFactory1.h"
+#include "ConcreteFactory2.h"
+</span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+	<span class="n">AbstractFactory</span> <span class="o">*</span> <span class="n">fc</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteFactory1</span><span class="p">();</span>
+	<span class="n">AbstractProductA</span> <span class="o">*</span> <span class="n">pa</span> <span class="o">=</span>  <span class="n">fc</span><span class="o">-&gt;</span><span class="n">createProductA</span><span class="p">();</span>
+	<span class="n">AbstractProductB</span> <span class="o">*</span> <span class="n">pb</span> <span class="o">=</span> <span class="n">fc</span><span class="o">-&gt;</span><span class="n">createProductB</span><span class="p">();</span>
+	<span class="n">pa</span><span class="o">-&gt;</span><span class="n">use</span><span class="p">();</span>
+	<span class="n">pb</span><span class="o">-&gt;</span><span class="n">eat</span><span class="p">();</span>
+	
+	<span class="n">AbstractFactory</span> <span class="o">*</span> <span class="n">fc2</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteFactory2</span><span class="p">();</span>
+	<span class="n">AbstractProductA</span> <span class="o">*</span> <span class="n">pa2</span> <span class="o">=</span>  <span class="n">fc2</span><span class="o">-&gt;</span><span class="n">createProductA</span><span class="p">();</span>
+	<span class="n">AbstractProductB</span> <span class="o">*</span> <span class="n">pb2</span> <span class="o">=</span> <span class="n">fc2</span><span class="o">-&gt;</span><span class="n">createProductB</span><span class="p">();</span>
+	<span class="n">pa2</span><span class="o">-&gt;</span><span class="n">use</span><span class="p">();</span>
+	<span class="n">pb2</span><span class="o">-&gt;</span><span class="n">eat</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+<span class="c1">//  ConcreteFactory1.cpp</span>
+<span class="c1">//  Implementation of the Class ConcreteFactory1</span>
+<span class="c1">//  Created on:      02-十月-2014 15\:04\:11</span>
+<span class="c1">//  Original author: colin</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+
+<span class="cp">#include "ConcreteFactory1.h"
+#include "ProductA1.h"
+#include "ProductB1.h"
+</span><span class="cm">/* 定义工厂生产线 */</span>
+<span class="n">AbstractProductA</span> <span class="o">*</span> <span class="n">ConcreteFactory1</span><span class="o">::</span><span class="n">createProductA</span><span class="p">(){</span>
+	<span class="k">return</span> <span class="n">new</span> <span class="n">ProductA1</span><span class="p">();</span>
+<span class="p">}</span>
+
+
+<span class="n">AbstractProductB</span> <span class="o">*</span> <span class="n">ConcreteFactory1</span><span class="o">::</span><span class="n">createProductB</span><span class="p">(){</span>
+	<span class="k">return</span> <span class="n">new</span> <span class="n">ProductB1</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+<span class="c1">//  ProductA1.cpp</span>
+<span class="c1">//  Implementation of the Class ProductA1</span>
+<span class="c1">//  Created on:      02-十月-2014 15\:04\:17</span>
+<span class="c1">//  Original author: colin</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+
+<span class="cp">#include "ProductA1.h"
+#include &lt;iostream&gt;
+</span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="cm">/* 产品函数功能 */</span>
+<span class="kt">void</span> <span class="n">ProductA1</span><span class="o">::</span><span class="n">use</span><span class="p">(){</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"use Product A1"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="38-优点">3.8 优点</h3>
+
+<ul>
+  <li>隔离了具体类的生成，使得客户端并不需要直到什么被创建。变换具体工厂就更加容易。所有的工厂体都实现了抽象工厂定义中的公共接口。应用抽象工厂模式可以实现高内聚低耦合的设计目的，因此抽象工厂模式得到了广泛的应用。</li>
+  <li>当一个产品族中的多个对象被设计成一起工作时，它能够保证客户端始终只使用同一个产品族中的对象。这对一些需要根据当前环境来决定其行为的软件系统来说，是一种非常实用的设计模式。</li>
+  <li>增加新的具体工厂和产品族很方便，无须修改已有系统，符合“开闭原则”。</li>
+</ul>
+
+<h3 id="39-缺点">3.9 缺点</h3>
+
+<ul>
+  <li>添加新的产品对象时，可能需要对抽象工厂角色进行更改。</li>
+  <li>开闭原则的倾斜性（增加新的工厂和产品族容易，增加新的产品等级结构麻烦）。</li>
+</ul>
+
+<h3 id="310-适用环境">3.10 适用环境</h3>
+
+<ul>
+  <li>一个系统不应当依赖于产品类实例如何被创建、组合和表达的细节，这对于所有类型的工厂模式都是重要的。</li>
+  <li>系统中有多于一个的产品族，而每次只使用其中某一产品族。</li>
+  <li>属于同一个产品族的产品将在一起使用，这一约束必须在系统的设计中体现出来。</li>
+  <li>系统提供一个产品类的库，所有的产品以同样的接口出现，从而使客户端不依赖于具体实现。</li>
+</ul>
+
+<h3 id="311-应用">3.11 应用</h3>
+
+<p>在很多软件系统中需要更换界面主题，要求界面中的按钮、文本框、背景色等一起发生改变时，可以使用抽象工厂模式进行设计。调用接口相同，只需要切换style工厂，就能实现内容的更新和设计。</p>
+
+<h3 id="312-模式扩展">3.12 模式扩展</h3>
+
+<ul>
+  <li>
+<strong>开闭原则</strong>：对系统扩展开放，对修改关闭，通过扩展达到增强其功能的目的。</li>
+  <li>抽象工厂模式以一种倾斜的方式支持增加新的产品，为新产品族的增加提供方便，但不能为新的产品等级结构的增加提供这样的方便。</li>
+  <li>
+<strong>工厂模式的退化</strong>:当每个工厂只创建一个产品时，其退化为工厂方法模式。当工厂方法模式中抽象工厂与具体工厂合并时，提供一个统一的工厂来创建产品对象，并将创建的对象的工厂方法设计为静态方法时，工厂方法退化为简单工厂模式。</li>
+</ul>
+
+<h2 id="4-建造者模式">4. 建造者模式</h2>
+
+<h3 id="41-模式动机">4.1 模式动机</h3>
+
+<p>复杂对象的构建逐步分离，例如各个成员变量的初始化函数，和对应的不同成员变量的功能函数。不同的建造者实现的函数功能呢不同，最终产生的产品也不同</p>
+
+<h3 id="42-模式定义">4.2 模式定义</h3>
+
+<p>造者模式(Builder Pattern)：将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。</p>
+
+<p>建造者模式是一步一步创建一个复杂的对象，它允许用户只通过指定复杂对象的类型和内容就可以构建它们，用户不需要知道内部的具体构建细节。建造者模式属于对象创建型模式。根据中文翻译的不同，建造者模式又可以称为生成器模式。</p>
+
+<h3 id="43-模式结构">4.3 模式结构</h3>
+
+<p>建造者模式包含如下角色：</p>
+<ul>
+  <li>Builder：抽象建造者</li>
+  <li>ConcreteBuilder：具体建造者</li>
+  <li>Director：指挥者</li>
+  <li>Product：产品角色</li>
+</ul>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/Builder.jpg" alt="建造者类图"></p>
+
+<p>时序图</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_Builder.jpg" alt="建造者时序图"></p>
+
+<p>通过选择建造者，然后一步步实现产品的生产。</p>
+
+<h3 id="45-代码分析">4.5 代码分析</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;iostream&gt;
+#include "ConcreteBuilder.h"
+#include "Director.h"
+#include "Builder.h"
+#include "Product.h"
+</span>
+<span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+	<span class="c1">//获取建造者</span>
+	<span class="n">ConcreteBuilder</span> <span class="o">*</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ConcreteBuilder</span><span class="p">();</span>
+	<span class="c1">//操作者</span>
+	<span class="n">Director</span>  <span class="n">director</span><span class="p">;</span>
+	<span class="c1">//设置建造者</span>
+	<span class="n">director</span><span class="p">.</span><span class="n">setBuilder</span><span class="p">(</span><span class="n">builder</span><span class="p">);</span>
+	<span class="c1">//创建产品</span>
+	<span class="n">Product</span> <span class="o">*</span> <span class="n">pd</span> <span class="o">=</span>  <span class="n">director</span><span class="p">.</span><span class="n">constuct</span><span class="p">();</span>
+	<span class="n">pd</span><span class="o">-&gt;</span><span class="n">show</span><span class="p">();</span>
+	
+	<span class="n">delete</span> <span class="n">builder</span><span class="p">;</span>
+	<span class="n">delete</span> <span class="n">pd</span><span class="p">;</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/* 建造者的定义 */</span>
+
+<span class="c1">///////////////////////////////////////////////////////////</span>
+<span class="c1">//  ConcreteBuilder.cpp</span>
+<span class="c1">//  Implementation of the Class ConcreteBuilder</span>
+<span class="c1">//  Created on:      02-十月-2014 15\:57\:03</span>
+<span class="c1">//  Original author: colin</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+
+<span class="cp">#include "ConcreteBuilder.h"
+</span>
+
+<span class="n">ConcreteBuilder</span><span class="o">::</span><span class="n">ConcreteBuilder</span><span class="p">(){</span>
+
+<span class="p">}</span>
+
+<span class="n">ConcreteBuilder</span><span class="o">::~</span><span class="n">ConcreteBuilder</span><span class="p">(){</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">ConcreteBuilder</span><span class="o">::</span><span class="n">buildPartA</span><span class="p">(){</span>
+	<span class="n">m_prod</span><span class="o">-&gt;</span><span class="n">setA</span><span class="p">(</span><span class="s">"A Style "</span><span class="p">);</span> <span class="c1">//不同的建造者，可以实现不同产品的建造  </span>
+<span class="p">}</span>
+
+
+<span class="kt">void</span> <span class="n">ConcreteBuilder</span><span class="o">::</span><span class="n">buildPartB</span><span class="p">(){</span>
+	<span class="n">m_prod</span><span class="o">-&gt;</span><span class="n">setB</span><span class="p">(</span><span class="s">"B Style "</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="kt">void</span> <span class="n">ConcreteBuilder</span><span class="o">::</span><span class="n">buildPartC</span><span class="p">(){</span>
+	<span class="n">m_prod</span><span class="o">-&gt;</span><span class="n">setC</span><span class="p">(</span><span class="s">"C style "</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cm">/* 定义建造函数 */</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+<span class="c1">//  Director.cpp</span>
+<span class="c1">//  Implementation of the Class Director</span>
+<span class="c1">//  Created on:      02-十月-2014 15\:57\:01</span>
+<span class="c1">//  Original author: colin</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+
+<span class="cp">#include "Director.h"
+</span>
+<span class="n">Director</span><span class="o">::</span><span class="n">Director</span><span class="p">(){</span>
+<span class="p">}</span>
+
+<span class="n">Director</span><span class="o">::~</span><span class="n">Director</span><span class="p">(){</span>
+<span class="p">}</span>
+
+<span class="n">Product</span><span class="o">*</span> <span class="n">Director</span><span class="o">::</span><span class="n">constuct</span><span class="p">(){</span>
+	<span class="n">m_pbuilder</span><span class="o">-&gt;</span><span class="n">buildPartA</span><span class="p">();</span>
+	<span class="n">m_pbuilder</span><span class="o">-&gt;</span><span class="n">buildPartB</span><span class="p">();</span>
+	<span class="n">m_pbuilder</span><span class="o">-&gt;</span><span class="n">buildPartC</span><span class="p">();</span>
+	
+	<span class="k">return</span> <span class="n">m_pbuilder</span><span class="o">-&gt;</span><span class="n">getResult</span><span class="p">();</span>
+<span class="p">}</span>
+
+
+<span class="kt">void</span> <span class="n">Director</span><span class="o">::</span><span class="n">setBuilder</span><span class="p">(</span><span class="n">Builder</span><span class="o">*</span> <span class="n">buider</span><span class="p">){</span>
+	<span class="n">m_pbuilder</span> <span class="o">=</span> <span class="n">buider</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<h3 id="46-模式分析">4.6 模式分析</h3>
+
+<p>建造者类中定义了产品的创建方法和返回方法，并使用了指挥者，进行隔离和指挥。它和工厂模式有所区别，工厂模式是将所有的产品添加到工厂中，含有全部的对象和方法，这个是可以有选择的创建工厂对象。避免了重用。<strong>主要用于，本身对象建立十分复杂的类的构建</strong></p>
+
+<p>在客户端代码中，无须关心产品对象的具体组装过程，只需确定具体建造者的类型即可，建造者模式将复杂对象的构建与对象的表现分离开来，这样使得同样的构建过程可以创建出不同的表现。</p>
+
+<h3 id="47-实例">4.7 实例：</h3>
+
+<p>实例：KFC套餐</p>
+
+<p>类图设计如下</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/KFCBuilder.jpg" alt="KFC类图"></p>
+
+<h3 id="48-优点">4.8 优点</h3>
+
+<ul>
+  <li>在建造者模式中， 客户端不必知道产品内部组成的细节，将产品本身与产品的创建过程解耦，使得相同的创建过程可以创建不同的产品对象。</li>
+  <li>建造者相对独立，用户使用不同的建造者创建不同的产品对象</li>
+  <li>可以更加精细的控制产品的创建过程</li>
+  <li>增加新的具体建造者无须修改原有类库的代码，指挥者类针对抽象者类编程，扩展系统方便。</li>
+</ul>
+
+<h3 id="49-缺点">4.9 缺点</h3>
+
+<ul>
+  <li>产品相似，当需求产品间差距较大时，不适合。</li>
+  <li>如果内部变化复杂。可能会导致需要定义很多类，导致代码庞大。</li>
+</ul>
+
+<h3 id="410-适用环境">4.10 适用环境</h3>
+
+<ul>
+  <li>生成对象有复杂的内部结构，产品对象有多个成员属性</li>
+  <li>产品对象属性，相互依赖,需要指定其生成顺序。</li>
+  <li>对象的创建过程独立于创建该对象的类。在建造者模式中引入了指挥者类，将创建过程封装在指挥者类中，而不在建造者类中。</li>
+  <li>隔离复杂对象的创建和使用，并使得相同的创建过程可以创建不同的产品。</li>
+</ul>
+
+<h3 id="411-模式应用">4.11 模式应用</h3>
+
+<p>在很多游戏软件中，地图包括天空、地面、背景等组成部分，人物角色包括人体、服装、装备等组成部分，可以使用建造者模式对其进行设计，通过不同的具体建造者创建不同类型的地图或人物。</p>
+
+<h3 id="412-模式扩展">4.12 模式扩展</h3>
+
+<p>建造者模式的简化:</p>
+
+<ul>
+  <li>省略抽象建造者角色：如果系统中只需要一个具体建造者的话，可以省略掉抽象建造者。</li>
+  <li>省略指挥者角色：在具体建造者只有一个的情况下，如果抽象建造者角色已经被省略掉，那么还可以省略指挥者角色，让Builder角色扮演指挥者与建造者双重角色。</li>
+</ul>
+
+<p>建造者模式与抽象工厂模式的比较:</p>
+
+<ul>
+  <li><strong>建造者模式返回一个组装好的完整产品 ，而抽象工厂模式返回一系列相关的产品，这些产品位于不同的产品等级结构，构成了一个产品族。</strong></li>
+  <li>抽象工厂模式中，客户端需要实例化工厂类，然后再进行创建产品对象，建造者模式中，客户端可以不直接调用建造者的相关方法，而是通过指挥者类来指导如何生成对象。<strong>它侧重于一步步构造一个复杂对象，返回一个完整的对象。</strong>
+</li>
+  <li>如果将抽象工厂模式看成 <strong>汽车配件</strong>生产工厂 ，生产一个产品族的产品，那么建造者模式就是一个 <strong>汽车组装工厂</strong>，通过对部件的组装可以返回一辆完整的汽车。–就是主要负责复杂组成的类的生成。</li>
+</ul>
+
+<h3 id="413-总结">4.13 总结</h3>
+
+<ul>
+  <li>建造者模式将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。</li>
+  <li>建造者模式的主要优点在于客户端不必知道产品内部组成的细节，将<strong>产品本身</strong>与产品的<strong>创建过程</strong>解耦。</li>
+  <li>建造者模式适用于，需要生成的产品对象有复杂的内部结构的情况，成员复杂，并且相互间具有依赖性的情况。</li>
+</ul>
+
+<h2 id="5-单例模式">5. 单例模式</h2>
+
+<h3 id="51-模式动机">5.1 模式动机</h3>
+
+<p>系统中的某些类，只能有一个实例，如时间统计函数，打印机等。一般会被实例化为全局静态函数。</p>
+
+<h3 id="52-模式定义">5.2 模式定义</h3>
+
+<p>单例模式(Singleton Pattern)：单例模式确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例，这个类称为单例类，它提供全局访问的方法。</p>
+
+<p>单例模式的要点有三个：一是某个类只能有一个实例；二是它必须自行创建这个实例；三是它必须自行向整个系统提供这个实例。单例模式是一种对象创建型模式。单例模式又名单件模式或单态模式。</p>
+
+<h3 id="53-模式结构">5.3 模式结构</h3>
+
+<p>单例模式值包含单例(Singleton)一个角色</p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/Singleton.jpg" alt="单例模式"></p>
+
+<p><img src="https://design-patterns.readthedocs.io/zh_CN/latest/_images/seq_Singleton.jpg" alt="时序图"></p>
+
+<h3 id="55-代码分析">5.5 代码分析</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include "Singleton.h"
+</span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+	<span class="c1">//获取对象指针</span>
+	<span class="n">Singleton</span> <span class="o">*</span> <span class="n">sg</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">::</span><span class="n">getInstance</span><span class="p">();</span>
+	<span class="c1">//使用对象方法</span>
+	<span class="n">sg</span><span class="o">-&gt;</span><span class="n">singletonOperation</span><span class="p">();</span>
+	
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+<span class="c1">//  Singleton.cpp</span>
+<span class="c1">//  Implementation of the Class Singleton</span>
+<span class="c1">//  Created on:      02-十月-2014 17\:24\:46</span>
+<span class="c1">//  Original author: colin</span>
+<span class="c1">///////////////////////////////////////////////////////////</span>
+
+<span class="cp">#include "Singleton.h"
+#include &lt;iostream&gt;
+</span><span class="n">using</span> <span class="n">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="c1">//创建静态单例模式</span>
+<span class="n">Singleton</span> <span class="o">*</span> <span class="n">Singleton</span><span class="o">::</span><span class="n">instance</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="n">Singleton</span><span class="o">::</span><span class="n">Singleton</span><span class="p">(){</span>
+
+<span class="p">}</span>
+
+<span class="n">Singleton</span><span class="o">::~</span><span class="n">Singleton</span><span class="p">(){</span>
+	<span class="n">delete</span> <span class="n">instance</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Singleton</span><span class="o">*</span> <span class="n">Singleton</span><span class="o">::</span><span class="n">getInstance</span><span class="p">(){</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">instance</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">instance</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Singleton</span><span class="p">();</span>
+	<span class="p">}</span>
+	
+	<span class="k">return</span>  <span class="n">instance</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="kt">void</span> <span class="n">Singleton</span><span class="o">::</span><span class="n">singletonOperation</span><span class="p">(){</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"singletonOperation"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="56-模式分析">5.6 模式分析</h3>
+
+<p>单例模式的目的是保证一个类仅有一个实例，并提供一个访问它的全局访问点。单例类拥有一个私有构造函数，确保用户无法通过new关键字直接实例化它。除此之外，该模式中包含一个静态私有成员变量与静态公有的工厂方法，该工厂方法负责检验实例的存在性并实例化自己，然后存储在静态成员变量中，以确保只有一个实例被创建。</p>
+
+<p>在单例模式的实现过程中，需要注意如下三点：</p>
+
+<ul>
+  <li>单例类的构造函数为私有；</li>
+  <li>提供一个自身的静态私有成员变量；</li>
+  <li>提供一个公有的静态工厂方法。</li>
+</ul>
+
+<h3 id="58-优点">5.8 优点</h3>
+
+<ul>
+  <li>提供了对唯一实例的受控访问。因为单例类封装了它的唯一实例，所以它可以严格控制客户怎样以及何时访问它，并为设计及开发团队提供了共享的概念。</li>
+  <li>由于在系统内存中只存在一个对象，因此可以节约系统资源，对于一些需要频繁创建和销毁的对象，单例模式无疑可以提高系统的性能。</li>
+  <li>允许可变数目的实例。我们可以基于单例模式进行扩展，使用与单例控制相似的方法来获得指定个数的对象实例。</li>
+</ul>
+
+<h3 id="59-缺点">5.9 缺点</h3>
+
+<ul>
+  <li>由于单例模式中没有抽象层，因此单例类的扩展有很大的困难。</li>
+  <li>单例类的职责过重，在一定程度上违背了“单一职责原则”。</li>
+  <li>滥用单例将带来一些负面问题，如为了节省资源将数据库连接池对象设计为单例类，可能会导致共享连接池对象的程序过多而出现连接池溢出；现在很多面向对象语言(如Java、C#)的运行环境都提供了自动垃圾回收的技术，因此，如果实例化的对象长时间不被利用，系统会认为它是垃圾，会自动销毁并回收资源，下次利用时又将重新实例化，这将导致对象状态的丢失。</li>
+</ul>
+
+<h3 id="510-适用环境">5.10 适用环境</h3>
+
+<ul>
+  <li>系统只需要一个实例对象，如系统要求提供一个唯一的序列号生成器，或者需要考虑资源消耗太大而只允许创建一个对象。</li>
+  <li>客户调用类的单个实例只允许使用一个公共访问点，除了该公共访问点，不能通过其他途径访问该实例。</li>
+  <li>在一个系统中要求一个类只有一个实例时才应当使用单例模式。反过来，如果一个类可以有几个实例共存，就需要对单例模式进行改进，使之成为多例模式。</li>
+</ul>
+
+<h3 id="511-模式应用">5.11 模式应用</h3>
+
+<p>一个具有自动编号主键的表可以有多个用户同时使用，但数据库中只能有一个地方分配下一个主键编号，否则会出现主键重复，因此该主键编号生成器必须具备唯一性，可以通过单例模式来实现。</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/10/24/linux_kernel_development_05/" data-toggle="tooltip" data-placement="top" title="Linux内核设计与实现 学习笔记 (五)">
+                        Previous<br>
+                        <span>Linux内核设计与实现 学习笔记 (五)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/11/10/design_patterns_02/" data-toggle="tooltip" data-placement="top" title="图说设计模式 学习笔记 (二)">
+                        Next<br>
+                        <span>图说设计模式 学习笔记 (二)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

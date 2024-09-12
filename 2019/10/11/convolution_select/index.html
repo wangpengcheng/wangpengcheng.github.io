@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>卷积大集合 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/10/11/convolution_select/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E5%8D%B7%E7%A7%AF%E6%93%8D%E4%BD%9C" title="卷积操作">卷积操作</a>
+                        
+                        <a class="tag" href="/tags/#%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB" title="论文阅读">论文阅读</a>
+                        
+                        <a class="tag" href="/tags/#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0" title="深度学习">深度学习</a>
+                        
+                        <a class="tag" href="/tags/#%E5%B9%B6%E8%A1%8C" title="并行">并行</a>
+                        
+                        <a class="tag" href="/tags/#%E4%BC%98%E5%8C%96" title="优化">优化</a>
+                        
+                    </div>
+                    <h1>卷积大集合</h1>
+                    
+                    
+                    <h2 class="subheading">包含看到的论文中的卷积方式</h2>
+                    
+                    <span class="meta">Posted by 敬方 on October 11, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="所有卷积方式和算法的集合">所有卷积方式和算法的集合</h1>
+
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="http://bbs.cvmart.net/topics/1086">嵌入式和移动深度学习研究</a></li>
+</ul>
+
+<blockquote>
+  <p>2019-10-12 12:59:34</p>
+</blockquote>
+
+<h1 id="几种矩阵存储模式">几种矩阵存储模式：</h1>
+
+<h2 id="libsvm格式官网链接">LibSVM格式(<a href="https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/australian">官网链接</a>)</h2>
+
+<p>一种通用的训练数据格式,主要用在xboost等机器学习和深度学习中</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>label] <span class="o">[</span>index1]:[value1] <span class="o">[</span>index2]:[value2] …
+<span class="o">[</span>label] <span class="o">[</span>index1]:[value1] <span class="o">[</span>index2]:[value2] …
+</code></pre></div></div>
+<p>label  目标值，就是说class（属于哪一类），就是你要分类的种类，通常是一些整数。</p>
+
+<p>index 是有顺序的索引，通常是连续的整数。就是指特征编号，必须按照升序排列</p>
+
+<p>value 就是特征值，用来train的数据，通常是一堆实数组成。
+具体实例入下面所示:</p>
+
+<p><img src="https://img-blog.csdn.net/20180128113141114?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvY2hlbnhqaGl0/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="libSVMs数据格式"></p>
+
+<h2 id="coocoordinate">COO:Coordinate</h2>
+
+<p>将矩阵中不为0的数的行号、列号和数值对应存储下来：</p>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB6c8c714de3adff2802d39c744b16c8e5?method=download&shareKey=ce7945cb810be189a216fb1fd23b205d" alt="Coo数据存储格式"></p>
+
+<h3 id="优缺点">优缺点</h3>
+
+<ul>
+  <li>优点：比较容易转换成其他的稀疏矩阵存储格式（CSR等），写程序将libsvm格式的数据转换成COO比较容易，应该是充当libsvm与其他稀疏矩阵存储格式转换的媒介。</li>
+  <li>COO缺点：不能进行矩阵运算。</li>
+</ul>
+
+<p>下面是一个读取libSVM数据格式并转换成COO的代码</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 读取libsvm格式数据成稀疏矩阵形式
+# 0 5:1 9:1 140858:1 445908:1 446177:1 446293:1 449140:1 490778:1 491626:1 491634:1 491641:1 491645:1 491648:1 491668:1 491700:1 491708:1
+</span><span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">y_i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">X_i</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">':'</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="n">D_i</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">':'</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="n">y</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_i</span><span class="p">)</span>
+            <span class="n">X</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_i</span><span class="p">)</span>
+            <span class="n">D</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">D_i</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">libsvm_2_coo</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">D</span><span class="p">),</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">INPUT_DIM</span><span class="p">)).</span><span class="n">tocsr</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+
+<span class="c1"># 将libSVM转换成COO代码
+</span>
+<span class="k">def</span> <span class="nf">libsvm_2_coo</span><span class="p">(</span><span class="n">libsvm_data</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+    <span class="n">coo_rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">coo_cols</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">coo_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">libsvm_data</span><span class="p">:</span>
+        <span class="n">coo_rows</span><span class="p">.</span><span class="n">extend</span><span class="p">([</span><span class="n">n</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">coo_cols</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">coo_data</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">coo_rows</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">coo_rows</span><span class="p">)</span>
+    <span class="n">coo_cols</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">coo_cols</span><span class="p">)</span>
+    <span class="n">coo_data</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">coo_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coo_matrix</span><span class="p">((</span><span class="n">coo_data</span><span class="p">,</span> <span class="p">(</span><span class="n">coo_rows</span><span class="p">,</span> <span class="n">coo_cols</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<h2 id="csr按行压缩存储">CSR：按行压缩存储</h2>
+
+<p>CSR是比较标准的一种，也需要三类数据来表达：</p>
+<ul>
+  <li>数值，</li>
+  <li>列号，</li>
+  <li>以及行偏移。</li>
+</ul>
+
+<p>CSR不是三元组，而是整体的编码方式。数值和列号与COO一致，表示一个元素以及其列号，行偏移表示某一行的第一个元素在values里面的起始偏移位置。row offsetS的数值个数是 #row+1,</p>
+
+<p>如下图中，0,2,4,7分别表示第一行、第二行、第三行、第四行的第一个非零元素在values的位置。第一行元素1是0偏移，第二行元素2是2偏移，第三行元素5是4偏移，第4行元素6是7偏移。在行偏移的最后补上矩阵总的元素个数，本例中是9。其中column indices记录的是对应的value所在列的index。比如1在0列，7在1列;4在三列。</p>
+
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB0612f7e67e37427f4e0d791de2e4c447?method=download&shareKey=4b1dab6724d142d2ea69b37b85c221d8" alt="CSR"></p>
+
+<h3 id="优缺点-1">优缺点</h3>
+
+<p>本质上还是对于非零元素的去除，并没有去除其中的重复元素。</p>
+<ul>
+  <li>优点：
+    <ul>
+      <li>高效的CSR + CSR</li>
+      <li>CSR*CSR算术运算</li>
+      <li>高效的行切片操作</li>
+      <li>高效的矩阵内积内积操作</li>
+      <li>CSR格式在存储稀疏矩阵时非零元素平均使用的字节数(Bytes per Nonzero Entry)最为稳定（float类型约为8.5，double类型约为12.5）</li>
+      <li>CSR格式常用于读入数据后进行稀疏矩阵计算。</li>
+    </ul>
+  </li>
+  <li>缺点：
+    <ul>
+      <li>列切片操作慢（相比CSC）</li>
+      <li>稀疏结构的变化代价高（相比LIL或者DOK）</li>
+    </ul>
+  </li>
+</ul>
+
+<p>假设B为大矩阵，S为小矩阵。
+当CSR格式时，S×B速度较快，与B×S相比节约了一半时间。
+当CSC格式时，B×S速度较快，与S×B相比节约一半时间。</p>
+
+<h2 id="csc按列压缩存储">CSC:按列压缩存储</h2>
+
+<p>CSC是和CSR相对应的一种方式，即按列压缩的意思。
+以上图中矩阵为例：
+Values：[1 5 7 2 6 8 3 9 4]
+Row Indices：[0 2 0 1 3 1 2 2 3]
+Column Offsets：[0 2 5 7 9]</p>
+
+<h1 id="直接稀疏卷积direct-sparse-convolution">直接稀疏卷积(Direct Sparse Convolution)</h1>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li>论文原文:<a href="https://github.com/wangpengcheng/Learning-Note/blob/master/%E5%89%8D%E6%B2%BF%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/%E8%AE%BA%E6%96%87%E5%8E%9F%E6%96%87/%E8%A3%81%E5%89%AA_%E9%87%8F%E5%8C%96_%E5%8A%A0%E9%80%9F/FASTER%20CNNS%20WITH%20DIRECT%20SPARSE%20CONVOLUTIONS%0AAND%20GUIDED%20PRUNING.pdf">地址</a>
+</li>
+  <li><a href="https://blog.csdn.net/yyl424525/article/details/96327035#Direct_Sparse_Convolution_42">[论文总结]：faster cnns with direct sparse convolutions and guided pruning 直接稀疏卷积和引导剪枝</a></li>
+  <li><a href="https://blog.csdn.net/niexiangwww2010/article/details/72784310">ICLR2017 paper: FASTER CNNS WITH DIRECT SPARSE CONVOLUTIONS AND GUIDED PRUNING 笔记</a></li>
+  <li><a href="https://www.jianshu.com/p/dd67c2b56a28">稀疏卷积神经网络</a></li>
+  <li>项目地址:<a href="https://github.com/IntelLabs/SkimCaffe">https://github.com/IntelLabs/SkimCaffe</a>
+</li>
+  <li>关键代码地址<a href="https://github.com/IntelLabs/SkimCaffe/blob/intel_scnn/include/caffe/util/sconv.hpp">https://github.com/IntelLabs/SkimCaffe/blob/intel_scnn/include/caffe/util/sconv.hpp</a>
+</li>
+</ul>
+
+<p>下面是稀疏卷积分解的主要流程对比图:</p>
+
+<p><img src="https://upload-images.jianshu.io/upload_images/5472979-e04163044567c1c7.png" alt="流程对比图"></p>
+
+<h2 id="算法介绍">算法介绍</h2>
+
+<p>稀疏卷积可以看作抽象的sparse-matrix-dense-matrix multiplication</p>
+
+<p>假设有N个filters，每个的size为R × S. 输入为C×H×W，于是这层的参数为一个N × C × R × S的张量，input是C × H(in)× W(in)的张量，output为C × H(out)× W(out)的张量，如下：两个三维张量的点积</p>
+
+<p><img src="https://img-blog.csdn.net/20170527160806244?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbmlleGlhbmd3d3cyMDEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="卷积计算公式"></p>
+
+<p>这个操作可以被看成首先根据channnels向量化4维的blob，然后再向量化kernel最后再按照二维点乘的方式计算。当W稀疏时，就变成了一个sparse-vector-dense-vector点乘。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-12-15-19-12.png" alt="中间计算图片"></p>
+
+<ol>
+  <li>先将权重矩阵W按第一维展平，得稀疏矩阵W(1)，并且row vectors和vec(I)的维数匹配。</li>
+  <li>O(n,y,x)是W(1)的第n行和vec(I)之间的点积。</li>
+  <li>于是每个点(x,y)处的卷积结果可以计算多个sparse-matrix-dense-vector multiplication 来得到。</li>
+</ol>
+
+<p><img src="https://img-blog.csdn.net/20170527163952057?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbmlleGlhbmd3d3cyMDEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="公式计算"></p>
+
+<ol>
+  <li>I y,x代表张量I根据(y,x)变化得到的向量化结果。</li>
+  <li>于是就可以定义一种虚拟的dense matrix，每个column都是快速且独立生成的。</li>
+</ol>
+
+<p>下面是实际的关键代码</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">caffe_cpu_sconv_default</span><span class="p">(</span>
+    <span class="c1">// 输入的特征图</span>
+    <span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">input_padded</span><span class="p">,</span><span class="c1">//特征图数据</span>
+    <span class="kt">int</span> <span class="n">in_channels</span><span class="p">,</span><span class="c1">//输入通道数量</span>
+    <span class="kt">int</span> <span class="n">height</span><span class="p">,</span><span class="c1">//输入高度 </span>
+    <span class="kt">int</span> <span class="n">width</span><span class="p">,</span><span class="c1">//输入宽度</span>
+    <span class="kt">int</span> <span class="n">pad_h</span><span class="p">,</span> <span class="kt">int</span> <span class="n">pad_w</span><span class="p">,</span><span class="c1">//宽高扩展</span>
+    <span class="kt">int</span> <span class="n">stride_h</span><span class="p">,</span> <span class="kt">int</span> <span class="n">stride_w</span><span class="p">,</span><span class="c1">//高宽步长</span>
+    <span class="kt">int</span> <span class="n">dilation_h</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dilation_w</span><span class="p">,</span><span class="c1">//宽高上的缩放尺寸，也就是线性差值尺寸</span>
+    <span class="c1">// weights,权重数据，注意权重数据是以CSR数据格式保存的。</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">rowptr</span><span class="p">,</span><span class="c1">//行数据 </span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">colidx</span><span class="p">,</span> <span class="c1">//列index索引</span>
+    <span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">values</span><span class="p">,</span><span class="c1">//最终值</span>
+    <span class="kt">int</span> <span class="n">kernel_h</span><span class="p">,</span> <span class="kt">int</span> <span class="n">kernel_w</span><span class="p">,</span><span class="c1">//卷积核的高宽</span>
+    <span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">bias</span><span class="p">,</span><span class="c1">//基础偏移</span>
+    <span class="c1">// output features</span>
+    <span class="kt">float</span> <span class="o">*</span><span class="n">output</span><span class="p">,</span><span class="c1">//输出数据</span>
+    <span class="kt">int</span> <span class="n">out_channels</span><span class="c1">//输出通道数目</span>
+    <span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//计算输出高宽</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">output_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pad_h</span> <span class="o">-</span>
+      <span class="p">(</span><span class="n">dilation_h</span> <span class="o">*</span> <span class="p">(</span><span class="n">kernel_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">stride_h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">output_w</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pad_w</span> <span class="o">-</span>
+      <span class="p">(</span><span class="n">dilation_w</span> <span class="o">*</span> <span class="p">(</span><span class="n">kernel_w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">stride_w</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="c1">//设置循环卷积batch</span>
+  <span class="n">conv_cycles_of_this_batch</span><span class="p">[</span><span class="n">omp_get_thread_num</span><span class="p">()</span><span class="o">*</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="n">__rdtsc</span><span class="p">();</span>
+    <span class="c1">//如果缩放不为1</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">dilation_h</span> <span class="o">!=</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">dilation_w</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">output_row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">output_row</span> <span class="o">&lt;</span> <span class="n">output_h</span><span class="p">;</span> <span class="o">++</span><span class="n">output_row</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">output_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">output_col</span> <span class="o">&lt;</span> <span class="n">output_w</span><span class="p">;</span> <span class="o">++</span><span class="n">output_col</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">oc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">oc</span> <span class="o">&lt;</span> <span class="n">out_channels</span><span class="p">;</span> <span class="o">++</span><span class="n">oc</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">bias</span><span class="p">[</span><span class="n">oc</span><span class="p">];</span>
+
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">rowptr</span><span class="p">[</span><span class="n">oc</span><span class="p">];</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">rowptr</span><span class="p">[</span><span class="n">oc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">off</span> <span class="o">=</span> <span class="n">colidx</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+
+            <span class="kt">int</span> <span class="n">kernel_col</span> <span class="o">=</span> <span class="n">off</span><span class="o">%</span><span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">pad_w</span><span class="p">);</span>
+            <span class="kt">int</span> <span class="n">kernel_row</span> <span class="o">=</span> <span class="p">(</span><span class="n">off</span><span class="o">/</span><span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">pad_w</span><span class="p">))</span><span class="o">%</span><span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">pad_h</span><span class="p">);</span>
+            <span class="kt">int</span> <span class="n">in_channel</span> <span class="o">=</span> <span class="n">off</span><span class="o">/</span><span class="p">((</span><span class="n">width</span> <span class="o">+</span> <span class="n">pad_w</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">pad_h</span><span class="p">));</span>
+
+            <span class="kt">int</span> <span class="n">input_row</span> <span class="o">=</span> <span class="n">kernel_row</span> <span class="o">*</span> <span class="n">dilation_h</span> <span class="o">+</span> <span class="n">output_row</span> <span class="o">*</span> <span class="n">stride_h</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">input_col</span> <span class="o">=</span> <span class="n">kernel_col</span> <span class="o">*</span> <span class="n">dilation_w</span> <span class="o">+</span> <span class="n">output_col</span> <span class="o">*</span> <span class="n">stride_w</span><span class="p">;</span>
+
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">values</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">input_padded</span><span class="p">[(</span><span class="n">in_channel</span> <span class="o">*</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">pad_h</span><span class="p">)</span> <span class="o">+</span> <span class="n">input_row</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">pad_w</span><span class="p">)</span> <span class="o">+</span> <span class="n">input_col</span><span class="p">];</span>
+          <span class="p">}</span>
+
+          <span class="n">output</span><span class="p">[(</span><span class="n">oc</span> <span class="o">*</span> <span class="n">output_h</span> <span class="o">+</span> <span class="n">output_row</span><span class="p">)</span> <span class="o">*</span> <span class="n">output_w</span> <span class="o">+</span> <span class="n">output_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">FUSE_RELU</span> <span class="o">?</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="mf">0.</span><span class="n">f</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span> <span class="o">:</span> <span class="n">sum</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span><span class="c1">//卷积缩放为1，没有缩放</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">output_row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">output_row</span> <span class="o">&lt;</span> <span class="n">output_h</span><span class="p">;</span> <span class="o">++</span><span class="n">output_row</span><span class="p">)</span> <span class="p">{</span><span class="c1">//输出行遍历</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">output_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">output_col</span> <span class="o">&lt;</span> <span class="n">output_w</span><span class="p">;</span> <span class="o">++</span><span class="n">output_col</span><span class="p">)</span> <span class="p">{</span><span class="c1">//输出列遍历</span>
+        <span class="c1">//获取当前指针指向数据=起点指针+输出行*行步长*(输入宽度+扩展宽度)+输出列*列步长；这里相当于是使用输出点的坐标，反向计算输入点应该的坐标，注意这里没有加通道</span>
+        <span class="k">const</span> <span class="kt">float</span> <span class="o">*</span><span class="n">in</span> <span class="o">=</span> <span class="n">input_padded</span> <span class="o">+</span> <span class="n">output_row</span> <span class="o">*</span> <span class="n">stride_h</span> <span class="o">*</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">pad_w</span><span class="p">)</span> <span class="o">+</span> <span class="n">output_col</span> <span class="o">*</span> <span class="n">stride_w</span><span class="p">;</span>
+        <span class="c1">//按照输出通道数目进行遍历，输出通道数目=输入通道数目</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">oc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">oc</span> <span class="o">&lt;</span> <span class="n">out_channels</span><span class="p">;</span> <span class="o">++</span><span class="n">oc</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//获取每个的基础地址</span>
+          <span class="kt">float</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">bias</span><span class="p">[</span><span class="n">oc</span><span class="p">];</span>
+            <span class="c1">//按照行对每个权重进行</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">rowptr</span><span class="p">[</span><span class="n">oc</span><span class="p">];</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">rowptr</span><span class="p">[</span><span class="n">oc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span><span class="c1">//j是当前通道数目到下一个通道数目之间</span>
+              <span class="c1">//检查数据是否越界</span>
+            <span class="n">assert</span><span class="p">(</span><span class="n">in</span> <span class="o">+</span> <span class="n">colidx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">input_padded</span> <span class="o">&amp;&amp;</span> <span class="n">in</span> <span class="o">+</span> <span class="n">colidx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">input_padded</span> <span class="o">+</span> <span class="n">in_channels</span><span class="o">*</span><span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="n">pad_w</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">pad_h</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad_h</span><span class="o">*</span><span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">pad_w</span><span class="p">));</span>
+            <span class="c1">//和=权重值*对应数据；注意这里是通道数目的乘法，对应的是(c,x,y)中c的变化</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">values</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">in</span><span class="p">[</span><span class="n">colidx</span><span class="p">[</span><span class="n">j</span><span class="p">]];</span>
+          <span class="p">}</span>
+            <span class="c1">//最后计算输出的index</span>
+          <span class="n">output</span><span class="p">[(</span><span class="n">oc</span><span class="o">*</span><span class="n">output_h</span> <span class="o">+</span> <span class="n">output_row</span><span class="p">)</span><span class="o">*</span><span class="n">output_w</span> <span class="o">+</span> <span class="n">output_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">FUSE_RELU</span> <span class="o">?</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="mf">0.</span><span class="n">f</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span> <span class="o">:</span> <span class="n">sum</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">conv_cycles_of_this_batch</span><span class="p">[</span><span class="n">omp_get_thread_num</span><span class="p">()</span><span class="o">*</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="n">__rdtsc</span><span class="p">()</span> <span class="o">-</span> <span class="n">conv_cycles_of_this_batch</span><span class="p">[</span><span class="n">omp_get_thread_num</span><span class="p">()</span><span class="o">*</span><span class="mi">16</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="算法重述">算法重述</h3>
+
+<ol>
+  <li>将输入(C,W,H)数据压缩成为一个一维数组，其中(w,h,c),其中每个起点之后是连续的c个数据，代表不同通道上的数据</li>
+  <li>将权重数据按照CSR方式进行存储，最后一个维度也是c。</li>
+  <li>按照通道进行计算和相加</li>
+</ol>
+
+<p>从本质上来说稀疏卷积，只是对于已经压缩存储的权重数据的优化，相对直接卷积来说，以w*h为主要遍历对象，直接进行c上的多个数据计算和相加，主要避免了数据的多次访问，提高了计算效率。<strong>相对于原来的二维直接卷积，先计算每个卷积矩阵点乘，再将c个矩阵相加减少了m*n的时间复杂度，提高了利用率</strong>。预计提高速度<code class="language-plaintext highlighter-rouge">1.5～3</code>。矩阵越稀疏，效果越明显</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-12-16-45-46.png" alt="论文最终结果比较"></p>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/10/11/essay_reading_list_02/" data-toggle="tooltip" data-placement="top" title="文集补校(二)">
+                        Previous<br>
+                        <span>文集补校(二)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/10/11/thesis_reading_01/" data-toggle="tooltip" data-placement="top" title="一种基于GPU的高性能稀疏卷积神经网络优化">
+                        Next<br>
+                        <span>一种基于GPU的高性能稀疏卷积神经网络优化</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

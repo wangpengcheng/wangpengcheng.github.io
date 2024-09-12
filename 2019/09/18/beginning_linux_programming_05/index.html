@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>Linux程序设计 学习笔记 (五) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/09/18/beginning_linux_programming_05/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统">操作系统</a>
+                        
+                        <a class="tag" href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计">程序设计</a>
+                        
+                    </div>
+                    <h1>Linux程序设计 学习笔记 (五)</h1>
+                    
+                    
+                    <h2 class="subheading">Linux程序设计 学习笔记 (五)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on September 18, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-09-23: 16:48:53</p>
+</blockquote>
+
+<h1 id="linux-程序设计-阅读笔记五">Linux 程序设计 阅读笔记(五)</h1>
+
+<h2 id="参考链接">参考链接：</h2>
+
+<ul>
+  <li><a href="https://www.kernel.org/doc/Documentation/">Linux内核文档首页</a></li>
+  <li><a href="https://linux.die.net/">Linux文档</a></li>
+  <li><a href="https://legacy.gitbook.com/book/wizardforcel/linux-c-api-ref/details">Linux c 开发手册</a></li>
+  <li><a href="https://www.kernel.org/doc/htmldocs/kernel-api/index.html">Linux Kernel API</a></li>
+  <li><a href="http://www.wrox.com/WileyCDA/WroxTitle/Beginning-Linux-Programming-4th-Edition.productCd-0470147628,descCd-DOWNLOAD.html">书中代码地址</a></li>
+  <li><a href="https://www.cs.cmu.edu/afs/cs/academic/class/15492-f07/www/pthreads.html">POSIX thread (pthread) libraries</a></li>
+</ul>
+
+<h2 id="第-15-章-套接字socket">第 15 章 套接字(socket)</h2>
+
+<p>socket是管道概念的一个廓镇。使用与管道类似的方法来使用套接字，套接字中还包括了计算机网络中的通信。
+本章主要内容：</p>
+
+<ul>
+  <li>套接字链接的工作原理</li>
+  <li>套接字的属性、地址和通信</li>
+  <li>网络信息和互联网守护进程(inetf/xinetd)</li>
+  <li>客户和服务器</li>
+</ul>
+
+<h3 id="151-什么是套接字">15.1 什么是套接字</h3>
+
+<p>套接字(socket)是一种通信机制，客户端/服务器系统的开发工作既可以在本地进行，也可以跨网络进行。socket明确的将客户端与服务器区分开来，这也是socket区别于管道通信的地方。</p>
+
+<h3 id="152-socket连接">15.2 socket连接</h3>
+
+<ol>
+  <li>服务器应用程序用系统调用socket来创建一个socket套接字。它是系统分配个该服务器进程的类似文件描述符的资源，不能与其它进行共享。</li>
+  <li>服务器会给socket起一个名字，本地socket名称是Linux文件系统中的文件名。一般放在/tmp或者/usr/tmp目录中。Linux将进入的特定端口号的连接转接到正确的拂去其进程。服务器系统使用bind来给套接字命名，然后服务器进程就开始等待客户连接到命名套接字。系统使用listen创建一个队列并将其用于存放来自客户端的接入连接。条用accept来接受客户端的连接。</li>
+  <li>服务器调用accept时，新建一个与特定客户端相关的新的套接字来方便通信。</li>
+</ol>
+
+<p>下面是一个简单的本地客户端</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*  Make the necessary includes and set up the variables.  */</span>
+
+<span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;sys/un.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//声明sockfd文件描述索引</span>
+
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+    <span class="c1">//声明地址</span>
+
+    <span class="k">struct</span> <span class="nc">sockaddr_un</span> <span class="n">address</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">ch</span> <span class="o">=</span> <span class="sc">'A'</span><span class="p">;</span>
+    <span class="c1">//创建socket</span>
+
+    <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_UNIX</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="c1">//设置socket名称，作为服务器请求和答应</span>
+
+    <span class="n">address</span><span class="p">.</span><span class="n">sun_family</span> <span class="o">=</span> <span class="n">AF_UNIX</span><span class="p">;</span>
+    <span class="n">strcpy</span><span class="p">(</span><span class="n">address</span><span class="p">.</span><span class="n">sun_path</span><span class="p">,</span> <span class="s">"server_socket"</span><span class="p">);</span>
+    <span class="n">len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">address</span><span class="p">);</span>
+    <span class="c1">//将我们的套接字连接到服务器的套接字上</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">address</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"oops: client1"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">//通过sockfd进行读写</span>
+    <span class="n">write</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ch</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">read</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ch</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="c1">//输出获取的信息</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"char from server = %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ch</span><span class="p">);</span>
+    <span class="c1">//关闭连接</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><strong>server1.c服务器创建</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*  Make the necessary includes and set up the variables.  */</span>
+
+<span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;sys/un.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">server_sockfd</span><span class="p">,</span> <span class="n">client_sockfd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">server_len</span><span class="p">,</span> <span class="n">client_len</span><span class="p">;</span>
+    <span class="c1">//服务器address</span>
+
+    <span class="k">struct</span> <span class="nc">sockaddr_un</span> <span class="n">server_address</span><span class="p">;</span>
+    <span class="c1">//客户端地址</span>
+
+    <span class="k">struct</span> <span class="nc">sockaddr_un</span> <span class="n">client_address</span><span class="p">;</span>
+    <span class="c1">//这里删除以前的套接字，为服务器创建一个未命名的套接字</span>
+
+    <span class="n">unlink</span><span class="p">(</span><span class="s">"server_socket"</span><span class="p">);</span>
+	<span class="c1">//注意这里是UNIX域套接字</span>
+    <span class="n">server_sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_UNIX</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="c1">//对套接字进行命名</span>
+
+    <span class="n">server_address</span><span class="p">.</span><span class="n">sun_family</span> <span class="o">=</span> <span class="n">AF_UNIX</span><span class="p">;</span>
+    <span class="n">strcpy</span><span class="p">(</span><span class="n">server_address</span><span class="p">.</span><span class="n">sun_path</span><span class="p">,</span> <span class="s">"server_socket"</span><span class="p">);</span>
+    <span class="n">server_len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">server_address</span><span class="p">);</span>
+    <span class="n">bind</span><span class="p">(</span><span class="n">server_sockfd</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">server_address</span><span class="p">,</span> <span class="n">server_len</span><span class="p">);</span>
+    <span class="c1">//创建一个连接队列，开始等待客户进行连接</span>
+
+    <span class="n">listen</span><span class="p">(</span><span class="n">server_sockfd</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="c1">//循环等待</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">char</span> <span class="n">ch</span><span class="p">;</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"server waiting</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="c1">//获取client长度</span>
+
+        <span class="n">client_len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">client_address</span><span class="p">);</span>
+        <span class="c1">//接收一个client客户端请求，并产生一个套接字文件</span>
+
+        <span class="n">client_sockfd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">server_sockfd</span><span class="p">,(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_address</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">client_len</span><span class="p">);</span>
+        <span class="c1">//client_sockfd套接字上的客户端进行读写操作。</span>
+
+        <span class="n">read</span><span class="p">(</span><span class="n">client_sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ch</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="n">ch</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">client_sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ch</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="c1">//关闭客户端连接</span>
+
+        <span class="n">close</span><span class="p">(</span><span class="n">client_sockfd</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>使用如下命令在启动客户端和服务器<code class="language-plaintext highlighter-rouge">./server1 &amp;</code> 和<code class="language-plaintext highlighter-rouge">./clinet1</code>。输出结果如下：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>server waiting
+char from server <span class="o">=</span> B
+
+</code></pre></div></div>
+<p>注意用完一个套接字后，就应该把它删除掉，即使是在程序因接受到一个信号而异常终止的情况下。</p>
+
+<h4 id="1521-套接字socket属性">15.2.1 套接字(socket)属性</h4>
+
+<p>socket的主要属性如下：</p>
+
+<ol>
+  <li>域(domain):指定socket通信中使用的网络介质。常见的套接字域是<code class="language-plaintext highlighter-rouge">AF_INET</code>，表示Internet网络协议。其底层的协议–网际协议(IP)只有一个地址族。常用服务端口号通常小于1024,有:打印机缓冲队列进程(515)、rlogin(513)、ftp(21)和httpd(80)等。小于1024的端口都是为系统服务保留的。并且所有服务的进程必须具有超级用户权限。在netdb.h中定义了一个常量<code class="language-plaintext highlighter-rouge">IPPORT_RESERVED</code>，代表保留端口号的最大值。也可以使用<code class="language-plaintext highlighter-rouge">AF_UNIX</code>表示UNIX文件系统域</li>
+  <li>类型(type):因为Internet网中提供了两种不同的通信机制:流(stream)和数据报(datagram)，因此这里也提供了两种截然不同的套接字类型。
+    <ol>
+      <li>流套接字:提供一个有序、可靠、双向字节流的连接。发送出去的数据可以确保不会丢失、复制或者乱序到达。错误不会被显示。主要由<code class="language-plaintext highlighter-rouge">SOCK_STREAM</code>指定，在AF_INET域中，通过TCP/IP连接实现。</li>
+      <li>数据报套接字：由<code class="language-plaintext highlighter-rouge">SOCK_DGRAM</code>指定，不建立和维持一个连接。数据报长度有限制，数据报作为一个单独的网络消息被传输。存在错误。主要由UDP/IP连接实现的。但是开销小。不需要维持网络连接。速度较快。</li>
+    </ol>
+  </li>
+  <li>协议(protocol):底层传输机制，允许不止一个协议来提供要求的套接字类型。</li>
+</ol>
+
+<h4 id="1522-创建套接字">15.2.2 创建套接字</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">socket</span><span class="p">(</span><span class="kt">int</span> <span class="n">domain</span><span class="p">,</span><span class="kt">int</span> <span class="n">type</span><span class="p">,</span><span class="kt">int</span> <span class="n">protocol</span><span class="p">);</span>
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">domain</code>指定协议族(INET/UNIX)，type参数指定通信类型(SOCK_STREAM/SOCK_DGRAM);protocol指定协议类型</p>
+
+<p>domain参数可以指定的协议族如下：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-23-20-45-18.png" alt=""></p>
+
+<h4 id="1523-套接字地址">15.2.3 套接字地址</h4>
+
+<p><code class="language-plaintext highlighter-rouge">AF_UNIX</code>地址结构由<code class="language-plaintext highlighter-rouge">sockaddr_un</code>来描述，该结构定义子啊头文件<code class="language-plaintext highlighter-rouge">sys/un.h</code>中</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">sockaddr_un</span>
+  <span class="p">{</span>
+    <span class="n">sa_family_t</span> <span class="n">sun_family</span><span class="p">;</span>
+    <span class="cm">/* Path name.  */</span>
+
+    <span class="kt">char</span> <span class="n">sun_path</span><span class="p">[];</span>
+  <span class="p">};</span>
+<span class="c1">//下面是Ubuntu16.04 中的相关定义</span>
+
+<span class="k">struct</span> <span class="n">sockaddr_un</span>
+  <span class="p">{</span>
+    <span class="n">__SOCKADDR_COMMON</span> <span class="p">(</span><span class="n">sun_</span><span class="p">);</span>
+    <span class="cm">/* Path name.  */</span>
+
+    <span class="kt">char</span> <span class="n">sun_path</span><span class="p">[</span><span class="mi">108</span><span class="p">];</span>
+  <span class="p">};</span>
+</code></pre></div></div>
+
+<p>如上所示Linux规定长度是108个字符。</p>
+
+<p>在<code class="language-plaintext highlighter-rouge">AF_INET</code>中，地址结构由<code class="language-plaintext highlighter-rouge">sockaddr_in</code>来指定，该结构定义在头文件<code class="language-plaintext highlighter-rouge">netinet/in.h</code>中，它至少包括以下几项：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">sockaddr_in</span><span class="p">{</span>
+    <span class="kt">short</span> <span class="kt">int</span>           <span class="n">sin_family</span><span class="p">;</span>     <span class="cm">/*AF_INET*/</span>
+    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span>  <span class="n">sin_port</span><span class="p">;</span>       <span class="cm">/*Port number*/</span>
+    <span class="k">struct</span> <span class="n">in_addr</span>      <span class="n">sin_addr</span><span class="p">;</span>       <span class="cm">/*Internet address*/</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>ip地址结构定义如下:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="kt">uint32_t</span> <span class="n">in_addr_t</span><span class="p">;</span><span class="cm">/* 一个四字节的描述符 */</span>
+<span class="k">struct</span> <span class="n">in_addr</span>
+  <span class="p">{</span>
+    <span class="n">in_addr_t</span> <span class="n">s_addr</span><span class="p">;</span>
+  <span class="p">};</span>
+</code></pre></div></div>
+
+<h4 id="1524-命名套接字">15.2.4 命名套接字</h4>
+
+<p>使用bind函数可以让创建的套接字可以被其它进程使用，服务器程序必须给套接字命名。这样<code class="language-plaintext highlighter-rouge">AF_UNIX</code>套接字就会关联到一个文件系统的路径名。AF_INET就会关联到一个IP端口号。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">bind</span><span class="p">(</span><span class="kt">int</span> <span class="n">socket</span><span class="p">,</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">address</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">address_len</span><span class="p">);</span>
+</code></pre></div></div>
+<p>bind将address中的地址分配给与文件描述符socket关联的未命名套接字。地址长度由address_len传递。</p>
+
+<p><strong>地址的长度和格式取决于地址族</strong>，然后bind调用一个特定的地址结构指针转换为指向通用的地址类型(struct sockaddr*);调用成功返回0，失败返回-1，并设置errno为表15-2中的一个值</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-23-21-07-48.png" alt="套接字域和错误码"></p>
+
+<h4 id="1525-创建套接字队列">15.2.5 创建套接字队列</h4>
+
+<p>服务器程序必须创建一个队列来保存未处理的请求。使用<code class="language-plaintext highlighter-rouge">listen</code>系统调用来完成这项工作。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">listen</span><span class="p">(</span><span class="kt">int</span> <span class="n">socket</span><span class="p">,</span><span class="kt">int</span> <span class="n">backlog</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>backlog设置接收队列长度的值。Linux系统中也对可以容纳的未处理连接的最大数目做出限制。多出的连接将被拒绝。常用参数值是5。</p>
+
+<h4 id="1526-接受连接">15.2.6 接受连接</h4>
+
+<p>服务器通过accept接受来自客户的等待队列的事件处理和连接:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">accept</span><span class="p">(</span><span class="kt">int</span> <span class="n">socket</span><span class="p">,</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">address</span><span class="p">,</span><span class="kt">size_t</span> <span class="o">*</span><span class="n">address_len</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>accept只有当排队的第一个未处理程序，试图连接到由socket参数指定的套接字上时才返回。accept函数将创建一个新套接字来与该客户进行通信，并返回新套接字的描述符。新套接字的类型和服务器监听套接字类型是一样的。</p>
+
+<p><strong>注意：套接字必须事先bind调用命名，并且由listen调用分配给它一个连接队列。</strong> 连接客户段的之地将被放入address参数指向的sockaddr结构中。也可以将其指定为空。</p>
+
+<p>参数address_len指定客户地址结构的长度，超过则会被截断。因此address_len必须被设置为预期的地址长度。当调用返回时，长度会被设置成客户地址结构的实际长度。</p>
+
+<p>如果等待队列为空，贼accept将会阻塞(程序将暂停)直到有客户建立连接为止。我们可以通过对套接字文件描述符设置<code class="language-plaintext highlighter-rouge">O_NONBLOCK</code>标志来改变这个行为。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">flags</span><span class="o">=</span><span class="n">fcntl</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span><span class="n">F_GETFL</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">fcntl</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span><span class="n">F_SETFL</span><span class="p">,</span><span class="n">O_NONBLOCK</span><span class="o">|</span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>当有未处理的客户连接时，accept函数将返回一个新的套接字文件描述符。发生错误时返回-1，<code class="language-plaintext highlighter-rouge">O_NONBLOCK</code>对应<code class="language-plaintext highlighter-rouge">EWOULDBLOCK</code>错误，后者是当进程阻塞在accept调用时，执行被中断而产生的错误。</p>
+
+<h4 id="1527-请求连接">15.2.7 请求连接</h4>
+
+<p>客户端使用未命名套接字和服务器监听套接字之间建立连接的方法来连接到服务器。它们通过connect调用来完成这个工作。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">connect</span><span class="p">(</span><span class="kt">int</span> <span class="n">socket</span><span class="p">,</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">address</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">address_len</span><span class="p">);</span>
+</code></pre></div></div>
+<p>socket指定的套接字是通过socket调用获得的一个有效的文件描述符。connect调用成功返回0，失败返回-1.可能的错误代码如下：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-24-10-14-07.png" alt="可能存在的错误码"></p>
+
+<p>如果不能立刻建立连接，connect将调用阻塞一段不确定的时间。一旦超过这个时间到达，连接将被放弃。connect调用失败。但如果连接被信号中断，该信号又得到了处理，connect调用还是会失败，但是连接尝试并不会被放弃。而是以异步的方式继续建立。</p>
+
+<h4 id="1528-关闭套接字">15.2.8 关闭套接字</h4>
+
+<p>使用close来关闭套接字。服务器read返回0时关闭套接字;但如果套接字是一个面向连接类型的，并且设置了SOCK_LINGER选项，close调用会在该套接字还有未传输数据时阻塞。</p>
+
+<h4 id="1529-套接字通信">15.2.9 套接字通信</h4>
+
+<p>应该尽量使用网络socket，文件系统的socket的缺点是，操作系统创建的套接字将创建子啊服务器程序的当前目录下。对于网路socket只需要选择一个未被使用的端口号即可。</p>
+
+<p>端口号以及它们提供的服务通常都列在系统文件<code class="language-plaintext highlighter-rouge">/etc/services</code>中。</p>
+
+<p>下面是一个修改过的客户端程序client2.c，它通过回路网络连接到一个网络套接字。这个程序有一个硬件相关的细微错误，我们将在本章的后面再讨论它</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;netinet/in.h&gt;
+</span>
+<span class="cp">#include &lt;arpa/inet.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">sockfd</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">address</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="n">ch</span><span class="o">=</span><span class="sc">'A'</span><span class="p">;</span>
+  <span class="c1">//为客户创建一个socket</span>
+
+  <span class="n">sockfd</span><span class="o">=</span><span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">SOCK_STREAM</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+  <span class="c1">//命名套接字，与服务器保持一致</span>
+
+  <span class="n">address</span><span class="p">.</span><span class="n">sin_family</span><span class="o">=</span><span class="n">AF_INET</span><span class="p">;</span>
+  <span class="n">address</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span><span class="o">=</span><span class="n">inet_addr</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">);</span>
+  <span class="n">address</span><span class="p">.</span><span class="n">sin_port</span><span class="o">=</span><span class="mi">9734</span><span class="p">;</span>
+  <span class="n">len</span><span class="o">=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">address</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>这个程序会查找本地的9734端口。</p>
+
+<p>服务器端(server2.c)需要添加的设置如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;netinet/in.h&gt;
+</span>
+<span class="cp">#include &lt;arpa/inet.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">server_sockfd</span><span class="p">,</span><span class="n">client_sockfd</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">server_len</span><span class="p">,</span><span class="n">client_len</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">server_address</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">client_address</span><span class="p">;</span>
+  <span class="c1">//创建一个未命名的套接字</span>
+
+  <span class="n">server_sockfd</span><span class="o">=</span><span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">SOCK_STREAM</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+  <span class="c1">//设置套接字名字</span>
+
+  <span class="n">server_address</span><span class="p">.</span><span class="n">sin_family</span><span class="o">=</span><span class="n">AF_INET</span><span class="p">;</span>
+  <span class="n">server_address</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span><span class="o">=</span><span class="n">inet_addr</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">);</span>
+  <span class="n">server_address</span><span class="p">.</span><span class="n">sin_port</span><span class="o">=</span><span class="mi">9734</span><span class="p">;</span>
+  <span class="n">server_len</span><span class="o">=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">server_address</span><span class="p">);</span>
+  <span class="n">bind</span><span class="p">(</span><span class="n">server_socked</span><span class="p">,(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">server_address</span><span class="p">,</span><span class="n">server_len</span><span class="p">);</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="15210-主机字节序和网络字节序">15.2.10 主机字节序和网络字节序</h3>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">netstat</code>命令来查看网络连接状况。</p>
+
+<h3 id="153-网络信息">15.3 网络信息</h3>
+
+<p>一般可以通过网络信息函数决定应该使用的地址和端口号</p>
+
+<p>可以将自己的服务添加到/etc/services文件中的已知服务列表中。并且在这个文件中为端口号分配一个名字，使用户可以使用符号化的服务名字而不是端口号的名字。</p>
+
+<p>主句地址映射函数定义在netdb.h中，函数接口如下所示：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;netdb.h&gt;
+</span><span class="cm">/* 查询host地址 */</span>
+
+<span class="k">struct</span> <span class="n">hostent</span> <span class="o">*</span><span class="nf">gethostbyaddr</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span><span class="kt">int</span> <span class="n">type</span><span class="p">);</span>
+<span class="k">struct</span> <span class="n">hostent</span> <span class="o">*</span><span class="nf">gethostbyname</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">);</span>
+<span class="cm">/* 查询端口号相关信息 */</span>
+
+<span class="k">struct</span> <span class="n">servent</span> <span class="o">*</span><span class="nf">getservbyname</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">proto</span><span class="p">);</span>
+<span class="k">struct</span> <span class="n">servent</span> <span class="o">*</span><span class="nf">getservbyport</span><span class="p">(</span><span class="kt">int</span> <span class="n">port</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">proto</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>返回的hostnet和event结构中至少包含一下几个成员:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">hostent</span><span class="p">{</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">h_name</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">**</span><span class="n">h_aliases</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">h_addrtype</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">h_length</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">servent</span><span class="p">{</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">s_name</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">**</span><span class="n">s_aliases</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">s_port</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">s_proto</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>要把返回的地址列表转换为正确的地址类型，并用函数<code class="language-plaintext highlighter-rouge">inet_ntoa</code>将它们从网络字节序转换为可打印的字符。函数<code class="language-plaintext highlighter-rouge">inet_ntoa</code>的定义如下。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;arpa/inet.h&gt;
+</span><span class="c1">//将一个intel主机地址转换为一个点四元组格式的字符串，它在失败时返回-1,</span>
+
+<span class="kt">char</span> <span class="o">*</span><span class="nf">inet_ntoa</span><span class="p">(</span><span class="k">struct</span> <span class="n">in_addr</span> <span class="n">in</span><span class="p">);</span>
+
+<span class="cp">#include &lt;unistd.h&gt;
+</span><span class="c1">//将当前主机的名字写入name指向的字符串中。主机名以null结尾。参数namelength指定了字符串name的长度。如果主机名太长会被截断</span>
+
+<span class="kt">int</span> <span class="nf">gethostname</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="kt">int</span> <span class="n">namelength</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>下面使用getname.c来获取一台主机的信息</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*  As usual, make the appropriate includes and declare the variables.  */</span>
+
+<span class="cp">#include &lt;netinet/in.h&gt;
+</span>
+<span class="cp">#include &lt;arpa/inet.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;netdb.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span> <span class="o">**</span><span class="n">names</span><span class="p">,</span> <span class="o">**</span><span class="n">addrs</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">hostent</span> <span class="o">*</span><span class="n">hostinfo</span><span class="p">;</span>
+
+<span class="cm">/* 将host变量设置为getname程序所提供的命令行参数，或默认设置为用户主机的主机名 */</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">char</span> <span class="n">myname</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+        <span class="n">gethostname</span><span class="p">(</span><span class="n">myname</span><span class="p">,</span> <span class="mi">255</span><span class="p">);</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">myname</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="cm">/* 调用gethostname,如果未找到相应的信息就报告一条错误 */</span>
+
+    <span class="n">hostinfo</span> <span class="o">=</span> <span class="n">gethostbyname</span><span class="p">(</span><span class="n">host</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">hostinfo</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"cannot get info for host: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">host</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="cm">/* 显示主机名和它可能有的所有别名 */</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"results for host %s:</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">host</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Name: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">hostinfo</span> <span class="o">-&gt;</span> <span class="n">h_name</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Aliases:"</span><span class="p">);</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">hostinfo</span> <span class="o">-&gt;</span> <span class="n">h_aliases</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">names</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">" %s"</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">);</span>
+        <span class="n">names</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+<span class="cm">/* 如果查询的主机不是一个IP主机，就发出警告并退出 */</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">hostinfo</span> <span class="o">-&gt;</span> <span class="n">h_addrtype</span> <span class="o">!=</span> <span class="n">AF_INET</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"not an IP host!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="cm">/* 否则，显示它的所有IP地址 */</span>
+
+    <span class="n">addrs</span> <span class="o">=</span> <span class="n">hostinfo</span> <span class="o">-&gt;</span> <span class="n">h_addr_list</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">addrs</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">" %s"</span><span class="p">,</span> <span class="n">inet_ntoa</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="k">struct</span> <span class="nc">in_addr</span> <span class="o">*</span><span class="p">)</span><span class="o">*</span><span class="n">addrs</span><span class="p">));</span>
+        <span class="n">addrs</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+
+</code></pre></div></div>
+
+<p>下面是连接到标准服务，查看服务器的当前日期和时间</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cm">/* 准备必要的头文件 */</span>
+
+<span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="cp">#include &lt;netinet/in.h&gt;
+</span>
+<span class="cp">#include &lt;netdb.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len</span><span class="p">,</span> <span class="n">result</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">address</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">hostent</span> <span class="o">*</span><span class="n">hostinfo</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">servent</span> <span class="o">*</span><span class="n">servinfo</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="s">"localhost"</span><span class="p">;</span>
+    <span class="k">else</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="cm">/* 查找host对应的信息 */</span>
+
+    <span class="n">hostinfo</span> <span class="o">=</span> <span class="n">gethostbyname</span><span class="p">(</span><span class="n">host</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">hostinfo</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"no host: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">host</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="cm">/* 查找主机时间服务信息 */</span>
+
+    <span class="n">servinfo</span> <span class="o">=</span> <span class="n">getservbyname</span><span class="p">(</span><span class="s">"daytime"</span><span class="p">,</span> <span class="s">"tcp"</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">servinfo</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">"no daytime service</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"daytime port is %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ntohs</span><span class="p">(</span><span class="n">servinfo</span> <span class="o">-&gt;</span> <span class="n">s_port</span><span class="p">));</span>
+
+<span class="cm">/* 创建一个socket */</span>
+
+    <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="cm">/* 设置对应的连接参数 */</span>
+
+    <span class="n">address</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">address</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">servinfo</span> <span class="o">-&gt;</span> <span class="n">s_port</span><span class="p">;</span>
+    <span class="n">address</span><span class="p">.</span><span class="n">sin_addr</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="k">struct</span> <span class="nc">in_addr</span> <span class="o">*</span><span class="p">)</span><span class="o">*</span><span class="n">hostinfo</span> <span class="o">-&gt;</span> <span class="n">h_addr_list</span><span class="p">;</span>
+    <span class="n">len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">address</span><span class="p">);</span>
+
+<span class="cm">/* 连接并且获取相关信息 */</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">address</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"oops: getdate"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+    <span class="n">buffer</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="err">'</span><span class="o">&lt;!</span><span class="n">JEKYLL</span><span class="err">@</span><span class="mi">2780</span><span class="err">@</span><span class="mi">41</span><span class="o">&gt;</span><span class="err">'</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"read %d bytes: %s"</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="1531-因特网守护进程xinetedinetd">15.3.1 因特网守护进程(xineted/inetd)</h4>
+
+<p>超级服务程序同时监听许多端口地址上的连接。当有客户端连接到某项服务时，守护进程就运行相应的服务器。这使得针对各项网络服务的服务器不需要一直运行着。可以在需要时启动。</p>
+
+<p>因特网守护进程在现代linux系统中是通过xinetd来实现的。xinetd实现方式取代了原来的UNIX的inetd。可以直接修改<code class="language-plaintext highlighter-rouge">/etc/xinetd.conf</code>和<code class="language-plaintext highlighter-rouge">/etc/xinetd.d</code>目录中的文件来进行配置。</p>
+
+<h4 id="1532-套接字选项">15.3.2 套接字选项</h4>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">setsocket</code>函数用于控制这些选项。它的定义如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">setsocket</span><span class="p">(</span><span class="kt">int</span> <span class="n">socket</span><span class="p">,</span><span class="kt">int</span> <span class="n">level</span><span class="p">,</span><span class="kt">int</span> <span class="n">option_name</span><span class="p">,</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">option_value</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">option_len</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>level是相关的协议等级，想要正常使用，必须设置对应的编号。option_name和option_value分别指向需要设置参数名称和值。level设置参数如下</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-25-22-16-47.png" alt="相关参数设置"></p>
+
+<h4 id="1541-select系统调用">15.4.1 select系统调用</h4>
+
+<p>在编写Linux程序时，经常会遇到需要检查键盘等设备的输入而不得不进行忙等待循环。这种比较消耗CPU时间。</p>
+
+<p>select系统调用允许程序同时在多个底层文件描述符上等待输入的到达。主要是对数据结构<code class="language-plaintext highlighter-rouge">fd_set</code>进行操作，它是由打开的文件描述符构成的集合。有一组定义好的宏可以来控制这个集合。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/time.h&gt;
+</span>
+<span class="cm">/* 将fd_set初始化为空 */</span>
+<span class="kt">void</span> <span class="nf">FD_ZERO</span><span class="p">(</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">fdset</span><span class="p">);</span>
+<span class="cm">/* 清除传递的文件符 */</span>
+<span class="kt">void</span> <span class="nf">FD_CLR</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">fdset</span><span class="p">);</span>
+<span class="cm">/* 设置传递的文件符 */</span>
+<span class="kt">void</span> <span class="nf">FD_SET</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">fdset</span><span class="p">);</span>
+<span class="cm">/* 检查fd设置的文件描述符是否是fdset集合中的元素 */</span>
+<span class="kt">void</span> <span class="nf">FD_ISSET</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">fdset</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>select函数可以设置一个超时来防止无限期的阻塞。这个超时值由一个timeval结构给出。这个结构定义在头文件<code class="language-plaintext highlighter-rouge">sys/time.h</code>中，它由以下几个成员组成:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">timeval</span><span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">tv_sec</span><span class="p">;</span> <span class="cm">/* seconds */</span>
+    <span class="kt">long</span>   <span class="n">tv_usec</span><span class="p">;</span> <span class="cm">/* microseconds */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>select系统调用的原型如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/time.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">select</span><span class="p">(</span><span class="kt">int</span> <span class="n">nfds</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">readfds</span><span class="p">,</span><span class="n">fd_set</span> <span class="o">*</span><span class="n">writefds</span><span class="p">,</span> <span class="n">fd_set</span> <span class="o">*</span><span class="n">errorfds</span><span class="p">,</span><span class="k">struct</span> <span class="n">timeval</span> <span class="o">*</span><span class="n">timeout</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>nfds指定需要测试的文件描述符数目，测试的描述符范围从0到nfds-1。3个描述符集合都可以被设置为空指针，这表示不执行相应的测试。</p>
+
+<p>select函数会在以下情况时返回:</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">readfds</code>：集合中有描述符可读</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">writefds</code>：集合中有描述符可写</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">errorfds</code>：集合中有描述符遇到错误条件</li>
+</ul>
+
+<p>如果以上三种条件都没有发生，select将在timeout指定的超时时间经过后返回。如果timeout参数是一个空指针并且套接字上也没有任何活动，这个调用将一直阻塞下去。</p>
+
+<p>下面是一个简单的select调用实验：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 开始和必要的头文件 */</span>
+
+<span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/time.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;fcntl.h&gt;
+</span>
+<span class="cp">#include &lt;sys/ioctl.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">result</span><span class="p">,</span> <span class="n">nread</span><span class="p">;</span>
+
+    <span class="n">fd_set</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">testfds</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">timeval</span> <span class="n">timeout</span><span class="p">;</span>
+
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">inputs</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">inputs</span><span class="p">);</span>
+
+<span class="cm">/*  设置标准输入最多等待输入2.5s  */</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">testfds</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">;</span>
+        <span class="n">timeout</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="n">timeout</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">=</span> <span class="mi">500000</span><span class="p">;</span>
+        <span class="cm">/* 进行选择等待输入 */</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">FD_SETSIZE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">testfds</span><span class="p">,</span> <span class="p">(</span><span class="n">fd_set</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">fd_set</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">timeout</span><span class="p">);</span>
+
+<span class="cm">/*  经过这段时间之后，对result进行测试。如果没有输入，程序将再次循环，出现一个错误，程序将退出运行  */</span>
+
+        <span class="k">switch</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"timeout</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"select"</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="cm">/* 如果在等待期间，对文件描述符采取了一些动嘴，程序将读取标准输入stdin上的输入，并在接收到行尾字符之后将他们都回显到屏幕上。ctrl+D，就退出程序 */</span>
+
+        <span class="nl">default:</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">testfds</span><span class="p">))</span> <span class="p">{</span>
+                <span class="n">ioctl</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">FIONREAD</span><span class="p">,</span><span class="o">&amp;</span><span class="n">nread</span><span class="p">);</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="n">printf</span><span class="p">(</span><span class="s">"keyboard done</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="n">nread</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">nread</span><span class="p">);</span>
+                <span class="n">buffer</span><span class="p">[</span><span class="n">nread</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"read %d from keyboard: %s"</span><span class="p">,</span> <span class="n">nread</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="1542-多客户端">15.4.2 多客户端</h4>
+
+<p>服务器可以让select调用同时检查监听套接字和客户端的连接套接字。一旦select调用指示有活动发生，就可以用FD_ISSET来遍历所有可能的文件描述符，以检查是哪个上面有活动发生。然后调用accept而不用担心发生阻塞的可能。如果是一个客户描述符，则该描述符上有一个客户端请求需要我们读取和处理。如果读取返回0个字节，这表示有一个客户进程已经结束，你可以关闭该套接字并把它从集合中删除。</p>
+
+<p>下面是一个简单的使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*  For our final example, server5.c, 
+    we include the sys/time.h and sys/ioctl.h headers in place of signal.h
+    in our last program and declare some extra variables to deal with select.  */</span>
+
+<span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;netinet/in.h&gt;
+</span>
+<span class="cp">#include &lt;sys/time.h&gt;
+</span>
+<span class="cp">#include &lt;sys/ioctl.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">server_sockfd</span><span class="p">,</span> <span class="n">client_sockfd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">server_len</span><span class="p">,</span> <span class="n">client_len</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">server_address</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">client_address</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
+    <span class="n">fd_set</span> <span class="n">readfds</span><span class="p">,</span> <span class="n">testfds</span><span class="p">;</span>
+
+    <span class="cm">/* 为服务器创建一个TCP socket描述符 */</span>
+
+    <span class="n">server_sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="cm">/* 设置socket属性 */</span>
+    <span class="n">server_address</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+    <span class="n">server_address</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">INADDR_ANY</span><span class="p">);</span>
+    <span class="n">server_address</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="mi">9734</span><span class="p">);</span>
+    <span class="n">server_len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">server_address</span><span class="p">);</span>
+
+    <span class="n">bind</span><span class="p">(</span><span class="n">server_sockfd</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">server_address</span><span class="p">,</span> <span class="n">server_len</span><span class="p">);</span>
+
+<span class="cm">/*  创建一个连接队列，初始化readfds以处理来自server_sockfd的输入  */</span>
+
+    <span class="n">listen</span><span class="p">(</span><span class="n">server_sockfd</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+<span class="cm">/* 初始化set集合 */</span>
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">server_sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+
+<span class="cm">/* 在while循环中等待客户和请求的到来。 */</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">char</span> <span class="n">ch</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">nread</span><span class="p">;</span>
+
+        <span class="n">testfds</span> <span class="o">=</span> <span class="n">readfds</span><span class="p">;</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"server waiting</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="cm">/* 注意这里timeout参数传递的是一个空指针，因此select调用将不会发生超时状况 */</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">FD_SETSIZE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">testfds</span><span class="p">,</span> <span class="p">(</span><span class="n">fd_set</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">fd_set</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">timeval</span> <span class="o">*</span><span class="p">)</span> <span class="mi">0</span><span class="p">);</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">result</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"server5"</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+
+ <span class="cm">/* 一旦有活动发生，可以使用FD_ISSET来依次检查每个描述符，以发现活动发生在那个描述符上 */</span>
+
+        <span class="k">for</span><span class="p">(</span><span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">fd</span> <span class="o">&lt;</span> <span class="n">FD_SETSIZE</span><span class="p">;</span> <span class="n">fd</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">testfds</span><span class="p">))</span> <span class="p">{</span>
+
+<span class="cm">/* 活动发生在server_sockfd上，它肯定是一个新的连接请求，将相关client_sockfd添加到描述符集合中 */</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="n">server_sockfd</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="n">client_len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">client_address</span><span class="p">);</span>
+                    <span class="n">client_sockfd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">server_sockfd</span><span class="p">,</span>
+                        <span class="p">(</span><span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">client_address</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">client_len</span><span class="p">);</span>
+                    <span class="n">FD_SET</span><span class="p">(</span><span class="n">client_sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+                    <span class="n">printf</span><span class="p">(</span><span class="s">"adding client on fd %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">client_sockfd</span><span class="p">);</span>
+                <span class="p">}</span>
+
+<span class="cm">/*  没有发生在服务器socket server_sockfd上,则是一个新的连接请求生成相关的client_sockfd添加到描述符集合中 */</span>
+
+                <span class="k">else</span> <span class="p">{</span>
+                    <span class="n">ioctl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">FIONREAD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">nread</span><span class="p">);</span>
+                    <span class="c1">//判断是否是离开的请求，如果是就直接将其文件描述符删除</span>
+
+                    <span class="k">if</span><span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+                        <span class="n">FD_CLR</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+                        <span class="n">printf</span><span class="p">(</span><span class="s">"removing client on fd %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="c1">//否则直接进行读取和输出</span>
+
+                    <span class="k">else</span> <span class="p">{</span>
+                        <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ch</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+                        <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+                        <span class="n">printf</span><span class="p">(</span><span class="s">"serving client on fd %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
+                        <span class="n">ch</span><span class="o">++</span><span class="p">;</span>
+                        <span class="n">write</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ch</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="155-数据报udp">15.5 数据报(UDP)</h3>
+
+<p>UDP使用的是不稳定链接，因此不需要进行过多的更改和连接状态的确定。UDP在局域网中非常可靠。一样使用套接字和close系统调用，但是需要使用<strong>sendto和recvfrom</strong>来代替原来使用在套接字上的read和write调用。下面是一个修改过的getdate.c版本</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/socket.h&gt;
+</span>
+<span class="cp">#include &lt;netinet/in.h&gt;
+</span>
+<span class="cp">#include &lt;netdb.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="c1">//host主机地址</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len</span><span class="p">,</span><span class="n">result</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">address</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">hostent</span> <span class="o">*</span><span class="n">hostinfo</span><span class="p">;</span>
+
+    <span class="k">struct</span> <span class="nc">servent</span> <span class="o">*</span><span class="n">serinfo</span><span class="p">;</span>
+    <span class="c1">//缓冲buffer队列</span>
+
+    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">host</span><span class="o">=</span><span class="s">"localhost"</span><span class="p">;</span>
+    <span class="k">else</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="cm">/* 通过名字在host中查找对用的ip地址和信息 */</span>
+    <span class="n">hostinfo</span><span class="o">=</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">host</span><span class="p">);</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">hostinfo</span><span class="p">){</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">"no host: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">host</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* 确认服务器时钟 */</span>
+    <span class="n">servinfo</span><span class="o">=</span><span class="n">getservbyname</span><span class="p">(</span><span class="s">"daytime"</span><span class="p">,</span><span class="s">"udp"</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">servinfo</span><span class="p">){</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">"no daytime service </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"daytime port is %d </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">ntohs</span><span class="p">(</span><span class="n">servinfo</span><span class="o">-&gt;</span><span class="n">s_port</span><span class="p">));</span>
+    <span class="cm">/* 创建一个udp socket */</span>
+
+    <span class="n">sockfd</span><span class="o">=</span><span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">SOCK_DGRAM</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="cm">/* 设置address相关参数 */</span>
+    <span class="n">address</span><span class="p">.</span><span class="n">sin_family</span><span class="o">=</span><span class="n">AF_INEF</span><span class="p">;</span>
+    <span class="n">address</span><span class="p">.</span><span class="n">sin_port</span><span class="o">=</span><span class="n">servinfo</span><span class="o">-&gt;</span><span class="n">s_port</span><span class="p">;</span>
+    <span class="n">address</span><span class="p">.</span><span class="n">sin_addr</span><span class="o">=*</span><span class="p">(</span><span class="k">struct</span> <span class="nc">in_addr</span><span class="o">*</span><span class="p">)</span><span class="o">*</span><span class="n">hostinfo</span><span class="o">-&gt;</span><span class="n">h_addr_list</span><span class="p">;</span>
+    <span class="n">len</span><span class="o">=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">address</span><span class="p">);</span>
+    <span class="cm">/* 进行消息发送 */</span>
+    <span class="n">result</span><span class="o">=</span><span class="n">sendto</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,(</span><span class="k">struct</span> <span class="nc">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">address</span><span class="p">,</span><span class="n">len</span><span class="p">);</span>
+    <span class="cm">/* 返回接收的最后位置 */</span>
+    <span class="n">result</span><span class="o">=</span><span class="n">recvfrom</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="mi">0</span><span class="p">),(</span><span class="k">struct</span> <span class="nc">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">address</span><span class="p">,</span><span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+    <span class="n">buffer</span><span class="p">[</span><span class="n">result</span><span class="p">]</span><span class="o">=</span><span class="err">'</span><span class="o">&lt;!</span><span class="n">JEKYLL</span><span class="err">@</span><span class="mi">2780</span><span class="err">@</span><span class="mi">56</span><span class="o">&gt;</span><span class="err">'</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"read %d bytes:% s"</span><span class="p">.</span><span class="n">result</span><span class="p">,</span><span class="n">buffer</span><span class="p">);</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>UDP关键函数如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 这里的flags参数一般被设置为0 */</span>
+
+<span class="kt">int</span> <span class="nf">sendto</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span><span class="kt">int</span> <span class="n">flags</span><span class="p">,</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">to</span><span class="p">,</span><span class="n">socklen_t</span> <span class="n">tolen</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">recvfrom</span><span class="p">(</span><span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span><span class="kt">void</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span><span class="kt">int</span> <span class="n">flags</span><span class="p">,</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">from</span><span class="p">,</span><span class="n">socklent_t</span> <span class="o">*</span><span class="n">fromlen</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>上述失败时会返回-1,并设置errno，可能错误表如下所示：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-27-20-41-54.png" alt="错误信息"></p>
+
+<h2 id="第-16-章-使用gtk进行gnome编程">第 16 章 使用GTK+进行gnome编程</h2>
+
+<h3 id="161-x视窗系统简介">16.1 x视窗系统简介</h3>
+
+<p>X服务，运行在用户的本地机器上，在屏幕上完成底层的绘图工作。X服务通过鼠标和键盘监听用户输入，将键盘按键和鼠标点击传输给X客户端应用程序。这个被称为(event)事件。</p>
+
+<h4 id="1612-x客户端">16.1.2 X客户端</h4>
+
+<p>X客户端可以以X视窗作为GUI的任何程序。X客户端不需要和X服务运行在同一台机器上。</p>
+
+<h4 id="1613-x协议">16.1.3 X协议</h4>
+
+<p>X服务器与X客户端之间使用X协议进行通信。这使得客户端和服务器可以通过网络进行分离。</p>
+
+<h4 id="1614-xlib库">16.1.4 Xlib库</h4>
+
+<p>Xlib是X客户端间用于产生X协议消息的库。</p>
+
+<h4 id="1615-x工具包">16.1.5 X工具包</h4>
+<p>X工具包是一个GUI库，X客户端可以利用它来极大地简化窗口、菜单和按钮等的创建。</p>
+
+<h4 id="1616-窗口管理器">16.1.6 窗口管理器</h4>
+
+<p>X中负责定位屏幕上的窗口。窗口管理器通常支持独立的“工作区域”，这些工作区将桌面分割，增大用户可以互交的区域。常见窗口管理器有如下内容:</p>
+
+<ul>
+  <li>Metacity:GNOME桌面的默认窗口管理器</li>
+  <li>KWin:KDE桌面的默认窗口管理器</li>
+  <li>Openbox:旨在节约资源，用于较老的、较慢的系统中。</li>
+  <li>Enlightenment:一个有着出色图形和效果的窗口管理器。</li>
+</ul>
+
+<h3 id="162-gtx简介">16.2 GTX+简介</h3>
+
+<p>GTK+是一个函数库，提供了一组已经制作好的被成为构建的组件。可以使用逻辑组合，极大地简化了GUI的创建。主要函数模块如下：</p>
+
+<ul>
+  <li>GLib:提供底层数据结构、类型、线程支持、事件循环和动态加载</li>
+  <li>GObject:使用c语言而不是C++语言实现了一个面向对象系统</li>
+  <li>Pango:支持文本渲染和布局</li>
+  <li>ATK:用来创建可访问引用程序，并允许用户使用屏幕阅读器和其它协助工具来运行你的程序。</li>
+  <li>GDK(GIMP绘图工具包)：在Xlib之上处理底层图形渲染。</li>
+  <li>GdkPixbuf:在GTK+程序中帮助处理图像。</li>
+  <li>Xlib:在linux和UNIX系统上提供底层图形</li>
+</ul>
+
+<h3 id="1623-gnome简介">16.2.3 GNOME简介</h3>
+
+<p>GTK+之上的一个扩展图像桌面</p>
+
+<h3 id="163-事件信号和回调函数">16.3 事件、信号和回调函数</h3>
+
+<p>这个是所有GUI中都存在的必然相关程序。具体的不再过多赘述。</p>
+
+<h3 id="164-组装盒构建">16.4 组装盒构建</h3>
+
+<p>与QTGUI布局相似，存在<code class="language-plaintext highlighter-rouge">gtk_hbox_new</code>和<code class="language-plaintext highlighter-rouge">gtk_vbox_new</code>等函数。</p>
+
+<h3 id="165-gtk中的对应构件">16.5 GTK+中的对应构件</h3>
+
+<p><em>参考连接：</em></p>
+
+<ul>
+  <li><a href="https://www.cnblogs.com/xchsp/p/4322028.html">GTK+中的构件II(Widgets)</a></li>
+  <li><a href="https://www.cnblogs.com/boer-utopia/articles/2261422.html">GTK+中的构件（GTK+ Widgets）</a></li>
+  <li><a href="https://blog.csdn.net/u012150792/article/details/50607723">GTK+构件</a></li>
+</ul>
+
+<p>GTK+主要构件列表和API如下表：</p>
+
+<ul>
+  <li>GtxWindow:窗口基本元素，用来持有构件
+<img src="https://wangpengcheng.github.io/img/2019-09-27-21-17-17.png" alt="主要窗口层级">
+</li>
+  <li>GtkEntry:单行文本输入构件，用于输入简单的文本信息。
+<img src="https://wangpengcheng.github.io/img/2019-09-27-21-18-49.png" alt="GtkEntry">
+</li>
+  <li>GtkSpinButton:可选数字输入框
+<img src="https://wangpengcheng.github.io/img/2019-09-27-21-20-18.png" alt="GtkSpinButton">
+</li>
+  <li>GtkButton:按钮选项
+<img src="https://wangpengcheng.github.io/img/2019-09-27-21-22-20.png" alt="GtkButton">
+    <ol>
+      <li>GtkToogleButton：
+    <img src="https://wangpengcheng.github.io/img/2019-09-27-21-23-05png" alt="GtkToogleButton">
+</li>
+      <li>GtkCheckButton:单选确认框
+    <img src="https://wangpengcheng.github.io/img/2019-09-27-21-24-32.png" alt="GtkCheckButton">
+</li>
+      <li>GtkRadioButton:圆形按钮
+    <img src="https://wangpengcheng.github.io/img/2019-09-27-21-25-38.png" alt="GtkRadioButton">
+</li>
+    </ol>
+  </li>
+  <li>GtkTreeView:树状结构;
+  <img src="https://wangpengcheng.github.io/img/2019-09-27-21-27-15.png" alt="">
+  其主要组成部分如下：
+    <ul>
+      <li>GtkTreeView:树和列表视图</li>
+      <li>GtkTreeViewColumn:代表一个列表或树的列</li>
+      <li>GtkCellRenderer:控制绘图单元</li>
+      <li>GtkTreeModel:代表树和列表数据</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="167-gnome菜单">16.7 GNOME菜单</h3>
+<p>就是Qt中的QMenu选项，主要结构和内容如下：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-27-21-31-02.png" alt="下拉菜单选项"></p>
+
+<h3 id="168-对话框">16.8 对话框</h3>
+
+<h4 id="1681-gtkdialog">16.8.1 GtkDialog</h4>
+<p>GtkDialog是GtkWindow的一个子类，继承了其所有函数和属性：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-27-21-32-59.png" alt="GtkDialog"></p>
+
+<h4 id="1682-模式对话框">16.8.2 模式对话框</h4>
+
+<p>设置GTK_DIALOG_MODEAL标记和调用gtk_widget_show函数，将一个对话框转变为模式对话框。可以使用gtk_dialog_run通过阻止程序的进一步执行。返回对应的选择的结果类型。</p>
+
+<h4 id="1683-非模式对话框">16.8.3 非模式对话框</h4>
+
+<p>不使用gtk_dialog_run而是使用GtkDialog的“response”信号(按钮按下或窗口被关闭时发出)。将回调函数连接到信号，但是存在一个额外的response参数。</p>
+
+<h4 id="1684-gtkmessagedialog">16.8.4 GtkMessageDialog</h4>
+
+<p>一个简单对话框</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-27-21-38-53.png" alt="GtkMessageDialog"></p>
+
+<p>还可以选择一个GTK_MESSAGE_OTHER值如下</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-27-21-40-09.png" alt="GTK_MESSAGE_OTHER"></p>
+
+<h2 id="第-17-章-使用qt进行kde编程">第 17 章 使用Qt进行KDE编程</h2>
+
+<p>这个不需要多说了,看参考连接。。。。</p>
+
+<p><em>参考连接：</em></p>
+
+<ul>
+  <li><a href="https://doc.qt.io/qt-5/reference-overview.html">Qt Documentation</a></li>
+</ul>
+
+<h2 id="第-18-章-linux标准">第 18 章 Linux标准</h2>
+
+<h3 id="181-c语言编程标准">18.1 C语言编程标准</h3>
+
+<p>没什么好说的</p>
+
+<h3 id="182-接口和lsb">18.2 接口和LSB</h3>
+
+<p>c语言之上，高一个层次由操作系统提供的接口(系统接口)。</p>
+
+<p>权威文档是<a href="https://www.linuxbase.org">LSB</a>。</p>
+
+<p>Linux中的常见系统运行级别表</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-28-10-01-02.png" alt="运行级别"></p>
+
+<p><code class="language-plaintext highlighter-rouge">/etc/init.d/</code>目录下存在不同的脚本，提供其服务相关联的名字</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-28-10-03-08.png" alt="配置脚本目录"></p>
+
+<h3 id="183-文件系统层次结构标准">18.3 文件系统层次结构标准</h3>
+
+<p><a href="https://www.pathname.com/fhs/">层次结构标准</a>,主要目的是定义Linux文件系统的标准路径。
+下面是一些顶级目录结构和一些必须存在的子目录和一小部分可选目录</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-28-10-07-35.png" alt="目录结构"></p>
+
+<h3 id="184-更多标准">18.4 更多标准</h3>
+
+<p>查看一下参考连接获取相关资料</p>
+
+<ul>
+  <li><a href="http://www.openi18n.org/">事物标准化</a></li>
+  <li>
+<a href="http://www.gnu.org">GNU网站</a>s</li>
+</ul>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/09/18/beginning_linux_programming_04/" data-toggle="tooltip" data-placement="top" title="Linux程序设计 学习笔记 (四)">
+                        Previous<br>
+                        <span>Linux程序设计 学习笔记 (四)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/09/18/understanding_the_linux_kernel_01/" data-toggle="tooltip" data-placement="top" title="深入理解Linux内核 学习笔记 (一)">
+                        Next<br>
+                        <span>深入理解Linux内核 学习笔记 (一)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

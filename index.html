@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Page Header -->
+<header class="intro-header" style="background-image: url('/img/post-bg-desk.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 ">
+                <div class="site-heading">
+                    <h1>My Blog</h1>
+                    <!--<hr class="small">-->
+                    <span class="subheading">Thinking will not overcome fear but action will.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+	<div class="row">
+        
+
+<!-- USE SIDEBAR -->
+    <!-- PostList Container -->
+    		<div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                postlist-container
+            ">
+    			
+<div class="post-preview">
+    <a href="/2024/08/14/gateway_desgin/">
+        <h2 class="post-title">
+            微服务API网关设计
+        </h2>
+        
+        <h3 class="post-subtitle">
+            分布式微服务接入网关设计
+        </h3>
+        
+        <div class="post-content-preview">
+            
+  2024-09-12 14:20:58
+
+
+参考链接：
+
+
+  腾讯蓝鲸API网关
+  微服务API网关Kong
+  南北向网关：apache API six 
+  spring-cloud-gateway
+  开源API网关manba
+  云原生API网关higress
+  k8s网关方案Envoy
+  lura API GATEWAY
+  go-kratos-gateway
+
+
+背...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on August 14, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/08/14/distributed_multi_level_cache/">
+        <h2 class="post-title">
+            分布式多级缓存
+        </h2>
+        
+        <h3 class="post-subtitle">
+            分布式多级缓存学习笔记
+        </h3>
+        
+        <div class="post-content-preview">
+            
+  2024-08-14 15:20:58
+
+
+参考链接：
+
+
+  gin-cache
+  beego-cache
+  bigcache
+  分布式多级缓存SDK设计的思考
+  实战干货–分布式多级缓存设计方案
+  常见缓存更新策略
+  jetcache-go多级缓存
+  统一缓存帝国 - 实战 Spring Cache
+  Golang 高性能无 GC 的缓存库 bigcache 是怎么...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on August 14, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/07/25/libvirt_code_learn/">
+        <h2 class="post-title">
+            libvirt源码学习
+        </h2>
+        
+        <h3 class="post-subtitle">
+            libvirt源码学习笔记(一)
+        </h3>
+        
+        <div class="post-content-preview">
+            
+  2024-07-28 19:57:58
+
+
+参考链接：
+
+
+  libvirt 源码分析 ——virsh
+  libvirt API DOC
+  libvirt源码分析——libvirtd的初始化
+  libvirt初始化流程分析
+  libvirt代码调用流程分析
+  Libvirt Event Loop简介
+
+
+qemu源码分析
+
+
+  glib事件处理框架分析
+  深入理解qem...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on July 25, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/07/25/sr-iov_learn/">
+        <h2 class="post-title">
+            SR-IOV调研学习
+        </h2>
+        
+        <h3 class="post-subtitle">
+            SR-IOV调研学习笔记(一)
+        </h3>
+        
+        <div class="post-content-preview">
+            
+  2024-07-26 14:41:58
+
+
+参考链接：
+
+
+  ConnectX-5网卡
+  SR-IOV是什么？性能能好到什么程度？
+  SR-IOV指南
+  red-hat#配置SR-IOV网络
+  SR-IOV设置
+  sr-iov相关文档配置
+  Mellanox CX6 vdpa 硬件卸载 ovs-kernel 方式
+  vdpa-deployment
+  vdpa配置
+  ...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on July 25, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/07/16/kubernetes_learn/">
+        <h2 class="post-title">
+            kubernetes学习
+        </h2>
+        
+        <h3 class="post-subtitle">
+            kubernetes学习笔记(一)
+        </h3>
+        
+        <div class="post-content-preview">
+            
+  2024-07-23 15:41:58
+
+
+参考链接：
+
+
+  kubernetes官方文档
+  对应书籍
+
+
+
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on July 16, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/07/16/process_engine_technology_research/">
+        <h2 class="post-title">
+            流程引擎技术调研
+        </h2>
+        
+        <h3 class="post-subtitle">
+            流程引擎技术调研
+        </h3>
+        
+        <div class="post-content-preview">
+            
+  2024-07-16 15:41:58
+
+
+参考链接：
+
+
+  技术选型与调研-流程引擎(工作流引擎–BPM引擎)：Activiti、Flowable、Camunda
+  流程引擎架构设计
+  如何设计一个流程引擎
+  fixflow中国最好的流程引擎
+  流程引擎比较分析
+  
+    规则引擎和流程引擎我该怎么理解
+  
+  compileflow 阿里开源流程引擎
+  goflo...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on July 16, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/07/14/virtio_learn/">
+        <h2 class="post-title">
+            virtio学习笔记
+        </h2>
+        
+        <h3 class="post-subtitle">
+            virtio 基础学习笔记
+        </h3>
+        
+        <div class="post-content-preview">
+            参考链接：
+
+
+  virtio简介（一）—— 框架分析
+  VIRTIO官网
+  vdpa优化
+  linux-virtio
+  libvirt-virtio
+  详解：VirtIO Networking 虚拟网络设备实现架构
+  Virtio-Net 技术分析
+  Virtio Networking: virtio-net 和 vhost-net
+  vdpa设备驱动代码分析
+  lin...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on July 14, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/07/14/ovs_learn/">
+        <h2 class="post-title">
+            ovs/ovn 学习笔记
+        </h2>
+        
+        <h3 class="post-subtitle">
+            ovs/ovn 基础学习笔记
+        </h3>
+        
+        <div class="post-content-preview">
+            参考链接：
+
+  ovs官网
+  ovs-github
+  ovs源码解析笔记
+  OVS 源码分析整理
+  Open vSwitch 入门实践
+  ovs入门
+  GRE通用路由封装详解
+  
+    OVS初级教程：使用Open vSwitch构建虚拟网络
+  
+  ovn官网
+  OVN 简介
+  ovn教程
+  ovn-github
+  OVN实践
+  ovn操作
+  kube-ov...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on July 14, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/05/22/spring_interview/">
+        <h2 class="post-title">
+            spring面经
+        </h2>
+        
+        <h3 class="post-subtitle">
+            spring boot面经学习
+        </h3>
+        
+        <div class="post-content-preview">
+            spring boot 面经验学习
+
+参考链接
+
+
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on May 22, 2024
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2024/05/22/java_interview/">
+        <h2 class="post-title">
+            java面经
+        </h2>
+        
+        <h3 class="post-subtitle">
+            Java面经学习
+        </h3>
+        
+        <div class="post-content-preview">
+            Java常见面经验
+
+参考链接
+
+
+  JavaGuide
+  二哥的JVM进阶之路
+  深入java虚拟机
+  Minor GC、Young GC、Full GC、Old GC、Major GC、Mixed GC 一文搞懂
+
+
+1. 包装类型的缓存机制了解么？
+
+Java 基本数据类型的包装类型的大部分都用到了缓存机制来提升性能。Byte,Short,Integer,Long 这 4 种包...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by 敬方 on May 22, 2024
+    </p>
+</div>
+<hr>
+
+
+<!-- Pager -->
+
+<ul class="pager">
+    
+    
+    <li class="next">
+        <a href="/page2">Older Posts →</a>
+    </li>
+    
+</ul>
+
+
+    		</div>
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-3 col-lg-offset-0
+                col-md-3 col-md-offset-0
+                col-sm-12
+                col-xs-12
+                sidebar-container
+            ">
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+                        
+                            
+                                <a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+                        
+                            
+                                <a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+                        
+                            
+                                <a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+                        
+                            
+                                <a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+                        
+                            
+                                <a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+                        
+                            
+                                <a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+                        
+                            
+                                <a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                <a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Short About -->
+                <section class="visible-md visible-lg">
+                    <hr>
+<h5><a href="/about/">ABOUT ME</a></h5>
+                    <div class="short-about">
+                        
+                            <a href="/about">
+                                <img src="/img/avatar_m.jpg">
+                            </a>
+                        
+                        
+                            <p>Goals determine what you going to be!</p>
+                        
+                        <!-- SNS Link -->
+                        <ul class="list-inline">
+                            
+                            <!-- add jianshu add target = "_blank" to <a> by BY -->
+                            
+                            
+                            
+                            
+                            
+                            <li>
+                                <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            
+                            
+                            <li>
+                                <a target="_blank" href="https://github.com/wangpengcheng">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            
+                            
+                        </ul>
+                        
+                            <p>✉️ wangpengcheng2018@gmail.com</p>
+                        
+                    </div>
+                </section>
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+    		</div>
+        
+	</div>
+</div>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

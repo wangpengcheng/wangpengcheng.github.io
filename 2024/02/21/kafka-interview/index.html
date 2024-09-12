@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>Apache Kafka面经 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2024/02/21/kafka-interview/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E6%9E%B6%E6%9E%84" title="架构">架构</a>
+                        
+                        <a class="tag" href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件">中间件</a>
+                        
+                        <a class="tag" href="/tags/#%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6" title="消息中间件">消息中间件</a>
+                        
+                    </div>
+                    <h1>Apache Kafka面经</h1>
+                    
+                    
+                    <h2 class="subheading">Apache Kafka面经&amp;源码阅读笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on February 21, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<ul>
+  <li><a href="https://www.cnblogs.com/zhengzhaoxiang/p/13973263.html">Kafka 实现延迟队列、死信队列、重试队列</a></li>
+  <li><a href="https://developer.aliyun.com/article/740170">18道kafka高频面试题哪些你还不会？（含答案和思维导图）</a></li>
+  <li><a href="https://dunwu.github.io/bigdata-tutorial/kafka/#%F0%9F%93%96-%E5%86%85%E5%AE%B9">kafka教程</a></li>
+  <li><a href="https://javabetter.cn/interview/kafka-40.html">40 道精选 Kafka 面试题</a></li>
+</ul>
+
+<h2 id="kafka-死信说一下">Kafka 死信说一下</h2>
+
+<p>死信即为消费端无法正常消费处理，为了防止其长时间滞留在分片队列中，<strong>将其投入到重试队列中，防止其被丢弃</strong>。当超过一定重试次数后，将其投入到<strong>死信队列中</strong>，这里的死信就可以看作消费者不能处理的消息。再比如超过既定的重试次数之后将消息投入死信队列，这里就可以将死信看作不符合处理要求的消息。
+消息进入死信队列后，需要进一步处理， (转回、导出和丢弃)</p>
+
+<p>kafka中可以使用 <code class="language-plaintext highlighter-rouge">enableConsumeRetry(true)</code> 开启消费重试，重试多次后，再进入死信队列</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// https://kafka.apache.org/documentation/#consumerconfigs</span>
+
+<span class="nc">Properties</span> <span class="n">props</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Properties</span><span class="o">();</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"bootstrap.servers"</span><span class="o">,</span> <span class="s">"localhost:9092"</span><span class="o">);</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"group.id"</span><span class="o">,</span> <span class="s">"test-group"</span><span class="o">);</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"enable.auto.commit"</span><span class="o">,</span> <span class="s">"false"</span><span class="o">);</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"key.deserializer"</span><span class="o">,</span> <span class="s">"org.apache.kafka.common.serialization.StringDeserializer"</span><span class="o">);</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"value.deserializer"</span><span class="o">,</span> <span class="s">"org.apache.kafka.common.serialization.StringDeserializer"</span><span class="o">);</span>
+
+<span class="nc">KafkaConsumer</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">consumer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">KafkaConsumer</span><span class="o">&lt;&gt;(</span><span class="n">props</span><span class="o">);</span>
+<span class="n">consumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nc">Collections</span><span class="o">.</span><span class="na">singletonList</span><span class="o">(</span><span class="s">"test-topic"</span><span class="o">));</span>
+
+<span class="c1">// 开启消费者重试功能</span>
+<span class="n">consumer</span><span class="o">.</span><span class="na">enableConsumeRetry</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+
+<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="nc">Duration</span><span class="o">.</span><span class="na">ofMillis</span><span class="o">(</span><span class="mi">100</span><span class="o">));</span>
+    
+    <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 处理消息的逻辑</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">processRecord</span><span class="o">(</span><span class="n">record</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// 消息处理发生错误，将自动重试</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">consumer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+
+
+</code></pre></div></div>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="https://www.cnblogs.com/zhengzhaoxiang/p/13973263.html">Kafka 实现延迟队列、死信队列、重试队列</a>
+</li>
+</ul>
+
+<h2 id="kafka-分片partition说一下">Kafka 分片(Partition)说一下</h2>
+
+<p>Partition 是kafka topic 数据发送与缓存的一种分片机制，相当于多个缓冲队列，支持kafka进行水平扩容。</p>
+
+<ol>
+  <li>定义：Topic 是一个逻辑概念，Partition 是最小的存储单元，掌握着一个 Topic 的部分数据。每个 Partition 都是一个单独的 log 文件，每条记录都以追加的形式写入。</li>
+  <li>消息顺序：topic存在多个分片时，分片内消息有序，但是因为消息发送至分片是默认随机的，因此整体无序</li>
+</ol>
+
+<p><img src="https://pic4.zhimg.com/80/v2-2d4cffb01a27fae3bf480db36e6e6317_720w.webp" alt="Partition "></p>
+<ol>
+  <li>消费分组：kafka使用分组的方式进行消费组分组，需要广播消费，可以创建一个只有一个分区的Topic，并让每个消费者组中的所有消费者都订阅该Topic，这样每个消费者都可以独立地接收该分区中的所有消息，从而实现消息的广播。</li>
+  <li>优点：
+    <ul>
+      <li>提供扩展能力：把 Partition 分散开之后，Topic 就可以水平扩展。同时支持topic被多个Consumer并行消费。提升消费能力</li>
+      <li>提供数据冗余：kafka  Partition 生成多个副本，并且把它们分散在不同的 Broker，如果一个 Broker 故障了，Consumer 可以在其他 Broker 上找到 Partition 的副本，继续获取消息。</li>
+    </ul>
+  </li>
+  <li>缺点：
+    <ul>
+      <li>增加了消息写入的复杂性与消息读取的复杂性</li>
+    </ul>
+  </li>
+  <li>广播消费：kafka 支持广播消费模式，使用广播消费模式，将每个消费者的Group ID设置为相同的值，并将属性 enable.auto.commit 设置为 false，这样每个消费者都可以独立地接收到所有的消息。
+___</li>
+</ol>
+
+<ul>
+  <li>参考：<a href="https://zhuanlan.zhihu.com/p/371886710">细说 Kafka Partition 分区</a>;<a href="https://cloud.tencent.com/developer/article/1863356">Kafka设置广播消费</a>
+</li>
+</ul>
+
+<h2 id="消费堆积处理方式">消费堆积处理方式</h2>
+
+<p>消费堆积常用处理方式：</p>
+<ol>
+  <li>消费者扩容：增加处理消费者的数量，加快消费速度</li>
+  <li>实例消费者线程数增加：增加消费者线程，开启多线程消费</li>
+  <li>适当增加topic分片数：如果topic分片数过少，导致消费者数量&gt;=topic分片数。可以适当扩展增加topic分片数</li>
+  <li>消费异常排查：是否存在异常处理，导致消息不能被正常处理</li>
+</ol>
+
+<h2 id="确认分片被消费">确认分片被消费</h2>
+
+<p>如果您想知道某个特定消息是否已被消费，您可以使用消息的偏移量来确定它的位置，然后与消费者组的当前偏移量进行比较。如果消息的偏移量小于消费者组的当前偏移量，则表示消息已被消费。</p>
+
+<p>总的来说，Kafka 中的消息偏移量是您查看消息是否被消费的关键工具。通过使用偏移量，您可以轻松地监视消息处理情况，并确保您的消息得到了适当的处理。</p>
+
+<h2 id="如何获取topic主题的列表">如何获取topic主题的列表</h2>
+
+<p>可以通过如下的方式获取主题的列表</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bin/kafka-topics.sh <span class="nt">--list</span> <span class="nt">--zookeeper</span> localhost:2181
+</code></pre></div></div>
+
+<h2 id="生产者和消费者的命令行是什么">生产者和消费者的命令行是什么？</h2>
+
+<ul>
+  <li>生产者在主题上发布消息：
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>bin/kafka-console-producer.sh <span class="nt">--broker-list</span> 192.168.43.49:9092 <span class="nt">--topicHello-Kafka</span>
+</code></pre></div>    </div>
+    <p>注意这里的 IP 是 server.properties 中的 listeners 的配置。接下来每个新行就是输入一条新消息。</p>
+  </li>
+  <li>消费者接受消息：
+    <div class="language-bash highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>bin/kafka-console-consumer.sh <span class="nt">--zookeeper</span> localhost:2181 <span class="nt">--topicHello-Kafka</span> <span class="nt">--from-beginning</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="consumer是推还是拉">consumer是推还是拉？</h2>
+
+<p>Kafka 遵循了一种大部分消息系统共同的传统的设计：producer 将消息推送到 broker，consumer 从broker 拉取消息。</p>
+<ul>
+  <li>主要的好处如下：
+    <ul>
+      <li>防止broker push过多导致consumer 崩溃：使用push方式进行消费时，当 broker 推送的速率远大于 consumer 消费的速率时，consumer 恐怕就要崩溃了。最终 Kafka 还是选取了传统的 pull 模式。</li>
+      <li>consumer 可以自主决定是否批量的从 broker 拉取数据 ：Pull 模式下，consumer 就可以根据自己的消费能力去决定这些策略。减轻了broker消息推送的负担</li>
+    </ul>
+  </li>
+  <li>缺点：
+    <ul>
+      <li>消费阻塞：broker中无消息时，会导致consumer不断在循环中轮询，直到新消息到达。kafka 通过 设置consumer 阻塞直到消息到达。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="讲讲-kafka-维护消费状态跟踪的方法">讲讲 kafka 维护消费状态跟踪的方法</h2>
+
+<p>Topic 被分成了若干分区，每个分区在同一时间只被一个 consumer 消费。这意味着每个分区被消费的消息在日志中的位置仅仅是一个简单的整数：offset。这样就很容易标记每个分区消费状态就很容易了，仅仅需要一个整数而已。这样消费状态的跟踪就很简单了。
+这带来了另外一个好处：consumer 可以把 offset 调成一个较老的值，去重新消费老的消息。这对传统的消息系统来说看起来有些不可思议，但确实是非常有用的，谁规定了一条消息只能被消费一次呢？消费端进行消费后会通过<code class="language-plaintext highlighter-rouge">commit</code> 方法确认其已经消费对应消息。</p>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="http://www.linkedkeeper.com/1653.html">Kafka消费循环</a>
+</li>
+</ul>
+
+<h2 id="kafka消费后消息还存在吗">kafka消费后消息还存在吗</h2>
+
+<p>在Kafka中消息是以分区(Partition)的形式被保存，消息在分区中是有序且不可变的。消费者进行消费消息时，实际上只是从分区中读取消息。消费者消费后Kafka不会立即将消息从分区中移除，而是重新设置消费组的偏移量(Offset)。同组其它消费者消费时获取最新数据。<strong>消费者可以通过重置偏移量的方式，进行重复消费</strong></p>
+
+<h2 id="kafka消息存储时间">Kafka消息存储时间</h2>
+
+<p>首先，Kafka的配置决定了消息是否会被永久保存。在Kafka的配置中，有一个参数叫做log.retention.ms，指定了消息在Kafka中的保留时间。默认情况下，这个值为7天，即Kafka中的消息会在7天后被删除。如果需要更长的消息保存时间，可以将这个值设置得更大。</p>
+
+<p>其次，消费者消费消息的方式也会影响消息的删除。在Kafka中，有两种消费者：</p>
+
+<ul>
+  <li>
+    <p>消费者组：多个消费者可以共同消费主题中的消息。当消费者组中的某个消费者消费一条消息后，这条消息并不会立刻被删除。只有当所有消费者都成功消费这条消息后，这条消息才会被删除。</p>
+  </li>
+  <li>
+    <p>单个消费者：一个消费者独立地消费一个或多个主题中的消息。当单个消费者消费一条消息后，这条消息会立刻被删除。</p>
+  </li>
+</ul>
+
+<h2 id="消息被消费后没有删除导致kafka存储空间占满">消息被消费后，没有删除，导致Kafka存储空间占满</h2>
+
+<p>消息被消费后，并不会被删除，只有超过老化时间，才会被删除，可以通过减少老化时间或者扩容存储空间进行解决</p>
+
+<h2 id="说一下主从同步">说一下主从同步</h2>
+
+<p>Kafka允许topic的分区拥有若干副本，这个数量是可以配置的，你可以为每个topci配置副本的数量。Kafka会自动在每个个副本上备份数据，所以当一个节点down掉时数据依然是可用的。
+Kafka的副本功能不是必须的，你可以配置只有一个副本，这样其实就相当于只有一份数据。</p>
+
+<h2 id="为什么需要消息系统mysql-不能满足需求吗">为什么需要消息系统，mysql 不能满足需求吗？</h2>
+
+<ol>
+  <li>系统解耦：允许你独立的扩展或修改两边的处理过程，只要确保它们遵守同样的接口约束。</li>
+  <li>冗余容灾：消息队列把数据进行持久化直到它们已经被完全处理，通过这一方式规避了数据丢失风险。许多消息队列所采用的”插入-获取-删除”范式中，在把一个消息从队列中删除之前，需要你的处理系统明确的指出该消息已经被处理完毕，从而确保你的数据被安全的保存直到你使用完毕。</li>
+  <li>扩展性：解耦处理过程，方便进行扩容</li>
+  <li>异步&amp;削峰：可以通过MQ的方式有效解决请求流量高峰的问题，将请求暂存，缓慢进行处理。避免突发请求导致后端崩溃。支持异步通信处理</li>
+  <li>可恢复性：消息队列降低了进程间的耦合度，进行了消息暂存，支持回放和重复消费</li>
+  <li>顺序保证：保证数据处理的顺序性</li>
+  <li>缓冲：控制和优化数据生产以及数据处理速度，解决生产消息和消费消息的处理速度不一致的情况。</li>
+</ol>
+
+<h2 id="zookeeper-对于-kafka-的作用是什么">Zookeeper 对于 Kafka 的作用是什么？</h2>
+
+<p>在 Kafka 中，它被用于提交偏移量，因此如果节点在任何情况下都失败了，它都可以从之前提交的偏移量中获取除此之外，它还执行其他活动，如: leader 检测、分布式同步、配置管理、识别新节点何时离开或连接、集群、节点实时状态等等。</p>
+
+<h2 id="数据传输的事务定义有哪三种">数据传输的事务定义有哪三种？</h2>
+
+<p>和 MQTT 的事务定义一样都是 3 种。</p>
+<ol>
+  <li>最多一次: 消息不会被重复发送，最多被传输一次，但也有可能一次不传输</li>
+  <li>最少一次: 消息不会被漏发送，最少被传输一次，但也有可能被重复传输.</li>
+  <li>精确的一次（Exactly once）: 不会漏传输也不会重复传输,每个消息都传输被一次而且仅仅被传输一次，这是大家所期望的</li>
+</ol>
+
+<h2 id="kafka-判断一个节点是否还活着有那两个条件">Kafka 判断一个节点是否还活着有那两个条件？</h2>
+
+<ol>
+  <li>节点必须可以维护和 ZooKeeper 的连接，Zookeeper 通过心跳机制检查每个节点的连接</li>
+  <li>如果节点是个 follower,他必须能及时的同步 leader 的写操作，延时不能太久</li>
+</ol>
+
+<h2 id="kafka-与传统-mq-消息系统之间有三个关键区别">Kafka 与传统 MQ 消息系统之间有三个关键区别</h2>
+
+<ol>
+  <li>日志持久化：kafka支持持久化日志，这些日志可以被重复读取和无限期保留</li>
+  <li>扩容灵活：Kafka 是一个分布式系统：它以集群的方式运行，可以灵活伸缩，在内部通过复制数据提升容错能力和高可用性</li>
+  <li>顺序处理：kafka有着强大的顺序处理能力，支持实时的流式处理</li>
+</ol>
+
+<h2 id="kafka-的-ack-的三种机制">kafka 的 ack 的三种机制</h2>
+
+<p>equest.required.acks 有三个值 0 1 -1(all)</p>
+<ul>
+  <li>0:生产者不会等待 broker 的 ack，这个延迟最低但是存储的保证最弱当 server 挂掉的时候就会丢数据。</li>
+  <li>1：服务端会等待 ack 值 leader 副本确认接收到消息后发送 ack 但是如果 leader挂掉后他不确保是否复制完成新 leader 也会导致数据丢失。</li>
+  <li>-1(all)：服务端会等所有的 follower 的副本受到数据后才会受到 leader 发出的ack，这样数据不会丢失</li>
+</ul>
+
+<h2 id="消费者如何不自动提交偏移量由应用提交">消费者如何不自动提交偏移量，由应用提交？</h2>
+
+<p>将 auto.commit.offset 设为 false，然后在处理一批消息后 commitSync() 或者异步提交 commitAsync()</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nc">ConsumerRecords</span><span class="o">&lt;&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">();</span>
+<span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">){</span>
+    <span class="err">。。。</span>
+    <span class="n">tyr</span><span class="o">{</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">commitSync</span><span class="o">()</span>
+    <span class="o">}</span>
+    <span class="err">。。。</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h2 id="消费者故障出现活锁问题如何解决">消费者故障，出现活锁问题如何解决？</h2>
+
+<ul>
+  <li>活锁定义：消费者持续发送心跳但是没有处理消息的情况。</li>
+</ul>
+
+<p>为了预防消费者在这种情况下一直持有分区，我们使用 max.poll.interval.ms 活跃检测机制，来进行判断消息是否被消费。当poll评率大于最大时间间隔，被判定为非活动成员，客户端将主动离开组，同时发生offset提交失败，最终表现为无法进行消息处理。<strong>根因在于处理时间大于活跃检测时间</strong></p>
+
+<ul>
+  <li>解决方法：主要还是从消费端处理时间入手，增加
+    <ul>
+      <li>max.poll.interval.ms：增大 poll 的间隔，可以为消费者提供更多的时间去处理返回的消息（调用 poll(long)返回的消息，通常返回的消息都是一批）。缺点是此值越大将会延迟组重新平衡。</li>
+      <li>max.poll.records：此设置限制每次调用 poll 返回的消息数，这样可以更容易的预测每次 poll 间隔要处理的最大值。通过调整此值，可以减少 poll 间隔，减少重新平衡分组的</li>
+      <li>开启多线程处理：主线程仅仅进行消息读取，处理交给子线程。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="如何控制消费的位置">如何控制消费的位置</h2>
+
+<p>kafka 使用 <code class="language-plaintext highlighter-rouge">seek(TopicPartition, long)</code>指定新的消费位置。用于查找服务器保留的最早和最新的 offset 的特殊的方法也可用（<code class="language-plaintext highlighter-rouge">seekToBeginning(Collection)</code> 和<code class="language-plaintext highlighter-rouge">seekToEnd(Collection)</code>）</p>
+
+<h2 id="kafka-分布式不是单机的情况下如何保证消息的顺序消费">kafka 分布式（不是单机）的情况下，如何保证消息的顺序消费?</h2>
+
+<p>kakfa 分布式的单位是 partition，同一个 partition 用一个 write ahead log 组织，所以可以保证 FIFO 的顺序。不同partition不能保证顺序性。</p>
+<ul>
+  <li>生产端写入顺序性：
+    <ul>
+      <li>用户可以通过 message key 来定义,因为同一个 key 的 message 可以保证只发送到同一个 partition。只要保证message key相同，就可以生产端的顺序性。</li>
+      <li>partition 指定：直接指定写入的partition</li>
+    </ul>
+  </li>
+  <li>消费端消费顺序性：一个partition 中可以绑定多个消费组，统一消费组中消费者轮流进行消费。只要保证一个消费组中当前partition只有一个消费者就可以保证消费顺序性</li>
+</ul>
+
+<h2 id="kafka-的高可用机制是什么">kafka 的高可用机制是什么</h2>
+
+<h2 id="kafka-如何减少数据丢失">kafka 如何减少数据丢失</h2>
+
+<h3 id="kafka数据丢失">kafka数据丢失</h3>
+<p>从 Kafka 整体架构图我们可以得出有三次消息传递的过程：</p>
+
+<p>1）Producer 端发送消息给 Kafka Broker 端。</p>
+
+<p>2）Kafka Broker 将消息进行同步并持久化数据。</p>
+
+<p>3）Consumer 端从 Kafka Broker 将消息拉取并进行消费。</p>
+
+<p><img src="https://s8.51cto.com/oss/202204/20/a89d7813053ad2d83fd086bd9b7709395dd50a.png" alt="kafka消息传递过程"></p>
+
+<p>三次传递过程中均有可能造成消息丢失，主要场景如下：</p>
+
+<ul>
+  <li>Producer 端消息发送失败：
+    <ul>
+      <li>网络原因：由于网络抖动导致数据根本就没发送到 Broker 端。</li>
+      <li>数据原因：消息体太大超出 Broker 承受范围而导致 Broker 拒收消息</li>
+      <li>ack机制原因：ack默认级别为1(leader接收成功即可)，Leader Partition 异常 Crash，Follower Partition 未进行同步数据 ACK，导致数据丢失。
+<img src="https://s6.51cto.com/oss/202204/20/252af52153170a5bd54558518be0754e880519.png" alt="ack机制">
+</li>
+    </ul>
+  </li>
+  <li>Broker端丢消息丢失：
+    <ul>
+      <li>持久化原因：broker使用异步磁盘刷入的方式，数据刷盘过程中 Broker 宕机会导致数据丢失，且选举了一个落后 Leader Partition 很多的 Follower Partition 成为新的 Leader Partition，那么落后的消息数据就会丢失。
+        <ul>
+          <li>由于 Kafka 中并没有提供「同步刷盘」的方式，所以说从单个 Broker 来看还是很有可能丢失数据的。</li>
+          <li>kafka 通过「多 Partition （分区）多 Replica（副本）机制」已经可以最大限度的保证数据不丢失，如果数据已经写入 PageCache 中但是还没来得及刷写到磁盘，此时如果所在 Broker 突然宕机挂掉或者停电，极端情况还是会造成数据丢失。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://s3.51cto.com/oss/202204/20/e584308437ff38bc09764442028f82332ab58a.png" alt="持久化"></p>
+
+<ul>
+  <li>Consumer数据丢失：Consumer 提交 Offset异常导致数据丢失
+    <ul>
+      <li>自动提交：轮询提交，可以有效解决重复消费的问题，但是也会导致部分消息消费异常后被提交 (<a href="https://segmentfault.com/q/1010000042942095">kafka消费者自动提交是如何工作的？</a>)</li>
+      <li>拉取消息后「先提交 Offset，后处理消息」: 处理异常，导致消息丢失</li>
+      <li>拉取消息后「先处理消息，在进行提交 Offset」：提交前异常，会导致业务重复消费</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://s4.51cto.com/oss/202204/20/125dee467e054202def595b57ea4ccd4db1d99.png" alt="消费流程"></p>
+
+<h3 id="解决方案">解决方案</h3>
+
+<ul>
+  <li>生产端：
+    <ul>
+      <li>异常回调：设置异常回调函数，捕获发送异常。
+        <ul>
+          <li>网络丢失：直接重试发送</li>
+          <li>消息大小不合格：重新调整大小再发送</li>
+        </ul>
+      </li>
+      <li>ACK 确认机制：设置<code class="language-plaintext highlighter-rouge">request.required.acks</code> 为-1保证每个副本都接收到消息。同时为了防止follwer 未全部同步，Leader异常挂掉，导致的发送失败，可以设置<code class="language-plaintext highlighter-rouge">replication.factor &gt;= 2</code> 与 <code class="language-plaintext highlighter-rouge">min.insync.replicas &gt; 1</code>
+        <ul>
+          <li><img src="https://s5.51cto.com/oss/202204/20/e9c7e8a24a69cccaac65035cc6649a8ed134d8.png" alt=""></li>
+        </ul>
+      </li>
+      <li>设置重试：设置重试相关参数保证消息稳定
+        <ul>
+          <li>重试次数：设置<code class="language-plaintext highlighter-rouge">retries</code> 为大于0，允许其反复重试</li>
+          <li>重试时间间隔：增大<code class="language-plaintext highlighter-rouge">retry.backoff.ms</code>(默认为100ms)，比如设置为300ms。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>broker端：通过「多分区多副本」的方式来最大限度的保证数据不丢失。
+    <ul>
+      <li>禁止落后数据被选为leader：设置<code class="language-plaintext highlighter-rouge">unclean.leader.election.enable</code> 为false,数据太多的follower被选举为leader</li>
+      <li>增大分区副本：设置<code class="language-plaintext highlighter-rouge">replication.factor&gt;=3</code>增大分区副本，保证follower副本继续提供服务</li>
+      <li>增大最少写入副本数：增大<code class="language-plaintext highlighter-rouge">min.insync.replicas</code> 提升消息持久性，保证数据不丢失。(保证<code class="language-plaintext highlighter-rouge">replication.factor &gt; min.insync.replicas</code>, 如果相等，只要有一个副本异常 Crash 掉，整个分区就无法正常工作了，因此推荐设置成： replication.factor = min.insync.replicas +1, 最大限度保证系统可用性。)</li>
+    </ul>
+  </li>
+  <li>Consumer端：确保正常消费后提交offset
+    <ul>
+      <li>强业务逻辑：保证拉取数据、业务逻辑处理、提交消费 Offset 位移信息。顺序执行</li>
+      <li>关闭自动提交：设置参数 <code class="language-plaintext highlighter-rouge">enable.auto.commit = false</code>，关闭自动提交，采用手动提交位移的方式。(<a href="https://blog.csdn.net/zhanglong_4444/article/details/103713757">Kafka学习笔记: 自动提交&amp;手动提交.</a>)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>总结不丢消息的配置为：</p>
+<ul>
+  <li>topic 副本数 &gt;= 3</li>
+  <li>topic <a href="https://kafka.apache.org/documentation/#brokerconfigs_min.insync.replicas">MinISR</a> &gt;= 2</li>
+  <li>生产者 <a href="https://kafka.apache.org/documentation/#producerconfigs_acks">acks</a> = -1 (或all)</li>
+  <li>服务端关闭<a href="https://kafka.apache.org/documentation/#brokerconfigs_unclean.leader.election.enable">脏选</a>
+</li>
+  <li>消费者 <a href="https://kafka.apache.org/documentation/#consumerconfigs_auto.offset.reset">auto.reset.offset</a> = nearest</li>
+</ul>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="https://www.51cto.com/article/707006.html">刨根问底: Kafka 到底会不会丢数据？</a>;<a href="https://www.cnblogs.com/FG123/p/10091599.html">Kafka提交offset机制</a>
+</li>
+</ul>
+
+<h2 id="kafka-如何避免重复消费">kafka 如何避免重复消费</h2>
+
+<ol>
+  <li>业务自行保证（容错）：消息中设置业务唯一键，遇到重复消息时直接丢弃</li>
+  <li>手动提交（强校验）：使用手动提交方式，保证每个消息都被正确消费。</li>
+  <li>消费控制：控制消费者提交消费偏移量的时机和方式，避免重复提交或漏提交。</li>
+</ol>
+
+<hr>
+
+<ul>
+  <li><a href="https://juejin.cn/post/7224677855245910075">kafka避免重复消费问题</a></li>
+</ul>
+
+<h2 id="kafka重平衡重启服务怎么保证kafka不发生重平衡有什么方案">kafka重平衡，重启服务怎么保证kafka不发生重平衡，有什么方案</h2>
+
+<p>（重平衡）Rebalance本质上是一种协议，规定了一个Consumer Group下的所有Consumer如何达成一致，来分配订阅Topic的每个分区</p>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="https://javabetter.cn/mq/kafka.html#%E9%87%8D%E5%B9%B3%E8%A1%A1">kafka重平衡</a>;<a href="https://developer.aliyun.com/article/918611">Kafka重平衡机制</a>
+</li>
+</ul>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2024/02/21/middleware_collection/" data-toggle="tooltip" data-placement="top" title="开源收集">
+                        Previous<br>
+                        <span>开源收集</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2024/02/21/etcd_zookper_interview/" data-toggle="tooltip" data-placement="top" title="zookeeper/etcd面经">
+                        Next<br>
+                        <span>zookeeper/etcd面经</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

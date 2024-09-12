@@ -1,0 +1,3219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer 学习笔记(九) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/06/08/cplusplus_primer_learn_note_9/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                    </div>
+                    <h1>C++ Primer 学习笔记(九)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer 学习记录(九)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on June 8, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-06-08 18:25:56</p>
+</blockquote>
+
+<h1 id="第iv部分高级主题">第IV部分高级主题</h1>
+
+<h2 id="第17-章标准库特殊设施">第17 章标准库特殊设施</h2>
+<p>标准库设施是:<code class="language-plaintext highlighter-rouge">tuple</code> 、<code class="language-plaintext highlighter-rouge">bittest</code>、随机生成数及正则表达式。</p>
+
+<h3 id="171-tuple-类型">17.1 tuple 类型</h3>
+<p>tuple类似于pair是将一些数据组合成单一的对象。可以将其看做一个“快速随意”的数据结构</p>
+
+<p><strong>tuple支持的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tuple&lt;T1,T2,...,Tn&gt; t;</code></td>
+      <td style="text-align: left">t是一个tuple，成员数为n，第i个成员的类型为Ti。所有成员都进行值初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tuple&lt;T1,T2,...,Tn&gt; t(v1,v2,...,vn);</code></td>
+      <td style="text-align: left">t是一个tuple，成员数为n，第i个成员的类型为Ti。所有成员都使用vi进行值初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">make_tuple(v1,v2,...,vn)</code></td>
+      <td style="text-align: left">返回一个给定初始值初始化的tuple。tuple的类型从初始值的类型推断</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">t1=t2</code></td>
+      <td style="text-align: left">当两个tuple具有相同数量的成员且成员对应相等时</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">t1!=t2</code></td>
+      <td style="text-align: left">当两个tuple具有相同数量的成员且成员对应相等时之外的情况</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">t1 relop t2</code></td>
+      <td style="text-align: left">tuple的关系运算符使用字典序。两个tuple必须具有相同数量的成员。使用&lt;运算符比较t1的成员和t2中的对应成员</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">get&lt;i&gt;(t)</code></td>
+      <td style="text-align: left">返回t的第i个数据成员的引用；如果t是一个左值，结果是一个左值引用；否则，结果是一个右值引用。tuple的所有成员都是public的</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tuple_size&lt;tupleType&gt;::value</code></td>
+      <td style="text-align: left">一个类模板，可以通过一个tuple类型来初始化。它有一个名为value的public constecpr static 数据成员，类型为size_t,表示给定tuple类型中成员的数量。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tuple_element&lt;i,tupleType&gt;::type</code></td>
+      <td style="text-align: left">一个类模板，可以通过一个整形常量和一个tuple类型来初始化。它有一个名为<code class="language-plaintext highlighter-rouge">type</code>的<code class="language-plaintext highlighter-rouge">public</code>成员，表示给定<code class="language-plaintext highlighter-rouge">tuple</code>类型中指定成员的类型。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//定义和初始化</span>
+
+<span class="n">tuple</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="kt">size_t</span><span class="p">,</span><span class="kt">size_t</span><span class="o">&gt;</span> <span class="n">threeD</span><span class="p">;</span>  <span class="c1">//成员都初始化为0</span>
+
+<span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">,</span><span class="kt">int</span><span class="p">,</span><span class="n">list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">someVal</span><span class="p">(</span><span class="s">"constants"</span><span class="p">,{</span><span class="mf">3.14</span><span class="p">,</span><span class="mf">2.718</span><span class="p">},</span><span class="mi">42</span><span class="p">,{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">});</span>
+
+<span class="n">tuple</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="kt">size_t</span><span class="p">,</span><span class="kt">size_t</span><span class="o">&gt;</span> <span class="n">threeD2</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">};</span>
+
+<span class="k">auto</span> <span class="n">item</span><span class="o">=</span><span class="n">make_tuple</span><span class="p">(</span><span class="s">"0-999-78345-X"</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="mf">20.00</span><span class="p">);</span> 
+
+<span class="c1">//成员的访问</span>
+
+<span class="k">auto</span> <span class="n">book</span><span class="o">=</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>  <span class="c1">//返回第一个成员</span>
+
+<span class="c1">//细节信息访问</span>
+
+<span class="k">typedef</span> <span class="k">decltype</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="n">trans</span><span class="p">;</span>  <span class="c1">// trans 是item的类型</span>
+
+<span class="c1">//返回trans类型对象中成员的数量</span>
+
+<span class="kt">size_t</span> <span class="n">sz</span><span class="o">=</span><span class="n">tuple_size</span><span class="o">&lt;</span><span class="n">trans</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;</span> <span class="c1">//返回3</span>
+
+<span class="c1">//获取第二个成员的类型</span>
+
+<span class="n">tuple_element</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="n">trans</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">cnt</span><span class="o">=</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>  <span class="c1">// cnt 是一个int</span>
+
+</code></pre></div></div>
+
+<p><strong>tuple常见用法是，函数返回多个值</strong></p>
+
+<h3 id="172-bitset类型">17.2 bitset类型</h3>
+<p>标准库定义了<code class="language-plaintext highlighter-rouge">bitset</code>类，使得位运算的使用更为容易，并且能够处理超过最长整形类型大小的位集合。<code class="language-plaintext highlighter-rouge">bitset</code>类定义在头文件<code class="language-plaintext highlighter-rouge">bitset</code>中。<code class="language-plaintext highlighter-rouge">bitset</code>类是一个模板，它类似<code class="language-plaintext highlighter-rouge">array</code>类，具有固定的大小。可以在定义时声明：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bit</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span> <span class="n">bitvec</span><span class="p">(</span><span class="mi">1U</span><span class="p">);</span>  <span class="c1">// 32位；低位为1，其他位为0</span>
+</code></pre></div></div>
+<p><strong>大小必须是一个常量表达式</strong></p>
+
+<p><strong>初始化bitset方法</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">bitset&lt;n&gt; b;</code></td>
+      <td style="text-align: left">b有n位；每位均为0.此构造函数是一个<code class="language-plaintext highlighter-rouge">constexpr</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">bitset&lt;n&gt; b(u);</code></td>
+      <td style="text-align: left">b是<code class="language-plaintext highlighter-rouge">unsigned long long</code>值u的低n位的拷贝。如果n大于<code class="language-plaintext highlighter-rouge">unsigned long long </code>的大小，则b中超出的高位被置为0.此构造函数是一个<code class="language-plaintext highlighter-rouge">constexpr</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">bitset&lt;n&gt; b(s,pos,m,zero,one);</code></td>
+      <td style="text-align: left">b是<code class="language-plaintext highlighter-rouge">string s</code>从位置<code class="language-plaintext highlighter-rouge">pos</code>开始m个字符符拷贝。s只能包含字符<code class="language-plaintext highlighter-rouge">zero</code>或<code class="language-plaintext highlighter-rouge">one</code>;如果s包含任何其它字符，构造函数会抛出<code class="language-plaintext highlighter-rouge">invalid_argument</code>异常。字符在b中分别保存为<code class="language-plaintext highlighter-rouge">zero</code>和<code class="language-plaintext highlighter-rouge">one</code>。pos默认为0，m默认为string::npos,zero 默认为<code class="language-plaintext highlighter-rouge">0</code>,<code class="language-plaintext highlighter-rouge">one</code>默认为<code class="language-plaintext highlighter-rouge">1</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">bitset&lt;n&gt; b(cp,pos,m,zero,one);</code></td>
+      <td style="text-align: left">与上一个构造函数相同，但从<code class="language-plaintext highlighter-rouge">cp</code>指向的字符串数组中拷贝字符，如果m未提供，则cp必须指向一个c风格字符串，如果提供了m,则从cp开始必须至少有m个zero或one字符</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用示例:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// bitvec1初始值小；初始值中的高位被丢弃</span>
+
+<span class="n">bitset</span><span class="o">&lt;</span><span class="mi">13</span><span class="o">&gt;</span> <span class="n">bitvec1</span><span class="p">(</span><span class="mh">0xbeef</span><span class="p">);</span>  <span class="c1">// 二进制位序列为 1111011101111</span>
+
+<span class="c1">//比初始值大；高位被置为0</span>
+
+<span class="n">bitset</span><span class="o">&lt;</span><span class="mi">20</span><span class="o">&gt;</span> <span class="n">bitvec2</span><span class="p">(</span><span class="mh">0xbeef</span><span class="p">);</span> <span class="c1">// 二进制位序列为 0000101111011101111</span>
+
+<span class="c1">//64 位机中， long long 0ULL 是64个0比特，因此～0ULL是64个1</span>
+
+<span class="n">bitset</span><span class="o">&lt;</span><span class="mi">128</span><span class="o">&gt;</span> <span class="n">bitvec3</span><span class="p">(</span><span class="o">~</span><span class="mi">0ULL</span><span class="p">);</span> <span class="c1">// 0~63 位为1; 63~127位为0</span>
+
+<span class="c1">//string 初始化 bitset</span>
+
+<span class="n">bitset</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span> <span class="n">bitvec4</span><span class="p">(</span><span class="s">"1100"</span><span class="p">);</span> <span class="c1">//2、3 两位为1，剩余两位为0；高位被置为0。</span>
+
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<p>string 的下标编号习惯与bitset恰好相反；string中下标最大的字符(最右字符)用来初始化<code class="language-plaintext highlighter-rouge">bitset</code>中的低位(下标为0的二进制位)。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">string</span> <span class="nf">str</span><span class="p">(</span><span class="s">"1111111000000011001101"</span><span class="p">);</span>
+
+<span class="n">bitset</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span> <span class="n">bitvec5</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">);</span> <span class="c1">// 从str[5]开始的四个二进制位，1100</span>
+
+<span class="n">bitset</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span> <span class="n">bitvec6</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="n">str</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">4</span><span class="p">);</span> <span class="c1">//使用最后四个字符</span>
+</code></pre></div></div>
+
+<p><img src="wangpengcheng.github.io/img/2019-06-09-bitset-string.png" alt="初始化流程"></p>
+
+<h4 id="1722-bitset操作">17.2.2 bitset操作</h4>
+
+<p><strong>bitset操作表</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.any()</code></td>
+      <td style="text-align: left">b中是否存在置位的二进制位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.all()</code></td>
+      <td style="text-align: left">b中所有位都置位了吗</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.none()</code></td>
+      <td style="text-align: left">b中不存在位置的二进制位吗</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.count()</code></td>
+      <td style="text-align: left">b中置位的位数</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.size()</code></td>
+      <td style="text-align: left">一个<code class="language-plaintext highlighter-rouge">constexpr</code>函数，返回b中的位数</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.test(pos)</code></td>
+      <td style="text-align: left">若pos位是置位的，则返回true,否则返回false</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.set(pos,v)</code></td>
+      <td style="text-align: left">将位置pos处的位设置为bool值v。v默认为true。如果未传递实参，将b中所有位置复位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2"><code class="language-plaintext highlighter-rouge">b.set()</code></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.reset(pos)</code></td>
+      <td style="text-align: left">将位置pos处的位复位或将b中所有位复位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2"><code class="language-plaintext highlighter-rouge">b.reset()</code></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.flip(pos)</code></td>
+      <td style="text-align: left">改变位置<code class="language-plaintext highlighter-rouge">pos</code>处的位的状态或改变b中每一位的状态</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2"><code class="language-plaintext highlighter-rouge">b.flip()</code></td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left">b[pos]</td>
+      <td style="text-align: left">访问b中位置pos处的位，如果b是const的，则当该位置位时b[pos]返回一个bool值true,否则返回<code class="language-plaintext highlighter-rouge">fasle</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.to_ulong()/b.to_ullong()</code></td>
+      <td style="text-align: left">返回一个unsigned long 或者一个unsigned long long值，其位模式与b相同。如果b中位模式不能放入指定的结果类型，则抛出一个<code class="language-plaintext highlighter-rouge">overflow_error</code>异常</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">b.to_string(zero,one)</code></td>
+      <td style="text-align: left">返回一个string,表示b中的位模式。zero和one的默认值分别为0和1，用来表示b中的0和1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">os&lt;&lt;b</code></td>
+      <td style="text-align: left">将b中二进制位打印为字符1或者0，打印到流<code class="language-plaintext highlighter-rouge">os</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">is&gt;&gt;b</code></td>
+      <td style="text-align: left">从is读取字符存入b。当下一个字符不是1或者0时，或是已经读入b.size()个位时，读取过程停止</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>提取bitset的值</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ulong</span><span class="o">=</span><span class="n">bitvec3</span><span class="p">.</span><span class="n">to_ulong</span><span class="p">();</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"ulong ="</span><span class="o">&lt;&lt;</span><span class="n">ulong</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+
+</code></pre></div></div>
+<p>注意：</p>
+
+<p>如果bitset中的值不能放入给定类型中，则这两个操作会抛出一个<code class="language-plaintext highlighter-rouge">overflow_error异常</code></p>
+
+<p><strong>bitset的IO运算符</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span> <span class="n">bits</span><span class="p">;</span>
+<span class="n">cin</span><span class="o">&gt;&gt;</span> <span class="n">bits</span><span class="p">;</span>  <span class="c1">// 从cin读取最多16个0或1</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"bits: "</span><span class="o">&lt;&lt;</span><span class="n">bits</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//打印刚刚读取的内容</span>
+
+</code></pre></div></div>
+<h4 id="173-正则表达式">17.3 正则表达式</h4>
+
+<p><em>参考链接：</em> <a href="http://www.cplusplus.com/reference/regex/">regex</a>;</p>
+
+<p>正则表达式是一种描述字符序列的方法，是一种极其强大的计算工具。本章重点介绍正则表达式库(RE)</p>
+
+<p><strong>正则表达式库组件</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">组件</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex</code></td>
+      <td style="text-align: left">表示有一个正则表达式的类</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex_match</code></td>
+      <td style="text-align: left">将一个字符序列与一个正则表达式匹配</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex_search</code></td>
+      <td style="text-align: left">寻找第一个与正则表达式匹配的子序列</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex_replace</code></td>
+      <td style="text-align: left">使用给定格式替换一个正则表达式</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">sregex_iterator</code></td>
+      <td style="text-align: left">迭代适配器，调用<code class="language-plaintext highlighter-rouge">regex_sreach</code>来遍历一个<code class="language-plaintext highlighter-rouge">string</code>中所有匹配的子串</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">smatch</code></td>
+      <td style="text-align: left">容器类，保存在<code class="language-plaintext highlighter-rouge">string</code>中搜索的结果</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ssub_match</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">string</code>中匹配的子表达式的结果</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>regex_search和regex_match的参数</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">参数</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">(seq,m,r,mft)</code></td>
+      <td style="text-align: left">在字符序列<code class="language-plaintext highlighter-rouge">seq</code>中查找<code class="language-plaintext highlighter-rouge">regex</code>对象r中的正则表达式。seq可以是一个string、表示范围的一对迭代器以及一个指向空字符皆为的字符数组的指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">(seq,r,mft)</code></td>
+      <td style="text-align: left">m是一个match对应，用来保存匹配结果的相关细节，m和seq必须具有兼容的类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<p>正则表达式简单使用示例</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//查找不在字符c之后的字符串ei</span>
+
+<span class="n">string</span> <span class="nf">pattern</span><span class="p">(</span><span class="s">"[^c]ei"</span><span class="p">);</span>
+<span class="c1">//包含pattern的整个单词</span>
+
+<span class="n">pattern</span><span class="o">=</span><span class="s">"[[\:alpha\:]]*"</span><span class="o">+</span><span class="n">pattern</span><span class="o">+</span><span class="s">"[[\:alpha\:]]*"</span><span class="p">;</span>
+<span class="n">regex</span> <span class="nf">r</span><span class="p">(</span><span class="n">pattern</span><span class="p">);</span> <span class="c1">//构造一个用于查找模式的regex</span>
+
+<span class="n">smatch</span> <span class="n">result</span><span class="p">;</span>  <span class="c1">//定义一个对象保存搜索结果</span>
+
+<span class="c1">//定义一个string保存于模式匹配和不匹配的文本</span>
+
+<span class="n">string</span> <span class="n">test_str</span><span class="o">=</span><span class="s">"receipt freind theif receive"</span><span class="p">;</span>
+
+<span class="c1">//查找匹配的字符串</span>
+
+<span class="k">if</span><span class="p">(</span><span class="n">regex_search</span><span class="p">(</span><span class="n">test_str</span><span class="p">,</span><span class="n">result</span><span class="p">,</span><span class="n">r</span><span class="p">)){</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">result</span><span class="p">.</span><span class="n">str</span><span class="p">()</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//打印匹配的单词</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p><strong>regex(和wregex)选项</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">选项</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex r(re)</code></td>
+      <td style="text-align: left">re表示一个正则表达式，它可以是一个<code class="language-plaintext highlighter-rouge">string</code>、一个表示字符范围的迭代器对、一个指向空字符结尾的字符数组的指针、一个字符指针和一个计数器或是一个花括符包围的字符列表。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex r(re,f)</code></td>
+      <td style="text-align: left">f是指出对象如何处理的标志。通过下面列出的值来设置。如果未指定f，其摩恩值为<code class="language-plaintext highlighter-rouge">ECMAScript</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">r1=re</code></td>
+      <td style="text-align: left">将r1中的正则表达式替换为<code class="language-plaintext highlighter-rouge">re</code>。<code class="language-plaintext highlighter-rouge">re</code>表示一个正则表达式，它可以是另外一个<code class="language-plaintext highlighter-rouge">regex</code>对象、一个<code class="language-plaintext highlighter-rouge">string</code>、一个指向空字符结尾的字符串数组的指针或是一个花括号保卫的字符串列表</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">r1.assign(re,f)</code></td>
+      <td style="text-align: left">与使用赋值运算符(=)效果相同；可选的标志<code class="language-plaintext highlighter-rouge">f</code>也与<code class="language-plaintext highlighter-rouge">regex</code>的构造函数中对应的参数含义相同</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">r.mark_count()</code></td>
+      <td style="text-align: left">r中子表达式的数目</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">r.flags</code></td>
+      <td style="text-align: left">返回<code class="language-plaintext highlighter-rouge">r</code>的标志</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>定义regex时指定的标志</strong>
+定义则regex和regex_constants::syntax_option_type中</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">选项</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">icase</code></td>
+      <td style="text-align: left">在匹配过程中忽略大小写</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">nosubs</code></td>
+      <td style="text-align: left">不保存匹配的子表达式</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">optimize</code></td>
+      <td style="text-align: left">执行速度优先于构造速度</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ECMAScript</code></td>
+      <td style="text-align: left">使用<code class="language-plaintext highlighter-rouge">ECMA-262</code>指定的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">basic</code></td>
+      <td style="text-align: left">使用POSIX基本的正则表达式语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">extended</code></td>
+      <td style="text-align: left">使用POSIX扩展的正则表达式语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">awk</code></td>
+      <td style="text-align: left">使用POSIX版本的awk语言的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">grep</code></td>
+      <td style="text-align: left">使用POSIX版本的grep的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">egrep</code></td>
+      <td style="text-align: left">使用POSIX版本的egrep的语法</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>std::regex_match使用示例</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// regex_match example</span>
+
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;regex&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">()</span>
+<span class="p">{</span>
+
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">regex_match</span> <span class="p">(</span><span class="s">"subject"</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">regex</span><span class="p">(</span><span class="s">"(sub)(.*)"</span><span class="p">)</span> <span class="p">))</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"string literal matched</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+    <span class="k">const</span> <span class="kt">char</span> <span class="n">cstr</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"subject"</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">s</span> <span class="p">(</span><span class="s">"subject"</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">regex</span> <span class="n">e</span> <span class="p">(</span><span class="s">"(sub)(.*)"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">regex_match</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">e</span><span class="p">))</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"string object matched</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span> <span class="n">std</span><span class="o">::</span><span class="n">regex_match</span> <span class="p">(</span> <span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">e</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"range matched</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cmatch</span> <span class="n">cm</span><span class="p">;</span>    <span class="c1">// same as std::match_results&lt;const char*&gt; cm;</span>
+    
+    <span class="n">std</span><span class="o">::</span><span class="n">regex_match</span> <span class="p">(</span><span class="n">cstr</span><span class="p">,</span><span class="n">cm</span><span class="p">,</span><span class="n">e</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"string literal with "</span> <span class="o">&lt;&lt;</span> <span class="n">cm</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" matches</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">smatch</span> <span class="n">sm</span><span class="p">;</span>    <span class="c1">// same as std::match_results&lt;string::const_iterator&gt; sm;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">regex_match</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">sm</span><span class="p">,</span><span class="n">e</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"string object with "</span> <span class="o">&lt;&lt;</span> <span class="n">sm</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" matches</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">regex_match</span> <span class="p">(</span> <span class="n">s</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">s</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span> <span class="n">sm</span><span class="p">,</span> <span class="n">e</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"range with "</span> <span class="o">&lt;&lt;</span> <span class="n">sm</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">" matches</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+    <span class="c1">// using explicit flags:</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">regex_match</span> <span class="p">(</span> <span class="n">cstr</span><span class="p">,</span> <span class="n">cm</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">regex_constants</span><span class="o">::</span><span class="n">match_default</span> <span class="p">);</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"the matches were: "</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">cm</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"["</span> <span class="o">&lt;&lt;</span> <span class="n">cm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">"] "</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+
+result:
+
+string literal matched
+string object matched
+range matched
+string literal with 3 matches
+string object with 3 matches
+range with 3 matches
+the matches were: [subject] [sub] [ject]
+
+
+ */</span> 
+
+</code></pre></div></div>
+
+<p>注意：
+一个正则表达式的语法是否正确是在运行时解析的。可以使用<code class="language-plaintext highlighter-rouge">regex_error</code>来抛出异常。</p>
+
+<p><strong>异常类型表</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">异常类型</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_collate</code></td>
+      <td style="text-align: left">The expression contained an invalid collating element name.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_ctype</code></td>
+      <td style="text-align: left">The expression contained an invalid character class name.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_escape</code></td>
+      <td style="text-align: left">The expression contained an invalid escaped character, or a trailing escape.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_backref</code></td>
+      <td style="text-align: left">The expression contained an invalid back reference.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_brack</code></td>
+      <td style="text-align: left">The expression contained mismatched brackets ([ and ]).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_paren</code></td>
+      <td style="text-align: left">The expression contained mismatched parentheses (( and )).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_brace</code></td>
+      <td style="text-align: left">The expression contained mismatched braces ({ and }).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_badbrace</code></td>
+      <td style="text-align: left">The expression contained an invalid range between braces ({ and }).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_range</code></td>
+      <td style="text-align: left">The expression contained an invalid character range.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_space</code></td>
+      <td style="text-align: left">There was insufficient memory to convert the expression into a finite state machine.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_badrepeat</code></td>
+      <td style="text-align: left">The expression contained a repeat specifier (one of *?+{) that was not preceded by a valid regular expression.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_complexity</code></td>
+      <td style="text-align: left">The complexity of an attempted match against a regular expression exceeded a pre-set level.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">error_stack</code></td>
+      <td style="text-align: left">There was insufficient memory to determine whether the regular expression could match the specified character sequence.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意： 正则表达式的编译是一个非常慢的操作，特别是你在使用了扩展的正则表达式语法或者复杂的正则表达式的时候。应该尽量避免使用。</p>
+
+<p><strong>正则表达式库类</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">如果输入序列类型</th>
+      <th style="text-align: left">则使用正则表达式类</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">string </code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex、smatch、ssub_match和sregex_iterator</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">const char* </code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">regex、smatch、ssub_match和cregex_iterator</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">wstring </code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">wregex、wsmatch、wssub_match和wsregex_iterator</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">const wchar_t*</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">wregex、wsmatch、wcsub_match和wcregex_iterator</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>ECMAScript正则表达式语句基本特性</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">\{d}</code>表示单个数字而<code class="language-plaintext highlighter-rouge">\{d}{n}</code>则表示一个<code class="language-plaintext highlighter-rouge">n</code>个数字的序列。如，<code class="language-plaintext highlighter-rouge">\{d}{3}</code>匹配三个数组的序列。</li>
+  <li>在方括号中的字符集和表示匹配这些字符中任意一个。如<code class="language-plaintext highlighter-rouge">[-. ]</code>匹配一个<code class="language-plaintext highlighter-rouge">-</code>或<code class="language-plaintext highlighter-rouge">.</code>或<code class="language-plaintext highlighter-rouge"> </code>。</li>
+  <li>后接’?’的组件是可以选的。如，<code class="language-plaintext highlighter-rouge">\{d}{3}[-. ]?\{d}{4}</code>匹配这样的序列：开始是三个数字，后接一个可选的短横线或点或空格，然后是四个数字。</li>
+  <li>使用反斜线`&gt; 2019-06-08 18:25:56</li>
+</ul>
+
+<h1 id="第iv部分高级主题-1">第IV部分高级主题</h1>
+
+<h2 id="第17-章标准库特殊设施-1">第17 章标准库特殊设施</h2>
+<p>标准库设施是:&lt;!JEKYLL@2780@0&gt; 、&lt;!JEKYLL@2780@1&gt;、随机生成数及正则表达式。</p>
+
+<h3 id="171-tuple-类型-1">17.1 tuple 类型</h3>
+<p>tuple类似于pair是将一些数据组合成单一的对象。可以将其看做一个“快速随意”的数据结构</p>
+
+<p><strong>tuple支持的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@2&gt;</td>
+      <td style="text-align: left">t是一个tuple，成员数为n，第i个成员的类型为Ti。所有成员都进行值初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@3&gt;</td>
+      <td style="text-align: left">t是一个tuple，成员数为n，第i个成员的类型为Ti。所有成员都使用vi进行值初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@4&gt;</td>
+      <td style="text-align: left">返回一个给定初始值初始化的tuple。tuple的类型从初始值的类型推断</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@5&gt;</td>
+      <td style="text-align: left">当两个tuple具有相同数量的成员且成员对应相等时</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@6&gt;</td>
+      <td style="text-align: left">当两个tuple具有相同数量的成员且成员对应相等时之外的情况</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@7&gt;</td>
+      <td style="text-align: left">tuple的关系运算符使用字典序。两个tuple必须具有相同数量的成员。使用&lt;运算符比较t1的成员和t2中的对应成员</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@8&gt;</td>
+      <td style="text-align: left">返回t的第i个数据成员的引用；如果t是一个左值，结果是一个左值引用；否则，结果是一个右值引用。tuple的所有成员都是public的</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@9&gt;</td>
+      <td style="text-align: left">一个类模板，可以通过一个tuple类型来初始化。它有一个名为value的public constecpr static 数据成员，类型为size_t,表示给定tuple类型中成员的数量。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@10&gt;</td>
+      <td style="text-align: left">一个类模板，可以通过一个整形常量和一个tuple类型来初始化。它有一个名为&lt;!JEKYLL@2780@11&gt;的&lt;!JEKYLL@2780@12&gt;成员，表示给定&lt;!JEKYLL@2780@13&gt;类型中指定成员的类型。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用示例：</p>
+
+<p>&lt;!JEKYLL@2780@14&gt;</p>
+
+<p><strong>tuple常见用法是，函数返回多个值</strong></p>
+
+<h3 id="172-bitset类型-1">17.2 bitset类型</h3>
+<p>标准库定义了&lt;!JEKYLL@2780@15&gt;类，使得位运算的使用更为容易，并且能够处理超过最长整形类型大小的位集合。&lt;!JEKYLL@2780@16&gt;类定义在头文件&lt;!JEKYLL@2780@17&gt;中。&lt;!JEKYLL@2780@18&gt;类是一个模板，它类似&lt;!JEKYLL@2780@19&gt;类，具有固定的大小。可以在定义时声明：</p>
+
+<p>&lt;!JEKYLL@2780@20&gt;
+<strong>大小必须是一个常量表达式</strong></p>
+
+<p><strong>初始化bitset方法</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@21&gt;</td>
+      <td style="text-align: left">b有n位；每位均为0.此构造函数是一个&lt;!JEKYLL@2780@22&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@23&gt;</td>
+      <td style="text-align: left">b是&lt;!JEKYLL@2780@24&gt;值u的低n位的拷贝。如果n大于&lt;!JEKYLL@2780@25&gt;的大小，则b中超出的高位被置为0.此构造函数是一个&lt;!JEKYLL@2780@26&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@27&gt;</td>
+      <td style="text-align: left">b是&lt;!JEKYLL@2780@28&gt;从位置&lt;!JEKYLL@2780@29&gt;开始m个字符符拷贝。s只能包含字符&lt;!JEKYLL@2780@30&gt;或&lt;!JEKYLL@2780@31&gt;;如果s包含任何其它字符，构造函数会抛出&lt;!JEKYLL@2780@32&gt;异常。字符在b中分别保存为&lt;!JEKYLL@2780@33&gt;和&lt;!JEKYLL@2780@34&gt;。pos默认为0，m默认为string::npos,zero 默认为&lt;!JEKYLL@2780@35&gt;,&lt;!JEKYLL@2780@36&gt;默认为&lt;!JEKYLL@2780@37&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@38&gt;</td>
+      <td style="text-align: left">与上一个构造函数相同，但从&lt;!JEKYLL@2780@39&gt;指向的字符串数组中拷贝字符，如果m未提供，则cp必须指向一个c风格字符串，如果提供了m,则从cp开始必须至少有m个zero或one字符</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用示例:</p>
+
+<p>&lt;!JEKYLL@2780@40&gt;</p>
+
+<p>注意：</p>
+
+<p>string 的下标编号习惯与bitset恰好相反；string中下标最大的字符(最右字符)用来初始化&lt;!JEKYLL@2780@41&gt;中的低位(下标为0的二进制位)。</p>
+
+<p>&lt;!JEKYLL@2780@42&gt;</p>
+
+<p><img src="wangpengcheng.github.io/img/2019-06-09-bitset-string.png" alt="初始化流程"></p>
+
+<h4 id="1722-bitset操作-1">17.2.2 bitset操作</h4>
+
+<p><strong>bitset操作表</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@43&gt;</td>
+      <td style="text-align: left">b中是否存在置位的二进制位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@44&gt;</td>
+      <td style="text-align: left">b中所有位都置位了吗</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@45&gt;</td>
+      <td style="text-align: left">b中不存在位置的二进制位吗</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@46&gt;</td>
+      <td style="text-align: left">b中置位的位数</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@47&gt;</td>
+      <td style="text-align: left">一个&lt;!JEKYLL@2780@48&gt;函数，返回b中的位数</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@49&gt;</td>
+      <td style="text-align: left">若pos位是置位的，则返回true,否则返回false</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@50&gt;</td>
+      <td style="text-align: left">将位置pos处的位设置为bool值v。v默认为true。如果未传递实参，将b中所有位置复位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@51&gt;</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@52&gt;</td>
+      <td style="text-align: left">将位置pos处的位复位或将b中所有位复位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@53&gt;</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@54&gt;</td>
+      <td style="text-align: left">改变位置&lt;!JEKYLL@2780@55&gt;处的位的状态或改变b中每一位的状态</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@56&gt;</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">b[pos]</td>
+      <td style="text-align: left">访问b中位置pos处的位，如果b是const的，则当该位置位时b[pos]返回一个bool值true,否则返回&lt;!JEKYLL@2780@57&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@58&gt;</td>
+      <td style="text-align: left">返回一个unsigned long 或者一个unsigned long long值，其位模式与b相同。如果b中位模式不能放入指定的结果类型，则抛出一个&lt;!JEKYLL@2780@59&gt;异常</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@60&gt;</td>
+      <td style="text-align: left">返回一个string,表示b中的位模式。zero和one的默认值分别为0和1，用来表示b中的0和1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@61&gt;</td>
+      <td style="text-align: left">将b中二进制位打印为字符1或者0，打印到流&lt;!JEKYLL@2780@62&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@63&gt;</td>
+      <td style="text-align: left">从is读取字符存入b。当下一个字符不是1或者0时，或是已经读入b.size()个位时，读取过程停止</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>提取bitset的值</strong></p>
+
+<p>&lt;!JEKYLL@2780@64&gt;
+注意：</p>
+
+<p>如果bitset中的值不能放入给定类型中，则这两个操作会抛出一个&lt;!JEKYLL@2780@65&gt;</p>
+
+<p><strong>bitset的IO运算符</strong></p>
+
+<p>&lt;!JEKYLL@2780@66&gt;</p>
+<h4 id="173-正则表达式-1">17.3 正则表达式</h4>
+
+<p><em>参考链接：</em> <a href="http://www.cplusplus.com/reference/regex/">regex</a>;</p>
+
+<p>正则表达式是一种描述字符序列的方法，是一种极其强大的计算工具。本章重点介绍正则表达式库(RE)</p>
+
+<p><strong>正则表达式库组件</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">组件</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@67&gt;</td>
+      <td style="text-align: left">表示有一个正则表达式的类</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@68&gt;</td>
+      <td style="text-align: left">将一个字符序列与一个正则表达式匹配</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@69&gt;</td>
+      <td style="text-align: left">寻找第一个与正则表达式匹配的子序列</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@70&gt;</td>
+      <td style="text-align: left">使用给定格式替换一个正则表达式</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@71&gt;</td>
+      <td style="text-align: left">迭代适配器，调用&lt;!JEKYLL@2780@72&gt;来遍历一个&lt;!JEKYLL@2780@73&gt;中所有匹配的子串</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@74&gt;</td>
+      <td style="text-align: left">容器类，保存在&lt;!JEKYLL@2780@75&gt;中搜索的结果</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@76&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@77&gt;中匹配的子表达式的结果</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>regex_search和regex_match的参数</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">参数</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@78&gt;</td>
+      <td style="text-align: left">在字符序列&lt;!JEKYLL@2780@79&gt;中查找&lt;!JEKYLL@2780@80&gt;对象r中的正则表达式。seq可以是一个string、表示范围的一对迭代器以及一个指向空字符皆为的字符数组的指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@81&gt;</td>
+      <td style="text-align: left">m是一个match对应，用来保存匹配结果的相关细节，m和seq必须具有兼容的类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"> </td>
+      <td style="text-align: left">mft是一个可选的&lt;!JEKYLL@2780@82&gt;值。他们会影响匹配过程</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>正则表达式简单使用示例</p>
+
+<p>&lt;!JEKYLL@2780@83&gt;
+<strong>regex(和wregex)选项</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">选项</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@84&gt;</td>
+      <td style="text-align: left">re表示一个正则表达式，它可以是一个&lt;!JEKYLL@2780@85&gt;、一个表示字符范围的迭代器对、一个指向空字符结尾的字符数组的指针、一个字符指针和一个计数器或是一个花括符包围的字符列表。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@86&gt;</td>
+      <td style="text-align: left">f是指出对象如何处理的标志。通过下面列出的值来设置。如果未指定f，其摩恩值为&lt;!JEKYLL@2780@87&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@88&gt;</td>
+      <td style="text-align: left">将r1中的正则表达式替换为&lt;!JEKYLL@2780@89&gt;。&lt;!JEKYLL@2780@90&gt;表示一个正则表达式，它可以是另外一个&lt;!JEKYLL@2780@91&gt;对象、一个&lt;!JEKYLL@2780@92&gt;、一个指向空字符结尾的字符串数组的指针或是一个花括号保卫的字符串列表</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@93&gt;</td>
+      <td style="text-align: left">与使用赋值运算符(=)效果相同；可选的标志&lt;!JEKYLL@2780@94&gt;也与&lt;!JEKYLL@2780@95&gt;的构造函数中对应的参数含义相同</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@96&gt;</td>
+      <td style="text-align: left">r中子表达式的数目</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@97&gt;</td>
+      <td style="text-align: left">返回&lt;!JEKYLL@2780@98&gt;的标志</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>定义regex时指定的标志</strong>
+定义则regex和regex_constants::syntax_option_type中</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">选项</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@99&gt;</td>
+      <td style="text-align: left">在匹配过程中忽略大小写</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@100&gt;</td>
+      <td style="text-align: left">不保存匹配的子表达式</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@101&gt;</td>
+      <td style="text-align: left">执行速度优先于构造速度</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@102&gt;</td>
+      <td style="text-align: left">使用&lt;!JEKYLL@2780@103&gt;指定的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@104&gt;</td>
+      <td style="text-align: left">使用POSIX基本的正则表达式语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@105&gt;</td>
+      <td style="text-align: left">使用POSIX扩展的正则表达式语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@106&gt;</td>
+      <td style="text-align: left">使用POSIX版本的awk语言的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@107&gt;</td>
+      <td style="text-align: left">使用POSIX版本的grep的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@108&gt;</td>
+      <td style="text-align: left">使用POSIX版本的egrep的语法</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>std::regex_match使用示例</p>
+
+<p>&lt;!JEKYLL@2780@109&gt;</p>
+
+<p>注意：
+一个正则表达式的语法是否正确是在运行时解析的。可以使用&lt;!JEKYLL@2780@110&gt;来抛出异常。</p>
+
+<p><strong>异常类型表</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">异常类型</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@111&gt;</td>
+      <td style="text-align: left">The expression contained an invalid collating element name.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@112&gt;</td>
+      <td style="text-align: left">The expression contained an invalid character class name.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@113&gt;</td>
+      <td style="text-align: left">The expression contained an invalid escaped character, or a trailing escape.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@114&gt;</td>
+      <td style="text-align: left">The expression contained an invalid back reference.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@115&gt;</td>
+      <td style="text-align: left">The expression contained mismatched brackets ([ and ]).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@116&gt;</td>
+      <td style="text-align: left">The expression contained mismatched parentheses (( and )).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@117&gt;</td>
+      <td style="text-align: left">The expression contained mismatched braces ({ and }).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@118&gt;</td>
+      <td style="text-align: left">The expression contained an invalid range between braces ({ and }).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@119&gt;</td>
+      <td style="text-align: left">The expression contained an invalid character range.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@120&gt;</td>
+      <td style="text-align: left">There was insufficient memory to convert the expression into a finite state machine.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@121&gt;</td>
+      <td style="text-align: left">The expression contained a repeat specifier (one of *?+{) that was not preceded by a valid regular expression.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@122&gt;</td>
+      <td style="text-align: left">The complexity of an attempted match against a regular expression exceeded a pre-set level.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@123&gt;</td>
+      <td style="text-align: left">There was insufficient memory to determine whether the regular expression could match the specified character sequence.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意： 正则表达式的编译是一个非常慢的操作，特别是你在使用了扩展的正则表达式语法或者复杂的正则表达式的时候。应该尽量避免使用。</p>
+
+<p><strong>正则表达式库类</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">如果输入序列类型</th>
+      <th style="text-align: left">则使用正则表达式类</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@124&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@125&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@126&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@127&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@128&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@129&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@130&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@131&gt;</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>ECMAScript正则表达式语句基本特性</p>
+
+<ul>
+  <li>&lt;!JEKYLL@2780@132&gt;表示单个数字而&lt;!JEKYLL@2780@133&gt;则表示一个&lt;!JEKYLL@2780@134&gt;个数字的序列。如，&lt;!JEKYLL@2780@135&gt;匹配三个数组的序列。</li>
+  <li>在方括号中的字符集和表示匹配这些字符中任意一个。如&lt;!JEKYLL@2780@136&gt;匹配一个&lt;!JEKYLL@2780@137&gt;或&lt;!JEKYLL@2780@138&gt;或&lt;!JEKYLL@2780@139&gt;。</li>
+  <li>后接’?’的组件是可以选的。如，&lt;!JEKYLL@2780@140&gt;匹配这样的序列：开始是三个数字，后接一个可选的短横线或点或空格，然后是四个数字。</li>
+  <li>使用反斜线表示一个字符本身而不是其特殊含义。因此必须使用<code class="language-plaintext highlighter-rouge">\(</code>和<code class="language-plaintext highlighter-rouge">\)</code>来表示括号是我们模式的一部分而不是特殊字符。</li>
+  <li>由于反斜线是c++中的特殊字符，在模式中，每次出现`&gt; 2019-06-08 18:25:56</li>
+</ul>
+
+<h1 id="第iv部分高级主题-2">第IV部分高级主题</h1>
+
+<h2 id="第17-章标准库特殊设施-2">第17 章标准库特殊设施</h2>
+<p>标准库设施是:&lt;!JEKYLL@2780@0&gt; 、&lt;!JEKYLL@2780@1&gt;、随机生成数及正则表达式。</p>
+
+<h3 id="171-tuple-类型-2">17.1 tuple 类型</h3>
+<p>tuple类似于pair是将一些数据组合成单一的对象。可以将其看做一个“快速随意”的数据结构</p>
+
+<p><strong>tuple支持的操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@2&gt;</td>
+      <td style="text-align: left">t是一个tuple，成员数为n，第i个成员的类型为Ti。所有成员都进行值初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@3&gt;</td>
+      <td style="text-align: left">t是一个tuple，成员数为n，第i个成员的类型为Ti。所有成员都使用vi进行值初始化</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@4&gt;</td>
+      <td style="text-align: left">返回一个给定初始值初始化的tuple。tuple的类型从初始值的类型推断</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@5&gt;</td>
+      <td style="text-align: left">当两个tuple具有相同数量的成员且成员对应相等时</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@6&gt;</td>
+      <td style="text-align: left">当两个tuple具有相同数量的成员且成员对应相等时之外的情况</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@7&gt;</td>
+      <td style="text-align: left">tuple的关系运算符使用字典序。两个tuple必须具有相同数量的成员。使用&lt;运算符比较t1的成员和t2中的对应成员</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@8&gt;</td>
+      <td style="text-align: left">返回t的第i个数据成员的引用；如果t是一个左值，结果是一个左值引用；否则，结果是一个右值引用。tuple的所有成员都是public的</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@9&gt;</td>
+      <td style="text-align: left">一个类模板，可以通过一个tuple类型来初始化。它有一个名为value的public constecpr static 数据成员，类型为size_t,表示给定tuple类型中成员的数量。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@10&gt;</td>
+      <td style="text-align: left">一个类模板，可以通过一个整形常量和一个tuple类型来初始化。它有一个名为&lt;!JEKYLL@2780@11&gt;的&lt;!JEKYLL@2780@12&gt;成员，表示给定&lt;!JEKYLL@2780@13&gt;类型中指定成员的类型。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用示例：</p>
+
+<p>&lt;!JEKYLL@2780@14&gt;</p>
+
+<p><strong>tuple常见用法是，函数返回多个值</strong></p>
+
+<h3 id="172-bitset类型-2">17.2 bitset类型</h3>
+<p>标准库定义了&lt;!JEKYLL@2780@15&gt;类，使得位运算的使用更为容易，并且能够处理超过最长整形类型大小的位集合。&lt;!JEKYLL@2780@16&gt;类定义在头文件&lt;!JEKYLL@2780@17&gt;中。&lt;!JEKYLL@2780@18&gt;类是一个模板，它类似&lt;!JEKYLL@2780@19&gt;类，具有固定的大小。可以在定义时声明：</p>
+
+<p>&lt;!JEKYLL@2780@20&gt;
+<strong>大小必须是一个常量表达式</strong></p>
+
+<p><strong>初始化bitset方法</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@21&gt;</td>
+      <td style="text-align: left">b有n位；每位均为0.此构造函数是一个&lt;!JEKYLL@2780@22&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@23&gt;</td>
+      <td style="text-align: left">b是&lt;!JEKYLL@2780@24&gt;值u的低n位的拷贝。如果n大于&lt;!JEKYLL@2780@25&gt;的大小，则b中超出的高位被置为0.此构造函数是一个&lt;!JEKYLL@2780@26&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@27&gt;</td>
+      <td style="text-align: left">b是&lt;!JEKYLL@2780@28&gt;从位置&lt;!JEKYLL@2780@29&gt;开始m个字符符拷贝。s只能包含字符&lt;!JEKYLL@2780@30&gt;或&lt;!JEKYLL@2780@31&gt;;如果s包含任何其它字符，构造函数会抛出&lt;!JEKYLL@2780@32&gt;异常。字符在b中分别保存为&lt;!JEKYLL@2780@33&gt;和&lt;!JEKYLL@2780@34&gt;。pos默认为0，m默认为string::npos,zero 默认为&lt;!JEKYLL@2780@35&gt;,&lt;!JEKYLL@2780@36&gt;默认为&lt;!JEKYLL@2780@37&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@38&gt;</td>
+      <td style="text-align: left">与上一个构造函数相同，但从&lt;!JEKYLL@2780@39&gt;指向的字符串数组中拷贝字符，如果m未提供，则cp必须指向一个c风格字符串，如果提供了m,则从cp开始必须至少有m个zero或one字符</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用示例:</p>
+
+<p>&lt;!JEKYLL@2780@40&gt;</p>
+
+<p>注意：</p>
+
+<p>string 的下标编号习惯与bitset恰好相反；string中下标最大的字符(最右字符)用来初始化&lt;!JEKYLL@2780@41&gt;中的低位(下标为0的二进制位)。</p>
+
+<p>&lt;!JEKYLL@2780@42&gt;</p>
+
+<p><img src="wangpengcheng.github.io/img/2019-06-09-bitset-string.png" alt="初始化流程"></p>
+
+<h4 id="1722-bitset操作-2">17.2.2 bitset操作</h4>
+
+<p><strong>bitset操作表</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@43&gt;</td>
+      <td style="text-align: left">b中是否存在置位的二进制位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@44&gt;</td>
+      <td style="text-align: left">b中所有位都置位了吗</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@45&gt;</td>
+      <td style="text-align: left">b中不存在位置的二进制位吗</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@46&gt;</td>
+      <td style="text-align: left">b中置位的位数</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@47&gt;</td>
+      <td style="text-align: left">一个&lt;!JEKYLL@2780@48&gt;函数，返回b中的位数</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@49&gt;</td>
+      <td style="text-align: left">若pos位是置位的，则返回true,否则返回false</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@50&gt;</td>
+      <td style="text-align: left">将位置pos处的位设置为bool值v。v默认为true。如果未传递实参，将b中所有位置复位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">&lt;!JEKYLL@2780@51&gt;</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@52&gt;</td>
+      <td style="text-align: left">将位置pos处的位复位或将b中所有位复位</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">&lt;!JEKYLL@2780@53&gt;</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@54&gt;</td>
+      <td style="text-align: left">改变位置&lt;!JEKYLL@2780@55&gt;处的位的状态或改变b中每一位的状态</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">&lt;!JEKYLL@2780@56&gt;</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left">b[pos]</td>
+      <td style="text-align: left">访问b中位置pos处的位，如果b是const的，则当该位置位时b[pos]返回一个bool值true,否则返回&lt;!JEKYLL@2780@57&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@58&gt;</td>
+      <td style="text-align: left">返回一个unsigned long 或者一个unsigned long long值，其位模式与b相同。如果b中位模式不能放入指定的结果类型，则抛出一个&lt;!JEKYLL@2780@59&gt;异常</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@60&gt;</td>
+      <td style="text-align: left">返回一个string,表示b中的位模式。zero和one的默认值分别为0和1，用来表示b中的0和1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@61&gt;</td>
+      <td style="text-align: left">将b中二进制位打印为字符1或者0，打印到流&lt;!JEKYLL@2780@62&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@63&gt;</td>
+      <td style="text-align: left">从is读取字符存入b。当下一个字符不是1或者0时，或是已经读入b.size()个位时，读取过程停止</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>提取bitset的值</strong></p>
+
+<p>&lt;!JEKYLL@2780@64&gt;
+注意：</p>
+
+<p>如果bitset中的值不能放入给定类型中，则这两个操作会抛出一个&lt;!JEKYLL@2780@65&gt;</p>
+
+<p><strong>bitset的IO运算符</strong></p>
+
+<p>&lt;!JEKYLL@2780@66&gt;</p>
+<h4 id="173-正则表达式-2">17.3 正则表达式</h4>
+
+<p><em>参考链接：</em> <a href="http://www.cplusplus.com/reference/regex/">regex</a>;</p>
+
+<p>正则表达式是一种描述字符序列的方法，是一种极其强大的计算工具。本章重点介绍正则表达式库(RE)</p>
+
+<p><strong>正则表达式库组件</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">组件</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@67&gt;</td>
+      <td style="text-align: left">表示有一个正则表达式的类</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@68&gt;</td>
+      <td style="text-align: left">将一个字符序列与一个正则表达式匹配</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@69&gt;</td>
+      <td style="text-align: left">寻找第一个与正则表达式匹配的子序列</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@70&gt;</td>
+      <td style="text-align: left">使用给定格式替换一个正则表达式</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@71&gt;</td>
+      <td style="text-align: left">迭代适配器，调用&lt;!JEKYLL@2780@72&gt;来遍历一个&lt;!JEKYLL@2780@73&gt;中所有匹配的子串</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@74&gt;</td>
+      <td style="text-align: left">容器类，保存在&lt;!JEKYLL@2780@75&gt;中搜索的结果</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@76&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@77&gt;中匹配的子表达式的结果</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>regex_search和regex_match的参数</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">参数</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@78&gt;</td>
+      <td style="text-align: left">在字符序列&lt;!JEKYLL@2780@79&gt;中查找&lt;!JEKYLL@2780@80&gt;对象r中的正则表达式。seq可以是一个string、表示范围的一对迭代器以及一个指向空字符皆为的字符数组的指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@81&gt;</td>
+      <td style="text-align: left">m是一个match对应，用来保存匹配结果的相关细节，m和seq必须具有兼容的类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2">
+</td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<p>正则表达式简单使用示例</p>
+
+<p>&lt;!JEKYLL@2780@83&gt;
+<strong>regex(和wregex)选项</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">选项</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@84&gt;</td>
+      <td style="text-align: left">re表示一个正则表达式，它可以是一个&lt;!JEKYLL@2780@85&gt;、一个表示字符范围的迭代器对、一个指向空字符结尾的字符数组的指针、一个字符指针和一个计数器或是一个花括符包围的字符列表。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@86&gt;</td>
+      <td style="text-align: left">f是指出对象如何处理的标志。通过下面列出的值来设置。如果未指定f，其摩恩值为&lt;!JEKYLL@2780@87&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@88&gt;</td>
+      <td style="text-align: left">将r1中的正则表达式替换为&lt;!JEKYLL@2780@89&gt;。&lt;!JEKYLL@2780@90&gt;表示一个正则表达式，它可以是另外一个&lt;!JEKYLL@2780@91&gt;对象、一个&lt;!JEKYLL@2780@92&gt;、一个指向空字符结尾的字符串数组的指针或是一个花括号保卫的字符串列表</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@93&gt;</td>
+      <td style="text-align: left">与使用赋值运算符(=)效果相同；可选的标志&lt;!JEKYLL@2780@94&gt;也与&lt;!JEKYLL@2780@95&gt;的构造函数中对应的参数含义相同</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@96&gt;</td>
+      <td style="text-align: left">r中子表达式的数目</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@97&gt;</td>
+      <td style="text-align: left">返回&lt;!JEKYLL@2780@98&gt;的标志</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>定义regex时指定的标志</strong>
+定义则regex和regex_constants::syntax_option_type中</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">选项</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@99&gt;</td>
+      <td style="text-align: left">在匹配过程中忽略大小写</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@100&gt;</td>
+      <td style="text-align: left">不保存匹配的子表达式</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@101&gt;</td>
+      <td style="text-align: left">执行速度优先于构造速度</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@102&gt;</td>
+      <td style="text-align: left">使用&lt;!JEKYLL@2780@103&gt;指定的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@104&gt;</td>
+      <td style="text-align: left">使用POSIX基本的正则表达式语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@105&gt;</td>
+      <td style="text-align: left">使用POSIX扩展的正则表达式语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@106&gt;</td>
+      <td style="text-align: left">使用POSIX版本的awk语言的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@107&gt;</td>
+      <td style="text-align: left">使用POSIX版本的grep的语法</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@108&gt;</td>
+      <td style="text-align: left">使用POSIX版本的egrep的语法</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>std::regex_match使用示例</p>
+
+<p>&lt;!JEKYLL@2780@109&gt;</p>
+
+<p>注意：
+一个正则表达式的语法是否正确是在运行时解析的。可以使用&lt;!JEKYLL@2780@110&gt;来抛出异常。</p>
+
+<p><strong>异常类型表</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">异常类型</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@111&gt;</td>
+      <td style="text-align: left">The expression contained an invalid collating element name.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@112&gt;</td>
+      <td style="text-align: left">The expression contained an invalid character class name.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@113&gt;</td>
+      <td style="text-align: left">The expression contained an invalid escaped character, or a trailing escape.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@114&gt;</td>
+      <td style="text-align: left">The expression contained an invalid back reference.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@115&gt;</td>
+      <td style="text-align: left">The expression contained mismatched brackets ([ and ]).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@116&gt;</td>
+      <td style="text-align: left">The expression contained mismatched parentheses (( and )).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@117&gt;</td>
+      <td style="text-align: left">The expression contained mismatched braces ({ and }).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@118&gt;</td>
+      <td style="text-align: left">The expression contained an invalid range between braces ({ and }).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@119&gt;</td>
+      <td style="text-align: left">The expression contained an invalid character range.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@120&gt;</td>
+      <td style="text-align: left">There was insufficient memory to convert the expression into a finite state machine.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@121&gt;</td>
+      <td style="text-align: left">The expression contained a repeat specifier (one of *?+{) that was not preceded by a valid regular expression.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@122&gt;</td>
+      <td style="text-align: left">The complexity of an attempted match against a regular expression exceeded a pre-set level.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@123&gt;</td>
+      <td style="text-align: left">There was insufficient memory to determine whether the regular expression could match the specified character sequence.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意： 正则表达式的编译是一个非常慢的操作，特别是你在使用了扩展的正则表达式语法或者复杂的正则表达式的时候。应该尽量避免使用。</p>
+
+<p><strong>正则表达式库类</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">如果输入序列类型</th>
+      <th style="text-align: left">则使用正则表达式类</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@124&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@125&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@126&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@127&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@128&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@129&gt;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;!JEKYLL@2780@130&gt;</td>
+      <td style="text-align: left">&lt;!JEKYLL@2780@131&gt;</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>ECMAScript正则表达式语句基本特性</p>
+
+<ul>
+  <li>&lt;!JEKYLL@2780@132&gt;表示单个数字而&lt;!JEKYLL@2780@133&gt;则表示一个&lt;!JEKYLL@2780@134&gt;个数字的序列。如，&lt;!JEKYLL@2780@135&gt;匹配三个数组的序列。</li>
+  <li>在方括号中的字符集和表示匹配这些字符中任意一个。如&lt;!JEKYLL@2780@136&gt;匹配一个&lt;!JEKYLL@2780@137&gt;或&lt;!JEKYLL@2780@138&gt;或&lt;!JEKYLL@2780@139&gt;。</li>
+  <li>后接’?’的组件是可以选的。如，&lt;!JEKYLL@2780@140&gt;匹配这样的序列：开始是三个数字，后接一个可选的短横线或点或空格，然后是四个数字。</li>
+  <li>使用反斜线&lt;!JEKYLL@2780@141&gt;表示一个字符本身而不是其特殊含义。因此必须使用&lt;!JEKYLL@2780@142&gt;和&lt;!JEKYLL@2780@143&gt;来表示括号是我们模式的一部分而不是特殊字符。</li>
+  <li>由于反斜线是c++中的特殊字符，在模式中，每次出现的地方，我们都必须使用一个额外的反斜线来告诉c++我们需要一个反斜线字符而不是特殊符号。例如<code class="language-plaintext highlighter-rouge">\{d}{3}</code>来表示正则表达式<code class="language-plaintext highlighter-rouge">\{d}{3}</code>
+</li>
+</ul>
+
+<p>一个正则表达式的字符串分析：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"(\()?(\d{3})(\))?([-. ])?(\d{3})([-. ]?)(\d{4})"</span><span class="p">;</span>
+</code></pre></div></div>
+<p>整个正则表达式包含一个字表达式： (ddd)分隔符ddd分隔符dddd。剥离子表达式：</p>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">(\()?</code>表示区号可选的左括号</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">(\d{3})</code>表示区号</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">(\))?</code>表示区号部分可选的右括号</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">([-. ])?</code>表示区号部分可选的分隔符</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">(\d{3})</code>表示号码的下三位数字</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">[-. ]?</code>表示可选的分隔符</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">(\d{4})</code>表示号码的最后四位数字</li>
+</ol>
+
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">string</span> <span class="n">phone</span><span class="o">=</span><span class="s">"(\()?(\d{3})(\))?([-. ])?(\d{3})([-. ]?)(\d{4})"</span><span class="p">;</span>
+
+<span class="n">regex</span> <span class="nf">r</span><span class="p">(</span><span class="n">phone</span><span class="p">);</span> <span class="c1">// regex对象，用于查找我们的模式</span>
+
+<span class="n">smatch</span> <span class="n">m</span><span class="p">;</span>
+<span class="n">string</span> <span class="n">s</span><span class="p">;</span>
+
+<span class="c1">//从文件中读取每条记录</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">getline</span><span class="p">(</span><span class="n">cin</span><span class="p">,</span><span class="n">s</span><span class="p">)){</span>
+    <span class="c1">//对每个匹配的电话号码</span>
+    
+    <span class="k">for</span><span class="p">(</span><span class="n">sregex_iterator</span> <span class="n">it</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">r</span><span class="p">),</span><span class="n">end_it</span><span class="p">;</span><span class="n">it</span><span class="o">!=</span><span class="n">end_it</span><span class="p">;</span><span class="o">++</span><span class="n">it</span><span class="p">){</span>
+        <span class="c1">//检查号码的格式是否合法</span>
+        
+        <span class="k">if</span><span class="p">(</span><span class="n">valid</span><span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">)){</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"valid:"</span><span class="o">&lt;&lt;</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">str</span><span class="p">()</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"not valid:"</span><span class="o">&lt;&lt;</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">str</span><span class="p">()</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h5 id="regex_replace">regex_replace</h5>
+<p><em>参考链接：</em> <a href="http://www.cplusplus.com/reference/regex/regex_replace/">regex_replace</a>;</p>
+
+<p><strong>正则表达式替换操作</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// regex_replace example</span>
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;regex&gt;
+#include &lt;iterator&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">()</span>
+<span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">s</span> <span class="p">(</span><span class="s">"there is a subsequence in the string</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">regex</span> <span class="n">e</span> <span class="p">(</span><span class="s">"</span><span class="se">\b</span><span class="s">(sub)([^ ]*)"</span><span class="p">);</span>   <span class="c1">// matches words beginning by "sub"</span>
+  <span class="c1">// using string/c-string (3) version:</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">regex_replace</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="s">"sub-$2"</span><span class="p">);</span>
+  <span class="c1">// using range/c-string (6) version:</span>
+ 
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">result</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">regex_replace</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">back_inserter</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">s</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">e</span><span class="p">,</span> <span class="s">"$2"</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">;</span>
+  <span class="c1">// with flags:</span>
+  
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">regex_replace</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="s">"$1 and $2"</span><span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">regex_constants</span><span class="o">::</span><span class="n">format_no_copy</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+
+result :
+there is a sub-sequence in the string
+there is a sequence in the string
+sub and sequence
+
+ */</span>
+
+</code></pre></div></div>
+
+<p><strong>正则表达式匹配选项</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">flag*</th>
+      <th style="text-align: left">effects</th>
+      <th style="text-align: left">notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_default</code></td>
+      <td style="text-align: left">Default</td>
+      <td style="text-align: left">Default matching behavior. This constant has a value of zero**.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_not_bol</code></td>
+      <td style="text-align: left">Not Beginning-Of-Line</td>
+      <td style="text-align: left">The first character is not considered a beginning of line (“^” does not match).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_not_eol</code></td>
+      <td style="text-align: left">Not End-Of-Line</td>
+      <td style="text-align: left">The last character is not considered an end of line (“$” does not match).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_not_bow</code></td>
+      <td style="text-align: left">Not Beginning-Of-Word</td>
+      <td style="text-align: left">The escape sequence “\b” does not match as a beginning-of-word.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_not_eow</code></td>
+      <td style="text-align: left">Not End-Of-Word</td>
+      <td style="text-align: left">The escape sequence “\b” does not match as an end-of-word.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_any</code></td>
+      <td style="text-align: left">Any match</td>
+      <td style="text-align: left">Any match is acceptable if more than one match is possible.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_not_null </code></td>
+      <td style="text-align: left">Not null</td>
+      <td style="text-align: left">Empty sequences do not match.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_continuous</code></td>
+      <td style="text-align: left">Continuous</td>
+      <td style="text-align: left">The expression must match a sub-sequence that begins at the first character.Sub-sequences must begin at the first character to match.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">match_prev_avail</code></td>
+      <td style="text-align: left">Previous Available</td>
+      <td style="text-align: left">One or more characters exist before the first one. (match_not_bol and match_not_bow are ignored)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">format_default</code></td>
+      <td style="text-align: left">Default formatting</td>
+      <td style="text-align: left">Uses the standard formatting rules to replace matches (those used by ECMAScript’s replace method). This constant has a value of zero**.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">format_sed</code></td>
+      <td style="text-align: left">sed formatting</td>
+      <td style="text-align: left">Uses the same rules as the sed utility in POSIX to replace matches.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">format_no_copy</code></td>
+      <td style="text-align: left">No copy</td>
+      <td style="text-align: left">The sections in the target sequence that do not match the regular expression are not copied when replacing matches.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">format_first_only</code></td>
+      <td style="text-align: left">First only</td>
+      <td style="text-align: left">Only the first occurrence of a regular expression is replaced.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">string</span> <span class="n">fmt</span><span class="o">=</span><span class="s">"$2.$5.$7"</span><span class="p">;</span> <span class="c1">//将号码格式改为 ddd.ddd.dddd</span>
+
+<span class="n">regex</span> <span class="nf">r</span><span class="p">(</span><span class="n">phone</span><span class="p">);</span>  <span class="c1">//用来寻找模式的regex对象</span>
+
+<span class="n">string</span> <span class="n">number</span><span class="o">=</span><span class="s">"(908) 555-1800"</span><span class="p">;</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">number</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">fmt</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<h3 id="174-随机数">17.4 随机数</h3>
+
+<p><em>参考链接：</em> <a href="http://www.cplusplus.com/reference/random/">random</a>;</p>
+
+<p>c++中的随机数标准库定义在<code class="language-plaintext highlighter-rouge">random</code>头文件中。包含 <strong>随机数引擎类(random-number engines)</strong>和 <strong>随机数分布类(random-number distribution)</strong>。一个引擎类可以生成<code class="language-plaintext highlighter-rouge">unsigined</code>随机数序列，一个分布类使用一个引擎类生成指定类型的、在戈丁范围内的、服从特定概率分布的随机数。</p>
+
+<p>注意：
+c++程序不应该使用库函数<code class="language-plaintext highlighter-rouge">rand</code>,而应该使用<code class="language-plaintext highlighter-rouge">default_random_engine</code>类和恰当的分布类对象。</p>
+
+<h5 id="1741-随机数引擎和分布">17.4.1 随机数引擎和分布</h5>
+
+<p>注意:</p>
+<ul>
+  <li>使用随机数引擎应该使用<code class="language-plaintext highlighter-rouge">static</code>关键字修饰。从而每次都生成新的数，否则产生的两次数可能相同。</li>
+  <li>一个给定的随机数发生器一直会生成相同的随机数序列，一个函数如果定义了局部的随机数发生器，应该将其（包括引擎和分布对象）定义为static的。否则，每次调用函数都会生成相同的序列。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="o">&gt;</span> <span class="n">good_randVec</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//定义为static的，从而每次调用都生成新的数</span>
+    
+    <span class="k">static</span> <span class="n">default_random_engine</span> <span class="n">e</span><span class="p">;</span>
+    <span class="k">static</span> <span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="o">&gt;</span> <span class="n">u</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">9</span><span class="p">);</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">100</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">u</span><span class="p">(</span><span class="n">e</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><strong>随机数引擎基本操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">Engine e</code></td>
+      <td style="text-align: left">默认构造函数；使用该引擎类型默认的种子</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">Engine e(s)</code></td>
+      <td style="text-align: left">使用整型值s作为种子</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">e.seed(s)</code></td>
+      <td style="text-align: left">使用种子s重置引擎的状态</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">e.min()</code></td>
+      <td style="text-align: left">此引擎可生成的最大和最小值</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>设置随机数种子</strong> 
+通过设置随机数种子引擎可以产生不同的随机数结果。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">default_random_engine</span> <span class="n">e1</span><span class="p">;</span> <span class="c1">//使用默认的种子</span>
+
+<span class="n">default_random_engine</span> <span class="nf">e2</span><span class="p">(</span><span class="mi">2147483646</span><span class="p">);</span> <span class="c1">//使用给定的种子值</span>
+
+<span class="n">default_random_engine</span> <span class="n">e3</span><span class="p">;</span>  
+<span class="n">e3</span><span class="p">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">32767</span><span class="p">);</span>
+<span class="n">default_random_engine</span> <span class="nf">e4</span><span class="p">(</span><span class="mi">32767</span><span class="p">);</span>  <span class="c1">//e3和e4种子相同将会产生相同的随机数。</span>
+
+<span class="n">default_random_engine</span> <span class="nf">e5</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>  <span class="c1">//稍微随机些的种子</span>
+
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>time生成的随机种子，作为一个自动的过程反复运行，将time的返回值作为种子的方式就无效了；它可能多次使用的都是相同的种子。</li>
+  <li>引擎必须在循环外，否则可能每步循环都产生相同的随机值。</li>
+</ul>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">uniform_real_distribution</code>来实现函数的映射。使用示例如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">default_random_engine</span> <span class="n">e</span><span class="p">;</span> <span class="c1">//生成无符号的随机数</span>
+
+<span class="n">uniform_real_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">u</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// 0到1(包含)的均匀分布</span>
+
+<span class="k">for</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">u</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="s">""</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>非均匀分布的随机数</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">函数方法</th>
+      <th style="text-align: left">说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">normal_distribution(a,b)</code></td>
+      <td style="text-align: left">标准随机分布，a为均值，b为标准差</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">bernoulli_distribution(m)</code></td>
+      <td style="text-align: left">布尔分布,不接受任何额外的参数时，都是50/50的机会，当m为0.55时则双方机会不均等</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="175-io库再探">17.5 IO库再探</h3>
+
+<p>当操作符改变流的格式状态的时候，通常改变后的状态对所有后续IO都生效。</p>
+
+<p>对于bool值的输出需要添加关键字<code class="language-plaintext highlighter-rouge">boolalpha</code>；如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"default bool values: "</span><span class="o">&lt;&lt;</span><span class="nb">true</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="nb">false</span>
+    <span class="o">&lt;&lt;</span><span class="s">"</span><span class="se">\n</span><span class="s">alpha bool values: "</span><span class="o">&lt;&lt;</span><span class="n">boolalpha</span>
+    <span class="o">&lt;&lt;</span><span class="nb">true</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span> <span class="nb">false</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="cm">/*
+
+result:
+default bool values: 1 0
+alpha bool value: true false
+
+
+*/</span>
+</code></pre></div></div>
+<p><strong>指定整型的进制</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">showbase</span><span class="p">;</span>  <span class="c1">//打印的时候显示进制</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"default: "</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="mi">1024</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"octal: "</span><span class="o">&lt;&lt;</span><span class="n">oct</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="mi">1024</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"hex: "</span><span class="o">&lt;&lt;</span><span class="n">hex</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="mi">1024</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"decimal: "</span><span class="o">&lt;&lt;</span><span class="n">dec</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="o">&lt;&lt;</span><span class="mi">1024</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">noshowbase</span><span class="p">;</span> <span class="c1">//恢复流状态</span>
+<span class="cm">/*
+
+default: 20 1024
+octal: 024 2000
+hex: 0x14 0x400
+decimal: 20 1024
+
+ */</span>
+</code></pre></div></div>
+
+<p><strong>指定打印精度</strong></p>
+
+<p>可以通过cout的<code class="language-plaintext highlighter-rouge">precision()</code>函数和<code class="language-plaintext highlighter-rouge">setprecision()</code>函数设置显示的精度。</p>
+
+<p><strong>输入输出流中的格式控制符</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">控制符</th>
+      <th style="text-align: left">说明</th>
+      <th style="text-align: left">示例</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">boolalpha</code></td>
+      <td style="text-align: left">设置 bool 类型在数据流中显示为 true 或 false。默认情况下，bool 类型变量显示为1或0。</td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">cout &lt;&lt; boolalpha</code> ; 或 <code class="language-plaintext highlighter-rouge">boolalpha (cout)</code>;</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">noboolalpha</code></td>
+      <td style="text-align: left">设置 bool 类型在数据流中显示为 1 或 0 （恢复 bool 类型的显示状态至默认）。</td>
+      <td style="text-align: left">cout « noboolalpha ; 或 hex(noboolalpha );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">scientific</code></td>
+      <td style="text-align: left">设置浮点数以科学计数法显示。</td>
+      <td style="text-align: left">cout « scientific ; 或 hex(scientific );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fixed</code></td>
+      <td style="text-align: left">设置浮点数以标准显示法显示。</td>
+      <td style="text-align: left">cout « fixed ; 或 hex(fixed );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">hex</code></td>
+      <td style="text-align: left">设置整数类型以十六进制显示。</td>
+      <td style="text-align: left">cout « hex; 或 hex(cout);</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">dec</code></td>
+      <td style="text-align: left">设置整数类型以十进制显示（默认情况下，整数类型是以十进制显示）。</td>
+      <td style="text-align: left">cout « dec; 或 dec(cout);</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">cot</code></td>
+      <td style="text-align: left">设置整数类型以八进制显示</td>
+      <td style="text-align: left">cout « oct; 或 oct(cout);</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">internal</code></td>
+      <td style="text-align: left">数值的符号位在域宽内左对齐，数值右对齐，中间由填充字符填充。</td>
+      <td style="text-align: left">cout « internal ; 或 oct(internal );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">left</code></td>
+      <td style="text-align: left">设置输出数值或文本的显示形式为左对齐。</td>
+      <td style="text-align: left">cout « left ; 或 oct(left );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">right</code></td>
+      <td style="text-align: left">设置输出数值或文本的显示形式为右对齐。</td>
+      <td style="text-align: left">cout « right ; 或 oct(right );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">showbase</code></td>
+      <td style="text-align: left">设置数值前缀不显示</td>
+      <td style="text-align: left">cout « showbase ; 或 oct(showbase );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">noshowbase</code></td>
+      <td style="text-align: left">将数值显示的形式恢复至默认状态。</td>
+      <td style="text-align: left">cout « noshowbase ; 或 oct(noshowbase );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">showpoint</code></td>
+      <td style="text-align: left">即使小数部分为零，也显示浮点数的整数部分和小数点右侧的数字</td>
+      <td style="text-align: left">cout « showpoint ; 或 oct(showpoint );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">noshowpoint</code></td>
+      <td style="text-align: left">仅显示数值的整数部分。</td>
+      <td style="text-align: left">cout « noshowpoint ; 或 oct(noshowpoint );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">showpos</code></td>
+      <td style="text-align: left">显示正数值的 + 号。</td>
+      <td style="text-align: left">cout « showpos ; 或 oct(showpos );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">noshowpos</code></td>
+      <td style="text-align: left">忽略正数值前面的 + 号。</td>
+      <td style="text-align: left">cout « noshowpos ; 或 oct(noshowpos );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">skipws</code></td>
+      <td style="text-align: left">使 cin 获取输入时忽略空格。</td>
+      <td style="text-align: left">cout « skipws ; 或 oct(skipws );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">noskipws</code></td>
+      <td style="text-align: left">使输入流读取空格</td>
+      <td style="text-align: left">cout « noskipws ; 或 oct(noskipws );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">unitbuf</code></td>
+      <td style="text-align: left">每次执行输出操作后均会清空缓冲区。</td>
+      <td style="text-align: left">cout « unitbuf ; 或 oct(unitbuf );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">nounitbuf</code></td>
+      <td style="text-align: left">将 unitbuf 复位至默认状态。</td>
+      <td style="text-align: left">cout « nounitbuf ; 或 oct(nounitbuf );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">uppercase</code></td>
+      <td style="text-align: left">设置十六进制数值和科学计数法中的指数以大写形式显示。</td>
+      <td style="text-align: left">cout « uppercase ; 或 oct(uppercase );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">nouppercase</code></td>
+      <td style="text-align: left">设置十六进制数字和科学计数法的指数以小写形式显示</td>
+      <td style="text-align: left">cout « nouppercase ; 或 oct(nouppercase );</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">flush</code></td>
+      <td style="text-align: left">刷新缓冲区</td>
+      <td style="text-align: left">cout « “str” « flush; 或 flush(cout);</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">endl</code></td>
+      <td style="text-align: left">刷新缓冲区并插入一个换行符</td>
+      <td style="text-align: left">cout « “str” « endl; 或 endl(cout);</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>定义在iomanip中的操作符</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作符</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">setfill(ch)</code></td>
+      <td style="text-align: left">用<code class="language-plaintext highlighter-rouge">ch</code>填充空白</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">setprecision(n)</code></td>
+      <td style="text-align: left">将浮点精度设置为n</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">setw(w)</code></td>
+      <td style="text-align: left">读或写值的宽度为w个字符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">setbase(b)</code></td>
+      <td style="text-align: left">将整数输出为b进制</td>
+    </tr>
+  </tbody>
+</table>
+
+<h5 id="1752-未格式化的输入输出操作">17.5.2 未格式化的输入/输出操作</h5>
+
+<p>标准库提供了一组低层操作，支持未格式化IO.这些操作允许我们将一个流当做一个无解释的字节序列来处理。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">char</span> <span class="n">ch</span><span class="p">;</span>
+<span class="k">while</span><span class="p">(</span><span class="n">cin</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">ch</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">cout</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ch</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>单字节低层IO操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">is.get(ch)</code></td>
+      <td style="text-align: left">从<code class="language-plaintext highlighter-rouge">istream is</code>读取下一个字节存入字符<code class="language-plaintext highlighter-rouge">ch</code>中。返回<code class="language-plaintext highlighter-rouge">is</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">os.put(ch)</code></td>
+      <td style="text-align: left">将字符<code class="language-plaintext highlighter-rouge">ch</code>输出到<code class="language-plaintext highlighter-rouge">ostream os</code>。返回<code class="language-plaintext highlighter-rouge">is</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">is.get()</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">is</code>的下一个字节作为<code class="language-plaintext highlighter-rouge">int</code>返回</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">is.putback(ch)</code></td>
+      <td style="text-align: left">将字符<code class="language-plaintext highlighter-rouge">ch</code>放回<code class="language-plaintext highlighter-rouge">is</code>。返回<code class="language-plaintext highlighter-rouge">is</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">is.unget()</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">is</code>向后移动一个字节。返回<code class="language-plaintext highlighter-rouge">is</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">is.peek()</code></td>
+      <td style="text-align: left">将下一个字节作为<code class="language-plaintext highlighter-rouge">int</code>返回,但不从流中删除它</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>将字符放回输入流</strong></p>
+
+<p>标准库提供了三种方法退回字符：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">peek</code>: 返回输入流中一个字符的副本，但不会将它从流中删除，<code class="language-plaintext highlighter-rouge">peek</code>返回的值仍然留在流中。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">unget</code>:输入流向后移动，从而最后读取的值又回到流中。即使我们不知道最后从流中读取什么值，仍然可以调用<code class="language-plaintext highlighter-rouge">unget</code>。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">putpack</code>: 退回从流汇总读取的最后一个值，但它接受一个参数，此参数必须与最后读取的值相同。</li>
+</ul>
+
+<p>这些函数返回整型的主要原因是可以返回文件尾标记符。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//检测是否达到文件尾部</span>
+
+<span class="kt">int</span> <span class="n">ch</span><span class="p">;</span> <span class="c1">//使用一个int,而不是一个char来保存get()的返回值</span>
+
+<span class="c1">//循环读取并输出输入中的所有数据</span>
+
+<span class="k">while</span><span class="p">((</span><span class="n">ch</span><span class="o">==</span><span class="n">cin</span><span class="p">.</span><span class="n">get</span><span class="p">())</span><span class="o">!=</span><span class="n">EOF</span><span class="p">){</span>
+    <span class="n">cout</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">ch</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>多字节操作</strong></p>
+
+<p>多字节操作要求我们自己分配管理用来保存和提取数据的字符组操作</p>
+
+<p><strong>多字节低层IO操作</strong>
+|操作|解释|
+|:—:|:—|
+|<code class="language-plaintext highlighter-rouge">is.get(sink,size,delim)</code>|从<code class="language-plaintext highlighter-rouge">is</code>中读取最多<code class="language-plaintext highlighter-rouge">size</code>个字节，并保存在字符数组中，字符数组的其实地址由<code class="language-plaintext highlighter-rouge">sink</code>给出。读取过程直至遇到字符<code class="language-plaintext highlighter-rouge">delim</code>或读取了<code class="language-plaintext highlighter-rouge">size</code>个字节或遇到文件末尾时停止。如果遇到了<code class="language-plaintext highlighter-rouge">delim</code>,则将其留在输入流中，不读取出来存入<code class="language-plaintext highlighter-rouge">sink</code>|
+|<code class="language-plaintext highlighter-rouge">is.getline(sink,size,delim)</code>|与接受三个参数的get版本类似，但会读取并丢弃<code class="language-plaintext highlighter-rouge">delim</code>|
+|<code class="language-plaintext highlighter-rouge">is.read(sink,size)</code>|读取最多<code class="language-plaintext highlighter-rouge">size</code>个字节，存入字符数组<code class="language-plaintext highlighter-rouge">sink</code>中。返回<code class="language-plaintext highlighter-rouge">is</code>|
+|<code class="language-plaintext highlighter-rouge">is.gcount()</code>|返回上一个未格式化读取操作从is读取的字节数|
+|<code class="language-plaintext highlighter-rouge">os.write(source,size)</code>|将字符数组<code class="language-plaintext highlighter-rouge">source</code>中的<code class="language-plaintext highlighter-rouge">size</code>个字节写入<code class="language-plaintext highlighter-rouge">os</code>。返回<code class="language-plaintext highlighter-rouge">os</code>|
+|<code class="language-plaintext highlighter-rouge">is.ignore(size,delim)</code>|读取并忽略最多<code class="language-plaintext highlighter-rouge">size</code>个字节，包括<code class="language-plaintext highlighter-rouge">delim</code>。与其他未格式化函数不同，<code class="language-plaintext highlighter-rouge">ignore</code>有默认参数:size的默认值为1，<code class="language-plaintext highlighter-rouge">delim</code>的默认值为文件尾|</p>
+
+<p>注意：</p>
+<ul>
+  <li>一个常见的错误是本想从流中删除分隔符，但却忘了做。</li>
+  <li>get和getline读取字符时，get将分隔符留作istream中的下一个字符，而getline则读取并丢弃分隔符。无论哪个函数都不会将分隔符保存在<code class="language-plaintext highlighter-rouge">sink</code>中</li>
+</ul>
+
+<h5 id="1753-流随机访问">17.5.3 流随机访问</h5>
+
+<p><strong>随机IO本质上是依赖于系统的。为了理解如何使用这些特性，必须查询系统相关文档</strong></p>
+
+<p><strong>seek和tell函数</strong>
+一个函数通过将标记seek到一个给定位置来重定位它；另外一个函数tell我们标记的当前位置。后缀<code class="language-plaintext highlighter-rouge">g</code>表示正在”获得”，后缀<code class="language-plaintext highlighter-rouge">p</code>表示正在放入</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">函数</th>
+      <th style="text-align: left">定义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tellg()/tellp()</code></td>
+      <td style="text-align: left">返回一个输入流中(tellg)或输出流中(tellp)标记的当前位置</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">seekg(pos)/seekp(pos)</code></td>
+      <td style="text-align: left">根据标定的<code class="language-plaintext highlighter-rouge">pos</code>值，重定位到输入/输出流中的绝对地址</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">seekp(off,from)/seekg(off,from)</code></td>
+      <td style="text-align: left">在一个输入流或输出流中将标记定位到from之前或之后<code class="language-plaintext highlighter-rouge">off</code>个字符，<code class="language-plaintext highlighter-rouge">from</code>可以是下列值之一：<code class="language-plaintext highlighter-rouge">beg</code>,偏移量相对于流开始位置，<code class="language-plaintext highlighter-rouge">cur</code>,偏移量相对于流当前结束位置；<code class="language-plaintext highlighter-rouge">end</code>,偏移量相对于流结尾位置</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：由于只有单一的标记，因此只要我们在读写操作间切换，就必须进行<code class="language-plaintext highlighter-rouge">seek</code>操作来重定位标记。</p>
+
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="c1">//以读写方式打开文档</span>
+    
+    <span class="n">fstream</span> <span class="n">inOut</span><span class="p">(</span><span class="s">"copyout"</span><span class="p">,</span><span class="n">fstream</span><span class="o">::</span><span class="n">ate</span><span class="o">|</span><span class="n">fstream</span><span class="o">::</span><span class="n">in</span><span class="o">|</span><span class="n">fstream</span><span class="o">::</span><span class="n">out</span><span class="p">);</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">inOut</span><span class="p">){</span>
+        <span class="n">cerr</span><span class="o">&lt;&lt;</span><span class="s">"Unable to open file"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">auto</span> <span class="n">end_mark</span><span class="o">=</span><span class="n">inOut</span><span class="p">.</span><span class="n">tellg</span><span class="p">();</span> <span class="c1">//记住原文件尾位置</span>
+
+    <span class="n">inOut</span><span class="p">.</span><span class="n">seekg</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">fstream</span><span class="o">::</span><span class="n">beg</span><span class="p">);</span> <span class="c1">//重定位带文件开始</span>
+
+    <span class="kt">size_t</span> <span class="n">cnt</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="c1">//字节数累加器</span>
+
+    <span class="n">string</span> <span class="n">line</span><span class="p">;</span>  <span class="c1">//保存输入中的每行</span>
+
+    <span class="c1">// 还未遇到错误且未到末尾，持续读取</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">inOut</span><span class="o">&amp;&amp;</span> <span class="n">inOut</span><span class="p">.</span><span class="n">tellg</span><span class="p">()</span><span class="o">!=</span><span class="n">end_mark</span>
+        <span class="o">&amp;&amp;</span><span class="n">getline</span><span class="p">(</span><span class="n">inOut</span><span class="p">,</span><span class="n">line</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">cnt</span><span class="o">+=</span><span class="n">line</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="c1">//+1表示换行</span>
+
+        <span class="k">auto</span> <span class="n">mark</span><span class="o">=</span><span class="n">inOut</span><span class="p">.</span><span class="n">tellg</span><span class="p">();</span> <span class="c1">//记住读取位置</span>
+
+        <span class="n">inOut</span><span class="p">.</span><span class="n">seekp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">fstream</span><span class="o">::</span><span class="n">end</span><span class="p">);</span> <span class="c1">// 将写标记移动到问价尾</span>
+
+        <span class="n">inOut</span><span class="o">&lt;&lt;</span><span class="n">cnt</span><span class="p">;</span>   <span class="c1">//输出累计长度</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">mark</span><span class="o">!=</span><span class="n">end_mark</span><span class="p">){</span>
+            <span class="n">inOut</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">inOut</span><span class="p">.</span><span class="n">seekp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">fstream</span><span class="o">::</span><span class="n">end</span><span class="p">);</span> <span class="c1">//定位到文件尾</span>
+    <span class="p">}</span>
+
+    <span class="n">inOut</span><span class="o">&lt;&lt;</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>  <span class="c1">//文件尾部输出换行符</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/05/31/cplusplus_primer_learn_note_8/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(八)">
+                        Previous<br>
+                        <span>C++ Primer 学习笔记(八)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/06/15/cplusplus_primer_learn_note_10/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(十)">
+                        Next<br>
+                        <span>C++ Primer 学习笔记(十)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

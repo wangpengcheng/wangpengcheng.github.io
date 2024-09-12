@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>Linux程序设计 学习笔记 (二) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/08/13/beginning_linux_programming_02/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统">操作系统</a>
+                        
+                        <a class="tag" href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计">程序设计</a>
+                        
+                    </div>
+                    <h1>Linux程序设计 学习笔记 (二)</h1>
+                    
+                    
+                    <h2 class="subheading">Linux程序设计 学习笔记 (二)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on August 13, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h2 id="参考链接">参考链接：</h2>
+
+<ul>
+  <li><a href="https://www.kernel.org/doc/Documentation/">Linux内核文档首页</a></li>
+  <li><a href="https://linux.die.net/">Linux文档</a></li>
+  <li><a href="https://legacy.gitbook.com/book/wizardforcel/linux-c-api-ref/details">Linux c 开发手册</a></li>
+  <li><a href="https://www.kernel.org/doc/htmldocs/kernel-api/index.html">Linux Kernel API</a></li>
+  <li><a href="http://www.wrox.com/WileyCDA/WroxTitle/Beginning-Linux-Programming-4th-Edition.productCd-0470147628,descCd-DOWNLOAD.html">书中代码地址</a></li>
+</ul>
+
+<h2 id="第三章-文件操作">第三章 文件操作</h2>
+
+<h3 id="31-linux文件结构">3.1 linux文件结构</h3>
+<p><em>参考链接：</em>　</p>
+<ul>
+  <li>
+<a href="https://blog.csdn.net/cywosp/article/details/38965239">每天进步一点点——Linux中的文件描述符与打开文件之间的关系</a>；</li>
+  <li>
+<a href="https://blog.csdn.net/u014743697/article/details/52663975">Linux文件读写机制及优化方式</a>;</li>
+  <li><a href="https://blog.csdn.net/LYJwonderful/article/details/80646602">【Linux学习笔记】标准IO缓冲：行缓冲、全缓冲、无缓冲</a></li>
+</ul>
+
+<p>linux中一切皆是文件。</p>
+
+<p>文件除了本身的文件内容外，还有文件的附属管理信息，这些保存在<code class="language-plaintext highlighter-rouge">inode</code>节点中。目录是用于保存其他文件的节点号和节点名字的文件，目录文件中的每个数据项都是指向某个文件节点的链接，删除文件名就是删除与之对应的链接。
+删除文件时，就是删除了文件的目录项，并且指向该文件的链接数目-1。文件中的数据仍然能够通过其它指向链接访问到。被链接数为0时，才会被正真删除。</p>
+
+<p>引文linux中一切皆是文件的思想，其中硬件设备都是文件，可以使用，mount进行设备的挂载：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mount -t iso9660 /dev/hdc/ /mnt/cdrom
+cd /mut/cdrom
+</code></pre></div></div>
+
+<p>重要的控制设备目录有三个：</p>
+
+<ul>
+  <li>/dev/console:控制台设备</li>
+  <li>/dev/tty: 控制终端</li>
+  <li>/dev/null: 空设备，所有向这个设备中的输出都将被丢弃。</li>
+</ul>
+
+<p>操作系统的内核是一组 <strong>设备驱动程序</strong>；内核提供了用于访问设备驱动程序的底层函数(系统调用)：open、read、write、close、ioctl等相关信息。</p>
+
+<p>输入输出底层系统调用的效率非常低。</p>
+<ul>
+  <li>会影响系统性能：linux需要从用户态，切换到内核状态。因此应该每次读写大量的数据而不是每次仅仅读写一个字符。</li>
+  <li>硬件会限制对底层系统调用一次能读写的数据块的大小。</li>
+</ul>
+
+<p>针对上述情况，linux提供了标准的函数接口<code class="language-plaintext highlighter-rouge">stdio.h</code>。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-24-14-17-46.png" alt="文件读取调用"></p>
+
+<h4 id="341-write调用">3.4.1 write调用</h4>
+
+<p>格式：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;unistd.h&gt;
+
+size_t write(int fildes,const void *buf,size_t nbytes);
+</code></pre></div></div>
+
+<p>将缓冲区buf的前nbytes个字节写入文件描述符<code class="language-plaintext highlighter-rouge">fildes</code>关联的文件中返回实际的字节数，如果存在错误，返回的实际字节数可能小鱼<code class="language-plaintext highlighter-rouge">nbytes</code>。</p>
+
+<h4 id="342-read系统调用">3.4.2 read系统调用</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">size_t</span> <span class="nf">read</span><span class="p">(</span><span class="kt">int</span> <span class="n">fildes</span><span class="p">,</span><span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nbytes</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<p>和上面基本相同只是变成了读取</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">nread</span><span class="p">;</span>
+
+    <span class="n">nread</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="mi">128</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">"A read error has occurred</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">26</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">((</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">nread</span><span class="p">))</span> <span class="o">!=</span> <span class="n">nread</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">"A write error has occurred</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="mi">27</span><span class="p">);</span>
+
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cp"># input : hello there | ./simple_read
+# output :hello there
+</span></code></pre></div></div>
+
+<h4 id="343-open-系统调用">3.4.3 open 系统调用</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;fcntl.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/stat.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">open</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="kt">int</span> <span class="n">oflags</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">open</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="kt">int</span> <span class="n">oflags</span><span class="p">,</span><span class="n">mode_t</span> <span class="n">mode</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p>open建立了一条文件或者设备的访问方式。调用成功，返回一个可以被read、write和其它系统调用的文件描述符fildes。这个不会和其它正在运行中的进程共享。即便是同一文件，不同进程，也会产生不同的共享访问符号。因此文件同时读写的时候，会相互副高。一般使用文件锁来防止出现冲突。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-24-14-41-31.png" alt="open的访问模式"></p>
+
+<p>POSIX规范还标准化了一个creat调用，相当于<code class="language-plaintext highlighter-rouge">oflags=O_CREAT|O_WONLY|O_TRUNC</code></p>
+
+<h4 id="344-访问权限设置">3.4.4 访问权限设置</h4>
+
+<p>使用<code class="language-plaintext highlighter-rouge">O_CREAT</code>标志的open滴啊用来创建文件时，需要用3个参数格式的open调用。第三个参数mode是几个标志按位或后得到的。</p>
+
+<ul>
+  <li>S_IRUSR:读权限，文件属主。</li>
+  <li>S_IWUSR:写权限，文件属主。</li>
+  <li>S_IXUSR:执行权限，文件属主。</li>
+  <li>S_IRGRP:读权限，文件所属组。</li>
+  <li>S_IWGRP:写权限，文件所属组。</li>
+  <li>S_IXGRP:执行权限，文件所属组。</li>
+  <li>S_IROTH:读权限，其它用户。</li>
+  <li>S_IWOTH:写权限，其它用户。</li>
+  <li>S_IXOTH:执行权限，其它用户。</li>
+</ul>
+
+<p>示例：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">open</span><span class="p">(</span><span class="s">"myfile"</span><span class="p">,</span><span class="n">O_CREAT</span><span class="p">,</span><span class="n">S_IRUSR</span><span class="o">|</span><span class="n">S_IXOTH</span><span class="p">);</span>
+
+</code></pre></div></div>
+<h5 id="3441-umask">3.4.4.1 umask</h5>
+
+<p>这里的权限设置，实际上海市发送权限请请求，是否被设置，取决于当时umask的值。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-24-14-56-18.png" alt="umask取值的含义1"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-24-14-57-20.png" alt="umask取值的含义2"></p>
+
+<p>chmod操作也就是在直接更改umask的值。</p>
+
+<h5 id="3442-close系统调用">3.4.4.2 close系统调用</h5>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">close</span><span class="p">(</span><span class="kt">int</span> <span class="n">fildes</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p>这里使用close主要是滴啊用终止文件描述符fildes与文件之间的关联。文件描述符被释放能够重新使用。返回正确为0，返回错误为-1</p>
+
+<p>注意：对于网络文件系统，可能不会在关闭文件之前报告文件写操作中出现的错误。因为在执行写操作时，数据可能未被确认写入。</p>
+
+<h5 id="3443-ioctl系统调用">3.4.4.3 ioctl系统调用</h5>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">ioctl</span><span class="p">(</span><span class="kt">int</span> <span class="n">fildes</span><span class="p">,</span><span class="kt">int</span> <span class="n">cmd</span><span class="p">,...);</span> 
+</code></pre></div></div>
+
+<p>提供了一个用于控制设备及其描述符行为和配置服务的借口。</p>
+
+<h4 id="345-其它文件管理有关的系统调用">3.4.5 其它文件管理有关的系统调用</h4>
+
+<h5 id="3451-lseek系统调用">3.4.5.1 lseek系统调用</h5>
+
+<p>对文件描述符<code class="language-plaintext highlighter-rouge">fildes</code>的读写指针进行设置，可以用来设置文件的下一个读写位置。位置可以是文件中的绝对位置，也可以使相对于当前位置或者文件尾部的某个而相对位置。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#includ &lt;unistd.h&gt;
+</span>
+<span class="cp">#includ &lt;sys/types.h&gt;
+</span>
+<span class="kt">off_t</span> <span class="nf">lseek</span><span class="p">(</span><span class="kt">int</span> <span class="n">fildes</span><span class="p">,</span><span class="kt">off_t</span> <span class="n">offset</span><span class="p">,</span><span class="kt">int</span> <span class="n">whence</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p>whence是一个枚举值，用来定义该值便宜的用法：</p>
+
+<ul>
+  <li>SEEK_SET: offset是一个绝对值</li>
+  <li>SEEK_CUR: offset是相对于当前位置的一个相对位置。</li>
+  <li>SEEK_END: offset是相对于文件尾的一个相对位置。</li>
+</ul>
+
+<h5 id="3452-fstatstat和lstat系统调用">3.4.5.2 fstat、stat、和lstat系统调用</h5>
+
+<p>这些是文件描述符相关的问价状态信息，该信息将会写到一个buf结构中，buf的地址以参数形式传递给fstat。其原型如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;unistd.h&gt;
+
+#include &lt;sys/stat.h&gt;
+
+#include &lt;sys/types.h&gt;
+
+int fstat(int fildes,struct stat *buf);
+int stat(const char *path,struct stat *buf);
+int lstat(const char *path,struct stat *buf);
+
+</code></pre></div></div>
+
+<p>stat和lstat返回的是通过文件名查找到的状态信息。但是当文件是符号链接时，lstat返回符号链接本身信息，stat返回 <strong>符号链接指向的信息</strong>。stat结构成员内容如下：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-24-15-30-18.png" alt="结构体成员"></p>
+
+<p>st_mode关键字定义在头文件<code class="language-plaintext highlighter-rouge">sys/stat.h</code>中。这些宏包括对访问权限、问价类型标志以及一些用于帮助测试特定类型和权限的掩码的定义。</p>
+
+<ul>
+  <li>S_IFBLK: 文件是一个特殊的块设备。</li>
+  <li>S_IFDIR: 文件是一个目录</li>
+  <li>S_IFCHR: 文件是一个特殊的字符设备</li>
+  <li>S_IFIFO: 文件是一个FIFO(命名管道)</li>
+  <li>S_IFREG: 文件是一个普通文件。</li>
+  <li>S_FLNK: 文件是一个链接符号。</li>
+</ul>
+
+<p>其它模式标志：</p>
+
+<ul>
+  <li>S_ISUID:文件设置了SUID位。</li>
+  <li>S_ISGID:文件设置了SGID位。</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-24-15-36-41.png" alt="其它文件类型"></p>
+
+<h5 id="3453-dup和dup2系统调用">3.4.5.3 dup和dup2系统调用</h5>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">dup</span><span class="p">(</span><span class="kt">int</span> <span class="n">fildes</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">dup2</span><span class="p">(</span><span class="kt">int</span> <span class="n">fildes</span><span class="p">,</span><span class="kt">int</span> <span class="n">fildes2</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>上面主要是复制文件描述符，可以通过更多的文件描述符访问同一个文件。</p>
+
+<h3 id="35-标准io库">3.5 标准I/O库</h3>
+
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/gkzscs/article/details/83033337">Linux下标准I/O缓冲机制</a></p>
+
+<p>与c标准I/O相同，但是与C++中的输入和书而出流不同，c++中是单独的输出流模型，同时为了兼容C，与C的输入输出同步，会比较慢，因此可以使用<code class="language-plaintext highlighter-rouge">ios::sync_with_stdio(false);</code>,这样c++流会块很多。</p>
+
+<p>其中的主要函数有：</p>
+
+<ul>
+  <li>fopen:</li>
+  <li>fclose:</li>
+  <li>fread:</li>
+  <li>fwrite:</li>
+  <li>fflush:将文件流中的所有未写出的数据立刻写处理啊，确保程序继续执行前数据都已经被写到磁盘上了，flclose中隐含了一次fflush调用。</li>
+  <li>fseek:与lseek对应的文件流函数。为下一次读写操作指定位置。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">fseek</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span><span class="kt">long</span> <span class="kt">int</span> <span class="n">offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">whence</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>fgetc,getc,getchar:fgetc和getc基本相同，都是从文件流中取出一个字符返回，当它达到文件文件末尾过着出现错误时返回EOF；getchar相当于get(stdin),从标准输入里读取下一个字符。</p>
+  </li>
+  <li>fputc、putc和putchar和基本一致，不过多了输出字符参数<code class="language-plaintext highlighter-rouge">c</code>。</li>
+  <li>fgets和gets：前者从文件流stream中读取一个字符串，遇到换行符或者结束文件末尾，将换行符传递到接收字符串中并添加<code class="language-plaintext highlighter-rouge">\n</code>表示字符串结尾，因此实际输出字符串数目为<code class="language-plaintext highlighter-rouge">n-1</code>。后者从标准输入中读取数据并丢弃遇到的换行符。在接收字符传的尾部加上一个null字符。</li>
+</ul>
+
+<p>注意： gets对传输字符的个数并没有限制，所以可能会溢出自己的传输缓冲区。因此，你应该避免使用它，并用fgets来代替。(<a href="https://www.cnblogs.com/yiyide266/p/10566160.html">[Linux]标准IO全缓冲和行缓冲</a>)</p>
+
+<h3 id="36-格式化输入和输出">3.6 格式化输入和输出</h3>
+
+<ul>
+  <li>print、fprintf和sprintf:第一个将其送到标准输出.fprintf将自己输出输送到一个指定的文件流。sprintf将输出和一个结尾空字符写到作为参数传递过来的字符串s里。
+<img src="https://wangpengcheng.github.io/img/2019-08-24-19-17-41.png" alt="输出格式1">
+<img src="https://wangpengcheng.github.io/img/2019-08-24-19-18-16.png" alt="输出格式2">
+</li>
+  <li>scanf、fscanf、sscanf：与printf基本相同。
+<img src="https://wangpengcheng.github.io/img/2019-08-24-19-19-55.png" alt="输入格式">
+</li>
+  <li>fgetpos:获取当前文件流读写的位置。</li>
+  <li>fsetpos:设置文件流的当前读写位置</li>
+  <li>ftell:返回文件流当前读写位置的偏移</li>
+  <li>freopen:重新使用一个文件流。</li>
+  <li>setvbuf:设置文件流的缓冲机制</li>
+  <li>remove:相当于unlink函数，如果path是一个目录，则相当于rmdir函数。</li>
+  <li>ferror:测试一个文件流的错误标识，如果该标识被设置就返回一个非零值，否则返回0</li>
+  <li>feof:测试一个文件流的文件尾标识，被设置则返回非零值。否则返回0.</li>
+  <li>clearerr:重新清除错误信息。</li>
+  <li>fileno:获取文件流使用的底层文件描述符。失败返回-1</li>
+  <li>fdopen:在已经打开的文件描述符上，创建一个新的文件流。实际所用是为一个已经打开的文件描述符提供stdio缓冲区。</li>
+</ul>
+
+<h3 id="37-文件和目录的维护">3.7 文件和目录的维护</h3>
+
+<ul>
+  <li>chmod:改变文件或者目录的访问权限</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">chown</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="n">uid_t</span> <span class="n">owner</span><span class="p">,</span><span class="n">git_t</span> <span class="n">group</span><span class="p">);</span>
+</code></pre></div></div>
+
+<ul>
+  <li>unlink、link和symlink:管理文件链接数目，具体的可以参考第二章中内容。</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">unlink</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">link</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path1</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path2</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">symlink</span><span class="p">(</span><span class="n">cosnt</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path1</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path2</span><span class="p">);</span>
+</code></pre></div></div>
+
+<ul>
+  <li>mkdir和rmdir:文件夹的创建与删除。</li>
+  <li>chdir和getcwd:访问和文件夹路径，获取当前文件夹路径。</li>
+  <li>opendir: 创建一个目录，并返回创建的目录流。如果成功，它返回一个指向DIR结构的指针，可以用于读取目录数据。</li>
+  <li>readdir:返回一个指针，结构里，保存一个目录流dirp中下一个目录的资料，直到返回NULL;</li>
+  <li>telldir:返回目录流中当前的位置。</li>
+  <li>seekdir:设置目录流dirp的目录项指针。loc的值用来设置指针位置。</li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+#include &lt;dirent.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">seekdir</span><span class="p">(</span><span class="kt">DIR</span> <span class="o">*</span><span class="n">dirp</span><span class="p">,</span><span class="kt">long</span> <span class="kt">int</span> <span class="n">loc</span><span class="p">);</span>
+</code></pre></div></div>
+
+<ul>
+  <li>closedir：关闭目录流。</li>
+</ul>
+
+<p>一个目录扫描程序</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;dirent.h&gt;
+</span>
+<span class="cp">#include &lt;string.h&gt;
+</span>
+<span class="cp">#include &lt;sys/stat.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">printdir</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">dir</span><span class="p">,</span> <span class="kt">int</span> <span class="n">depth</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">DIR</span> <span class="o">*</span><span class="n">dp</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">dirent</span> <span class="o">*</span><span class="n">entry</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">stat</span> <span class="n">statbuf</span><span class="p">;</span>
+
+    <span class="k">if</span><span class="p">((</span><span class="n">dp</span> <span class="o">=</span> <span class="n">opendir</span><span class="p">(</span><span class="n">dir</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">"cannot open directory: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dir</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">chdir</span><span class="p">(</span><span class="n">dir</span><span class="p">);</span>
+    <span class="k">while</span><span class="p">((</span><span class="n">entry</span> <span class="o">=</span> <span class="n">readdir</span><span class="p">(</span><span class="n">dp</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">lstat</span><span class="p">(</span><span class="n">entry</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">,</span><span class="o">&amp;</span><span class="n">statbuf</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">S_ISDIR</span><span class="p">(</span><span class="n">statbuf</span><span class="p">.</span><span class="n">st_mode</span><span class="p">))</span> <span class="p">{</span>
+            <span class="cm">/* Found a directory, but ignore . and .. */</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="s">"."</span><span class="p">,</span><span class="n">entry</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> 
+                <span class="n">strcmp</span><span class="p">(</span><span class="s">".."</span><span class="p">,</span><span class="n">entry</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%*s%s/</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">depth</span><span class="p">,</span><span class="s">""</span><span class="p">,</span><span class="n">entry</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">);</span>
+            <span class="cm">/* Recurse at a new indent level */</span>
+            <span class="n">printdir</span><span class="p">(</span><span class="n">entry</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">,</span><span class="n">depth</span><span class="o">+</span><span class="mi">4</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="n">printf</span><span class="p">(</span><span class="s">"%*s%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">depth</span><span class="p">,</span><span class="s">""</span><span class="p">,</span><span class="n">entry</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">chdir</span><span class="p">(</span><span class="s">".."</span><span class="p">);</span>
+    <span class="n">closedir</span><span class="p">(</span><span class="n">dp</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/*  Now we move onto the main function.  */</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Directory scan of /home:</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printdir</span><span class="p">(</span><span class="s">"/home"</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"done.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="39-错误处理">3.9 错误处理</h3>
+
+<p>错误代码存在子啊头文件<code class="language-plaintext highlighter-rouge">errno.h</code>中，关键内容如下所示：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-24-20-03-29.png" alt="错误处理图片"></p>
+
+<h3 id="310-proc文件处理系统">3.10 /proc文件处理系统</h3>
+
+<p>linux提供了一个特殊的文件系统procfs，通常以/proc目录的形式呈现。包含了许多特殊文件用来对驱动程序和内核信息进行更高层次的访问。只要有正确的访问权限，就可以通过读写这些文件来获取信息或者设置参数。</p>
+
+<p>proc文件夹中包含以PID命名的文件夹和其它设备文件夹，设备的基本信息就放在其中。可以直接读取这些文件就可以获取其状态信息。例如：<code class="language-plaintext highlighter-rouge">cat /proc/cpuinfo</code></p>
+
+<p>输出信息如下：</p>
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+processor   : 0
+vendor_id   : GenuineIntel
+cpu family  : 6
+model       : 94
+model name  : Intel<span class="o">(</span>R<span class="o">)</span> Core<span class="o">(</span>TM<span class="o">)</span> i5-6400 CPU @ 2.70GHz
+stepping    : 3
+microcode   : 0xcc
+cpu MHz     : 1652.835
+cache size  : 6144 KB
+physical <span class="nb">id</span> : 0
+siblings    : 4
+core <span class="nb">id</span>     : 0
+cpu cores   : 4
+apicid      : 0
+initial apicid  : 0
+fpu     : <span class="nb">yes
+</span>fpu_exception   : <span class="nb">yes
+</span>cpuid level : 22
+wp      : <span class="nb">yes</span>
+
+......
+
+</code></pre></div></div>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">cat /proc/net/sockstat</code>获得网络套接字的使用统计。</p>
+
+<h3 id="311-高级主题-fcnt1和mmap">3.11 高级主题 fcnt1和mmap</h3>
+
+<h4 id="3111-fcnt1系统调用">3.11.1 fcnt1系统调用</h4>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">fcnt1(fildes,F_DUPFD,newfd)</code>:返回一个新的文件描述符，其数值等于或者大于整数<code class="language-plaintext highlighter-rouge">newfd</code>;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">fcnt1(fildes,F_GETFD)</code>：返回在fcntl.h头文件中定义的文件描述符标志。其中包括FD_CLOEXEX，它的作用是决定是否在成功调用了某个exec系列的系统调用之后关闭该文件描述符。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">fcnt1(fildes,F_SETFD，flag)</code>:设置文件描述符标志</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">fcnt1(fildes,F_GETFL)</code>和<code class="language-plaintext highlighter-rouge">fcnt1(fildes,F_GETFL，flags)</code>:获取和设置文件庄涛标志和访问模式。</li>
+</ul>
+
+<p>可以使使用fcntl实现建议性文件锁</p>
+
+<h4 id="3112-mmap函数内存映射">3.11.2 mmap函数(内存映射)</h4>
+
+<p>建立一段可被两个或更多个程序读写的内存。一个程序对它所做出的修改可以被其它程序看见。</p>
+
+<p>mmap创建一个指向一段内存区域的指针，该内存区域与可以通过一个打开文件的描述符访问的内容相关。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/mman.h&gt;
+</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">mmap</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span><span class="kt">int</span> <span class="n">prot</span><span class="p">,</span><span class="kt">int</span> <span class="n">flags</span><span class="p">,</span><span class="kt">int</span> <span class="n">fildes</span><span class="p">,</span><span class="kt">off_t</span> <span class="n">off</span><span class="p">);</span>
+</code></pre></div></div>
+<p>使用off参数来改变，经过共享内存段访问的文件中数据的起始偏移。打开的文件描述符有<code class="language-plaintext highlighter-rouge">fildes</code>参数给出。可以访问的数据量(内存段的成都)由len参数设置。
+使用addr来请求地址，如果取值为0，结果指针将会自动分配。
+prot参数用于设置内存段的访问权限，下面是其按位OR的结果</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">PROT_READ</code>:允许读该内存段。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">PROT_WRITE</code>:允许写该内存段。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">PROT_EXEC</code>:允许执行该内存段。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">PROT_NONE</code>:该内存段不能被访问。
+flags参数影响如下：</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-30-14-14-16.png" alt="选项图片"></p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">msync</code>函数：把在该内存段的某个部分或整段中的修改写回到被映射的文件中(或者从被映射文件里读出)</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/mman.h&gt;
+</span><span class="kt">int</span> <span class="nf">msync</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span><span class="kt">int</span> <span class="n">flags</span><span class="p">);</span>
+</code></pre></div></div>
+<p>flags参数如下所示：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-30-14-24-19.png" alt="flags相关参数"></p>
+
+<p>释放内存段</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cm">/*  We start by defining a RECORD structure
+    and then create NRECORDS versions each recording their number.
+    These are appended to the file records.dat. 
+*/</span>
+
+<span class="cp">#include &lt;unistd.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;sys/mman.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">integer</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">string</span><span class="p">[</span><span class="mi">24</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">RECORD</span><span class="p">;</span>
+
+<span class="cp">#define NRECORDS (100)
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="c1">//使用record数据结构用来保存相关记录和编号。</span>
+
+    <span class="n">RECORD</span> <span class="n">record</span><span class="p">,</span> <span class="o">*</span><span class="n">mapped</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">;</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"records.dat"</span><span class="p">,</span><span class="s">"w+"</span><span class="p">);</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">NRECORDS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">record</span><span class="p">.</span><span class="n">integer</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="c1">//输出相关信息</span>
+
+        <span class="n">sprintf</span><span class="p">(</span><span class="n">record</span><span class="p">.</span><span class="n">string</span><span class="p">,</span><span class="s">"RECORD-%d"</span><span class="p">,</span><span class="n">i</span><span class="p">);</span>
+        <span class="c1">//将信息写入到文件中</span>
+
+        <span class="n">fwrite</span><span class="p">(</span><span class="o">&amp;</span><span class="n">record</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">fp</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"records.dat"</span><span class="p">,</span><span class="s">"r+"</span><span class="p">);</span>
+    <span class="c1">//重置seek中的记录为第43条</span>
+
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">43</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">),</span><span class="n">SEEK_SET</span><span class="p">);</span>
+    <span class="c1">//读取相关数据</span>
+
+    <span class="n">fread</span><span class="p">(</span><span class="o">&amp;</span><span class="n">record</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="n">record</span><span class="p">.</span><span class="n">integer</span> <span class="o">=</span> <span class="mi">143</span><span class="p">;</span>
+    <span class="c1">//输出相关的信息</span>
+
+    <span class="n">sprintf</span><span class="p">(</span><span class="n">record</span><span class="p">.</span><span class="n">string</span><span class="p">,</span><span class="s">"RECORD-%d"</span><span class="p">,</span><span class="n">record</span><span class="p">.</span><span class="n">integer</span><span class="p">);</span>
+
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="mi">43</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">),</span><span class="n">SEEK_SET</span><span class="p">);</span>
+    <span class="n">fwrite</span><span class="p">(</span><span class="o">&amp;</span><span class="n">record</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">fp</span><span class="p">);</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+
+    <span class="c1">//将记录映射到内存中，访问第43条记录，把它的整数值改为243(同时更新该记录中的字符串)</span>
+    
+    <span class="c1">//打开文件</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">"records.dat"</span><span class="p">,</span><span class="n">O_RDWR</span><span class="p">);</span>
+    <span class="c1">//进行函数映射</span>
+
+    <span class="n">mapped</span> <span class="o">=</span> <span class="p">(</span><span class="n">RECORD</span> <span class="o">*</span><span class="p">)</span><span class="n">mmap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">NRECORDS</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> 
+                          <span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="p">,</span> <span class="n">MAP_SHARED</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="c1">//获取mmap中的第43个数据</span>
+
+    <span class="n">mapped</span><span class="p">[</span><span class="mi">43</span><span class="p">].</span><span class="n">integer</span> <span class="o">=</span> <span class="mi">243</span><span class="p">;</span>
+    <span class="c1">//将数据保存在mapped[43].string中</span>
+
+    <span class="n">sprintf</span><span class="p">(</span><span class="n">mapped</span><span class="p">[</span><span class="mi">43</span><span class="p">].</span><span class="n">string</span><span class="p">,</span><span class="s">"RECORD-%d"</span><span class="p">,</span><span class="n">mapped</span><span class="p">[</span><span class="mi">43</span><span class="p">].</span><span class="n">integer</span><span class="p">);</span>
+    <span class="c1">//将修改添加到文件中</span>
+
+    <span class="n">msync</span><span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">mapped</span><span class="p">,</span> <span class="n">NRECORDS</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> <span class="n">MS_ASYNC</span><span class="p">);</span>
+    <span class="c1">//销毁映射的内存。</span>
+
+    <span class="n">munmap</span><span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">mapped</span><span class="p">,</span> <span class="n">NRECORDS</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="n">record</span><span class="p">));</span>
+    <span class="n">close</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="4-linux环境">4 Linux环境</h2>
+
+<p>在linux命令行中，建议每一个命令行开关都应该以一个短横线开头，其后包含单个字母或数字。获取参数和检查的代码如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">arg</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">arg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">arg</span> <span class="o">&lt;</span> <span class="n">argc</span><span class="p">;</span> <span class="n">arg</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">arg</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'-'</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"option: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"argument %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">arg</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>linux中提供了getopt函数，支持需要关联值和不需要关联值的选项</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">getopt</span><span class="p">(</span><span class="kt">int</span> <span class="n">aegc</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="k">const</span> <span class="n">argv</span><span class="p">[],</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">optstring</span><span class="p">);</span>
+<span class="k">extern</span> <span class="kt">char</span> <span class="o">*</span><span class="n">optarg</span><span class="p">;</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="n">optind</span><span class="p">,</span><span class="n">opterr</span><span class="p">,</span><span class="n">optopt</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>使用示例如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">opt</span><span class="p">;</span>
+
+    <span class="k">while</span><span class="p">((</span><span class="n">opt</span> <span class="o">=</span> <span class="n">getopt</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="s">"\:if\:lr"</span><span class="p">))</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">switch</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="sc">'i'</span><span class="p">:</span>
+        <span class="k">case</span> <span class="sc">'l'</span><span class="p">:</span>
+        <span class="k">case</span> <span class="sc">'r'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"option: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">opt</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="sc">'f'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"filename: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">optarg</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="sc">':'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"option needs a value</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="sc">'?'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"unknown option: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">optopt</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">for</span><span class="p">(;</span> <span class="n">optind</span> <span class="o">&lt;</span> <span class="n">argc</span><span class="p">;</span> <span class="n">optind</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"argument: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">optind</span><span class="p">]);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">//输入： ./argopt -i -lr 'hi there' -f fred.c -q</span>
+
+<span class="cm">/*
+输出：
+
+option: i
+option: l
+option: r
+filename: fred.c
+unknown option: q
+argument :hi there
+
+*/</span>
+
+</code></pre></div></div>
+
+<p>getopt_long:接受以双划线(–)开始的长参数。使用示例如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#define _GNU_SOURCE
+#include &lt;getopt.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">opt</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">option</span> <span class="n">longopts</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="p">{</span><span class="s">"initialize"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="sc">'i'</span><span class="p">},</span>
+	<span class="p">{</span><span class="s">"file"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="sc">'f'</span><span class="p">},</span>
+	<span class="p">{</span><span class="s">"list"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="sc">'l'</span><span class="p">},</span>
+	<span class="p">{</span><span class="s">"restart"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="sc">'r'</span><span class="p">},</span>
+    <span class="c1">//注意必须包含全为0的结构结尾</span>
+
+	<span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">}</span>
+    <span class="p">};</span>
+
+    <span class="k">while</span><span class="p">((</span><span class="n">opt</span> <span class="o">=</span> <span class="n">getopt_long</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="s">"\:if\:lr"</span><span class="p">,</span> <span class="n">longopts</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">switch</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="sc">'i'</span><span class="p">:</span>
+        <span class="k">case</span> <span class="sc">'l'</span><span class="p">:</span>
+        <span class="k">case</span> <span class="sc">'r'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"option: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">opt</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="sc">'f'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"filename: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">optarg</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="sc">':'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"option needs a value</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="sc">'?'</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"unknown option: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">optopt</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">for</span><span class="p">(;</span> <span class="n">optind</span> <span class="o">&lt;</span> <span class="n">argc</span><span class="p">;</span> <span class="n">optind</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"argument: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">optind</span><span class="p">]);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-30-15-42-39.png" alt="option结构体"></p>
+
+<h3 id="42-环境变量">4.2 环境变量</h3>
+
+<p>linux中使用<code class="language-plaintext highlighter-rouge">getenv(const char* env_name)</code>和<code class="language-plaintext highlighter-rouge">int putenv(const char *string)</code>来进行环境变量的读取和设置。</p>
+
+<h3 id="43-日期和时间">4.3 日期和时间</h3>
+
+<p>linux中可以使用time函数来得到底层的时间值，它返回的是从纪元开始至今的秒数，tloc不是一个空指针，time函数还会把返回值写入tloc指针指向的位置。</p>
+
+<ul>
+  <li>difftime(time_t time1,time_t time2): 计算两个时间点之间的时间差。值作为浮点数返回。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">struct tm *gmttime(const time_t timeval)</code>:将底层时间值分解为一个结构函数。</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-30-21-22-52.png" alt="tm结构的成员函数"></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;time.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">time_t</span> <span class="n">the_time</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">the_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">((</span><span class="kt">time_t</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"The time is %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">the_time</span><span class="p">);</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>下面是gmtime函数的使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;time.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">tm</span> <span class="o">*</span><span class="n">tm_ptr</span><span class="p">;</span>
+    <span class="kt">time_t</span> <span class="n">the_time</span><span class="p">;</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">the_time</span><span class="p">);</span>
+    <span class="n">tm_ptr</span><span class="o">=</span><span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">the_time</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Raw time is %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">the_time</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"gmtime gives </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"date: %02d/%02d/%02d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> 
+        <span class="n">tm_ptr</span><span class="o">-&gt;</span><span class="n">tm_year</span><span class="p">,</span><span class="n">tm_ptr</span><span class="o">-&gt;</span><span class="n">tm_mon</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tm_ptr</span><span class="o">-&gt;</span><span class="n">tm_mday</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"time: %02d:%02d:%02d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+        <span class="n">tm_ptr</span><span class="o">-&gt;</span><span class="n">tm_hour</span><span class="p">,</span> <span class="n">tm_ptr</span><span class="o">-&gt;</span><span class="n">tm_min</span><span class="p">,</span> <span class="n">tm_ptr</span><span class="o">-&gt;</span><span class="n">tm_sec</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">localtime(const time_t *timeval)</code>:会根据时区进行更正。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mktime(struct tm *timeptr)</code>:将timeptr转换为原始的mktime函数。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">char *asctime(const struct tm *timeptr)</code>:返回时间字符串。表示实际的时间。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">char *ctime(const time_t *timeval)</code>:相当于<code class="language-plaintext highlighter-rouge">asctime(localtime(timeval))</code>,转换为更简单的本地时间。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">size_t strftime(char *s,size_t maxsize,const char *format, struct tm *timeptr)</code>:函数格式化timeptr指针指向的tm结构所表示的时间和日期，并将结果放在字符串s中。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">size_t strptime(const char *buff,const char *format,struct tm *timeptr)</code>:函数格式化timeptr指针指向的tm结构所表示的时间和日期，并将结果放在字符串s中。</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-30-21-44-41.png" alt="strftime的一般格式"></p>
+
+<h3 id="44-临时文件">4.4 临时文件</h3>
+
+<p>linux中可以使用相关的函数，进行临时文件的操作。</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">char *tmpnam(char *s)</code>:生成一个唯一的文件名。但是注意这里可能会存在另外一个程序创建出的文件名同名的文件。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">FILE *tmpfile(void)</code>:生成唯一的文件索引，可以避免重名的情况发生。返回一个文件流指针。该文件以读写的方式打开(通过w+方式的fopen),当对它的所有引用全部关闭时，该文件会被自动删除。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">char *mktemp(char* template)/int mkstemp(char *template)</code>：指定函数模板返回创建的文件。template参数必须是一个以6个x字符结尾的字符串。</li>
+</ul>
+
+<h3 id="45-用户信息">4.5 用户信息</h3>
+
+<p>在<code class="language-plaintext highlighter-rouge">sys/types.h</code>中存在类型<code class="language-plaintext highlighter-rouge">uid_t</code>。它通常是一个小整数，一般情况下UID的值都大于100。可以使用<code class="language-plaintext highlighter-rouge">getuid</code>函数返回程序关联的UID，它通常是启动程序的用户的UID。getlogin函数返回与当前用户关联的登录名称。</p>
+
+<p>用户账号数据库。通常保存在系统文件<code class="language-plaintext highlighter-rouge">/etc/passwd</code>中。每行分别对应用户的：用户名、加密口令、用户标识符(UID)、组标识符(GID)、全名、home目录、默认shell.</p>
+
+<p>由此可以实现用户名和密码的相关查找信息可以进行修改和访问,密码信息一般放在<code class="language-plaintext highlighter-rouge">/etc/shadow</code>文件中。用相关的密码访问接口。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;pwd.h&gt;
+</span>
+<span class="k">struct</span> <span class="nc">passwd</span> <span class="o">*</span><span class="nf">getpwuid</span><span class="p">(</span><span class="n">uid_t</span> <span class="n">uid</span><span class="p">);</span>
+<span class="k">struct</span> <span class="nc">passwd</span> <span class="o">*</span><span class="nf">getpwnam</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>下面是passwd关键的数据结构</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-14-42-41.png" alt="passwd相关数据结构"></p>
+
+<p>从密码数据库中提取相关信息</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;sys/types.h&gt;
+#include &lt;pwd.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//定义uid和</span>
+
+    <span class="n">uid_t</span> <span class="n">uid</span><span class="p">;</span>
+    <span class="n">gid_t</span> <span class="n">gid</span><span class="p">;</span>
+    <span class="c1">//定义结构体</span>
+
+    <span class="k">struct</span> <span class="nc">passwd</span> <span class="o">*</span><span class="n">pw</span><span class="p">;</span>
+    <span class="n">uid</span><span class="o">=</span><span class="n">getuid</span><span class="p">();</span>
+    <span class="n">gid</span><span class="o">=</span><span class="n">getgit</span><span class="p">();</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"User is %s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">getlogin</span><span class="p">());</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"User IDs: uid=%d,gid=%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">uid</span><span class="p">,</span><span class="n">gid</span><span class="p">);</span>
+    <span class="n">pw</span><span class="o">=</span><span class="n">getpwuid</span><span class="p">(</span><span class="n">uid</span><span class="p">);</span>
+    <span class="c1">//输出对应的参数</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UID passwd entry:</span><span class="se">\n</span><span class="s"> name=%s, uid=%d,home=%s,shell=%s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_name</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_uid</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_gid</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_dir</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_shell</span><span class="p">);</span>
+    <span class="c1">//获取root用户的相关信息</span>
+
+    <span class="n">pw</span><span class="o">=</span><span class="n">getpwnam</span><span class="p">(</span><span class="s">"root"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"root passwd entry: </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UID passwd entry:</span><span class="se">\n</span><span class="s"> name=%s, uid=%d,home=%s,shell=%s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_name</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_uid</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_gid</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_dir</span><span class="p">,</span><span class="n">pw</span><span class="o">-&gt;</span><span class="n">pw_shell</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h3 id="46-主机信息">4.6 主机信息</h3>
+
+<p>主机信息结构体<code class="language-plaintext highlighter-rouge">utsname</code>存储在<code class="language-plaintext highlighter-rouge">sys/utsname.h</code>文件中。可以使用<code class="language-plaintext highlighter-rouge">int gethostname(char* name,size_t namelen)</code>函数来进行查询。成功返回0，否则返回-1。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/utsname.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">uname</span><span class="p">(</span><span class="k">struct</span> <span class="nc">utsname</span> <span class="o">*</span><span class="n">name</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-14-59-20.png" alt="uname相关参数"></p>
+
+<p>下面是简单的使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;sys/utsname.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">computer</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+    <span class="k">struct</span> <span class="nc">utsname</span> <span class="n">uts</span><span class="p">;</span>
+
+    <span class="c1">//获取相关参数</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">gethostname</span><span class="p">(</span><span class="n">computer</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">uname</span><span class="p">(</span><span class="o">&amp;</span><span class="n">uts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Could not get host information</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Computer host name is %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">computer</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"System is %s on %s hardware</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">uts</span><span class="p">.</span><span class="n">sysname</span><span class="p">,</span> <span class="n">uts</span><span class="p">.</span><span class="n">machine</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Nodename is %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">uts</span><span class="p">.</span><span class="n">nodename</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Version is %s, %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">uts</span><span class="p">.</span><span class="n">release</span><span class="p">,</span> <span class="n">uts</span><span class="p">.</span><span class="n">version</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="47-使用日志">4.7 使用日志</h3>
+
+<p>一般linux的系统日志文件保存在<code class="language-plaintext highlighter-rouge">/usr/adm</code>或者<code class="language-plaintext highlighter-rouge">/var/log</code>目录中。文件<code class="language-plaintext highlighter-rouge">/var/log/message</code>包含所有的系统信息。<code class="language-plaintext highlighter-rouge">/var/log/mail</code>包含来自邮件系统的其它日志信息，<code class="language-plaintext highlighter-rouge">/var/log/debug</code>可能包含调试信息。具体的可以根据<code class="language-plaintext highlighter-rouge">/etc/syslog.conf</code>文件或者<code class="language-plaintext highlighter-rouge">/etc/syslog-ng/sys-log-ng.conf</code>文件来检查系统的配置。我的Ubuntu 18.04 优麒麟存在于<code class="language-plaintext highlighter-rouge">/etc/rsyslog.conf</code>文件中。</p>
+
+<p>可以使用如下的API进行操作</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;syslog.h&gt;
+</span><span class="c1">//输出日志函数</span>
+
+<span class="kt">void</span> <span class="nf">syslog</span><span class="p">(</span><span class="kt">int</span> <span class="n">priority</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">message</span><span class="p">,</span><span class="n">arguments</span><span class="p">...);</span>
+<span class="c1">//关闭和打开日志函数</span>
+
+<span class="kt">void</span> <span class="nf">closelog</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">openlog</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">ident</span><span class="p">,</span><span class="kt">int</span> <span class="n">logopt</span><span class="p">,</span><span class="kt">int</span> <span class="n">facility</span><span class="p">);</span>
+<span class="c1">//设置日志掩码,控制日志的优先级</span>
+
+<span class="kt">int</span> <span class="nf">setlogmask</span><span class="p">(</span><span class="kt">int</span> <span class="n">maskpri</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p>这个函数向系统的日志发送一条日志信息。每条信息中的priority参数对应了日志的级别。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-15-44-49.png" alt="LOG_USER相对值"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-15-48-42.png" alt="logopt参数选项"></p>
+
+<p>下面是简单是示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;syslog.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">logmask</span><span class="p">;</span>
+
+    <span class="n">openlog</span><span class="p">(</span><span class="s">"logmask"</span><span class="p">,</span> <span class="n">LOG_PID</span><span class="o">|</span><span class="n">LOG_CONS</span><span class="p">,</span> <span class="n">LOG_USER</span><span class="p">);</span>
+    <span class="n">syslog</span><span class="p">(</span><span class="n">LOG_INFO</span><span class="p">,</span><span class="s">"informative message, pid = %d"</span><span class="p">,</span> <span class="n">getpid</span><span class="p">());</span>
+    <span class="n">syslog</span><span class="p">(</span><span class="n">LOG_DEBUG</span><span class="p">,</span><span class="s">"debug message, should appear"</span><span class="p">);</span>
+    <span class="n">logmask</span> <span class="o">=</span> <span class="n">setlogmask</span><span class="p">(</span><span class="n">LOG_UPTO</span><span class="p">(</span><span class="n">LOG_NOTICE</span><span class="p">));</span>
+    <span class="n">syslog</span><span class="p">(</span><span class="n">LOG_DEBUG</span><span class="p">,</span><span class="s">"debug message, should not appear"</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="48-资源和限制">4.8 资源和限制</h3>
+
+<p>在<code class="language-plaintext highlighter-rouge">limit.h</code>中定义了许多代表操作系统方面限制的显示。相关常量如下所示：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-15-58-48.png" alt="限制常量使用"></p>
+
+<p>相关的设置函数</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/resource.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">getpriority</span><span class="p">(</span><span class="kt">int</span> <span class="n">which</span><span class="p">,</span><span class="n">id_t</span> <span class="n">who</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">getpriority</span><span class="p">(</span><span class="kt">int</span> <span class="n">which</span><span class="p">,</span><span class="n">id_t</span> <span class="n">who</span><span class="p">,</span><span class="kt">int</span> <span class="n">priority</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">getrlimit</span><span class="p">(</span><span class="kt">int</span> <span class="n">resource</span><span class="p">,</span><span class="k">struct</span> <span class="nc">rlimit</span> <span class="o">*</span><span class="n">r_limit</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">getrlimit</span><span class="p">(</span><span class="kt">int</span> <span class="n">resource</span><span class="p">,</span><span class="k">const</span> <span class="k">struct</span> <span class="nc">rlimit</span> <span class="o">*</span><span class="n">r_limit</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">getrusage</span><span class="p">(</span><span class="kt">int</span> <span class="n">who</span><span class="p">,</span><span class="k">struct</span> <span class="nc">rusage</span> <span class="o">*</span><span class="n">r_usage</span><span class="p">);</span>
+</code></pre></div></div>
+<p>cpu耗费时间参数</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-16-03-03.png" alt="确定cpu耗费时间参数"></p>
+
+<p>其中<code class="language-plaintext highlighter-rouge">timeval</code>结构定义在头文件<code class="language-plaintext highlighter-rouge">sys/time.h</code>中。</p>
+
+<p>一个程序耗费的CPU时间可分为：</p>
+
+<ul>
+  <li>用户时间： 程序自身的指令所耗费等待时间。</li>
+  <li>系统时间： 操作系统为程序执行所需要花费的时间，即执行输入输出操作的系统调用或其它系统函数所花费的时间。</li>
+</ul>
+
+<p><strong>注意：多线程中程序运行时间的统计不能使用<code class="language-plaintext highlighter-rouge">ctime.h</code>中的<code class="language-plaintext highlighter-rouge">clock()</code>函数；因为它是根据cpu总的cpu运转时钟来的，会比单个的时间长；使用<code class="language-plaintext highlighter-rouge">time</code>(最小单位为s)或<code class="language-plaintext highlighter-rouge">timeval</code>(纳秒和微秒)函数来通过系统时间对多线程耗费的时间进行统计计算。(<a href="https://blog.csdn.net/u012526003/article/details/80862801">多线程C++运行时间统计</a>)</strong></p>
+
+<p>可以使用getrusage函数将cpu时间信息写入参数<code class="language-plaintext highlighter-rouge">r_usage</code>指向的<code class="language-plaintext highlighter-rouge">rusage</code>结构中。参数<code class="language-plaintext highlighter-rouge">who</code>可以是一下常量：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-16-24-09.png" alt="who常量选值"></p>
+
+<p>使用which参数确定优先级</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-16-25-17.png" alt="获取用户当前优先级"></p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">getrlimit</code>和<code class="language-plaintext highlighter-rouge">setrlimit</code>来读取和设置系统资源方面的限制函数。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-16-45-10.png" alt="软件限制参数"></p>
+
+<p>linux中一般的线程数量限制(<a href="https://www.cnblogs.com/guojintao/articles/10389713.html">Linux最大线程数限制</a>;<a href="https://blog.csdn.net/qq_36441027/article/details/81040229">Linux资源限制</a>)为</p>
+<ul>
+  <li>系统：62228</li>
+  <li>用户最大进程数：1024</li>
+  <li>单个进程最大线程数：1024</li>
+  <li>线程栈的大小(一般限制因素)：8M(<a href="https://blog.csdn.net/qq_37924084/article/details/78403764">Linux最大线程数限制</a>)</li>
+</ul>
+
+<p>除了线程数和内存，linux中还有其它许多因素可以进行限制；它们一般由<code class="language-plaintext highlighter-rouge">rlimit</code>函数中的<code class="language-plaintext highlighter-rouge">resource</code>参数指定。在头文件<code class="language-plaintext highlighter-rouge">sys/resource.h</code>中定义</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-02-16-56-19.png" alt="相关限制参数"></p>
+
+<h2 id="第五章-终端">第五章 终端</h2>
+
+<p>终端输入和输出的模式：</p>
+
+<ol>
+  <li>标准模式与非标准模式：
+    <ul>
+      <li>标准模式：用户按下回车键之后，程序接受终端的输入，允许退格和删除。</li>
+      <li>非标准模式：用户输入接收程序的设置。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>linux会暂存用户输入的内容，直到用户按下回车键。linux终端的输出缓冲设置是行缓冲。因此会以行为单位进行输出和输入。</p>
+
+<p>注意：linux/unix都是以换行符<code class="language-plaintext highlighter-rouge">\n</code>表示一行的结束，并不是换行符，其它操作系统(如MS-DOS)用回车符和换行符两个自读的结合来表示一行的结束。使用重定向输出(<code class="language-plaintext highlighter-rouge">&gt;</code>或<code class="language-plaintext highlighter-rouge">&gt;&gt;</code>)和输入(<code class="language-plaintext highlighter-rouge">&lt;</code>或<code class="language-plaintext highlighter-rouge">&lt;&lt;</code>)可以重新定义输入和输出。</p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">unistd.h</code>中的<code class="language-plaintext highlighter-rouge">int isatty(int fd)</code>可以判断出该描述符是否连接到了一个终端(连接返回1，否则返回0)。</p>
+
+<p>linux中的<code class="language-plaintext highlighter-rouge">/dev/tty</code>特殊设备直接对终端进行读写，指向当前的终端或登录会话.</p>
+
+<h3 id="53-终端驱动程序和通用终端接口">5.3 终端驱动程序和通用终端接口</h3>
+
+<p>linux中可以使用通用终端接口(GTI)来控制终端。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-20-17-24.png" alt="终端模型结构图"></p>
+
+<p>主要的控制功能有：</p>
+
+<ul>
+  <li>行编辑:是否允许使用退格键进行编辑。</li>
+  <li>缓存：是立即读取字符，还是等待一段可配置的延迟之后再读取它们。</li>
+  <li>回显：允许控制字符的回显，例如读取密码时。</li>
+  <li>回车/换行(CR/LF):定义如何在输入/输出时映射回车/换行符，比如打印<code class="language-plaintext highlighter-rouge">\n</code>字符时如何处理。</li>
+  <li>线速:很少用于PC控制台，但对调制解调器或通过串行线连接的终端非常重要。</li>
+</ul>
+
+<p>下面是uinux中的硬件模型</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-20-31-02.png" alt="设备模型"></p>
+
+<h3 id="54-termios结构">5.4 termios结构</h3>
+
+<p>termios数据结构和相关单数调用都定义在头文件<code class="language-plaintext highlighter-rouge">termios.h</code>中，当使用其中的函数时，需要添加动态连接库<code class="language-plaintext highlighter-rouge">ncurses</code>。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-20-39-54.png" alt="最小termios的结构体定义"></p>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">int tcgetattr(int fd,struct termios *termios_p)</code>来进行结构体的初始化，再使用<code class="language-plaintext highlighter-rouge">int tcsetattr(int fd,int actions,const strcut termios *termios_p)</code>来进行对应值的修改。</p>
+
+<p>action选项如下：</p>
+<ul>
+  <li>TCSANON:立刻对值进行修改。</li>
+  <li>TCSADRAIN:等当前的输出完成之后再对值进行修改。</li>
+  <li>
+    <p>TCSAFLUSH:等当前的输出完成之后再对值进行修改,但丢弃还未从<code class="language-plaintext highlighter-rouge">read</code>调用返回的当前可用的任何输入。
+设置的值，影响的功能按照不同的模式被分成一下几组：</p>
+  </li>
+  <li>输入模式：输入模式控制输入数据(终端驱动程序从串行口或者键盘接收到的字符)在被传递给程序之前的处理方式。设置<code class="language-plaintext highlighter-rouge">c_iflag</code>成员的标志进行控制，其可选值如下：</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-20-48-47.png" alt="c_iflags相关选项"></p>
+
+<ul>
+  <li>输出模式：控制输出模式的字符串，通过设置<code class="language-plaintext highlighter-rouge">c_oflag</code>成员的标志对输出模式进行控制。选项如下所示：
+<img src="https://wangpengcheng.github.io/img/2019-09-03-20-55-51.png" alt="输出标志设置">
+</li>
+</ul>
+
+<p>注意：如果没有设置OPOST，则所有其它标志都被忽略。</p>
+<ul>
+  <li>控制模式：控制终端的硬件特性。<code class="language-plaintext highlighter-rouge">c_cflag</code>成员的标志对控制模式进行配置。可选参数如下：</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-20-58-38.png" alt="硬件相关设置"></p>
+
+<ul>
+  <li>本地模式：控制终端的各种特性。更改<code class="language-plaintext highlighter-rouge">c_lflag</code>参数，成员的宏内容如下：</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-21-11-59.png" alt="c_lflag宏定义内容"></p>
+
+<p>这里最重要的两个标志是ECHO(抑制键入字符的回显)和ICANON(将终端在两个截然不同的接收字符处理模式间进行切换，设置了ICANON标志，就启用标准输入行进行处理模式，否则，就启用非标准处理模式)。</p>
+
+<ul>
+  <li>特殊控制字符：对于一些特殊的组合按键(如<code class="language-plaintext highlighter-rouge">ctrl+c</code>)进行处理。并且使用<code class="language-plaintext highlighter-rouge">c_cc</code>数组成员将各种特殊控制字符映射到对应的支持函数。每个字符的位置是由一个宏进行定义的，但并不限制这些字符必须是控制字符。根据模式的不同数组下标不同
+    <ul>
+      <li>标准模式的数组下标：</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-21-33-43.png" alt="标准模式的数组下标">
+    + 非标准模式的数组下标：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-21-35-32.png" alt="非标准模式下的数组下标"></p>
+
+<h4 id="542-特殊控制字符">5.4.2 特殊控制字符</h4>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-03-21-36-41.png" alt="特殊控制字符"></p>
+
+<h4 id="543-time和min值">5.4.3 TIME和MIN值</h4>
+
+<p>TIME和MIN的值只能用于非标准模式，两者结合起来共同控制对输入的读取。两者的结合分为四中情况：</p>
+
+<ul>
+  <li>MIN=0&amp;&amp;TIME=0:read调用总是立刻返回，如果存在待处理的字符，就会返回；如果没有就会返回0,并且不读取任何字符。</li>
+  <li>MIN=0&amp;&amp;TIME&gt;0:字符可以处理或者是经过TIME个十分之一秒的时间间隔，read调用就返回。如果因为超时而未读到任何字符，read就返回0，否则返回读取的字符数目。</li>
+  <li>MIN&gt;0&amp;&amp;TIME=0:这种情况下，read将一直等待，直到有MIN个字符可以读取时才返回读取字符的数量。达到文件尾时返回0.</li>
+  <li>MIN&gt;0&amp;&amp;TIME&gt;0:当read被调用时，会等待接收一个字符，在接收到一个字符以及后续的每个字符之后，一个字符间隔定时器被启动(或者重启)。当有MIN个字符可读或两个字符之间的时间间隔超过TIME*0.1s时，read调用返回。</li>
+</ul>
+
+<h4 id="544-通过shell王文终端模式">5.4.4 通过shell王文终端模式</h4>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#查看当前的termios.h设置情况</span>
+
+<span class="nb">stty</span> <span class="nt">-a</span>
+
+<span class="c">#重新设置标识符的快捷键</span>
+
+<span class="nb">stty </span>sane
+<span class="c"># 通过保存设置和重新读取来更改终端设置</span>
+
+<span class="c">#输出和保存设置</span>
+
+<span class="nb">stty</span> <span class="nt">-g</span> <span class="o">&gt;</span> save_stty
+<span class="c">#读取设置</span>
+
+<span class="nb">stty</span> <span class="si">$(</span><span class="nb">cat </span>save_stty<span class="si">)</span>
+
+<span class="c">#直接操作设置</span>
+
+<span class="nb">stty</span> <span class="nt">-icanon</span> min 1 time0
+
+<span class="c">#重新恢复启用回显功能</span>
+
+<span class="nb">stty</span> <span class="nt">-echo</span>
+
+</code></pre></div></div>
+
+<h4 id="545-终端速度">5.4.5 终端速度</h4>
+
+<p>使用如下函数更改终端的刷新速度</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;termios.h&gt;
+</span><span class="n">speed_t</span> <span class="nf">cfgetispeed</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="nc">termios</span> <span class="o">*</span><span class="p">);</span>
+<span class="n">speed_t</span> <span class="nf">cfgetospeed</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="nc">termios</span> <span class="o">*</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">cfsetispeed</span><span class="p">(</span><span class="k">struct</span> <span class="nc">termios</span> <span class="o">*</span><span class="p">,</span><span class="n">speed_t</span> <span class="n">speed</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">cfsetospeed</span><span class="p">(</span><span class="k">struct</span> <span class="nc">termios</span> <span class="o">*</span><span class="p">,</span><span class="n">speed_t</span> <span class="n">speed</span><span class="p">);</span>
+</code></pre></div></div>
+<p>speed_t 相关参数：</p>
+
+<ul>
+  <li>B0:挂起终端</li>
+  <li>B1200：1200波特</li>
+  <li>B2400：2400波特</li>
+  <li>B9600：9600波特</li>
+  <li>B19200：19200波特</li>
+  <li>B38400：38400波特</li>
+</ul>
+
+<h4 id="546-其它函数">5.4.6 其它函数</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;termios.h&gt;
+</span>
+<span class="c1">//让调用程序一直等待</span>
+
+<span class="kt">int</span> <span class="nf">tcdrain</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">);</span>
+<span class="c1">//暂停或重新开始输出</span>
+
+<span class="kt">int</span> <span class="nf">tcflow</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">flowtypes</span><span class="p">);</span>
+<span class="c1">//清空输入、输出或者两者都清空</span>
+
+<span class="kt">int</span> <span class="nf">tcflush</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span><span class="kt">int</span> <span class="n">in_out_selector</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<h3 id="55-终端的输出">5.5 终端的输出</h3>
+
+<p>使用<code class="language-plaintext highlighter-rouge">curses.h</code>中的<code class="language-plaintext highlighter-rouge">terminfo()</code>函数可以实现相关信息的查询。</p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">echo $TERM</code>可以识别当前的终端类型.终端的相关信息保存在<code class="language-plaintext highlighter-rouge">/usr/lib/terminfo</code>或<code class="language-plaintext highlighter-rouge">/usr/share/terminfo</code>目录中。</p>
+
+<p>查看终端输出设置</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>infocmp vt100 
+
+<span class="c">#	Reconstructed via infocmp from file: /lib/terminfo/v/vt100</span>
+vt100|vt100-am|dec vt100 <span class="o">(</span>w/advanced video<span class="o">)</span>,
+    am, mc5i, msgr, xenl, xon,
+    cols#80, it#8, lines#24, vt#3,
+    <span class="nv">acsc</span><span class="o">=</span><span class="sb">``</span>aaffggjjkkllmmnnooppqqrrssttuuvvwwxxyyzz~~,
+    <span class="nv">bel</span><span class="o">=</span>^G, <span class="nv">blink</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>5m<span class="nv">$&lt;</span>2&gt;, <span class="nv">bold</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>1m<span class="nv">$&lt;</span>2&gt;,
+    <span class="nv">clear</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>H<span class="se">\E</span><span class="o">[</span>J<span class="nv">$&lt;</span>50&gt;, <span class="nv">cr</span><span class="o">=</span>^M, <span class="nv">csr</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>%i%p1%d<span class="p">;</span>%p2%dr,
+    <span class="nv">cub</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>%p1%dD, <span class="nv">cub1</span><span class="o">=</span>^H, <span class="nv">cud</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>%p1%dB, <span class="nv">cud1</span><span class="o">=</span>^J,
+    <span class="nv">cuf</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>%p1%dC, <span class="nv">cuf1</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>C<span class="nv">$&lt;</span>2&gt;,
+    <span class="nv">cup</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>%i%p1%d<span class="p">;</span>%p2%dH<span class="nv">$&lt;</span>5&gt;, <span class="nv">cuu</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>%p1%dA,
+    <span class="nv">cuu1</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>A<span class="nv">$&lt;</span>2&gt;, <span class="nv">ed</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>J<span class="nv">$&lt;</span>50&gt;, <span class="nv">el</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>K<span class="nv">$&lt;</span>3&gt;, <span class="nv">el1</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>1K<span class="nv">$&lt;</span>3&gt;,
+    <span class="nv">enacs</span><span class="o">=</span><span class="se">\E</span><span class="o">(</span>B<span class="se">\E</span><span class="o">)</span>0, <span class="nv">home</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>H, <span class="nv">ht</span><span class="o">=</span>^I, <span class="nv">hts</span><span class="o">=</span><span class="se">\E</span>H, <span class="nv">ind</span><span class="o">=</span>^J, <span class="nv">ka1</span><span class="o">=</span><span class="se">\E</span>Oq,
+    <span class="nv">ka3</span><span class="o">=</span><span class="se">\E</span>Os, <span class="nv">kb2</span><span class="o">=</span><span class="se">\E</span>Or, <span class="nv">kbs</span><span class="o">=</span>^H, <span class="nv">kc1</span><span class="o">=</span><span class="se">\E</span>Op, <span class="nv">kc3</span><span class="o">=</span><span class="se">\E</span>On, <span class="nv">kcub1</span><span class="o">=</span><span class="se">\E</span>OD,
+    <span class="nv">kcud1</span><span class="o">=</span><span class="se">\E</span>OB, <span class="nv">kcuf1</span><span class="o">=</span><span class="se">\E</span>OC, <span class="nv">kcuu1</span><span class="o">=</span><span class="se">\E</span>OA, <span class="nv">kent</span><span class="o">=</span><span class="se">\E</span>OM, <span class="nv">kf0</span><span class="o">=</span><span class="se">\E</span>Oy,
+    <span class="nv">kf1</span><span class="o">=</span><span class="se">\E</span>OP, <span class="nv">kf10</span><span class="o">=</span><span class="se">\E</span>Ox, <span class="nv">kf2</span><span class="o">=</span><span class="se">\E</span>OQ, <span class="nv">kf3</span><span class="o">=</span><span class="se">\E</span>OR, <span class="nv">kf4</span><span class="o">=</span><span class="se">\E</span>OS, <span class="nv">kf5</span><span class="o">=</span><span class="se">\E</span>Ot,
+    <span class="nv">kf6</span><span class="o">=</span><span class="se">\E</span>Ou, <span class="nv">kf7</span><span class="o">=</span><span class="se">\E</span>Ov, <span class="nv">kf8</span><span class="o">=</span><span class="se">\E</span>Ol, <span class="nv">kf9</span><span class="o">=</span><span class="se">\E</span>Ow, <span class="nv">lf1</span><span class="o">=</span>pf1, <span class="nv">lf2</span><span class="o">=</span>pf2,
+    <span class="nv">lf3</span><span class="o">=</span>pf3, <span class="nv">lf4</span><span class="o">=</span>pf4, <span class="nv">mc0</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>0i, <span class="nv">mc4</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>4i, <span class="nv">mc5</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>5i, <span class="nv">rc</span><span class="o">=</span><span class="se">\E</span>8,
+    <span class="nv">rev</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>7m<span class="nv">$&lt;</span>2&gt;, <span class="nv">ri</span><span class="o">=</span><span class="se">\E</span>M<span class="nv">$&lt;</span>5&gt;, <span class="nv">rmacs</span><span class="o">=</span>^O, <span class="nv">rmam</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>?7l,
+    <span class="nv">rmkx</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>?1l<span class="se">\E</span><span class="o">&gt;</span>, <span class="nv">rmso</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>m<span class="nv">$&lt;</span>2&gt;, <span class="nv">rmul</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>m<span class="nv">$&lt;</span>2&gt;,
+    <span class="nv">rs2</span><span class="o">=</span><span class="se">\E</span><span class="o">&gt;</span><span class="se">\E</span><span class="o">[</span>?3l<span class="se">\E</span><span class="o">[</span>?4l<span class="se">\E</span><span class="o">[</span>?5l<span class="se">\E</span><span class="o">[</span>?7h<span class="se">\E</span><span class="o">[</span>?8h, <span class="nv">sc</span><span class="o">=</span><span class="se">\E</span>7,
+    <span class="nv">sgr</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>0%?%p1%p6%|%t<span class="p">;</span>1%<span class="p">;</span>%?%p2%t<span class="p">;</span>4%<span class="p">;</span>%?%p1%p3%|%t<span class="p">;</span>7%<span class="p">;</span>%?%p4%t<span class="p">;</span>5%<span class="p">;</span>m%?%p9%t&lt;<span class="o">!</span>JEKYLL@2780@132&gt;16%e&lt;<span class="o">!</span>JEKYLL@2780@132&gt;17%<span class="p">;</span><span class="nv">$&lt;</span>2&gt;,
+    <span class="nv">sgr0</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>m&lt;<span class="o">!</span>JEKYLL@2780@132&gt;17<span class="nv">$&lt;</span>2&gt;, <span class="nv">smacs</span><span class="o">=</span>^N, <span class="nv">smam</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>?7h, <span class="nv">smkx</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>?1h<span class="se">\E</span><span class="o">=</span>,
+    <span class="nv">smso</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>7m<span class="nv">$&lt;</span>2&gt;, <span class="nv">smul</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>4m<span class="nv">$&lt;</span>2&gt;, <span class="nv">tbc</span><span class="o">=</span><span class="se">\E</span><span class="o">[</span>3g,
+
+</code></pre></div></div>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">int setupterm(char *term,int fd,int *errret)</code>设置终端的输出功能。</p>
+
+<h3 id="56-检测击键动作">5.6 检测击键动作</h3>
+
+<p>参考链接：<a href="https://www.cnblogs.com/lifexy/p/7553861.html">linux键盘驱动</a></p>
+
+<p>使用一般方法进行相关的键盘检测。</p>
+
+<h3 id="57-虚拟控制台">5.7 虚拟控制台</h3>
+
+<p>linux中提供了虚拟控制台的功能，一组终端设备共享PC电脑的屏幕、键盘和鼠标。虚拟控制台可以通过字符设备文件/dev/ttyN进行使用。一般从数字1开始。</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/08/13/beginning_linux_programming_01/" data-toggle="tooltip" data-placement="top" title="Linux程序设计 学习笔记 (一)">
+                        Previous<br>
+                        <span>Linux程序设计 学习笔记 (一)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/08/13/learn_cmake/" data-toggle="tooltip" data-placement="top" title="cmake 学习笔记(一)">
+                        Next<br>
+                        <span>cmake 学习笔记(一)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

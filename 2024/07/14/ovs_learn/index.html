@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>ovs/ovn 学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2024/07/14/ovs_learn/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E7%BD%91%E7%BB%9C%E8%99%9A%E6%8B%9F%E5%8C%96" title="网络虚拟化">网络虚拟化</a>
+                        
+                        <a class="tag" href="/tags/#ovn" title="ovn">ovn</a>
+                        
+                        <a class="tag" href="/tags/#ovs" title="ovs">ovs</a>
+                        
+                        <a class="tag" href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记">学习笔记</a>
+                        
+                    </div>
+                    <h1>ovs/ovn 学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">ovs/ovn 基础学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on July 14, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<p><em>参考链接：</em></p>
+<ul>
+  <li><a href="https://www.openvswitch.org/">ovs官网</a></li>
+  <li><a href="https://github.com/openvswitch/ovs">ovs-github</a></li>
+  <li><a href="https://www.sdnlab.com/my_sdnlab/wp-content/uploads/2017/02/cntctfrm_1a5b490b5708a374ad0d207df48ec29e_Openvswitch%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0.pdf">ovs源码解析笔记</a></li>
+  <li><a href="https://www.jianshu.com/p/bf112793d658">OVS 源码分析整理</a></li>
+  <li><a href="https://www.cnblogs.com/lsgxeva/p/18050159">Open vSwitch 入门实践</a></li>
+  <li><a href="https://cloudadc.github.io/content/sdn/ovs.html">ovs入门</a></li>
+  <li><a href="https://info.support.huawei.com/info-finder/encyclopedia/zh/%E9%80%9A%E7%94%A8%E8%B7%AF%E7%94%B1%E5%B0%81%E8%A3%85%EF%BC%88GRE%EF%BC%89.html">GRE通用路由封装详解</a></li>
+  <li>
+    <p><a href="https://www.sdnlab.com/sdn-guide/14747.html">OVS初级教程：使用Open vSwitch构建虚拟网络</a></p>
+  </li>
+  <li><a href="https://www.ovn.org/en/">ovn官网</a></li>
+  <li><a href="https://feisky.gitbooks.io/sdn/content/ovs/ovn.html">OVN 简介</a></li>
+  <li><a href="https://docs.ovn.org/en/latest/">ovn教程</a></li>
+  <li><a href="https://github.com/ovn-org/ovn">ovn-github</a></li>
+  <li><a href="https://tonydeng.github.io/sdn-handbook/ovs/ovn-internal.html">OVN实践</a></li>
+  <li><a href="https://docs.redhat.com/zh_hans/documentation/red_hat_openstack_platform/13/html/networking_with_open_virtual_network/open_virtual_network_ovn#list_of_components_in_the_rhosp_ovn_architecture">ovn操作</a></li>
+  <li><a href="https://www.bilibili.com/video/BV1dE411w7mz/?spm_id_from=333.337.search-card.all.click">kube-ovn入门与应用实战第一课：Kube-OVN 基础入门之快速上手</a></li>
+  <li><a href="https://docs.openvswitch.org/en/latest/tutorials/">ovs常用教程</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/336487371">知乎OVS教程</a></li>
+  <li><a href="https://www.sdnlab.com/sdn-guide/14747.html">ovs入门实践</a></li>
+  <li><a href="https://www.cnblogs.com/longlyseul/p/16987765.html">IP路由原理</a></li>
+  <li><a href=""></a></li>
+</ul>
+
+<h1 id="基础介绍">基础介绍</h1>
+<h2 id="简介">简介</h2>
+
+<p><img src="https://docs.openvswitch.org/en/latest/_images/overview.png" alt="OVS"></p>
+
+<p>Open vSwitch 是一款采用开源 Apache 2 许可证的多层软件交换机。我们的目标是实现一个生产质量交换机平台，支持标准管理接口，并开放转发功能以供编程扩展和控制。</p>
+
+<p>Open vSwitch 非常适合用作虚拟机环境中的虚拟交换机。除了向虚拟网络层公开标准控制和可视性接口外，它还旨在支持跨多个物理服务器的分布。Open vSwitch 支持多种基于 Linux 的虚拟化技术，包括 KVM 和 VirtualBox。</p>
+
+<p>大部分代码都是用独立于平台的 C 语言编写的，可以轻松移植到其他环境。Open vSwitch 的当前版本支持以下功能：</p>
+
+<ul>
+  <li>具有中继和接入端口的标准 802.1Q VLAN 模型</li>
+  <li>上游交换机上有或没有 LACP 的 NIC 绑定</li>
+  <li>NetFlow、sFlow(R) 和镜像可提高可视性</li>
+  <li>QoS（服务质量）配置以及监管</li>
+  <li>Geneve、GRE、VXLAN、STT、ERSPAN、GTP-U、SRv6、Bareudp 和 LISP 隧道</li>
+  <li>802.1ag 连接故障管理</li>
+  <li>OpenFlow 1.0 及众多扩展</li>
+  <li>具有 C 和 Python 绑定的事务配置数据库</li>
+  <li>使用 Linux 内核模块实现高性能转发</li>
+</ul>
+
+<p>Linux bridge 虽然快速可靠，但是缺乏灵活性。虚拟化网络(OVN)对于整体灵活性、逻辑抽象要求较高。bridge 缺乏对应手段。OVS也是基于此，提供了如下特性：</p>
+
+<ol>
+  <li>状态移动性：Open vSwitch 支持在实例之间配置和迁移慢速（配置）和快速网络状态。允许开发结构自动化系统</li>
+  <li>响应网络动态：Open vSwitch 支持支持远程触发器的网络状态数据库 (OVSDB)。因此，编排软件可以“监视”网络的各个方面，并在它们发生变化时做出响应。</li>
+  <li>逻辑标签状态维护：OpenvSwitch 支持标签指定和管理，可以正确有效的管理这些标签。指定相关标签维护</li>
+  <li>硬件集成：适配结合硬件集成技术，让ovs保持高效率</li>
+</ol>
+
+<h3 id="整体架构">整体架构</h3>
+
+<p>OVS整体架构如下图所示：</p>
+
+<p><img src="https://tonydeng.github.io/sdn-handbook/ovs/images/ovs-architecture.jpg" alt=""></p>
+
+<p>openvswitch 主要组件如下：</p>
+<ul>
+  <li>ovs-vswitchd: 实现切换的守护进程，基于流的切换配套Linux 内核模块</li>
+  <li>ovsdb-server: 轻量级数据库服务，用于给ovs-vswitchd 查询相关配置</li>
+  <li>ovs-dpctl: 交换机内核模块配置工具，用于控制内核数据通道</li>
+  <li>ovs-vsctl: 查询和更新ovs-vswitchd 配置的用户控制程度</li>
+  <li>ovs-appctl: 一个向正在运行的Open vSwitch 守护进程发送命令的应用程序</li>
+</ul>
+
+<p>辅助工具组件：</p>
+<ul>
+  <li>ovs-ofctl: 查询和控制OpenFlow 交换机和控制器</li>
+  <li>ovs-pki：创建和管理OpenFlow交换机公钥基础设施</li>
+  <li>ovs-testcontroller: 简单的OpenFlow 控制器(不适用生产)</li>
+  <li>tcpdump: tcpdump 补丁，使其能够解析OpenFlow消息</li>
+</ul>
+
+<p>其核心数据流程如下所示：</p>
+
+<p><img src="https://tonydeng.github.io/sdn-handbook/ovs/images/ovs-internals.jpg" alt="核心数据流程"></p>
+
+<h2 id="原理简介">原理简介</h2>
+
+<ul>
+  <li><a href="https://tonydeng.github.io/sdn-handbook/ovs/internal.html">OVS原理</a></li>
+</ul>
+
+<h3 id="ovs术语">OVS术语</h3>
+<ul>
+  <li>TUN/TAP(虚拟网卡): 用户态应用程序上收发以太网帧/IP包。TAP：以太网帧，TUN：IP包</li>
+  <li>Bridge(网桥)：表示一个虚拟的二层以太网交换机，一个主机可以创建多个网桥，并将端口接收到的数据报文转发和丢弃</li>
+  <li>Port(端口)：交换机上的插口，用于桥接水晶接头。关键模式如下：
+    <ul>
+      <li>Normal: 直接将已有网卡添加到OVS，会自动生成网卡同名port</li>
+      <li>Internal：此模式下OVS会自动创建一个虚拟网卡(Interface)。此端口收到的所有数据报文均会转发到此网卡中。如：<code class="language-plaintext highlighter-rouge">ovs-vsctl add-port br-int vnet0 -- set Interface vnet0 type=internal</code>
+</li>
+      <li>Patch: 与veth pair功能相同，成对出现。一个端收到数据会被转发至另外一个Patch Port上。实现网线功能，常用于连接两个Bridge。将<a href="https://blog.csdn.net/u013743253/article/details/119601088">两个网桥合并为一个网桥</a>
+</li>
+      <li>Tunnel: 隧道协议，通过对物理网络做的一层封装和扩展，解决跨二层网络的问题。</li>
+    </ul>
+  </li>
+  <li>Interface(接口/网卡/TAP/TUN)：OVS连接的网卡设备</li>
+  <li>Controller：OpenFlow 控制器，OVS 可以接受一个或者多个OpenFlow控制器的管理，主要用于下发流表、控制转发规则</li>
+  <li>Flow：OVS 数据转发核心功能，定义端口之间数据转发报文规则。</li>
+</ul>
+
+<hr>
+
+<ul>
+  <li>参考：<a href="https://kiosk007.top/post/%E4%BD%BF%E7%94%A8open-vswitch%E6%9E%84%E5%BB%BA%E8%99%9A%E6%8B%9F%E7%BD%91%E7%BB%9C/">使用Open-vSwitch创建虚拟网络</a>;<a href="https://blog.csdn.net/u013743253/article/details/119601088">openvswitch 实践一 创建patch port连接ovs两个桥</a>;<a href="https://just4coding.com/2016/12/04/virtualnetworkdevice/">虚拟化网络设备</a>
+</li>
+</ul>
+
+<h3 id="网络术语">网络术语</h3>
+
+<ul>
+  <li>VLAN：VLAN（Virtual Local Area Network）即虚拟局域网，是将一个物理的LAN在逻辑上划分成多个广播域的通信技术。 每个VLAN是一个广播域，VLAN内的主机间可以直接通信，而VLAN间则不能直接互通。这样，广播报文就被限制在一个VLAN内。详见：<a href="https://info.support.huawei.com/info-finder/encyclopedia/zh/VLAN.html">vlan解析</a>
+</li>
+  <li>VXLAN: VXLAN（Virtual eXtensible Local Area Network，虚拟扩展局域网），是对传统VLAN协议的一种扩展。VXLAN的特点是将L2的以太帧封装到UDP报文（即L2 over L4）中，并在L3网络中传输。详见：<a href="https://support.huawei.com/enterprise/zh/doc/EDOC1100087027">vxlan解析</a>
+</li>
+  <li>访问链接（access link）:指的是“只属于一个VLAN，且仅向该VLAN转发数据帧”的端口。一般用于链接计算机端口。</li>
+  <li>汇聚链接（trunk link）：指的是能够转发多个不同VLAN的通信的端口。汇聚链路上流通的数据帧，都被附加了用于识别分属于哪个VLAN的特殊信息。一般用于交换机与交换机之间的相关接口。</li>
+  <li>VLAN汇聚方式：通过汇聚链路时附加的 VLAN 识别信息，这个VLAN 识别信息有 IEEE 802.1Q、Cisco 产品独有的”ISL（Inter Switch Link）”</li>
+</ul>
+
+<h2 id="安装">安装</h2>
+
+<h3 id="源码安装">源码安装</h3>
+
+<ul>
+  <li><a href="https://docs.openvswitch.org/en/latest/intro/install/general/#obtaining-open-vswitch-sources">源码安装参考</a></li>
+  <li><a href="https://blog.xuegaogg.com/posts/1336/">ovs centos8安装参考</a></li>
+  <li><a href="https://www.eet-china.com/mp/a272394.html">ovs 内核安装</a></li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. 获取代码</span>
+git clone https://github.com/openvswitch/ovs.git
+
+
+<span class="c"># 2. 切换到最新版本</span>
+<span class="nb">cd </span>ovs
+git checkout v2.17.0
+<span class="c"># 3. 安装依赖</span>
+<span class="c"># gun make/ gcc 4.6+/libssl/libcap-ng/python3.6+/unbound libaray</span>
+yum <span class="nb">install </span>wget git gcc autoconf automake libtool make pkg-config uuid kernel-devel-<span class="si">$(</span><span class="nb">uname</span> <span class="nt">-r</span><span class="si">)</span> <span class="nt">-y</span>
+<span class="c"># 4. 开启内核支持 开启NET_CLS_BASIC/NET_SCH_INGRESS/NET_ACT_POLICE/NET_CLS_POLICE </span>
+<span class="c"># 5. 设置启动项</span>
+./boot.sh
+<span class="c"># 6. 生成配置 开启ovs内核/编译到内核目录下</span>
+./configure <span class="nt">--with-linux</span><span class="o">=</span>/lib/modules/<span class="sb">`</span><span class="nb">uname</span> <span class="nt">-r</span><span class="sb">`</span>/build
+<span class="c"># 7. 编译&amp;安装</span>
+make <span class="nt">-j</span> <span class="sb">`</span><span class="nb">nproc</span><span class="sb">`</span> <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+<span class="c"># 安装内核模块,执行该步骤后，会使编译生成的openvswitch.ko等内核模块拷贝到/lib/modules/$(uname -r)/extra/目录下</span>
+make modules_install
+<span class="nb">cat</span> <span class="o">&gt;</span> /etc/depmod.d/openvswitch.conf <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+override openvswitch * extra
+override vport-* * extra
+</span><span class="no">EOF
+
+</span><span class="c"># 加载ovs</span>
+depmod <span class="nt">-a</span>
+<span class="nb">cp </span>debian/openvswitch-switch.init /etc/init.d/openvswitch-switch
+/etc/init.d/openvswitch-switch force-reload-kmod
+<span class="c"># 8. 配置环境变量</span>
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:/usr/local/share/openvswitch/scripts:/usr/local/bin
+<span class="c"># 9. 开启ovs</span>
+ovs-ctl start
+<span class="c"># 10. 显示当前ovs配置</span>
+ovs-vsctl show 
+<span class="c"># abe86eeb-3aa8-4260-9243-cb87747e2485</span>
+<span class="c">#     ovs_version: "2.17.11"</span>
+</code></pre></div></div>
+
+<h3 id="docker安装">docker安装</h3>
+
+<h3 id="dpdk-安装">DPDK 安装</h3>
+
+<h2 id="常用命令">常用命令</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建bridge --会默认生成一个同名端口</span>
+ovs-vsctl add-br br0
+<span class="c"># 删除bridge</span>
+ovs-vsctl del-br br0
+<span class="c"># 展示bridge</span>
+ovs-vsctl list-br
+<span class="c"># 将eth0 插入 br0 -- 添加一个网口/插入网线</span>
+ovs-vsctl add-port br0 eth0
+<span class="c"># 将eth0 设置tag 标志</span>
+ovs-vsctl <span class="nb">set </span>port eth0 <span class="nv">tag</span><span class="o">=</span>1 <span class="c">#vlan id</span>
+<span class="c"># 将eth0 从网口删除 -- 拔出网线</span>
+ovs-vsctl del-port br0 eth0
+<span class="c"># 展示当前br0端口</span>
+ovs-vsctl list-ports br0
+<span class="c"># 展示所有的交换机</span>
+ovs-vsctl show
+<span class="c"># 展示网卡连接的所有网桥</span>
+ovs-vsctl port-to-br eth0
+<span class="c"># 查询OVS所有的Interface与Port</span>
+ovs-vsctl list<span class="o">(</span>Interface|Port<span class="o">)</span> 
+ovs-vsctl list Port ens37
+<span class="c"># 添加一个端口--非网卡</span>
+<span class="c"># 注意这里会报错</span>
+ovs-vsctl add-port br0 ens37
+
+
+</code></pre></div></div>
+
+<h1 id="性能优化">性能优化</h1>
+
+<h2 id="ovsdpdk">ovs+dpdk</h2>
+
+<h2 id="ovs-offload">ovs offload</h2>
+
+<ul>
+  <li><a href="https://wangzheng422.github.io/docker_env/notes/2021/2021.10.cx6dx.vdpa.offload.html">ovs硬件卸载</a></li>
+</ul>
+
+<h1 id="使用坑点">使用坑点</h1>
+
+<h2 id="交换机环路问题">交换机环路问题</h2>
+<p>ovs 作为虚拟交换机，容易引发二层环路。需要开启stp特性。详见：<a href="https://blog.csdn.net/weixin_40042248/article/details/116541442">ovs的生成树协议(STP)实验</a>;<a href="https://www.cnblogs.com/goldsunshine/p/11946098.html">OVS功能特性</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 开启交换机br-int的STP</span>
+ovs-vsctl <span class="nb">set </span>bridge br-int <span class="nv">stp_enable</span><span class="o">=</span><span class="nb">true</span>
+<span class="c"># 查看交换机是否正确的开启了STP协议</span>
+ovs-vsctl get bridge br-int stp_enable
+<span class="c"># 查看mac表</span>
+ovs-appctl fdb/show br-int
+<span class="c"># 查看端口配置</span>
+ovs-vsctl list port br-int brint-eth1 
+<span class="c"># 查看网桥配置</span>
+ovs-vsctl list bridge br-int
+</code></pre></div></div>
+
+<h1 id="openflow详解">OpenFlow详解</h1>
+
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://chentingz.github.io/2019/12/30/%E3%80%8COpenFlow%E3%80%8D%E5%8D%8F%E8%AE%AE%E5%85%A5%E9%97%A8/">OpenFlow协议入门</a></li>
+  <li><a href="https://github.com/mininet/mininet">Mininet: Rapid Prototyping for Software Defined Networks</a></li>
+</ul>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2024/05/22/spring_interview/" data-toggle="tooltip" data-placement="top" title="spring面经">
+                        Previous<br>
+                        <span>spring面经</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2024/07/14/virtio_learn/" data-toggle="tooltip" data-placement="top" title="virtio学习笔记">
+                        Next<br>
+                        <span>virtio学习笔记</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

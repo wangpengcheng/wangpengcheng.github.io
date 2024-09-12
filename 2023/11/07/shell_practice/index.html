@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>shell练习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2023/11/07/shell_practice/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#shell" title="shell">shell</a>
+                        
+                        <a class="tag" href="/tags/#LeetCode" title="LeetCode">LeetCode</a>
+                        
+                        <a class="tag" href="/tags/#%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0" title="编程练习">编程练习</a>
+                        
+                    </div>
+                    <h1>shell练习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">leetcode shell练习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on November 7, 2023</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="shell练习笔记">shell练习笔记</h1>
+<blockquote>
+  <p>2023-11-07 14:35:58</p>
+</blockquote>
+
+<p>shell 练习笔记，包含leetcode等shell 题目冲刺笔记</p>
+
+<h2 id="参考链接">参考链接</h2>
+<ul>
+  <li><a href="https://leetcode.cn/problemset/shell/">leetcode-shell</a></li>
+  <li><a href="https://cloud.tencent.com/developer/article/1691052">shell脚本快速入门之—–shell脚本练习100例</a></li>
+  <li><a href="https://www.nowcoder.com/exam/oj?page=1&tab=SHELL%E7%AF%87&topicId=195">now-code 在线编程shell篇</a></li>
+</ul>
+
+<h2 id="leetcode题目">leetcode题目</h2>
+
+<h3 id="192统计词频率"><a href="https://leetcode.cn/problems/word-frequency/description/">192.统计词频率</a></h3>
+
+<ul>
+  <li>提交解答</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>words.txt | xargs <span class="nt">-n1</span> | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="nt">-c</span> | <span class="nb">sort</span> <span class="nt">-nr</span> | <span class="nb">awk</span> <span class="s1">'{print $2, $1}'</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">awk</span> <span class="s1">'{for (i = 1; i &lt;= NF; i++) {print $i}}'</span> words.txt | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="nt">-c</span> | <span class="nb">sort</span> <span class="nt">-nr</span> | <span class="nb">awk</span> <span class="s1">'{print $2, $1}'</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2</li>
+</ul>
+
+<pre><code class="language-bashe">cat words.txt | tr -s ' ' '\n' | sort | uniq -c | sort -nr | awk '{print $2, $1}'
+</code></pre>
+
+<ul>
+  <li>原始解答</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>words.txt | <span class="nb">awk</span> <span class="s1">'{ for(i=1;i&lt;=NF;i++){count[$i]++} } END { for(k in count){print k" "count[k]} }'</span> | <span class="nb">sort</span> <span class="nt">-rnk</span> 2
+</code></pre></div></div>
+
+<h3 id="193有效电话号码"><a href="https://leetcode.cn/problems/valid-phone-numbers/description/">193.有效电话号码</a></h3>
+<ul>
+  <li>
+    <p><a href="https://www.myfreax.com/regular-expressions-in-grep/">grep正则表达式</a></p>
+  </li>
+  <li>
+    <p>通过解答</p>
+  </li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">grep</span> <span class="nt">-P</span> <span class="s1">'^([0-9]{3}-|\([0-9]{3}\) )[0-9]{3}-[0-9]{4}$'</span> file.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Read from the file file.txt and output all valid phone numbers to stdout.</span>
+<span class="nb">sed</span> <span class="nt">-rn</span> <span class="s2">"/^((</span><span class="se">\(</span><span class="s2">[0-9]{3}</span><span class="se">\)</span><span class="s2"> )|[0-9]{3}-)[0-9]{3}-[0-9]{4}</span><span class="nv">$/</span><span class="s2">p"</span> file.txt
+</code></pre></div></div>
+
+<ul>
+  <li>官方题解</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">grep</span> <span class="nt">-P</span> <span class="s1">'^([0-9]{3}-|\([0-9]{3}\) )[0-9]{3}-[0-9]{4}$'</span> file.txt
+
+<span class="nb">awk</span> <span class="s1">'/^([0-9]{3}-|\([0-9]{3}\) )[0-9]{3}-[0-9]{4}$/'</span> file.txt
+
+gawk <span class="s1">'/^([0-9]{3}-|\([0-9]{3}\) )[0-9]{3}-[0-9]{4}$/'</span> file.txt
+</code></pre></div></div>
+
+<h3 id="194-转置文件"><a href="https://leetcode.cn/problems/transpose-file/description/">194. 转置文件</a></h3>
+
+<ul>
+  <li>参考链接：
+    <ul>
+      <li><a href="https://blog.csdn.net/xiyangyang052/article/details/45584311">awk多维数组</a></li>
+      <li><a href="https://www.runoob.com/linux/linux-comm-xargs.html">xargs命令</a></li>
+    </ul>
+  </li>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">awk</span> <span class="s1">'{
+    nf=NF;
+    for(i=1; i&lt;=NF; i++){ 
+        array1[NR,i]=$i; 
+    }
+} 
+END{ 
+    for(i=1;i&lt;=nf;i++){
+        for (j=1;j&lt;=NR;j++) {
+            if (j&lt;NR) {
+                printf "%s ",array1[j,i];
+            }else{
+                printf "%s",array1[j,i];
+            }
+            
+        }
+        print '</span><span class="se">\n</span><span class="s1">'
+    } 
+}'</span> file.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答1:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Read from the file file.txt and print its transposed content to stdout.</span>
+<span class="c"># 统计列数</span>
+<span class="nv">line</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat </span>file.txt | <span class="nb">head</span> <span class="nt">-n</span> 1 | <span class="nb">wc</span> <span class="nt">-w</span><span class="si">)</span>
+
+<span class="c"># 遍历所有列</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>1 <span class="nv">$line</span><span class="si">)</span>
+
+<span class="k">do</span>
+  <span class="c"># 输出指定列 | 将列转换为行</span>
+   <span class="nb">awk</span> <span class="s1">'{print $'''</span><span class="nv">$i</span><span class="s1">'''}'</span> file.txt | xargs
+
+<span class="k">done</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 获取列数</span>
+<span class="nv">COLUMNS</span><span class="o">=</span><span class="si">$(</span><span class="nb">head</span> <span class="nt">-n</span> 1 file.txt| <span class="nb">wc</span> <span class="nt">-w</span><span class="si">)</span>
+
+<span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>1 <span class="nv">$COLUMNS</span><span class="si">)</span><span class="p">;</span> <span class="k">do</span>
+    <span class="c"># 获取第i列，然后用paste合并</span>
+    <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">' '</span> <span class="nt">-f</span><span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span> file.txt | <span class="nb">paste</span> <span class="nt">-s</span> <span class="nt">-d</span><span class="s1">' '</span> -
+<span class="k">done</span>
+</code></pre></div></div>
+
+<ul>
+  <li>官方题解：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c"># 获取列数</span>
+<span class="nv">COLUMNS</span><span class="o">=</span><span class="si">$(</span><span class="nb">head</span> <span class="nt">-n</span> 1 file.txt| <span class="nb">wc</span> <span class="nt">-w</span><span class="si">)</span>
+
+<span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>1 <span class="nv">$COLUMNS</span><span class="si">)</span><span class="p">;</span> <span class="k">do</span>
+    <span class="c"># 获取第i列，然后用paste合并</span>
+    <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">' '</span> <span class="nt">-f</span><span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span> file.txt | <span class="nb">paste</span> <span class="nt">-s</span> <span class="nt">-d</span><span class="s1">' '</span> -
+<span class="k">done</span>
+
+
+<span class="c">#作者：Aronic</span>
+<span class="c">#链接：https://leetcode.cn/problems/transpose-file/</span>
+<span class="c">#来源：力扣（LeetCode）</span>
+<span class="c">#著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span>
+</code></pre></div></div>
+
+<h3 id="195-第十行"><a href="https://leetcode.cn/problems/tenth-line/description/">195. 第十行</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Read from the file file.txt and output the tenth line to stdout.</span>
+<span class="nb">tail</span> <span class="nt">-n</span> +10 file.txt | <span class="nb">head</span> <span class="nt">-n</span> 1<span class="p">;</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 直接使用sed 进行过滤</span>
+<span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'10p'</span> file.txt
+</code></pre></div></div>
+
+<ul>
+  <li>官方题解：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># awk，当处理到第10行时，打印该行。NR表示awk处理的当前行号。</span>
+<span class="nb">awk</span> <span class="s1">'NR == 10'</span> file.txt
+
+<span class="c"># tail+head，使用tail命令输出文件的第10行及之后的所有行，然后将结果通过管道传递给head命令。head命令只保留第一行并将其作为输出。</span>
+<span class="nb">tail</span> <span class="nt">-n</span> +10 file.txt | <span class="nb">head</span> <span class="nt">-1</span>
+
+<span class="c"># sed，-n选项取消sed默认的输出，'10p'指定只打印第10行。</span>
+<span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'10p'</span> file.txt
+</code></pre></div></div>
+
+<h2 id="nowcode-题目">nowcode 题目</h2>
+
+<h3 id="shell1-统计文件的行数"><a href="https://www.nowcoder.com/practice/205ccba30b264ae697a78f425f276779?tpId=195&tqId=36211&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL1 统计文件的行数</a></h3>
+
+<ul>
+  <li>提交解答1</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 结合cat</span>
+<span class="nb">cat </span>nowcoder.txt | <span class="nb">wc</span> <span class="nt">-l</span> 
+
+<span class="c"># 直接使用wc,但是会输出文件名，需要用awk 进行切分</span>
+<span class="nb">wc</span> <span class="nt">-l</span> nowcoder.txt | <span class="nb">awk</span> <span class="s1">'{print $1}'</span>
+
+
+<span class="c"># 直接awk打印行号</span>
+<span class="nb">awk</span> <span class="s1">'END{print NR}'</span> ./nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 直接使用read 进行解析</span>
+<span class="nv">line</span><span class="o">=</span>0
+<span class="k">while </span><span class="nb">read </span>p
+<span class="k">do</span>
+    <span class="o">((</span>line++<span class="o">))</span>
+<span class="k">done</span> &lt; ./nowcoder.txt
+<span class="nb">echo</span> <span class="nv">$line</span>
+</code></pre></div></div>
+
+<ul>
+  <li>官方题解：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c"># 直接使用wc</span>
+<span class="nb">wc</span> <span class="nt">-l</span> ./nowcoder.txt | <span class="nb">awk</span> <span class="s1">'{print $1}'</span>
+
+<span class="c"># awk 直接输出行号</span>
+<span class="nb">awk</span> <span class="s1">'END{print NR}'</span> ./nowcoder.txt
+
+<span class="c"># grep 统计</span>
+<span class="nb">grep</span> <span class="nt">-c</span> <span class="s2">""</span> ./nowcoder.txt 
+
+<span class="c"># grep 统计</span>
+<span class="nb">grep</span> <span class="nt">-n</span> <span class="s2">""</span> ./nowcoder.txt  | <span class="nb">awk</span> <span class="nt">-F</span> <span class="s2">":"</span> <span class="s1">'{print $1 }'</span> | <span class="nb">tail</span> <span class="nt">-n</span> 1
+
+<span class="c"># sed 统计</span>
+<span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'$='</span> ./nowcoder.txt
+</code></pre></div></div>
+<h3 id="shell2-打印文件的最后5行"><a href="https://www.nowcoder.com/practice/ff6f36d357d24ce5a0eb817a0ef85ee2?tpId=195&tqId=36212&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL2 打印文件的最后5行</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">tail</span> <span class="nt">-n</span> 5 nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 使用awk统计所有行数据，再进行打印</span>
+<span class="nb">awk</span> <span class="s1">'BEGIN {x=1} { arg[x]=$0;x++} END{ for (i=NR-4;i&lt;=NR;i++) print arg[i]}'</span>
+
+<span class="c"># 使用head 负数进行打印</span>
+<span class="nb">head</span> <span class="nt">-5</span> filename
+
+<span class="c"># 使用sed命令进行添加</span>
+<span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'5,20p'</span> filename
+
+</code></pre></div></div>
+
+<h3 id="shell3-输出-0-到-500-中-7-的倍数"><a href="https://www.nowcoder.com/practice/8b85768394304511b0eb887244e51872?tpId=195&tqId=36213&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL3 输出 0 到 500 中 7 的倍数</a></h3>
+
+<ul>
+  <li>官方题解：
+    <ul>
+      <li><a href="https://blog.csdn.net/qq_41419761/article/details/84033620">shell算术运算(加减乘除求余)</a></li>
+      <li><a href="https://www.jianshu.com/p/7dff1a106ab5">seq命令的用法</a></li>
+    </ul>
+  </li>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="k">for</span> <span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="o">=</span>500<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span>
+<span class="k">do 
+    </span><span class="nv">res</span><span class="o">=</span><span class="si">$(</span><span class="nb">expr</span> <span class="nv">$i</span> % 7<span class="si">)</span>
+    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$res</span> <span class="o">==</span> 0 <span class="o">]]</span><span class="p">;</span><span class="k">then
+        </span><span class="nb">echo</span> <span class="nv">$i</span><span class="p">;</span>
+    <span class="k">fi
+done</span> 
+</code></pre></div></div>
+
+<ul>
+  <li>优质题解：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 直接使用间隔的方式进行输出即可</span>
+<span class="k">for </span>num <span class="k">in</span> <span class="o">{</span>0..500..7<span class="o">}</span><span class="p">;</span> <span class="k">do 
+  </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">num</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># 使用sed 直接进行输出</span>
+<span class="nb">seq </span>0 7 500
+</code></pre></div></div>
+
+<ul>
+  <li>官方题解：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>0..500<span class="o">}</span><span class="p">;</span>
+<span class="k">do
+    if</span> <span class="o">[[</span> i%7 <span class="nt">-eq</span> 0 <span class="o">]]</span><span class="p">;</span><span class="k">then
+        </span><span class="nb">echo</span> <span class="nv">$i</span>
+    <span class="k">fi
+done</span>
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="k">for </span>var <span class="k">in</span> <span class="o">{</span>0..500<span class="o">}</span>
+<span class="k">do
+    if</span> <span class="o">((</span>var%7<span class="o">==</span>0<span class="o">))</span>
+    <span class="k">then
+        </span><span class="nb">echo</span> <span class="nv">$var</span>
+    <span class="k">else
+        continue
+    fi
+done</span>
+</code></pre></div></div>
+
+<h3 id="shell4-输出第5行的内容"><a href="https://www.nowcoder.com/practice/1d5978c6136d4252904757b4fa0c9296?tpId=195&tqId=36214&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL4 输出第5行的内容</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">awk</span> <span class="s1">'NR == 5'</span> nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">head</span> <span class="nt">-n</span> 5 nowcoder.txt | <span class="nb">tail</span> <span class="nt">-n</span> 1
+
+<span class="c"># 使用sed  </span>
+<span class="nb">sed</span> <span class="nt">-n</span> 5p nowcoder.txt
+
+
+<span class="c"># 使用read</span>
+<span class="nv">line</span><span class="o">=</span>1
+<span class="k">while </span><span class="nb">read </span>value
+<span class="k">do 
+    if</span> <span class="o">[</span> <span class="nv">$line</span> <span class="nt">-eq</span> 5 <span class="o">]</span>
+    <span class="k">then </span><span class="nb">echo</span> <span class="nv">$value</span>
+    <span class="k">fi</span>
+    <span class="o">((</span>line++<span class="o">))</span>
+<span class="k">done</span> &lt; nowcoder.txt
+</code></pre></div></div>
+
+<h3 id="shell5-打印空行的行号"><a href="https://www.nowcoder.com/practice/030fc368e42e44b8b1f8985a8d6ad255?tpId=195&tqId=36215&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL5 打印空行的行号</a></h3>
+
+<ul>
+  <li>提交解答</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 直接使用awk </span>
+
+<span class="nb">awk</span> <span class="s1">'{
+    if ( length($0) &lt;= 0) {
+        print NR
+    }
+}'</span> nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># https://www.gl.sh.cn/2018/08/15/shell_zhong_pan_duan_zi_fu_chuan_wei_kong_de_ji_zhong_fang_fa.html</span>
+<span class="nv">line</span><span class="o">=</span>1
+<span class="k">while </span><span class="nb">read </span>value
+<span class="k">do</span>  
+    <span class="c"># if [ ! "$value" ]; then</span>
+    <span class="c"># if [ -z "$value" ]; then</span>
+    <span class="k">if</span> <span class="o">[</span> X<span class="nv">$value</span> <span class="o">=</span> <span class="s2">"X"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">echo</span> <span class="nv">$line</span> <span class="nv">$value</span>
+    <span class="k">fi</span>
+    <span class="o">((</span>line++<span class="o">))</span>
+<span class="k">done</span> &lt; nowcoder.txt
+</code></pre></div></div>
+
+<h3 id="shell6-去掉空行"><a href="https://www.nowcoder.com/practice/0372acd5725d40669640fd25e9fb7b0f?tpId=195&tqId=36216&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL6 去掉空行</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="c"># 打印数据</span>
+<span class="nb">awk</span> <span class="s1">'{ 
+    if (length($0) &gt; 0 ) {
+        print $0
+    }
+}'</span> nowcoder.txt
+
+
+<span class="c"># 使用read</span>
+
+<span class="k">while  </span><span class="nb">read  </span>value
+<span class="k">do
+    if</span> <span class="o">[[</span> X<span class="nv">$value</span> <span class="o">!=</span> <span class="s2">"X"</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">echo</span> <span class="nv">$value</span>
+    <span class="k">fi
+done</span> &lt; nowcoder.txt
+</code></pre></div></div>
+
+<h3 id="shell7-打印字母数小于8的单词"><a href="https://www.nowcoder.com/practice/bd5b5d4b93a04226a81afbabf0be797d?tpId=195&tqId=36217&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL7 打印字母数小于8的单词</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">awk</span> <span class="s1">'{ 
+    for (i=1;i&lt;=NF;i++) { 
+        if (length($i)&lt;8) {
+            printf "%s\n",$i
+        }
+    } 
+}'</span> nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答1：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">### 获取字符串长度的方式 ele-字符串变量</span>
+<span class="c"># awk 的length()函数</span>
+<span class="c"># awk的NF变量 echo "${ele}" | awk -F"" '{print NF}'</span>
+<span class="c"># wc -c 字节个数,一个英文一个字节,因此可用,但是换行符也会被算上, 中文编码方式不同结果也不同</span>
+<span class="c"># wc -m 字符个数</span>
+<span class="c"># wc -L line的长度</span>
+<span class="c"># ${#ele} [ele是字符串变量名]</span>
+<span class="c"># expr length ${ele}</span>
+<span class="nb">awk</span> <span class="s1">'{for(i=1;i&lt;=NF;i++) if(length($i)&lt;8) print $i}'</span> nowcoder.txt
+<span class="nb">cat </span>nowcoder.txt | <span class="nb">awk</span> <span class="s1">'{for(i=1;i&lt;=NF;i++) if(length($i)&lt;8) print $i}'</span>
+
+<span class="c">### 已下都用方法/函数定义</span>
+<span class="k">function </span>test0<span class="o">()</span> <span class="o">{</span>
+    <span class="k">for </span>ele <span class="k">in</span> <span class="sb">`</span><span class="nb">cat </span>nowcoder.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do 
+        if</span> <span class="o">[</span> <span class="k">${#</span><span class="nv">ele</span><span class="k">}</span> <span class="nt">-lt</span> 8 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">ele</span><span class="k">}</span>
+        <span class="k">fi
+    done</span>
+<span class="o">}</span>
+
+<span class="c"># tem=`cat now/coder.txt`</span>
+<span class="c"># arr=(${tem})</span>
+<span class="k">function </span>test1<span class="o">()</span> <span class="o">{</span>
+    <span class="k">for </span>ele <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> <span class="k">do 
+        if</span> <span class="o">[</span> <span class="k">${#</span><span class="nv">ele</span><span class="k">}</span> <span class="nt">-lt</span> 8 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">ele</span><span class="k">}</span>
+        <span class="k">fi
+    done</span>
+<span class="o">}</span>
+
+<span class="k">function </span>test11<span class="o">()</span> <span class="o">{</span>
+    <span class="k">for </span>ele <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> <span class="k">do</span>
+        <span class="c">#temp=$(echo -n "${ele}" | wc -c)</span>
+        <span class="c"># -n参数:去除"\n"换行符,不去除的话,默认带换行符,字符个数就肉眼看到的多一个</span>
+        <span class="nv">temp</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nt">-n</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="s2">"</span> | <span class="nb">wc</span> <span class="nt">-c</span><span class="sb">`</span>
+        <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">temp</span><span class="k">}</span> <span class="nt">-lt</span> 8 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">ele</span><span class="k">}</span>
+        <span class="k">fi
+    done</span>
+<span class="o">}</span>
+
+<span class="k">function </span>test111<span class="o">()</span> <span class="o">{</span>
+    <span class="k">for </span>ele <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> <span class="k">do
+        </span><span class="nv">temp</span><span class="o">=</span><span class="sb">`</span><span class="nb">expr </span>length <span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="sb">`</span>
+        <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">temp</span><span class="k">}</span> <span class="nt">-lt</span> 8 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">ele</span><span class="k">}</span>
+        <span class="k">fi
+    done</span>
+<span class="o">}</span>
+
+<span class="k">function </span>test1111<span class="o">()</span> <span class="o">{</span>
+    <span class="k">for </span>ele <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> <span class="k">do
+        </span><span class="nv">temp</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="s2">"</span> | <span class="nb">wc</span> <span class="nt">-L</span><span class="sb">`</span>
+        <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">temp</span><span class="k">}</span> <span class="nt">-lt</span> 8 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">ele</span><span class="k">}</span>
+        <span class="k">fi
+    done</span>
+<span class="o">}</span>
+
+<span class="k">function </span>test2<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">local </span><span class="nv">ele</span><span class="o">=</span><span class="s2">""</span>
+    <span class="k">for</span> <span class="o">((</span> <span class="nv">i</span><span class="o">=</span>0<span class="p">;</span> i&lt;<span class="k">${#</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> i++ <span class="o">))</span><span class="p">;</span> <span class="k">do
+        </span><span class="nv">ele</span><span class="o">=</span><span class="k">${</span><span class="nv">arr</span><span class="p">[</span><span class="k">${</span><span class="nv">i</span><span class="k">}</span><span class="p">]</span><span class="k">}</span>
+        <span class="k">if</span> <span class="o">[</span> <span class="k">${#</span><span class="nv">ele</span><span class="k">}</span> <span class="nt">-lt</span> 8 <span class="o">]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">ele</span><span class="k">}</span>
+        <span class="k">fi
+    done</span>
+<span class="o">}</span>
+test0
+
+</code></pre></div></div>
+
+<h3 id="shell8-统计所有进程占用内存百分比的和"><a href="https://www.nowcoder.com/practice/fb24140bac154e5b99e44e0cee45dcaf?tpId=195&tqId=36218&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL8 统计所有进程占用内存百分比的和</a></h3>
+
+<ul>
+  <li>参考链接：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>[题解</td>
+              <td>#统计所有进程占用内存大小的和#](https://blog.nowcoder.net/n/82e5732e08ae4abe83bb07e75860dc9e)</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 直接使用awk,注意awk相关语法</span>
+<span class="c"># 建议在awk中引用shell变量，使用格式：'"$var"'</span>
+<span class="nb">awk</span>  <span class="s1">'
+BEGIN{sum=0}
+{
+    if(NR&gt;1){ 
+        sum+=$4
+    }
+} 
+END {print sum}
+'</span> nowcoder.txt 
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 直接使用计算</span>
+<span class="nb">sum</span><span class="o">=</span>0
+<span class="k">for </span>i <span class="k">in</span> <span class="sb">`</span><span class="nb">awk</span> <span class="s1">'{print $6}'</span> nowcoder.txt<span class="sb">`</span>
+<span class="k">do</span>
+    <span class="o">((</span><span class="nb">sum</span>+<span class="o">=</span><span class="nv">$i</span><span class="o">))</span>
+    <span class="k">done
+</span><span class="nb">echo</span> <span class="nv">$sum</span>
+
+
+<span class="c">#  性能最佳</span>
+<span class="nb">sum</span><span class="o">=</span>0<span class="p">;</span>
+<span class="k">while </span><span class="nb">read </span>p
+<span class="k">do
+    </span><span class="nv">arr</span><span class="o">=(</span><span class="nv">$p</span><span class="o">)</span>
+    <span class="o">((</span><span class="nb">sum</span>+<span class="o">=</span>arr[5]<span class="o">))</span>
+<span class="k">done</span> &lt;nowcoder.txt
+<span class="nb">echo</span> <span class="nv">$sum</span>
+</code></pre></div></div>
+
+<h3 id="shell9-统计每个单词出现的个数"><a href="https://www.nowcoder.com/practice/ad921ccc0ba041ea93e9fb40bb0f2786?tpId=195&tqId=36219&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL9 统计每个单词出现的个数</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="c"># 主要思路使用awk 加 进行统计，使用sort进行输出</span>
+<span class="nb">awk</span> <span class="s1">'
+{
+    for(i=1;i&lt;=NF;i++) {
+        arr[$i]++
+    }
+}
+END {
+    for(key in arr) {
+        printf "%s %d\n",key,arr[key]
+    }
+}
+'</span> nowcoder.txt | <span class="nb">sort</span> <span class="nt">-k</span> 2
+
+
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 使用cat 进行文本提取</span>
+<span class="c"># 使用xargs 转换为行</span>
+<span class="c"># 使用sort 进行排序</span>
+<span class="c"># 使用uniq 进行去重统计</span>
+<span class="c"># 使用sort 按照数值进行排序</span>
+<span class="c"># 使用awk 列输出顺序交换</span>
+<span class="nb">cat </span>nowcoder.txt | xargs <span class="nt">-n1</span> | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="nt">-c</span> | <span class="nb">sort</span> <span class="nt">-n</span> | <span class="nb">awk</span> <span class="s1">'{print $2, $1}'</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">declare</span> <span class="nt">-A</span> map
+
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do</span>
+    <span class="c"># 进行行读取</span>
+    <span class="nv">arr</span><span class="o">=</span><span class="nv">$line</span>
+    <span class="c"># 遍历行中每一个单次</span>
+    <span class="k">for </span>i <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span>
+    <span class="c"># 进行数量统计</span>
+    <span class="k">do
+        if</span> <span class="o">[</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">map</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="k">}</span> <span class="o">]</span>
+        <span class="k">then
+            </span>map[<span class="nv">$i</span><span class="o">]=</span>1
+        <span class="k">else</span>
+            <span class="o">((</span>map[<span class="nv">$i</span><span class="o">]</span>++<span class="o">))</span>
+        <span class="k">fi
+    done
+ done</span> &lt; nowcoder.txt
+ 
+ <span class="nv">mm</span><span class="o">=()</span>
+ 
+<span class="k">for </span>value <span class="k">in</span> <span class="k">${</span><span class="nv">map</span><span class="p">[@]</span><span class="k">}</span>
+<span class="k">do
+    </span>mm[<span class="k">${#</span><span class="nv">mm</span><span class="p">[@]</span><span class="k">}</span><span class="o">]=</span><span class="k">${</span><span class="nv">value</span><span class="k">}</span>
+<span class="k">done</span>
+<span class="c"># 在这里进行手动排序</span>
+<span class="nv">len</span><span class="o">=</span><span class="k">${#</span><span class="nv">mm</span><span class="p">[@]</span><span class="k">}</span>
+<span class="k">for</span> <span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;len<span class="p">;</span>i++<span class="o">))</span>
+<span class="k">do
+    for</span> <span class="o">((</span><span class="nv">j</span><span class="o">=</span>i+1<span class="p">;</span>j&lt;len<span class="p">;</span>j++<span class="o">))</span>
+    <span class="k">do
+        if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">mm</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="k">}</span> <span class="nt">-gt</span> <span class="k">${</span><span class="nv">mm</span><span class="p">[</span><span class="nv">$j</span><span class="p">]</span><span class="k">}</span> <span class="o">]</span>
+        <span class="k">then
+            </span><span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">mm</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="k">}</span>
+            mm[<span class="nv">$i</span><span class="o">]=</span><span class="k">${</span><span class="nv">mm</span><span class="p">[</span><span class="nv">$j</span><span class="p">]</span><span class="k">}</span>
+            mm[<span class="nv">$j</span><span class="o">]=</span><span class="nv">$tmp</span>
+         <span class="k">fi
+     done
+ done
+ 
+for</span> <span class="o">((</span><span class="nv">k</span><span class="o">=</span>0<span class="p">;</span>k&lt;<span class="k">${#</span><span class="nv">mm</span><span class="p">[*]</span><span class="k">}</span><span class="p">;</span>k++<span class="o">))</span>
+<span class="k">do
+    for </span>key <span class="k">in</span> <span class="k">${</span><span class="p">!map[@]</span><span class="k">}</span>
+    <span class="k">do
+        if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">map</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span><span class="k">}</span> <span class="nt">-eq</span> <span class="k">${</span><span class="nv">mm</span><span class="p">[</span><span class="nv">$k</span><span class="p">]</span><span class="k">}</span> <span class="o">]</span>
+        <span class="k">then
+            </span><span class="nb">echo</span> <span class="nv">$key</span> <span class="k">${</span><span class="nv">map</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span><span class="k">}</span>
+        <span class="k">fi
+    done
+done</span>
+</code></pre></div></div>
+
+<h3 id="shell10-第二列是否有重复"><a href="https://www.nowcoder.com/practice/61b79ffe88964c7ab7b98ae16dd76492?tpId=195&tqId=36220&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL10 第二列是否有重复</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 主要思路还是使用awk 进行数据过滤</span>
+<span class="nb">awk</span> <span class="s1">'{print $2}'</span> nowcoder.txt | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="nt">-c</span> | <span class="nb">sort</span> <span class="nt">-n</span> | <span class="nb">awk</span> <span class="s1">'{if($1&gt;1) {printf "%d %s\n",$1,$2}}'</span>
+<span class="c"># 使用awk进行统计</span>
+
+<span class="nb">awk</span> <span class="s1">'{ arr[$2]++} END{ for (key in arr) { if (arr[key] &gt;1) { printf "%d %s\n",arr[key],key } } }'</span> nowcoder.txt | <span class="nb">sort</span> <span class="nt">-n</span> 
+
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 知己使用read line 进行分割</span>
+
+<span class="nb">declare</span> <span class="nt">-A</span> arr
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do
+    </span><span class="nv">temparr</span><span class="o">=(</span><span class="nv">$line</span><span class="o">)</span>
+    arr[<span class="k">${</span><span class="nv">temparr</span><span class="p">[1]</span><span class="k">}</span><span class="o">]=</span><span class="k">$((${</span><span class="nv">arr</span><span class="p">[</span><span class="k">${</span><span class="nv">temparr</span><span class="p">[1]</span><span class="k">}</span><span class="p">]</span><span class="k">}</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">done
+for </span>key <span class="k">in</span> <span class="k">${</span><span class="p">!arr[@]</span><span class="k">}</span>
+<span class="k">do
+    if</span> <span class="o">[[</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span><span class="k">}</span> <span class="nt">-gt</span> 1 <span class="o">]]</span>
+    <span class="k">then
+        </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span><span class="k">}</span><span class="s2">" "</span><span class="nv">$key</span>
+    <span class="k">fi
+done</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 用map存储</span>
+<span class="nb">unset </span>map
+<span class="nb">declare</span> <span class="nt">-A</span> map
+<span class="c"># 将每一行及重复数以键值对形式存储</span>
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do
+  </span><span class="nv">j</span><span class="o">=(</span><span class="k">${</span><span class="nv">line</span><span class="p">[@]</span><span class="k">}</span><span class="o">)</span>     <span class="c">#  将每行的数据以数组方式存储,()初始化</span>
+  <span class="nv">i</span><span class="o">=</span><span class="k">${</span><span class="nv">j</span><span class="p">[1]</span><span class="k">}</span>     <span class="c">#  将第二列的值赋值给j</span>
+  <span class="k">if</span> <span class="o">((</span> <span class="nt">-z</span> <span class="k">${</span><span class="nv">map</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="k">}</span> <span class="o">))</span>    <span class="c"># 这数据第一次出现</span>
+  <span class="k">then
+     </span>map[<span class="nv">$i</span><span class="o">]=</span>1
+  <span class="k">else</span>
+    <span class="o">((</span>map[<span class="nv">$i</span><span class="o">]</span>++<span class="o">))</span>   <span class="c"># 这数据不是第一次出现，value值加一</span>
+  <span class="k">fi
+done</span> &lt; nowcoder.txt
+
+<span class="k">for </span>key <span class="k">in</span> <span class="k">${</span><span class="p">!map[@]</span><span class="k">}</span>
+<span class="k">do
+  if</span> <span class="o">((</span> <span class="k">${</span><span class="nv">map</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span><span class="k">}</span> <span class="o">&gt;</span> 1 <span class="o">))</span>
+  <span class="k">then
+    </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">map</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span><span class="k">}</span> <span class="nv">$key</span>
+  <span class="k">fi
+done</span>
+</code></pre></div></div>
+
+<ul>
+  <li>官方题解：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>nowcoder.txt | <span class="nb">awk</span> <span class="s1">'{print $2}'</span> | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="nt">-c</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'1'</span> | <span class="nb">sort</span> <span class="nt">-n</span>
+
+<span class="c">#先用awk提取文本的第二列信息并对之进行排序，排序后才能用uniq进行去重统计（先去重统计在排序会造成统计不准确），再用grep把没有重复的取反求出（没有重复数值就是1），最后按题目要求再次按数值排序！！！</span>
+
+</code></pre></div></div>
+
+<h3 id="shell11-转置文件的内容"><a href="https://www.nowcoder.com/practice/2240cd809c8f4d80b3479d7c95bb1e2e?tpId=195&tqId=36221&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL11 转置文件的内容</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 1. 先统计行列</span>
+<span class="c"># 使用awk 输出指定列，使用xargs转换为 行</span>
+
+<span class="c"># 统计列数</span>
+<span class="nv">line</span><span class="o">=</span><span class="si">$(</span><span class="nb">cat </span>nowcoder.txt | <span class="nb">head</span> <span class="nt">-n</span> 1 |  <span class="nb">wc</span> <span class="nt">-w</span><span class="si">)</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>1 <span class="nv">$line</span><span class="si">)</span>
+<span class="k">do 
+    </span><span class="nb">awk</span> <span class="s1">'{print $'''</span><span class="nv">$i</span><span class="s1">'''}'</span> nowcoder.txt | xargs
+<span class="k">done</span> 
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#/bin/bash</span>
+ 
+<span class="c"># 进行统计</span>
+<span class="nv">lines</span><span class="o">=()</span>
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do
+    </span>lines[<span class="k">${#</span><span class="nv">lines</span><span class="p">[@]</span><span class="k">}</span><span class="o">]=</span><span class="nv">$line</span>
+
+<span class="k">done</span>&lt;nowcoder.txt
+
+<span class="c"># 获取当前列长度</span>
+<span class="nv">rows</span><span class="o">=</span><span class="k">${#</span><span class="nv">lines</span><span class="p">[@]</span><span class="k">}</span>
+<span class="nv">t</span><span class="o">=(</span><span class="k">${</span><span class="nv">lines</span><span class="p">[0]</span><span class="k">}</span><span class="o">)</span>
+<span class="nv">columns</span><span class="o">=</span><span class="k">${#</span><span class="nv">t</span><span class="p">[@]</span><span class="k">}</span>
+
+<span class="c"># 遍历进行数据打印</span>
+<span class="k">for</span> <span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="nv">$columns</span><span class="p">;</span>i++<span class="o">))</span>
+<span class="k">do
+    for</span> <span class="o">((</span><span class="nv">j</span><span class="o">=</span>0<span class="p">;</span>j&lt;<span class="nv">$rows</span><span class="p">;</span>j++<span class="o">))</span>
+    <span class="k">do
+        </span><span class="nv">tmp</span><span class="o">=(</span><span class="k">${</span><span class="nv">lines</span><span class="p">[</span><span class="nv">$j</span><span class="p">]</span><span class="k">}</span><span class="o">)</span>
+        <span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">tmp</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="k">}</span><span class="s2"> "</span>
+    <span class="k">done
+done</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+
+<span class="c">#awk '{a[NR]=$1} END{print "'${a[1]}',a[2],a[3],a[4],a[5]\nb[1],b[2],b[3],b[4],b[5]"}' nowcoder.txt</span>
+<span class="c">#awk '{a[NF]=$1} {print a[NF]}' nowcoder.txt</span>
+<span class="c">#</span>
+<span class="c">#! /bin/bash</span>
+<span class="nb">declare</span> <span class="nt">-a</span> arr1
+<span class="nb">declare</span> <span class="nt">-a</span> arr2
+ 
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do
+    </span><span class="nv">arr</span><span class="o">=(</span><span class="nv">$line</span><span class="o">)</span>
+    arr1[<span class="k">${#</span><span class="nv">arr1</span><span class="p">[@]</span><span class="k">}</span><span class="o">]=</span><span class="k">${</span><span class="nv">arr</span><span class="p">[0]</span><span class="k">}</span>
+    arr2[<span class="k">${#</span><span class="nv">arr2</span><span class="p">[@]</span><span class="k">}</span><span class="o">]=</span><span class="k">${</span><span class="nv">arr</span><span class="p">[1]</span><span class="k">}</span>
+<span class="k">done</span> &lt; nowcoder.txt
+ 
+<span class="nb">echo</span> <span class="k">${</span><span class="nv">arr1</span><span class="p">[@]</span><span class="k">}</span>
+<span class="nb">echo</span> <span class="k">${</span><span class="nv">arr2</span><span class="p">[@]</span><span class="k">}</span>
+<span class="c">#</span>
+</code></pre></div></div>
+
+<h1 id="shell12-打印每一行出现的数字个数"><a href="https://www.nowcoder.com/practice/2d2a124f98054292aef71b453e705ca9?tpId=195&tqId=36222&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL12 打印每一行出现的数字个数</a></h1>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="c"># 1. 注意shell中的计算方式： let / $(()) / `expr $a + $b` </span>
+<span class="c"># 2. 字符串/数组提取： ${line\:i\:1}</span>
+<span class="nv">lineNum</span><span class="o">=</span>0
+<span class="nv">sumNum</span><span class="o">=</span>0
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do
+    </span><span class="nv">lineCount</span><span class="o">=</span>0
+    <span class="c"># 统计行长度</span>
+    <span class="nv">num</span><span class="o">=</span><span class="k">${#</span><span class="nv">line</span><span class="k">}</span>
+    <span class="o">((</span>lineNum++<span class="o">))</span>
+    <span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>0 <span class="k">${</span><span class="nv">num</span><span class="k">}</span><span class="si">)</span>
+    <span class="k">do 
+        </span><span class="nv">ch</span><span class="o">=</span><span class="k">${</span><span class="nv">line</span>\:i\:1<span class="k">}</span>
+        <span class="k">case</span> <span class="nv">$ch</span> <span class="k">in</span> 
+            <span class="o">[</span>1-5]<span class="p">)</span>
+                <span class="o">((</span>lineCount++<span class="o">))</span>
+                <span class="c">#((sumNum++))</span>
+                <span class="p">;;</span>
+        <span class="k">esac</span>
+    <span class="k">done
+    </span><span class="nb">echo</span> <span class="s2">"line</span><span class="nv">$lineNum</span><span class="s2"> number: </span><span class="nv">$lineCount</span><span class="s2">"</span>
+    <span class="nv">sumNum</span><span class="o">=</span><span class="k">$((</span>sumNum <span class="o">+</span> lineCount<span class="k">))</span>
+    <span class="c">#  sumNum=`expr $sumNum + $lineCount`</span>
+    <span class="c">#echo "dd $sumNum"</span>
+<span class="k">done</span> &lt; nowcoder.txt
+<span class="nb">echo</span> <span class="s2">"sum is </span><span class="nv">$sumNum</span><span class="s2">"</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答1：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nv">row</span><span class="o">=</span>0
+<span class="nb">sum</span><span class="o">=</span>0
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do
+        </span><span class="nv">num</span><span class="o">=</span>0
+        <span class="nv">len</span><span class="o">=</span><span class="k">${#</span><span class="nv">line</span><span class="k">}</span>
+        <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;len<span class="p">;</span>i++<span class="o">))</span>
+        <span class="k">do
+                </span><span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">line</span>\:i\:1<span class="k">}</span>
+                <span class="k">if</span> <span class="o">[[</span> <span class="k">${</span><span class="nv">tmp</span><span class="k">}</span> <span class="nt">-eq</span> 1 <span class="o">||</span> <span class="k">${</span><span class="nv">tmp</span><span class="k">}</span> <span class="nt">-eq</span> 2 <span class="o">||</span> <span class="k">${</span><span class="nv">tmp</span><span class="k">}</span> <span class="nt">-eq</span> 3 <span class="o">||</span> <span class="k">${</span><span class="nv">tmp</span><span class="k">}</span> <span class="nt">-eq</span> 4 <span class="o">||</span> <span class="k">${</span><span class="nv">tmp</span><span class="k">}</span> <span class="nt">-eq</span> 5 <span class="o">]]</span>
+                <span class="k">then</span>
+                        <span class="o">((</span>num++<span class="o">))</span>
+                <span class="k">fi
+        done</span>
+        <span class="o">((</span>row++<span class="o">))</span>
+        <span class="o">((</span><span class="nb">sum</span>+<span class="o">=</span>num<span class="o">))</span>
+        <span class="nb">echo</span> <span class="s2">"line</span><span class="k">${</span><span class="nv">row</span><span class="k">}</span><span class="s2"> number:</span><span class="k">${</span><span class="nv">num</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">done</span> &lt; nowcoder.txt
+<span class="nb">echo</span> <span class="s2">"sum is </span><span class="k">${</span><span class="nv">sum</span><span class="k">}</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 使用awk -F 进行字符串分割，然后按照行进行统计</span>
+<span class="c">#</span>
+<span class="nb">awk</span> <span class="nt">-F</span> <span class="s2">""</span> <span class="s1">'BEGIN{sum=0} {count=0,for(i=1;i&lt;=NF;i++){if($i ~ /[1-5]/){count++}} print "line"NR+1" number:"count,sum += count} END{print "sum is "sum}'</span> nowcoder.txt
+
+
+<span class="c"># 这里巧妙的使用了字符串分割，检查分割后的字符串列数-1即可</span>
+<span class="nb">awk</span> <span class="nt">-F</span> <span class="s2">"[1,2,3,4,5]"</span> <span class="s1">'BEGIN{sum=0}{print "line"NR" number:"(NF-1);sum+=(NF-1)}END{print "sum is "sum}'</span> nowcoder.txt
+</code></pre></div></div>
+
+<h3 id="shell13-去掉所有包含this的句子"><a href="https://www.nowcoder.com/practice/2c5a46ef755a4f099368f7588361a8af?tpId=195&tqId=36223&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL13 去掉所有包含this的句子</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 使用grep -v 进行基础的操作</span>
+<span class="nb">cat </span>nowcoder.txt | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">'this'</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while </span><span class="nb">read </span>line
+<span class="k">do</span>
+    <span class="c"># 直接使用 =~进行判断</span>
+    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$line</span> <span class="o">=</span>~ <span class="s2">"this"</span> <span class="o">]]</span><span class="p">;;</span><span class="k">then
+        continue
+    else
+        </span><span class="nb">echo</span> <span class="nv">$line</span>
+    <span class="k">fi
+done</span> &lt; nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 使用sed 直接进行删除</span>
+<span class="nb">sed</span> <span class="s1">'/this/d'</span>
+
+<span class="c"># awk</span>
+<span class="nb">awk</span> <span class="s1">'$0!~/this/ {print $0}'</span>
+</code></pre></div></div>
+
+<h3 id="shell14-求平均值"><a href="https://www.nowcoder.com/practice/c44b98aeaf9942d3a61548bff306a7de?tpId=195&tqId=36224&rp=1&ru=/exam/oj&amp;qru=/exam/oj&amp;sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">SHELL14 求平均值</a></h3>
+
+<ul>
+  <li><a href="https://www.cnblogs.com/chengmo/archive/2010/09/30/1839556.html">shell中的浮点计算</a></li>
+  <li>
+    <p><a href="https://www.runoob.com/linux/linux-comm-bc.html">bc命令计算浮点数</a></p>
+  </li>
+  <li>提交解答</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="c"># 使用wak 进行统计和输出</span>
+
+<span class="nb">awk</span> <span class="s1">' 
+BEGIN{
+    sum=0
+    numberCount=0
+}
+{
+    if(NR==1) {
+        numberCount=$1
+    } else {
+        sum+=$1
+    }
+}
+END{
+    res=sum/numberCount*1.000
+    printf "%.3f\n",res
+}
+
+'</span>  nowcoder.txt 
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答1:</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">awk</span> <span class="s1">'{if(NR&gt;1) {sum+=$0}} END {printf("%.3f", sum/(NR-1))}'</span> nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+
+<span class="k">function </span>solution_1<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">read </span>count
+    <span class="nb">local sum</span><span class="o">=</span>0
+    <span class="nb">local </span><span class="nv">loop</span><span class="o">=</span><span class="k">${</span><span class="nv">count</span><span class="k">}</span>
+    <span class="k">while</span> <span class="o">((</span> <span class="k">${</span><span class="nv">loop</span><span class="k">}</span> <span class="o">&gt;</span> 0<span class="o">))</span><span class="p">;</span> <span class="k">do
+        </span><span class="nb">read </span>m
+        <span class="nb">sum</span><span class="o">=</span><span class="k">$((${</span><span class="nv">sum</span><span class="k">}</span><span class="o">+</span><span class="k">${</span><span class="nv">m</span><span class="k">}))</span>
+        <span class="nv">loop</span><span class="o">=</span><span class="k">$((${</span><span class="nv">loop</span><span class="k">}</span><span class="o">-</span><span class="m">1</span><span class="k">))</span>
+    <span class="k">done</span>
+    <span class="c"># 这里使用scale 指定了浮点数小数位长度</span>
+    <span class="nb">echo</span> <span class="s2">"scale=3; </span><span class="k">${</span><span class="nv">sum</span><span class="k">}</span><span class="s2">/</span><span class="k">${</span><span class="nv">count</span><span class="k">}</span><span class="s2">"</span> | bc 
+<span class="o">}</span>
+
+<span class="k">function </span>solution_2<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">read </span>count
+    <span class="nb">local sum</span><span class="o">=</span>0
+    <span class="nb">local </span><span class="nv">loop</span><span class="o">=</span>1
+    <span class="k">while</span> <span class="o">((</span> <span class="k">${</span><span class="nv">loop</span><span class="k">}</span> &lt;<span class="o">=</span> <span class="k">${</span><span class="nv">count</span><span class="k">}</span><span class="o">))</span><span class="p">;</span> <span class="k">do
+        </span><span class="nb">read </span>m
+        <span class="o">((</span><span class="nb">sum</span>+<span class="o">=</span>m<span class="o">))</span>
+        <span class="o">((</span>loop++<span class="o">))</span>
+    <span class="k">done
+    </span><span class="nb">echo</span> <span class="s2">"scale=3; </span><span class="k">${</span><span class="nv">sum</span><span class="k">}</span><span class="s2">/</span><span class="k">${</span><span class="nv">count</span><span class="k">}</span><span class="s2">"</span> | bc 
+<span class="o">}</span>
+
+<span class="k">function </span>solution_3<span class="o">()</span>  <span class="o">{</span>
+    <span class="nb">awk</span> <span class="s1">'NR==1{all=$0} NR&gt;1{total+=$0} END{printf "%.3f" ,total/all}'</span>
+<span class="o">}</span>
+
+<span class="k">function </span>solution_4<span class="o">()</span>  <span class="o">{</span>
+    <span class="nb">read</span> <span class="nt">-p</span> <span class="s1">'请输入数组长度：'</span> len
+    <span class="nv">i</span><span class="o">=</span>1
+    <span class="k">while</span> <span class="o">[</span> <span class="nv">$i</span> <span class="nt">-le</span> <span class="nv">$len</span> <span class="o">]</span>
+    <span class="k">do
+        </span><span class="nb">read</span> <span class="nt">-p</span> <span class="s1">'请输入数组数字：'</span> num[<span class="nv">$i</span><span class="o">]</span>
+        <span class="nb">let </span>i++
+    <span class="k">done
+    for </span>i <span class="k">in</span> <span class="k">${</span><span class="nv">num</span><span class="p">[*]</span><span class="k">}</span>
+    <span class="k">do
+        </span><span class="nb">sum</span><span class="o">=</span><span class="k">$((</span><span class="nb">sum</span><span class="o">+</span>i<span class="k">))</span>
+    <span class="k">done
+    </span><span class="nb">echo</span> <span class="s2">"scale=3; </span><span class="k">${</span><span class="nv">sum</span><span class="k">}</span><span class="s2">/</span><span class="k">${</span><span class="nv">len</span><span class="k">}</span><span class="s2">"</span> | bc 
+    <span class="c">#awk -va=$sum -vb=$len 'BEGIN{printf "%.3f\n",a / b }'</span>
+<span class="o">}</span>
+
+<span class="k">function </span>solution_999<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">read </span>n
+    <span class="nb">sum</span><span class="o">=</span>0
+    <span class="nb">read </span>m
+    <span class="nv">arr</span><span class="o">=(</span><span class="nv">$m</span><span class="o">)</span>
+    <span class="k">for </span>ele <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">{@</span><span class="k">}</span><span class="o">}</span><span class="p">;</span> <span class="k">do 
+        </span><span class="nb">sum</span><span class="o">=</span><span class="k">$((${</span><span class="nv">sum</span><span class="k">}</span><span class="o">+</span><span class="k">${</span><span class="nv">ele</span><span class="k">}))</span>
+    <span class="k">done
+    </span><span class="nb">echo</span> <span class="s2">"scale=3; </span><span class="k">${</span><span class="nv">sum</span><span class="k">}</span><span class="s2">/</span><span class="k">${</span><span class="nv">n</span><span class="k">}</span><span class="s2">"</span> | bc 
+<span class="o">}</span>
+
+solution_1
+</code></pre></div></div>
+
+<h3 id="shell15-去掉不需要的单词"><a href="https://www.nowcoder.com/practice/838a3acde92c4805a22ac73ca04e503b?tpId=195&rp=1&ru=%2Fexam%2Foj&qru=%2Fexam%2Foj&sourceUrl=%2Fexam%2Foj%3Fpage%3D1%26tab%3DSHELL%25E7%25AF%2587%26topicId%3D195&difficulty=&judgeStatus=&tags=&title=&gioEnter=menu">SHELL15 去掉不需要的单词</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 直接使用grep的反向选择</span>
+<span class="nb">cat </span>nowcoder.txt | <span class="nb">grep</span>  <span class="nt">-v</span> <span class="nt">-i</span> <span class="s1">'B'</span>
+<span class="c"># 如下选择</span>
+<span class="nb">grep</span>  <span class="nt">-E</span> <span class="nt">-v</span> <span class="s2">"[bB]"</span>
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/user/bin/bash</span>
+<span class="c"># 直接读取检查是否含有b</span>
+<span class="k">function </span>solution_1<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">local </span><span class="nv">arr</span><span class="o">=</span><span class="s2">""</span>
+    <span class="k">while </span><span class="nb">read </span>line<span class="p">;</span> <span class="k">do
+        </span><span class="nv">arr</span><span class="o">=(</span><span class="k">${</span><span class="nv">line</span><span class="k">}</span><span class="o">)</span>
+        <span class="k">for </span>ele <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> <span class="k">do</span>
+            <span class="c"># 含有对应字母，直接跳过</span>
+            <span class="k">if</span> <span class="o">[[</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="s2">"</span> <span class="o">=</span>~ B <span class="o">||</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="s2">"</span> <span class="o">=</span>~ b <span class="o">]]</span><span class="p">;</span> <span class="k">then
+                continue
+            fi
+            </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="s2"> "</span>
+        <span class="k">done
+    done</span> &lt; nowcoder.txt
+<span class="o">}</span>
+ 
+<span class="k">function </span>solution_2<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">local </span><span class="nv">arr</span><span class="o">=</span><span class="s2">""</span>
+    <span class="k">while </span><span class="nb">read </span>line<span class="p">;</span> <span class="k">do
+        </span><span class="nv">arr</span><span class="o">=(</span><span class="k">${</span><span class="nv">line</span><span class="k">}</span><span class="o">)</span>
+        <span class="k">for </span>ele <span class="k">in</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span> <span class="k">do
+            if</span> <span class="o">[[</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="s2">"</span> <span class="o">=</span>~ B|b <span class="o">]]</span><span class="p">;</span> <span class="k">then
+                continue
+            fi
+            </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">ele</span><span class="k">}</span><span class="s2"> "</span>
+        <span class="k">done
+    done</span> &lt; nowcoder.txt
+<span class="o">}</span>
+<span class="c"># 直接使用sed进行替换</span>
+<span class="k">function </span>solution_4<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">sed</span> <span class="s1">'/B\|b/d'</span> nowcoder.txt
+<span class="o">}</span>
+<span class="c"># 使用awk</span>
+<span class="k">function </span>solution_5<span class="o">()</span> <span class="o">{</span>
+    <span class="c">#awk '{ for(i=0; i&lt;NF; i++) if($i ~! /b/) print $i }' nowcoder.txt</span>
+    <span class="c">#awk '/[^b]/{print $1}' nowcoder.txt</span>
+    :
+<span class="o">}</span>
+ 
+<span class="k">function </span>solution_999<span class="o">()</span> <span class="o">{</span>
+    <span class="k">while </span><span class="nb">read </span>line<span class="p">;</span> <span class="k">do
+        </span><span class="nv">my_array</span><span class="o">=(</span><span class="s2">"</span><span class="k">${</span><span class="nv">my_array</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span> <span class="nv">$line</span><span class="o">)</span>
+    <span class="k">done
+    </span><span class="nb">declare</span> <span class="nt">-a</span> <span class="nv">pattern</span><span class="o">=(</span><span class="k">${</span><span class="nv">my_array</span><span class="p">[@]/*[B|b]*/</span><span class="k">}</span><span class="o">)</span>
+    <span class="nb">echo</span> <span class="k">${</span><span class="nv">pattern</span><span class="p">[@]</span><span class="k">}</span>
+<span class="o">}</span>
+ 
+solution_1
+</code></pre></div></div>
+
+<h3 id="shell16-判断输入的是否为ip地址"><a href="https://www.nowcoder.com/practice/ad7b6dbfab2a4267a9991110c57aa64f?tpId=195&tqId=39425&rp=1&ru=/exam/company&amp;qru=/exam/company&amp;sourceUrl=%2Fexam%2Fcompany&amp;difficulty=undefined&amp;judgeStatus=undefined&amp;tags=&amp;title=">shell16 判断输入的是否为IP地址</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c"># 主要思路：1. 先用grep 查找是否规范 2. 用awk 判断数字范围是否合法</span>
+<span class="k">function </span>is_vailable_ip<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">local </span>originStr filterStr
+    <span class="nv">originStr</span><span class="o">=</span><span class="nv">$1</span>
+    <span class="nv">filterStr</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="nv">$originStr</span> | <span class="nb">grep</span> <span class="nt">-E</span> <span class="s2">"^[0-9]{1,3}</span><span class="se">\.</span><span class="s2">[0-9]{1,3}</span><span class="se">\.</span><span class="s2">[0-9]{1,3}</span><span class="se">\.</span><span class="s2">[0-9]{1,3}$"</span><span class="si">)</span>
+    <span class="c"># 1. 检查输入是否合法</span>
+    <span class="k">if</span> <span class="o">[[</span> <span class="s2">"</span><span class="nv">$originStr</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"</span><span class="nv">$filterStr</span><span class="s2">"</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="c">#2. 检查数字是否合法</span>
+        <span class="nb">local </span>awkRes
+        <span class="nv">awkRes</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="nv">$originStr</span> | <span class="nb">awk</span> <span class="nt">-F</span> <span class="nb">.</span> <span class="s1">'$1&lt;=255&amp;&amp;
+            $2&lt;=255&amp;&amp;
+            $3&lt;=255&amp;&amp;
+            $4&lt;=255 {
+                print "yes"
+            }'</span><span class="si">)</span>
+        <span class="k">if</span> <span class="o">[[</span> <span class="s2">"</span><span class="nv">$awkRes</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"yes"</span>  <span class="o">]]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="s2">"yes"</span>
+        <span class="k">else
+            </span><span class="nb">echo</span> <span class="s2">"no"</span>
+        <span class="k">fi
+    else 
+        </span><span class="nb">echo</span> <span class="s2">"error"</span>
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="k">while </span><span class="nb">read </span>line<span class="p">;</span> <span class="k">do
+    </span>is_vailable_ip <span class="nv">$line</span> 
+<span class="k">done</span> &lt; nowcoder.txt
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do</span> 
+    <span class="c"># 先进行字符串分割</span>
+    <span class="nv">arr</span><span class="o">=(</span><span class="k">${</span><span class="nv">line</span><span class="p">//./ </span><span class="k">}</span><span class="o">)</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="k">${#</span><span class="nv">arr</span><span class="p">[*]</span><span class="k">}</span> <span class="nt">-ne</span> 4 <span class="o">]</span><span class="p">;</span><span class="k">then
+        </span><span class="nb">printf</span> <span class="s2">"error</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">else</span>
+        <span class="c"># 遍历子字符串</span>
+        <span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="k">${#</span><span class="nv">arr</span><span class="p">[*]</span><span class="k">}</span><span class="p">;</span>i++<span class="o">))</span>
+            <span class="k">do</span>
+                <span class="c"># 检查是否有超过255的数</span>
+                <span class="o">[</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[</span><span class="k">${</span><span class="nv">i</span><span class="k">}</span><span class="p">]</span><span class="k">}</span> <span class="nt">-gt</span> 255 <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">printf</span> <span class="s2">"no</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&amp;&amp;</span> <span class="nb">break
+            </span><span class="k">done</span>
+        <span class="c"># 符合条件输出yes</span>
+        <span class="o">[</span> <span class="nv">$i</span> <span class="o">==</span> 4 <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">printf</span> <span class="s2">"yes</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">fi
+done</span> &lt; nowcoder.txt
+
+</code></pre></div></div>
+
+<ul>
+  <li>优质解答2：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nv">ip_re</span><span class="o">=</span><span class="s1">'^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$'</span>
+<span class="k">while </span><span class="nb">read </span>line<span class="p">;</span><span class="k">do
+    if</span> <span class="o">[[</span> <span class="nv">$line</span> <span class="o">=</span>~ ^<span class="o">([</span>0-9]+<span class="se">\.</span><span class="o">){</span>3<span class="o">}([</span>0-9]+<span class="o">)</span><span class="nv">$ </span><span class="o">]]</span><span class="p">;</span><span class="k">then
+        if</span> <span class="o">[[</span> <span class="nv">$line</span> <span class="o">=</span>~ <span class="nv">$ip_re</span> <span class="o">]]</span><span class="p">;</span><span class="k">then
+            </span><span class="nb">echo</span> <span class="s1">'yes'</span>
+        <span class="k">else
+            </span><span class="nb">echo</span> <span class="s1">'no'</span>
+        <span class="k">fi
+    else
+        </span><span class="nb">echo</span> <span class="s1">'error'</span>
+    <span class="k">fi
+done</span> &lt; ./nowcoder.txt
+</code></pre></div></div>
+
+<h2 id="shell-日常脚本收集">shell 日常脚本收集</h2>
+
+<h3 id="打印日志">打印日志</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nv">log_model</span><span class="o">=</span><span class="s2">"日志测试模块"</span>
+
+<span class="k">function </span>main_log<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># 打印格式： [时间] [pid] [modename] [args]</span>
+    <span class="c"># 0. 获取原始字符串</span>
+    <span class="nv">data_str</span><span class="o">=</span><span class="s2">"[</span><span class="sb">`</span><span class="nb">date</span> +<span class="s2">"%Y-%m-%d %H:%M:%S.%N"</span><span class="sb">`</span><span class="s2">] [</span><span class="nv">$$</span><span class="s2">] [</span><span class="nv">$log_model</span><span class="s2">] </span><span class="nv">$*</span><span class="s2">"</span>
+    <span class="c"># 1. 输出到控制台</span>
+    <span class="nb">echo</span> <span class="nv">$data_str</span>
+    <span class="c"># 2. 输出到文件</span>
+    <span class="nb">echo</span> <span class="nv">$data_str</span> <span class="o">&gt;&gt;</span> log.txt 
+<span class="o">}</span>
+
+<span class="k">function </span>main<span class="o">()</span> <span class="o">{</span>
+    main_log <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+<span class="o">}</span>
+
+main <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h3 id="shell17-将字段逆序输出文件的每行"><a href="https://www.nowcoder.com/practice/e33fff83fd384a21ba67f3104fb8d646?tpId=195&tqId=39426&toPageTab=solution">SHELL17 将字段逆序输出文件的每行</a></h3>
+
+<ul>
+  <li>提交解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+
+<span class="nv">OLD_IFS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$IFS</span><span class="s2">"</span>
+<span class="nv">IFS</span><span class="o">=</span><span class="s2">":"</span>
+
+<span class="k">while </span><span class="nb">read</span> <span class="nt">-a</span> arr
+<span class="k">do
+    for</span> <span class="o">((</span> <span class="nv">i</span><span class="o">=</span><span class="k">${#</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="nt">-1</span><span class="p">;</span>i&gt;-1<span class="p">;</span>i-- <span class="o">))</span>
+    <span class="k">do
+        </span><span class="nb">echo</span> <span class="nt">-n</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[</span><span class="k">${</span><span class="nv">i</span><span class="k">}</span><span class="p">]</span><span class="k">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="o">((</span> <span class="k">${</span><span class="nv">i</span><span class="k">}</span> <span class="o">!=</span> 0 <span class="o">))</span>
+        <span class="k">then
+            </span><span class="nb">echo</span> <span class="nt">-n</span> <span class="s2">":"</span>
+        <span class="k">fi
+    done
+    </span><span class="nb">echo</span> <span class="s2">""</span>
+<span class="k">done</span> &lt; nowcoder.txt
+
+<span class="nv">IFS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$OLD_IFS</span><span class="s2">"</span>
+</code></pre></div></div>
+<ul>
+  <li>优质解答：</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># NF表示一行有多少个单词,-F ":"表示按:分隔</span>
+<span class="nb">awk</span> <span class="nt">-F</span> <span class="s2">":"</span> <span class="s1">'{ 
+        for(i=NF;i&gt;=1;i--)
+            if (i != 1){
+                {printf $i ":"}
+            } else {
+                {print $i}
+            }
+        }'</span> nowcoder.txt
+</code></pre></div></div>
+
+<h3 id="检查yum包是否安装">检查yum包是否安装</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="k">function </span>pkg_install_check<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">local </span>pkg_name
+    <span class="nv">pkg_name</span><span class="o">=</span><span class="nv">$1</span>
+    <span class="k">if</span> <span class="o">!</span> <span class="nb">command</span> <span class="nt">-v</span> <span class="nv">$pkg_name</span> <span class="o">&gt;</span>/dev/null 2&gt;&amp;1 <span class="p">;</span> <span class="k">then
+        </span>yum <span class="nb">install</span> <span class="nt">-y</span> <span class="nv">$pkg_name</span>
+    <span class="k">fi</span>
+    <span class="c"># 再次进行校验</span>
+    <span class="k">if</span> <span class="o">!</span> <span class="nb">command</span> <span class="nt">-v</span> <span class="nv">$pkg_name</span> <span class="o">&gt;</span>/dev/null 2&gt;&amp;1 <span class="p">;</span> <span class="k">then
+        </span>error_abort 1 <span class="s2">"</span><span class="nv">$pkg_name</span><span class="s2"> not found"</span>
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="c"># 确认jq 包已经安装</span>
+pkg_install_check <span class="s2">"jq"</span>
+</code></pre></div></div>
+
+<h3 id="使用jq进行过滤">使用jq进行过滤</h3>
+<ul>
+  <li><a href="https://tallate.github.io/226416.html">jq解析数据</a></li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> ./data.json |  jq <span class="s1">'.data[] | select(.name=="aaaa")'</span>
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2023/10/13/cooking_note/" data-toggle="tooltip" data-placement="top" title="烹饪笔记">
+                        Previous<br>
+                        <span>烹饪笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2023/11/07/sql_practice/" data-toggle="tooltip" data-placement="top" title="SQL练习笔记">
+                        Next<br>
+                        <span>SQL练习笔记</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

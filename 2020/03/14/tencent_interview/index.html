@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>腾讯一面面经 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2020/03/14/tencent_interview/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E9%9D%A2%E8%AF%95" title="面试">面试</a>
+                        
+                        <a class="tag" href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程">网络编程</a>
+                        
+                    </div>
+                    <h1>腾讯一面面经</h1>
+                    
+                    
+                    <h2 class="subheading">3月14号腾讯一面面经</h2>
+                    
+                    <span class="meta">Posted by 敬方 on March 14, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="3月14号腾讯一面面经">3月14号腾讯一面面经</h1>
+
+<blockquote>
+  <p>2020-03-14 10:47:53</p>
+</blockquote>
+
+<h2 id="概要信息记录表">概要信息记录表</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">项目</th>
+      <th style="text-align: center">定义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">通知时间</td>
+      <td style="text-align: center">2020-03-13 22:00</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">通知方式</td>
+      <td style="text-align: center">邮件通知</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">面试日期</td>
+      <td style="text-align: center">2020-03-14</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">面试时间</td>
+      <td style="text-align: center">09:57-10:40</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">结果</td>
+      <td style="text-align: center">通过,等待复试</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="面试问题记录">面试问题记录</h1>
+
+<h2 id="0-本科是不是计算机">0. 本科是不是计算机</h2>
+<p>答:不是研究生考研考的计算机;高中的时候不知道自己要学什么。到大二才发现自己对计算机很感兴趣，所以自学计算机知识并考研
+-: 那那些知识点都清楚吗？
+-: 清楚吧，毕竟考过研</p>
+
+<h2 id="1-说一下tcpip的四层网络模型">1. 说一下TCP/IP的四层网络模型</h2>
+
+<p>答:应用层，有http和DNS等;传输层:TCP/UDP;网络层:IP/ICMP;数据链路层等</p>
+
+<p><strong>标准答案</strong></p>
+
+<p><em>参考链接:</em></p>
+<ul>
+  <li><a href="https://www.cnblogs.com/hackhyl/p/10015415.html">[网络必学]TCP/IP四层模型讲解【笔记整理通俗易懂版】</a></li>
+  <li><a href="https://blog.csdn.net/csdn_kou/article/details/82910753">TCP/IP四层模型</a></li>
+</ul>
+
+<p><img src="https://img-blog.csdn.net/20180930155137505?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2NzZG5fa291/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="主要应用"></p>
+
+<h2 id="1-长连接和短连接他们各自拥有什么优点和缺点">1. 长连接和短连接;他们各自拥有什么优点和缺点</h2>
+<p>答:按照自己的意想；说了一通</p>
+
+<p><strong>标准答案</strong></p>
+
+<p><em>参考链接:</em></p>
+<ul>
+  <li>
+<a href="https://blog.csdn.net/n1314n/article/details/90743858">长连接与短连接的区别以及使用场景</a>;</li>
+  <li><a href="https://blog.csdn.net/hddygs001/article/details/8707279?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task">TCP/IP，http，socket，长连接，短连接</a></li>
+</ul>
+
+<h3 id="11-短连接">1.1 短连接:</h3>
+<ol>
+  <li>连接-&gt;传输数据-&gt;关闭连接</li>
+  <li>比如HTTP是无状态的的短链接，浏览器和服务器每进行一次HTTP操作，就建立一次连接，但任务结束就中断连接。</li>
+  <li>因为连接后接收了数据就断开了，所以每次数据接受处理不会有联系。 这也是HTTP协议无状态的原因之一。</li>
+</ol>
+
+<h3 id="12-长连接">1.2 长连接:</h3>
+<ul>
+  <li>连接-&gt;传输数据-&gt;保持连接 -&gt; 传输数据-&gt; ………..-&gt;直到一方关闭连接，多是客户端关闭连接。</li>
+  <li>长连接指建立SOCKET连接后不管是否使用都保持连接，但安全性较差。</li>
+</ul>
+
+<h3 id="13-什么时候用长连接短连接">1.3 什么时候用长连接，短连接？</h3>
+<p>长连接多用于操作频繁，点对点的通讯，而且连接数不能太多情况，。每个TCP连接都需要三步握手，
+这需要时间，如果每个操作都是先连接，再操作的话那么处理速度会降低很多，所以每个操作完后都
+不断开，次处理时直接发送数据包就OK了，不用建立TCP连接。例如：数据库的连接用长连接， 如果
+用短连接频繁的通信会造成socket错误，而且频繁的socket 创建也是对资源的浪费。</p>
+
+<p>而像WEB网站的http服务一般都用短链接，因为长连接对于服务端来说会耗费一定的资源，而像WEB网
+站这么频繁的成千上万甚至上亿客户端的连接用短连接会更省一些资源，如果用长连接，而且同时有成
+千上万的用户，如果每个用户都占用一个连接的话，那可想而知吧。所以并发量大，但每个用户无需频
+繁操作情况下需用短连好。</p>
+
+<h2 id="14-发送接收方式">1.4 发送接收方式</h2>
+<h3 id="1异步">1、异步</h3>
+<p>报文发送和接收是分开的，相互独立的，互不影响。这种方式又分两种情况：
+(1)异步双工：接收和发送在同一个程序中，由两个不同的子进程分别负责发送和接收
+(2)异步单工：接收和发送是用两个不同的程序来完成。</p>
+<h3 id="2同步">2、同步</h3>
+<p>报文发送和接收是同步进行，既报文发送后等待接收返回报文。 同步方式一般需要考虑超时问题，即报文发出去后不能无限等待，需要设定超时时间，超过该时间发送方不再等待读返回报文，直接通知超时返回。
+在长连接中一般是没有条件能够判断读写什么时候结束，所以必须要加长度报文头。读函数先是读取报文头的长度，再根据这个长度去读相应长度的报文。</p>
+
+<h2 id="2-说一下https的大致过程">2. 说一下https的大致过程</h2>
+
+<p>https主要工作流程如下:</p>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy9SNWljMWljeU5CTmQ3eFdDcGJLNm92OHJsc3NMRFJQSkpLQUp6WEJxODBNZFFIREtvRFM4RUhtMlduS0I0aWJzcENBZzQzTmRwazRWMmliSWpZaWMyS3RRTGZRLzY0MA?x-oss-process=image/format,png" alt=""></p>
+
+<ol>
+  <li>客户端将自己支持的一套加密规则发送给服务端</li>
+  <li>服务端从中选出一组加密算法和hash算法，并将自己的身份信息以证书的形式发回给客户端。证书里面包含了服务端的地址，加密公钥，以及证书的颁发机构</li>
+  <li>客户端获得网站的证书后，先验证证书的合法性，如果证书时受信任的，或者用户自己接收了不受信任的证书，客户端会生成一串随机数的密码，并用证书中提供的公钥加密</li>
+  <li>客户端使用约定好的hash算法计算握手信息，并使用生成的随机数对握手信息进行加密，最后将之前生成的所有信息发送给服务端</li>
+  <li>服务端接收到数据后，先用自己家的私钥将信息解密，把随机数密码取出来，用这个随机数密码去解密握手信息，将握手信息进行hash，验证其是否与发过来的hash值一样</li>
+  <li>然后使用密码加密一段握手信息，发送回客户端</li>
+  <li>客户端解密计算握手信息的hash，如果与服务端发过来的hash是一样的，握手过程结束，连接建立，之后的所有通信数据都由之前的随机数密码并使用对称加密算法进行加密，然后传输</li>
+</ol>
+
+<h2 id="3-https主要攻击的阶段是那个">3. https主要攻击的阶段是那个？</h2>
+<p>答:不知道，估计是模拟客户端发送请求；(其实是中间人攻击)</p>
+
+<p><strong>答案</strong></p>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/weixin_34177064/article/details/92037911">常见的HTTPS攻击方法</a></li>
+  <li>
+<a href="https://www.cnblogs.com/1175429393wljblog/p/9283585.html">HTTPS那-攻击实例与防御</a>(必看)</li>
+  <li><a href="https://www.cnblogs.com/bonelee/p/9626553.html">HTTPS的DDoS攻击防护</a></li>
+  <li><a href="https://blog.csdn.net/zzmian/article/details/93491824">校招后端面经——网络安全</a></li>
+</ul>
+
+<h3 id="ssl劫持攻击">SSL劫持攻击</h3>
+
+<p>SSL劫持也就是SSL证书欺骗攻击，攻击者为了获得HTTPS传输的明文数据，需要先将自己接入到浏览器与目标网站之间（中间人），在传输数据的过程中，替换目标网站发给浏览器的证书，之后解密传输中的数据，简单的图示如下：</p>
+
+<p>[浏览器] &lt;======&gt; [目标网站] （正常情况）</p>
+
+<p>[浏览器] &lt;======&gt; 中间人 &lt;======&gt; [目标网站] （中间人攻击）</p>
+
+<p>中间人攻击最好的环境是在局域网中，局域网中所有的计算机需要通过一个固定的出口（网关）来接入互联网，因此攻击者只需要在局域网中实施一次中间人攻击就可以顺利的截获所有计算机与网关之间传输的数据。</p>
+<h3 id="sslstrip攻击">SSLStrip攻击</h3>
+
+<p>SSLStrip攻击也需要将攻击者设置为中间人，之后将HTTPS访问替换为HTTP返回给浏览器，由于HTTP协议传输的数据是未加密的，从而截获用户访问的数据。举个例子，当我们访问hotmail.com的时候会重定向到一个https://login.live.com的一个HTTPS的地址上，SSLStrip会代替用户与服务器通信，并将这个地址改为http://login.live.com（注意这个地址在http后面没有s）返回给浏览器，此时如果用户继续登录的话，攻击者就会截取到用户的密码。这种攻击非常对普通用户非常具有迷惑性，但是防御却非常的简单：</p>
+
+<h3 id="第三类攻击">第三类攻击</h3>
+
+<h2 id="ca证书的具体内容看过吗">CA证书的具体内容看过吗？</h2>
+<p>答:没有不知道</p>
+
+<p><strong>参考答案</strong></p>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/lk2684753/article/details/100160856">数字证书及CA详解</a></li>
+  <li><a href="https://blog.csdn.net/yetugeng/article/details/89066626">细说 CA 和证书</a></li>
+  <li>
+</li>
+</ul>
+
+<p>主要内容:</p>
+
+<ul>
+  <li>版本号</li>
+  <li>序列号</li>
+  <li>签名算法</li>
+  <li>颁发者</li>
+  <li>有效日期</li>
+  <li>主体:证书拥有者的标识信息</li>
+  <li>主体的公钥信息
+    <ul>
+      <li>公钥算法</li>
+      <li>主体公钥</li>
+    </ul>
+  </li>
+  <li>颁发者唯一号</li>
+  <li>主体唯一号</li>
+  <li>扩展</li>
+</ul>
+
+<h2 id="说一下http常见的系列状态码">说一下http常见的系列状态码</h2>
+<p>答:1xx,2xx,3xx,4xx,5xx …</p>
+
+<p><strong>答案</strong></p>
+
+<p><em>参考链接:</em></p>
+
+<h2 id="linux中进程间通信的方式有哪些">Linux中进程间通信的方式有哪些?</h2>
+<p>答:FIFO、管道、信号量、套接字、共享内存(没有说消息队列)</p>
+
+<p><strong>参考答案</strong>
+<a href="https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#44-%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E7%9A%84%E6%96%B9%E5%BC%8F">进程间通信的方式</a></p>
+
+<h2 id="3-get和post的区别">3. Get和POST的区别</h2>
+<p>答:Get不允许携带body主要字段；POST可以</p>
+
+<p><strong>参考答案</strong></p>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/ever_siyan/article/details/87935455">Get与Post的区别？（面试官最想听到的答案）</a></li>
+  <li><a href="https://blog.csdn.net/m_nanle_xiaobudiu/article/details/81063997">面试中get和post的区别</a></li>
+</ul>
+
+<p>get和post的区别主要有以下几方面：</p>
+<ul>
+  <li>url可见性:get，参数url可见;post，url参数不可见</li>
+  <li>数据传输上:get，通过拼接url进行传递参数;post，通过body体传输参数</li>
+  <li>缓存性:get请求是可以缓存的;post请求不可以缓存</li>
+  <li>后退页面的反应:get请求页面后退时，不产生影响;post请求页面后退时，会重新提交请求</li>
+  <li>传输数据的大小:get一般传输数据大小不超过2k-4k（根据浏览器不同，限制不一样，但相差不大）;post请求传输数据的大小根据php.ini 配置文件设定，也可以无限大。</li>
+  <li>安全性:这个也是最不好分析的，原则上post肯定要比get安全，毕竟传输参数时url不可见，但也挡不住部分人闲的没事在那抓包玩。安全性个人觉得是没多大区别的，防君子不防小人就是这个道理。对传递的参数进行加密，其实都一样。</li>
+</ul>
+
+<ol>
+  <li>GET在浏览器回退时是无害的，而POST会再次提交请求。</li>
+  <li>GET产生的URL地址可以被Bookmark，而POST不可以。</li>
+  <li>GET请求会被浏览器主动cache，而POST不会，除非手动设置。</li>
+  <li>GET请求只能进行url编码，而POST支持多种编码方式。</li>
+  <li>GET请求参数会被完整保留在浏览器历史记录里，而POST中的参数不会被保留。</li>
+  <li>GET请求在URL中传送的参数是有长度限制的，而POST么有。</li>
+  <li>对参数的数据类型，GET只接受ASCII字符，而POST没有限制。</li>
+  <li>GET比POST更不安全，因为参数直接暴露在URL上，所以不能用来传递敏感信息。</li>
+  <li>GET参数通过URL传递，POST放在Request body中。</li>
+</ol>
+
+<p>（大多数）浏览器通常都会限制url长度在2K个字节，而（大多数）服务器最多处理64K大小的url</p>
+
+<h2 id="4-为什么说post比get更加安全">4. 为什么说post比Get更加安全</h2>
+<p>答:因为允许使用body可以自定义字段和读写方式(其实有问题；还要考虑到浏览器的记录);</p>
+
+<p><strong>参考答案</strong></p>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://www.zhihu.com/question/54076547">POST 方法比 GET 方法更安全吗? 为什么?</a></li>
+  <li><a href="https://wenku.baidu.com/view/91f054c5fad6195f312ba6da.html">post为什么比get更安全</a></li>
+</ul>
+
+<p>主要核心:get 请求的url是在服务器上有日志记录，在浏览器也能查到历史记录，但是post请求的参数都在body里面，服务器日志记录不到，浏览器历史也记录不到</p>
+
+<ol>
+  <li>get是把参数数据队列加到提交表单的action属性所指的url中，值和表单中的各个字段一一对应，在URL中可以看到。post则是通过HTTPpost机制，将表单内各个字段与其内容放置在HTML header 内一起传送到ACTION属性所指的URL地址，用户看不到这个地址</li>
+  <li>对于get方式，服务器端用Request.QueryString获取变量的值，对于post方式，服务器端用Request.Form获取提交的数据;两种方式的参数都可以用Request来获得。</li>
+  <li>get传送的数据量较小，不能大于2KB。post传送的数据量较大，一般被默认为不受限制。</li>
+  <li>在不显示后端的ajax来讲,post和get的安全性是一样的</li>
+</ol>
+
+<h2 id="5-数据库用过吗">5. 数据库用过吗？</h2>
+<p>答:上过老师的课，没怎么用过</p>
+
+<h2 id="6-数据库的索引结构">6. 数据库的索引结构</h2>
+<p>答:B+树，并且叶子节点相互链接；方便进行范围查找</p>
+
+<p><strong>参考链接</strong></p>
+<ul>
+  <li><a href="https://blog.csdn.net/Justing_LY/article/details/87977208">索引及其实现结构</a></li>
+  <li><a href="https://www.cnblogs.com/aspirant/p/9214485.html">一步步分析为什么B+树适合作为索引的结构 以及索引原理 (阿里面试)</a></li>
+</ul>
+
+<p>Mysql索引主要有两种结构：B+Tree索引和Hash索引</p>
+
+<h2 id="7-什么情况下需要建立索引">7. 什么情况下需要建立索引</h2>
+<p>答:经常查找和检索的时候</p>
+
+<p><strong>参考</strong>
+<a href="https://wangpengcheng.github.io/2019/12/17/baidu_interview_prepare/#621-%E7%B4%A2%E5%BC%95%E7%9B%B8%E5%85%B3">索引相关</a></p>
+
+<h2 id="8-一个订单表订单时间状态是否适合建立索引">8. 一个订单表，订单，时间，状态是否适合建立索引</h2>
+<p>答:索引建立使用B+树，索引关键字应当尽量避免重复。时间是可以的。但是状态属于枚举类型。不适合作为索引</p>
+
+<h2 id="9-联合索引">9. 联合索引</h2>
+<p>答:(听成聚簇索引去了);答了聚簇索引的东西。联合索引key是两个值的联合值，遵循最左原则，左边相同是关键字相同。不同时，再分关键字。</p>
+
+<p><strong>参考答案</strong></p>
+
+<p><em>参考链接:</em></p>
+<ul>
+  <li><a href="https://www.cnblogs.com/nickup/p/9825091.html">联合索引</a></li>
+  <li><a href="https://blog.csdn.net/Abysscarry/article/details/80792876">多个单列索引和联合索引的区别详解</a></li>
+  <li><a href="https://blog.csdn.net/bigtree_3721/article/details/87478706">mysql联合 索引(复合索引)的探讨</a></li>
+</ul>
+
+<p>联合索引又叫复合索引。对于复合索引：Mysql从左到右的使用索引中的字段，一个查询可以只使用索引中的一部份，但只能是最左侧部分。例如索引是key index （a,b,c）。 可以支持a | 　　a,b| a,b,c 3种组合进行查找，但不支持 b,c进行查找 .当最左侧字段是常量引用时，索引就十分有效。
+两个或更多个列上的索引被称作复合索引。</p>
+
+<p>所以说创建复合索引时，应该仔细考虑列的顺序。对索引中的所有列执行搜索或仅对前几列执行搜索时，复合索引非常有用；仅对后面的任意列执行搜索时，复合索引则没有用处。</p>
+
+<h2 id="10-sql注入">10 SQL注入</h2>
+<p>答:不知道</p>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://www.jianshu.com/p/73b19cf15e26">SQL注入知识点总结（面试版）</a></li>
+  <li><a href="https://blog.csdn.net/hxpjava1/article/details/81011334">面试问题如何防止sql注入</a></li>
+  <li><a href="https://www.cnblogs.com/mthp/articles/10668547.html">面试官问你 SQL 注入攻击了吗？</a></li>
+  <li><a href="https://blog.csdn.net/lijinqing39/article/details/102934745">面试相关：mybatis是如何防止SQL注入的</a></li>
+</ul>
+
+<p>注入的本质，是把用户输入数据作为代码执行。有两个关键条件：第一个是用户能控制输入；第二是原本程序要执行的代码，拼接了用户输入的数据，把数据当代码执行了。</p>
+
+<p>SQL注入原因：</p>
+<ul>
+  <li>①不当的类型处理；</li>
+  <li>②不安全的数据库配置；</li>
+  <li>③不合理的查询集处理；</li>
+  <li>④不当的错误处理；</li>
+  <li>⑤转义字符处理不合适；</li>
+  <li>⑥多个提交处理不当。</li>
+</ul>
+
+<p>解决办法:</p>
+
+<ol>
+  <li>（简单又有效的方法）PreparedStatement</li>
+</ol>
+
+<p>采用预编译语句集，它内置了处理SQL注入的能力，只要使用它的setXXX方法传值即可。</p>
+
+<p>使用好处：</p>
+
+<p>(1).代码的可读性和可维护性.</p>
+
+<p>(2).PreparedStatement尽最大可能提高性能.</p>
+
+<p>(3).最重要的一点是极大地提高了安全性.</p>
+
+<p>原理：</p>
+
+<p>sql注入只对sql语句的准备(编译)过程有破坏作用
+而PreparedStatement已经准备好了,执行阶段只是把输入串作为数据处理,而不再对sql语句进行解析,准备,因此也就避免了sql注入问题.</p>
+
+<ol>
+  <li>使用正则表达式过滤传入的参数</li>
+</ol>
+
+<p>要引入的包：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.util.regex.*</span><span class="o">;</span>
+
+<span class="c1">//正则表达式：</span>
+
+<span class="kd">private</span> <span class="nc">String</span> <span class="no">CHECKSQL</span> <span class="o">=</span> <span class="err">“</span><span class="o">^(.+)</span><span class="err">\</span><span class="n">sand</span><span class="err">\</span><span class="n">s</span><span class="o">(.+)|(.+)</span><span class="err">\</span><span class="n">sor</span><span class="o">(.+)</span><span class="err">\</span><span class="n">s</span><span class="err">$”</span><span class="o">;</span>
+
+<span class="c1">//判断是否匹配：</span>
+
+<span class="nc">Pattern</span><span class="o">.</span><span class="na">matches</span><span class="o">(</span><span class="no">CHECKSQL</span><span class="o">,</span><span class="n">targerStr</span><span class="o">);</span>
+
+<span class="c1">//下面是具体的正则表达式：</span>
+
+<span class="c1">//检测SQL meta-characters的正则表达式 ：</span>
+
+<span class="o">/(</span><span class="err">\</span><span class="o">%</span><span class="mi">27</span><span class="o">)|(</span><span class="err">\’</span><span class="o">)|(</span><span class="err">\</span><span class="o">-</span><span class="err">\</span><span class="o">-)|(</span><span class="err">\</span><span class="o">%</span><span class="mi">23</span><span class="o">)|(</span><span class="err">#</span><span class="o">)/</span><span class="n">ix</span>
+
+<span class="c1">//修正检测SQL meta-characters的正则表达式 ：</span>
+
+<span class="o">/((</span><span class="err">\</span><span class="o">%</span><span class="mi">3</span><span class="no">D</span><span class="o">)|(=))[^</span><span class="err">\</span><span class="n">n</span><span class="o">]*((</span><span class="err">\</span><span class="o">%</span><span class="mi">27</span><span class="o">)|(</span><span class="err">\’</span><span class="o">)|(</span><span class="err">\</span><span class="o">-</span><span class="err">\</span><span class="o">-)|(</span><span class="err">\</span><span class="o">%</span><span class="mi">3</span><span class="no">B</span><span class="o">)|(:))/</span><span class="n">i</span>
+
+<span class="c1">//典型的SQL 注入攻击的正则表达式 ：</span>
+
+<span class="o">/</span><span class="err">\</span><span class="n">w</span><span class="o">*((</span><span class="err">\</span><span class="o">%</span><span class="mi">27</span><span class="o">)|(</span><span class="err">\’</span><span class="o">))((</span><span class="err">\</span><span class="o">%</span><span class="mi">6</span><span class="no">F</span><span class="o">)|</span><span class="n">o</span><span class="o">|(</span><span class="err">\</span><span class="o">%</span><span class="mi">4</span><span class="no">F</span><span class="o">))((</span><span class="err">\</span><span class="o">%</span><span class="mi">72</span><span class="o">)|</span><span class="n">r</span><span class="o">|(</span><span class="err">\</span><span class="o">%</span><span class="mi">52</span><span class="o">))/</span><span class="n">ix</span>
+
+
+<span class="c1">//检测SQL注入，UNION查询关键字的正则表达式 ：</span>
+
+<span class="o">/((</span><span class="err">\</span><span class="o">%</span><span class="mi">27</span><span class="o">)|(</span><span class="err">\’</span><span class="o">))</span><span class="n">union</span><span class="o">/</span><span class="n">ix</span><span class="o">(</span><span class="err">\</span><span class="o">%</span><span class="mi">27</span><span class="o">)|(</span><span class="err">\’</span><span class="o">)</span>
+
+<span class="c1">//检测MS SQL Server SQL注入攻击的正则表达式：</span>
+
+<span class="o">/</span><span class="n">exec</span><span class="o">(</span><span class="err">\</span><span class="n">s</span><span class="o">|)+(</span><span class="n">s</span><span class="o">|</span><span class="n">x</span><span class="o">)</span><span class="n">p</span><span class="err">\</span><span class="n">w</span><span class="o">+/</span><span class="n">ix</span>
+
+<span class="c1">//等等</span>
+</code></pre></div></div>
+
+<ol>
+  <li>字符串过滤</li>
+</ol>
+
+<p>比较通用的一个方法：</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td colspan="2">（</td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">sql_inj</span><span class="o">(</span><span class="nc">String</span> <span class="n">str</span><span class="o">)</span>
+<span class="o">{</span>
+
+    <span class="nc">String</span> <span class="n">inj_str</span> <span class="o">=</span> <span class="s">"'|and|exec|insert|select|delete|update|
+
+    count|*|%|chr|mid|master|truncate|char|declare|;|or|-|+|,"</span><span class="o">;</span>
+
+    <span class="nc">String</span> <span class="n">inj_stra</span><span class="o">[]</span> <span class="o">=</span> <span class="n">split</span><span class="o">(</span><span class="n">inj_str</span><span class="o">,</span><span class="s">"|"</span><span class="o">);</span>
+
+    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span> <span class="o">;</span> <span class="n">i</span> <span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span> <span class="n">inj_stra</span><span class="o">.</span><span class="na">length</span> <span class="o">;</span> <span class="n">i</span><span class="o">++</span> <span class="o">)</span>
+
+    <span class="o">{</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">str</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="n">inj_stra</span><span class="o">[</span><span class="n">i</span><span class="o">])&amp;</span><span class="n">gt</span><span class="o">;=</span><span class="mi">0</span><span class="o">)</span>
+
+    <span class="o">{</span>
+
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+
+    <span class="o">}</span>
+
+    <span class="o">}</span>
+
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>jsp中调用该函数检查是否包函非法字符防止SQL从URL注入;sql_inj.java代码：</li>
+</ol>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">sql_inj</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.net.*</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.sql.*</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.text.*</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.String</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">sql_inj</span><span class="o">{</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">sql_inj</span><span class="o">(</span><span class="nc">String</span> <span class="n">str</span><span class="o">)</span>
+
+<span class="o">{</span>
+
+<span class="nc">String</span> <span class="n">inj_str</span> <span class="o">=</span> <span class="s">"'|and|exec|insert|select|delete|update|
+
+count|*|%|chr|mid|master|truncate|char|declare|;|or|-|+|,"</span><span class="o">;</span>
+
+<span class="c1">//这里的东西还可以自己添加</span>
+
+<span class="nc">String</span><span class="o">[]</span> <span class="n">inj_stra</span><span class="o">=</span><span class="n">inj_str</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">"\|"</span><span class="o">);</span>
+
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span> <span class="o">;</span> <span class="n">i</span> <span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span> <span class="n">inj_stra</span><span class="o">.</span><span class="na">length</span> <span class="o">;</span> <span class="n">i</span><span class="o">++</span> <span class="o">)</span>
+
+<span class="o">{</span>
+
+<span class="k">if</span> <span class="o">(</span><span class="n">str</span><span class="o">.</span><span class="na">indexOf</span><span class="o">(</span><span class="n">inj_stra</span><span class="o">[</span><span class="n">i</span><span class="o">])&amp;</span><span class="n">gt</span><span class="o">;=</span><span class="mi">0</span><span class="o">)</span>
+
+<span class="o">{</span>
+
+<span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+
+<span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+
+<span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<ol>
+  <li>JSP页面判断代码：
+使用javascript在客户端进行不安全字符屏蔽</li>
+</ol>
+
+<p>功能介绍：检查是否含有”‘”,”\”,”/”</p>
+
+<p>参数说明：要检查的字符串</p>
+
+<p>返回值：0：是1：不是</p>
+
+<p>函数名是</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">check</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+
+<span class="p">{</span>
+
+<span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="nx">fibdn</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span> <span class="p">(</span><span class="err">”‘”</span> <span class="p">,</span><span class="err">”\”</span><span class="p">,</span><span class="err">”</span><span class="o">/</span><span class="err">”</span><span class="p">);</span>
+
+<span class="nx">i</span><span class="o">=</span><span class="nx">fibdn</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+
+<span class="nx">j</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="nx">ii</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">ii</span><span class="err">＜</span><span class="nx">i</span><span class="p">;</span> <span class="nx">ii</span><span class="o">++</span><span class="p">)</span>
+
+<span class="p">{</span> <span class="k">for</span> <span class="p">(</span><span class="nx">jj</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">jj</span><span class="o">&lt;</span><span class="nx">j</span><span class="p">;</span> <span class="nx">jj</span><span class="o">++</span><span class="p">)</span>
+
+<span class="p">{</span> <span class="nx">temp1</span><span class="o">=</span><span class="nx">a</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nx">jj</span><span class="p">);</span>
+
+<span class="nx">temp2</span><span class="o">=</span><span class="nx">fibdn</span><span class="p">[</span><span class="nx">ii</span><span class="p">];</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nx">tem</span><span class="err">’</span><span class="p">;</span> <span class="nx">p1</span><span class="o">==</span><span class="nx">temp2</span><span class="p">)</span>
+
+<span class="p">{</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<h2 id="11-算法题">11 算法题:</h2>
+
+<p>11.1 两数之和</p>
+
+<p>11.2 能否将时间复杂度更改为O(n)</p>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://leetcode-cn.com/problems/two-sum/solution/liang-shu-zhi-he-by-leetcode-2/">leetcode两数之和</a></li>
+</ul>
+
+<h1 id="4月9日腾讯ieg面经">4月9日腾讯IEG面经</h1>
+
+<blockquote>
+  <p>2020-04-09 15:30:56</p>
+</blockquote>
+
+<h2 id="21-说一下你的项目">2.1 说一下你的项目</h2>
+
+<h2 id="21-项目中使用了多线程它们之间的通信方式有哪些只说了自己项目中用到了锁因该说全的">2.1 项目中使用了多线程；它们之间的通信方式有哪些？(只说了自己项目中用到了锁，因该说全的)</h2>
+<ul>
+  <li>临界区：使用内存屏障和锁创建临界区</li>
+  <li>互斥量：锁；``</li>
+  <li>信号量;<code class="language-plaintext highlighter-rouge">sem_wait(sem_t *sem)/sem_post(sem_t *sem)</code>
+</li>
+  <li>条件变量:<code class="language-plaintext highlighter-rouge">pthread_cond_init</code>;<code class="language-plaintext highlighter-rouge">pthread_cond_signal</code>;<code class="language-plaintext highlighter-rouge">pthread_cond_wait</code>
+</li>
+</ul>
+
+<h2 id="22-进程间的通信方式">2.2 进程间的通信方式</h2>
+<ul>
+  <li>管道</li>
+  <li>命名管道</li>
+  <li>消息队列</li>
+  <li>信号/信号量</li>
+  <li>共享内存</li>
+  <li>套接字</li>
+</ul>
+
+<h2 id="23-c-类里面的内存结构虚指针位置在变量开始吗">2.3 C++ 类里面的内存结构；虚指针位置在变量开始吗？</h2>
+<ul>
+  <li><img src="https://p-blog.csdn.net/images/p_blog_csdn_net/starlee/178527/o_VirtualTable.JPG" alt=""></li>
+  <li><a href="https://blog.csdn.net/starlee/article/details/2089358">浅析C++中虚函数的调用及对象的内部布局</a></li>
+  <li><a href="https://blog.csdn.net/starlee/article/details/2062586">浅析C++中的this指针</a></li>
+  <li>c++中除了虚指针和成员变量，函数并不在类的内存中。并且虚指针在头部。也就是成员变量之上。</li>
+</ul>
+
+<h2 id="24-malloc的系统调用没有答出来">2.4 malloc的系统调用(没有答出来)</h2>
+<p>应该是小于128KB使用brk，大于128KB使用mmap直接映射。(详见百度面试准备1.37)</p>
+
+<h2 id="25-linux的虚拟内存">2.5 Linux的虚拟内存</h2>
+<ul>
+  <li>原因</li>
+  <li>特点</li>
+  <li>代价</li>
+  <li>Linux中的段页式的管理方式</li>
+  <li>虚拟内存置换的方式</li>
+</ul>
+
+<h2 id="26-tcp和udp首部的大小和关键字段">2.6 TCP和UDP首部的大小和关键字段</h2>
+
+<p>TCP大小是20字节，UDP大小是8字节；详细内容见：5.51 TCP和UDP，IP的大小以及关键字段结构。</p>
+
+<h2 id="27-玩过游戏吗">2.7 玩过游戏吗？</h2>
+<p>玩过QQ飞车</p>
+<h2 id="28-qq飞车移动之间传输数据应该怎么传输">2.8 QQ飞车移动之间传输数据应该怎么传输</h2>
+<p>只传输关键节点，比如相对的x,y,z坐标。</p>
+
+<h2 id="29-传输应该使用tcp还是udp为什么该怎么设计">2.9 传输应该使用TCP还是UDP；为什么，该怎么设计？</h2>
+<p>对于实时性要求比较高；应该使用UDP，说了一下TCP和UDP的区别，为了保证传输的稳定性UDP应该如何改进，但是为了保证其有序性，应该使用序号和确认号。对于确认重传和滑动窗口可以使用多次发送相同帧，用带宽换准确度。唯一比较麻烦的是拥塞控制，无法解决和避免。
+（详见5.50 TCP，UDP应用场景，即要求速度，又要求可靠性怎么办）</p>
+
+<h2 id="30-编程题三道两个小时只写了两道">3.0 编程题三道(两个小时，只写了两道)</h2>
+
+<h2 id="301-链表中环的入口节点总是有测试用例过不了">3.0.1 链表中环的入口节点(总是有测试用例过不了)</h2>
+<ul>
+  <li><a href="https://www.nowcoder.com/practice/253d2c59ec3e4bc68da16833f79a38e4?tpId=13&tqId=11208&tPage=1&rp=1&ru=/ta/coding-interviews&amp;qru=/ta/coding-interviews/question-ranking">链表中环节点的入口</a></li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+struct ListNode {
+    int val;
+    struct ListNode *next;
+    ListNode(int x) :
+        val(x), next(NULL) {
+    }
+};
+*/</span>
+<span class="cm">/*
+使用快慢指针查看是否存在重合节点
+然后再找到
+*/</span>
+<span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">ListNode</span><span class="o">*</span> <span class="n">EntryNodeOfLoop</span><span class="p">(</span><span class="n">ListNode</span><span class="o">*</span> <span class="n">pHead</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//注意这里进行检查</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pHead</span><span class="o">||!</span><span class="n">pHead</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+        <span class="n">ListNode</span> <span class="o">*</span><span class="n">slow</span><span class="o">=</span><span class="n">pHead</span><span class="p">;</span>
+        <span class="n">ListNode</span> <span class="o">*</span><span class="n">fast</span><span class="o">=</span><span class="n">pHead</span><span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">fast</span><span class="o">&amp;&amp;</span><span class="n">fast</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">){</span>
+            <span class="n">fast</span><span class="o">=</span><span class="n">fast</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+            <span class="n">slow</span><span class="o">=</span><span class="n">slow</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">slow</span><span class="o">==</span><span class="n">fast</span><span class="p">){</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">slow</span><span class="o">!=</span><span class="n">fast</span><span class="p">){</span>
+            <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">slow</span><span class="o">=</span><span class="n">pHead</span><span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">slow</span><span class="o">&amp;&amp;</span><span class="n">fast</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">slow</span><span class="o">==</span><span class="n">fast</span><span class="p">){</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">slow</span><span class="o">=</span><span class="n">slow</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+            <span class="n">fast</span><span class="o">=</span><span class="n">fast</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">slow</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h2 id="302-surrounded-regions">3.0.2 surrounded-regions</h2>
+<ul>
+  <li><img src="https://www.nowcoder.com/practice/c159db5028034aa595043a1a220a62dd?tpId=46&tqId=29050&tPage=1&rp=1&ru=/ta/leetcode&amp;qru=/ta/leetcode/question-ranking" alt="surrounded-regions"></li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+主要思路：从边界开始对边界的所有值进行BFS
+将BFS到的节点都转变为M;
+然后将非M的O全部设置为X;
+将M设置为O;
+*/</span>
+
+<span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">solve</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;&gt;</span> <span class="o">&amp;</span><span class="n">board</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="k">return</span> <span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">board</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="sc">'O'</span><span class="p">){</span>
+                <span class="n">BFS</span><span class="p">(</span><span class="n">board</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="sc">'O'</span><span class="p">){</span>
+                <span class="n">BFS</span><span class="p">(</span><span class="n">board</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">){</span>
+            <span class="kt">int</span> <span class="n">len</span><span class="o">=</span><span class="n">board</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">len</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="sc">'O'</span><span class="p">){</span>
+                    <span class="n">BFS</span><span class="p">(</span><span class="n">board</span><span class="p">,</span><span class="n">len</span><span class="p">,</span><span class="n">i</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">){</span>
+            <span class="kt">int</span> <span class="n">len</span><span class="o">=</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">board</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">len</span><span class="p">]</span><span class="o">==</span><span class="sc">'O'</span><span class="p">){</span>
+                    <span class="n">BFS</span><span class="p">(</span><span class="n">board</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">len</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">board</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">j</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">==</span><span class="sc">'O'</span><span class="p">){</span>
+                    <span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="sc">'X'</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">board</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">j</span><span class="p">){</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">==</span><span class="sc">'M'</span><span class="p">){</span>
+                    <span class="n">board</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="sc">'O'</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+    <span class="p">};</span>
+    <span class="kt">int</span> <span class="n">dxdy</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="p">{</span>
+        <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">},</span>
+        <span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span>
+    <span class="p">};</span>
+    <span class="kt">void</span> <span class="n">BFS</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;&gt;</span> <span class="o">&amp;</span><span class="n">board</span><span class="p">,</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span><span class="kt">int</span> <span class="n">y</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">||</span><span class="n">x</span><span class="o">&gt;=</span><span class="n">board</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">||</span><span class="n">y</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">||</span><span class="n">y</span><span class="o">&gt;=</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">()){</span>
+            <span class="k">return</span> <span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">!=</span><span class="sc">'O'</span><span class="p">)</span> <span class="k">return</span> <span class="p">;</span>
+        <span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">=</span><span class="sc">'M'</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">4</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="kt">int</span> <span class="n">dx</span><span class="o">=</span><span class="n">dxdy</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+            <span class="kt">int</span> <span class="n">dy</span><span class="o">=</span><span class="n">dxdy</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+            <span class="n">BFS</span><span class="p">(</span><span class="n">board</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="n">dx</span><span class="p">,</span><span class="n">y</span><span class="o">+</span><span class="n">dy</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h2 id="303-派对的最大快乐值">3.0.3 派对的最大快乐值</h2>
+<ul>
+  <li><a href="https://www.nowcoder.com/practice/a5f542742fe24181b28f7d5b82e2e49a?tpId=101&&tqId=33255&rp=1&ru=/activity/oj&amp;qru=/ta/programmer-code-interview-guide/question-ranking">派对的最大快乐值</a></li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+主要思路：使用深度遍历；对每个节点
+存储其child 子集和对应的happy值
+并进行DFS更新
+分为当前去还是不去，去则将查找找孙节点的所有去的子集并添加
+不去，则直接计算所有子节点的子集
+比较去和不去的最大值
+
+*/</span>
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Node</span><span class="p">{</span>
+    <span class="kt">int</span> <span class="n">happy_val</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">max_happy</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">childs</span><span class="p">;</span>
+    <span class="k">friend</span> <span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">ostream</span> <span class="o">&amp;</span><span class="n">os</span><span class="p">,</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span> <span class="n">no</span><span class="p">){</span>
+        <span class="n">os</span><span class="o">&lt;&lt;</span><span class="s">"happy:"</span><span class="o">&lt;&lt;</span><span class="n">no</span><span class="p">.</span><span class="n">happy_val</span><span class="o">&lt;&lt;</span><span class="s">"max_happy "</span><span class="o">&lt;&lt;</span><span class="n">no</span><span class="p">.</span><span class="n">max_happy</span><span class="o">&lt;&lt;</span><span class="s">"</span><span class="se">\t</span><span class="s">"</span><span class="p">;</span>
+         <span class="n">os</span><span class="o">&lt;&lt;</span><span class="s">"childs: "</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">no</span><span class="p">.</span><span class="n">childs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+            <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"child  "</span><span class="o">&lt;&lt;</span><span class="s">"i: "</span><span class="o">&lt;&lt;</span><span class="n">no</span><span class="p">.</span><span class="n">childs</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="s">" "</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">os</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+<span class="c1">//深度遍历返回其最大值</span>
+<span class="kt">int</span> <span class="nf">DFS</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;&amp;</span> <span class="n">tree</span><span class="p">,</span><span class="kt">int</span> <span class="n">index</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">index</span><span class="o">&gt;=</span><span class="n">tree</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">||</span><span class="n">index</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">auto</span><span class="o">&amp;</span> <span class="n">temp_node</span><span class="o">=</span><span class="n">tree</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">index</span><span class="p">);</span>
+    <span class="c1">//页节点直接返回当前值</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">temp_node</span><span class="p">.</span><span class="n">childs</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+        <span class="k">return</span> <span class="n">temp_node</span><span class="p">.</span><span class="n">happy_val</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">temp_node</span><span class="p">.</span><span class="n">max_happy</span><span class="o">!=</span><span class="mi">0</span><span class="p">){</span>
+        <span class="k">return</span> <span class="n">temp_node</span><span class="p">.</span><span class="n">max_happy</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">sum1</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sum2</span><span class="o">=</span><span class="n">temp_node</span><span class="p">.</span><span class="n">happy_val</span><span class="p">;</span>
+    <span class="c1">//使用当前节点</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">temp_node</span><span class="p">.</span><span class="n">childs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="c1">//不使用当前节点</span>
+        <span class="n">sum1</span><span class="o">+=</span><span class="n">DFS</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">temp_node</span><span class="p">.</span><span class="n">childs</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+        <span class="c1">//使用当前节点；计算孙节点</span>
+        <span class="kt">int</span> <span class="n">child_node</span><span class="o">=</span><span class="n">temp_node</span><span class="p">.</span><span class="n">childs</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">tree</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">child_node</span><span class="p">).</span><span class="n">childs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="o">++</span><span class="n">j</span><span class="p">){</span>
+            <span class="n">sum2</span><span class="o">+=</span><span class="n">DFS</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">tree</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">child_node</span><span class="p">).</span><span class="n">childs</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">j</span><span class="p">));</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">temp_node</span><span class="p">.</span><span class="n">max_happy</span><span class="o">=</span><span class="n">max</span><span class="p">(</span><span class="n">sum1</span><span class="p">,</span><span class="n">sum2</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">temp_node</span><span class="p">.</span><span class="n">max_happy</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span> <span class="p">,</span><span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]){</span>
+    
+    <span class="kt">int</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">root</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+    <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">n</span><span class="o">&gt;&gt;</span><span class="n">root</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">tree</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">tree</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">).</span><span class="n">happy_val</span><span class="p">;</span>
+        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">parent</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">son</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">parent</span><span class="o">&gt;&gt;</span><span class="n">son</span><span class="p">;</span>
+        <span class="n">tree</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">parent</span><span class="p">).</span><span class="n">childs</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">son</span><span class="p">);</span>
+        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">DFS</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">root</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="阿里菜鸟一面">阿里菜鸟一面</h1>
+
+<blockquote>
+  <p>2020-04-10 15:30</p>
+</blockquote>
+
+<h2 id="1-算法题马走棋盘">1. 算法题，马走棋盘</h2>
+
+<ul>
+  <li><a href="https://blog.csdn.net/dowithsmiles/article/details/8553948">马走棋盘算法</a></li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+主要思路：使用数组作为数据存储结构，
+第一个到达的肯定是步数最少的。
+*/</span>
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;queue&gt;
+#include &lt;stack&gt;
+</span> 
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+ 
+<span class="cp">#define N 8
+</span> 
+<span class="k">struct</span> <span class="nc">Position</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+ 
+<span class="kt">int</span> <span class="nf">PositionToIndex</span><span class="p">(</span><span class="k">const</span> <span class="n">Position</span><span class="o">&amp;</span> <span class="n">pos</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">return</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+ 
+<span class="n">Position</span> <span class="nf">IndexToPosition</span><span class="p">(</span><span class="kt">int</span> <span class="n">index</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">Position</span> <span class="n">pos</span> <span class="o">=</span> <span class="p">{</span> <span class="n">index</span> <span class="o">/</span> <span class="n">N</span><span class="p">,</span> <span class="n">index</span> <span class="o">%</span> <span class="n">N</span> <span class="p">};</span>
+	<span class="k">return</span> <span class="n">pos</span><span class="p">;</span>
+<span class="p">}</span>
+ 
+<span class="kt">bool</span> <span class="nf">IsValid</span><span class="p">(</span><span class="k">const</span> <span class="n">Position</span><span class="o">&amp;</span> <span class="n">pos</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">&amp;&amp;</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">);</span>
+<span class="p">}</span>
+ 
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+	<span class="c1">// 将棋盘延展成一维数组，序号表示当前格子，对应的值表示上一步的格子序号</span>
+	<span class="kt">int</span><span class="o">*</span> <span class="n">array</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">[</span><span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">];</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+	<span class="p">}</span>
+ 
+	<span class="c1">// 指定起始和结束位置</span>
+	<span class="n">Position</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+	<span class="n">start</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+	<span class="n">start</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+	<span class="n">end</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="n">end</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+ 
+	<span class="kt">bool</span> <span class="n">finished</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+ 
+	<span class="c1">// 用栈存储每一步的序列位置，之后可反转输出</span>
+	<span class="n">stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">finishSteps</span><span class="p">;</span>
+ 
+	<span class="c1">// 利用队列实现广度优先搜索</span>
+	<span class="n">queue</span><span class="o">&lt;</span><span class="n">Position</span><span class="o">&gt;</span> <span class="n">steps</span><span class="p">;</span>
+	<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+ 
+	<span class="c1">// 由于是第一步，约定值为-2，表示没有上一步</span>
+	<span class="n">array</span><span class="p">[</span><span class="n">PositionToIndex</span><span class="p">(</span><span class="n">start</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="p">;</span>
+ 
+	<span class="c1">// 队列里的数据存储当前能走到的格子，若已为空表示已走完所有的格式，或所能走完的格子</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">steps</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+	<span class="p">{</span>
+		<span class="c1">// 取出当前的格子，计算下一步，并将当前格子移出队列</span>
+		<span class="n">Position</span> <span class="n">curPos</span> <span class="o">=</span> <span class="n">steps</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+		<span class="kt">int</span> <span class="n">curIndex</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">curPos</span><span class="p">);</span>
+		<span class="n">steps</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+ 
+		<span class="c1">// 已走到指定终点</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">end</span><span class="p">.</span><span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">end</span><span class="p">.</span><span class="n">y</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="n">finishSteps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">PositionToIndex</span><span class="p">(</span><span class="n">end</span><span class="p">));</span>	<span class="c1">// 当前一步入栈</span>
+			<span class="kt">int</span> <span class="n">lastStep</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+ 
+			<span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="c1">// 一直找上一步，找到起始点为止</span>
+				<span class="n">lastStep</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">lastStep</span><span class="p">];</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">lastStep</span> <span class="o">==</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+				<span class="p">{</span>
+					<span class="n">finished</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="p">}</span>
+				<span class="k">else</span>
+				<span class="p">{</span>
+					<span class="n">finishSteps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">lastStep</span><span class="p">);</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+ 
+		<span class="c1">// 下一步有8个可走的情况，超出边界，或已探索到的忽略</span>
+		<span class="n">Position</span> <span class="n">pos1</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos1</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index1</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos1</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index1</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos1</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index1</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+ 
+		<span class="n">Position</span> <span class="n">pos2</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos2</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index2</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos2</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index2</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos2</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index2</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+ 
+		<span class="n">Position</span> <span class="n">pos3</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos3</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index3</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos3</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index3</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos3</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index3</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+ 
+		<span class="n">Position</span> <span class="n">pos4</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos4</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index4</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos4</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index4</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos4</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index4</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+ 
+		<span class="n">Position</span> <span class="n">pos5</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="mi">2</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos5</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index5</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos5</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index5</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos5</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index5</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+ 
+		<span class="n">Position</span> <span class="n">pos6</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos6</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index6</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos6</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index6</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos6</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index6</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+ 
+		<span class="n">Position</span> <span class="n">pos7</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos7</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index7</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos7</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index7</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos7</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index7</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+ 
+		<span class="n">Position</span> <span class="n">pos8</span> <span class="o">=</span> <span class="p">{</span> <span class="n">curPos</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">curPos</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span> <span class="p">};</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IsValid</span><span class="p">(</span><span class="n">pos8</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">index8</span> <span class="o">=</span> <span class="n">PositionToIndex</span><span class="p">(</span><span class="n">pos8</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">index8</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">steps</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pos8</span><span class="p">);</span>
+				<span class="n">array</span><span class="p">[</span><span class="n">index8</span><span class="p">]</span> <span class="o">=</span> <span class="n">curIndex</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+ 
+	<span class="c1">// 完成，打印</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">finished</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">finishSteps</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="p">{</span>
+			<span class="n">Position</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">IndexToPosition</span><span class="p">(</span><span class="n">finishSteps</span><span class="p">.</span><span class="n">top</span><span class="p">());</span>
+			<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"("</span> <span class="o">&lt;&lt;</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="s">", "</span> <span class="o">&lt;&lt;</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;&lt;</span> <span class="s">"), "</span><span class="p">;</span>
+			<span class="n">finishSteps</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+		<span class="p">}</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="p">}</span>
+ 
+	<span class="k">delete</span><span class="p">[]</span> <span class="n">array</span><span class="p">;</span>
+	<span class="n">system</span><span class="p">(</span><span class="s">"pause"</span><span class="p">);</span>
+
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+ 
+
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/03/12/http_interview/" data-toggle="tooltip" data-placement="top" title="http面试总结">
+                        Previous<br>
+                        <span>http面试总结</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2020/03/23/zhiliti-jihe/" data-toggle="tooltip" data-placement="top" title="面试中的智力题集合">
+                        Next<br>
+                        <span>面试中的智力题集合</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

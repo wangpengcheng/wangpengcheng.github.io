@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>http面试总结 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2020/03/12/http_interview/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C" title="计算机网络">计算机网络</a>
+                        
+                        <a class="tag" href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发">后台开发</a>
+                        
+                        <a class="tag" href="/tags/#%E9%9D%A2%E8%AF%95" title="面试">面试</a>
+                        
+                    </div>
+                    <h1>http面试总结</h1>
+                    
+                    
+                    <h2 class="subheading">http面试总结</h2>
+                    
+                    <span class="meta">Posted by 敬方 on March 12, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="http面试总结">HTTP面试总结</h1>
+
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP">firefoxhttp文档</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/27395037">HTTPS系列干货（一）：HTTPS 原理详解</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/33778904">HTTP面试题都在这里</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/101544881">HTTPS 原理看了很多，这个是最清晰的</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/92436722">47天时间，洒热血复习</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/60033345">让面试官膜拜你的HTTPS运行流程（超详细）</a></li>
+  <li><a href="https://blog.csdn.net/qq_40733949/article/details/93405054?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task">深入理解https进行SSL认证的全过程</a></li>
+  <li>
+<a href="https://blog.csdn.net/h8y0bDJVUkwE1LboZlE/article/details/103798032">你连 HTTPS 原理都不懂，还讲“中间人攻击”？</a>(必读)</li>
+  <li><a href="https://blog.csdn.net/a407479/article/details/80634789">https+非对称加密+对称加密</a></li>
+  <li><a href="https://www.cnblogs.com/jfzhu/p/4020928.html">对称加密与非对称加密</a></li>
+</ul>
+
+<h2 id="1-http与https的区别">1. Http与Https的区别：</h2>
+<ol>
+  <li>HTTP 的URL 以http:// 开头，而HTTPS 的URL 以https:// 开头</li>
+  <li>HTTP 是不安全的，而 HTTPS 是安全的
+HTTP 标准端口是80 ，而 HTTPS 的标准端口是443</li>
+  <li>在OSI 网络模型中，HTTP工作于应用层，而4. HTTPS 的安全传输机制工作在传输层</li>
+  <li>HTTP 无法加密，而HTTPS 对传输的数据进行加密</li>
+  <li>HTTP无需证书，而HTTPS 需要CA机构wosign的颁发的SSL证书</li>
+</ol>
+
+<h2 id="2-什么是http协议无状态协议怎么解决http协议无状态协议">2. 什么是Http协议无状态协议?怎么解决Http协议无状态协议?</h2>
+<ul>
+  <li>无状态协议对于事务处理没有记忆能力。缺少状态意味着如果后续处理需要前面的信息;也就是说，当客户端一次HTTP请求完成以后，客户端再发送一次HTTP请求，HTTP并不知道当前客户端是一个”老用户“。</li>
+  <li>可以使用Cookie来解决无状态的问题，Cookie就相当于一个通行证，第一次访问的时候给客户端发送一个Cookie，当客户端再次来的时候，拿着Cookie(通行证)，那么服务器就知道这个是”老用户“。</li>
+</ul>
+
+<h2 id="3-uri和url的区别">3. URI和URL的区别</h2>
+
+<p><strong>URI，是uniform resource identifier，统一资源标识符，用来唯一的标识一个资源。</strong></p>
+
+<ul>
+  <li>Web上可用的每种资源如HTML文档、图像、视频片段、程序等都是一个来URI来定位的</li>
+  <li>URI一般由三部组成：
+    <ol>
+      <li>访问资源的命名机制</li>
+      <li>存放资源的主机名</li>
+      <li>资源自身的名称，由路径表示，着重强调于资源。</li>
+    </ol>
+  </li>
+</ul>
+
+<p><strong>URL是uniform resource locator，统一资源定位器，它是一种具体的URI，即URL可以用来标识一个资源，而且还指明了如何locate这个资源。</strong></p>
+
+<ul>
+  <li>URL是Internet上用来描述信息资源的字符串，主要用在各种WWW客户程序和服务器程序上，特别是著名的Mosaic。</li>
+  <li>采用URL可以用一种统一的格式来描述各种信息资源，包括文件、服务器的地址和目录等。URL一般由三部组成：
+    <ol>
+      <li>协议(或称为服务方式)</li>
+      <li>存有该资源的主机IP地址(有时也包括端口号)</li>
+      <li>主机资源的具体地址。如目录和文件名等</li>
+    </ol>
+  </li>
+</ul>
+
+<p><strong>URN，uniform resource name，统一资源命名，是通过名字来标识资源，比如mailto:java-net@java.sun.com。</strong></p>
+
+<ul>
+  <li>URI是以一种抽象的，高层次概念定义统一资源标识，而URL和URN则是具体的资源标识的方式。URL和URN都是一种URI。笼统地说，每个 URL 都是 URI，但不一定每个 URI 都是 URL。这是因为 URI 还包括一个子类，即统一资源名称 (URN)，它命名资源但不指定如何定位资源。上面的 mailto、news 和 isbn URI 都是 URN 的示例。</li>
+</ul>
+
+<h2 id="4-常用的http方法有哪些">4. 常用的HTTP方法有哪些？</h2>
+<ul>
+  <li>GET： 用于请求访问已经被URI（统一资源标识符）识别的资源，可以通过URL传参给服务器</li>
+  <li>POST：用于传输信息给服务器，主要功能与GET方法类似，但一般推荐使用POST方式。</li>
+  <li>PUT： 传输文件，报文主体中包含文件内容，保存到对应URI位置。</li>
+  <li>HEAD： 获得报文首部，与GET方法类似，只是不返回报文主体，一般用于验证URI是否有效。</li>
+  <li>DELETE：删除文件，与PUT方法相反，删除对应URI位置的文件。</li>
+  <li>OPTIONS：查询相应URI支持的HTTP方法。</li>
+</ul>
+
+<p>注意:http1.0只有GET、POST和HEAD方法</p>
+
+<h2 id="5-http请求报文与响应报文格式">5. HTTP请求报文与响应报文格式</h2>
+
+<p><img src="https://pic1.zhimg.com/80/v2-c15979b64c06e91dce415a39fa0300a8_720w.jpg" alt="http请求格式如下"></p>
+
+<p><img src="https://pic1.zhimg.com/v2-054ba2c979cd2792840d99a1d0f4dc1c_r.jpg" alt="请求报文格式"></p>
+
+<ul>
+  <li>http请求报文
+    <ol>
+      <li>请求行：包含请求方法、URI、HTTP版本信息</li>
+      <li>请求首部字段</li>
+      <li>请求内容实体</li>
+      <li>空行</li>
+    </ol>
+  </li>
+</ul>
+
+<p><img src="https://pic4.zhimg.com/80/v2-a711c519831c81a1043aea5e7513c34b_720w.jpg" alt="http响应格式">
+<img src="https://pic2.zhimg.com/v2-e2447b28c4e1fd60d43bfa3976ff1531_r.jpg" alt="http响应格式"></p>
+
+<ul>
+  <li>http响应报文:
+    <ol>
+      <li>状态行：包含HTTP版本、状态码、状态码的原因短语</li>
+      <li>响应首部字段</li>
+      <li>响应内容实体</li>
+      <li>空行</li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="常见的首部">常见的首部：</h3>
+<ul>
+  <li>
+<strong>通用首部字段（请求报文与响应报文都会使用的首部字段）</strong>
+    <ul>
+      <li>Date：创建报文时间</li>
+      <li>Connection：连接的管理</li>
+      <li>Cache-Control：缓存的控</li>
+      <li>Transfer-Encoding：报文主体的传输编码方式</li>
+    </ul>
+  </li>
+  <li>
+<strong>请求首部字段（请求报文会使用的首部字段）</strong>
+    <ul>
+      <li>Host：请求资源所在服务器</li>
+      <li>Accept：可处理的媒体类型</li>
+      <li>Accept-Charset：可接收的字符集</li>
+      <li>Accept-Encoding：可接受的内容编码</li>
+      <li>Accept-Language：可接受的自然语言</li>
+    </ul>
+  </li>
+  <li>
+<strong>响应首部字段（响应报文会使用的首部字段）</strong>
+    <ul>
+      <li>Accept-Ranges：可接受的字节范围;主要在断点续传中使用</li>
+      <li>Location：令客户端重新定向到的URI</li>
+      <li>Server：HTTP服务器的安装信息</li>
+    </ul>
+  </li>
+  <li>
+<strong>实体首部字段（请求报文与响应报文的的实体部分使用的首部字段）</strong>
+    <ul>
+      <li>Allow：资源可支持的HTTP方法</li>
+      <li>Content-Type：实体主类的类型</li>
+      <li>Content-Encoding：实体主体适用的编码方式</li>
+      <li>Content-Language：实体主体的自然语言</li>
+      <li>Content-Length：实体主体的的字节数</li>
+      <li>Content-Range：实体主体的位置范围，一般用于发出部分请求时使用</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="6-https工作原理">6. HTTPS工作原理</h2>
+
+<p>https主要工作流程如下:</p>
+
+<ul>
+  <li>一、首先HTTP请求服务端生成证书，客户端对证书的有效期、合法性、域名是否与请求的域名一致、证书的公钥（RSA加密）等进行校验；</li>
+  <li>二、客户端如果校验通过后，就根据证书的公钥的有效， 生成随机数，随机数使用公钥进行加密（RSA加密）；</li>
+  <li>三、消息体产生的后，对它的摘要进行MD5（或者SHA1）算法加密，此时就得到了RSA签名；</li>
+  <li>四、发送给服务端，此时只有服务端（RSA私钥）能解密。</li>
+  <li>五、解密得到的随机数，再用AES加密，作为密钥（此时的密钥只有客户端和服务端知道）。</li>
+</ul>
+
+<h2 id="7-一次完整的http请求所经历的7个步骤">7. 一次完整的HTTP请求所经历的7个步骤</h2>
+<p>HTTP通信机制是在一次完整的HTTP通信过程中，Web浏览器与Web服务器之间将完成下列7个步骤：</p>
+
+<ol>
+  <li>建立TCP连接:</li>
+</ol>
+
+<p>在HTTP工作开始之前，Web浏览器首先要通过网络与Web服务器建立连接，该连接是通过TCP来完成的，该协议与IP协议共同构建 Internet，即著名的TCP/IP协议族，因此Internet又被称作是TCP/IP网络。<strong>HTTP是比TCP更高层次的应用层协议，根据规则， 只有低层协议建立之后才能，才能进行更层协议的连接，因此，首先要建立TCP连接，一般TCP连接的端口号是80。</strong></p>
+
+<ol>
+  <li>Web浏览器向Web服务器发送请求行</li>
+</ol>
+
+<p>一旦建立了TCP连接，<strong>Web浏览器就会向Web服务器发送请求命令</strong>。例如：GET /sample/hello.jsp HTTP/1.1。</p>
+
+<ul>
+  <li>Web浏览器发送请求头:
+    <ul>
+      <li>浏览器发送其请求命令之后，还要以头信息的形式向Web服务器发送一些别的信息，之后<strong>浏览器发送了一空白行来通知服务器</strong>，它已经结束了该头信息的发送。</li>
+    </ul>
+  </li>
+  <li>Web服务器应答:
+    <ul>
+      <li>客户机向服务器发出请求后，服务器会客户机回送应答， <strong>HTTP/1.1 200 OK ，应答的第一部分是协议的版本号和应答状态码。</strong>
+</li>
+    </ul>
+  </li>
+  <li>Web服务器发送应答头:
+    <ul>
+      <li>正如客户端会随同请求发送关于自身的信息一样，服务器也会随同应答向用户发送关于它自己的数据及被请求的文档。</li>
+    </ul>
+  </li>
+  <li>Web服务器向浏览器发送数据:
+    <ul>
+      <li>Web服务器向浏览器发送头信息后，它会发送一个空白行来表示头信息的发送到此为结束，接着，<strong>它就以Content-Type应答头信息所描述的格式发送用户所请求的实际数据。</strong>
+</li>
+    </ul>
+  </li>
+  <li>Web服务器关闭TCP连接:
+    <ul>
+      <li>一般情况下，一旦Web服务器向浏览器发送了请求数据，它就要关闭TCP连接，然后如果浏览器或者服务器在其头信息加入了<code class="language-plaintext highlighter-rouge">Connection:keep-alive</code>;TCP连接在发送后将仍然保持打开状态，于是，浏览器可以继续通过相同的连接发送请求。保持连接节省了为每个请求建立新连接所需的时间，还节约了网络带宽。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>总结:建立TCP连接-&gt;发送请求行-&gt;发送请求头-&gt;（到达服务器）发送状态行-&gt;发送响应头-&gt;发送响应数据-&gt;断TCP连接</p>
+
+<h2 id="7-http常用的状态码">7. HTTP常用的状态码</h2>
+<p><em>参考链接：</em> <a href="https://www.cnblogs.com/xflonga/p/9368993.html">常见的HTTP状态码</a>;<a href="https://tool.oschina.net/commons?type=5">HTTP状态码详解</a></p>
+
+<h3 id="71-三至七种最基本的响应代码">7.1 三至七种最基本的响应代码</h3>
+
+<ul>
+  <li>200(“OK”):一切正常。实体主体中的文档（若存在的话）是某资源的表示。</li>
+  <li>400(“Bad Request”):客户端方面的问题。实体主题中的文档（若存在的话）是一个错误消息。希望客户端能够理解此错误消息，并改正问题。</li>
+  <li>500(“Internal Server Error”):服务器方面的问题。实体主体中的文档（如果存在的话）是一个错误消息。该错误消息通常无济于事，因为客户端无法修复服务器方面的问题。</li>
+  <li>301(“Moved Permanently”):当客户端触发的动作引起了资源URI的变化时发送此响应代码。另外，当客户端向一个资源的旧URI发送请求时，也发送此响应代码。</li>
+  <li>404(“Not Found”) 和410(“Gone”):当客户端所请求的URI不对应于任何资源时，发送此响应代码。404用于服务器端不知道客户端要请求哪个资源的情况；410用于服务器端知道客户端所请求的资源曾经存在，但现在已经不存在了的情况。</li>
+  <li>409(“Conflict”):当客户端试图执行一个”会导致一个或多个资源处于不一致状态“的操作时，发送此响应代码。</li>
+</ul>
+
+<p>SOAP Web服务只使用响应代码200(“OK”)和500(“Internal Server Error”)。无论是你发给SOAP服务器的数据有问题，还是服务器在处理数据的过程中出现问题，或者SOAP服务器出现内部问题，SOAP服务器均发送500(“Internal Server Error”)。客户端只有查看SOAP文档主体（body）（其中包含错误的描述）才能获知错误原因。客户端无法仅靠读取响应的前三个字节得知请求成功与否。</p>
+
+<ul>
+  <li>1xx:通知;仅仅在与HTTP服务器沟通时使用
+    <ul>
+      <li>100(“Continue”):继续发送未完的请求数据。(客户端设置Expect为”100-continue”)</li>
+      <li>101(“Switching Protocols”):告诉客户端更换协议，协议存放在Upgrade 消息头中。</li>
+      <li>102:由WebDAV（RFC 2518）扩展的状态码，代表处理将被继续执行。</li>
+      <li>103 Early Hints:此状态代码主要用于与Link 链接头一起使用，以允许用户代理在服务器仍在准备响应时开始预加载资源。</li>
+    </ul>
+  </li>
+  <li>2xx:成功
+    <ul>
+      <li>200(“OK”):表示返回请求成功</li>
+      <li>201(“Created”):当服务器依照客户端的请求创建了一个新资源时，发送此响应代码。</li>
+      <li>202(“Accepted”):服务器已接受请求，但尚未处理。</li>
+      <li>203(“Non-Authoritative Information”):服务器已成功处理了请求，但返回的实体头部元信息不是在原始服务器上有效的确定集合，而是来自本地或者第三方的拷贝。</li>
+      <li>204(“No Content”):服务器拒绝对PUT、POST或者DELETE请求返回任何状态信息或表示，那么通常采用此响应代码。表明“客户端请求的资源存在，但其表示是空的”</li>
+      <li>205(“Reset Content”):服务器成功处理了请求，且没有返回任何内容。但是与204响应不同，返回此状态码的响应要求请求者重置文档视图。该响应主要是被用于接受用户输入后，立即重置表单，以便用户能够轻松地开始另一次输入。 　　与204响应一样，该响应也被禁止包含任何消息体，且以消息头后的第一个空行结束。</li>
+      <li>206(“Partial Content”):它跟200类似，但它用于对部分GET请求（即使用Range请求报头的GET请求）的响应。部分GET请求常用于大型二进制文件的断点续传。</li>
+    </ul>
+  </li>
+  <li>3XX 重定向:
+    <ul>
+      <li>300(“Multiple Choices”):被请求的资源有一系列可供选择的回馈信息，每个都有自己特定的地址和浏览器驱动的商议信息。用户或浏览器能够自行选择一个首选的地址进行重定向。</li>
+      <li>301(“Moved Permanently”):永久性重定向</li>
+      <li>302(“Found”):临时重定向</li>
+      <li>303(“See Other”):与302状态码有相似功能，只是它希望客户端在请求一个URI的时候，能通过GET方法重定向到另一个URI上</li>
+      <li>304(“Not Modified”):发送附带条件的请求时，条件不满足时返回，与重定向无关.</li>
+      <li>305(“Use Proxy”):这个响应代码用于告诉客户端它需要再发一次请求，但这次要通过一个HTTP代理发送，而不是直接发送给服务器。</li>
+      <li>306:最新标准中已经被放弃使用</li>
+      <li>307(“Temporary Redirect”):临时重定向，与302类似，只是强制要求使用POST方法.</li>
+    </ul>
+  </li>
+  <li>4XX:客户端错误
+    <ul>
+      <li>400(“Bad Request”):1、语义有误，当前请求无法被服务器理解。除非进行修改，否则客户端不应该重复提交这个请求。 　　2、请求参数有误。</li>
+      <li>401(“Unauthorized”):客户端试图对一个受保护的资源进行操作，却又没有提供正确的认证证书。Authorization 头信息部应该重新发送正确的身份验证</li>
+      <li>402(“Payment Required”):支付需要</li>
+      <li>403(“Forbidden”):客户端请求的结构正确，但是服务器不想处理,它请求的对应资源禁止被访问。这跟证书不正确的情况不同–若证书不正确，应该发送响应代码401。</li>
+      <li>404(“Not Found”):服务器无法找到对应资源.</li>
+      <li>405(“Method Not Allowd”):客户端试图使用一个本资源不支持的HTTP方法。例如：一个资源只支持GET方法，但是客户端使用PUT方法访问。</li>
+      <li>406(“Not Acceptable”):当客户端对表示有太多要求，以至于服务器无法提供满足要求。如请求媒体类型为application/json+hic。但是服务器只支持json</li>
+      <li>407(“Proxy Authentication Required”):只有HTTP代理会发送这个响应代码。它跟401类似，唯一区别在于：这里不是无权访问web服务，而是无权访问代理。</li>
+      <li>408(“Reqeust Timeout”):建立连接之后，不发送任何请求。发送一个408响应代码，准备关闭此连接。</li>
+      <li>409(“Conflict”):由于和被请求的资源的当前状态之间存在冲突，请求无法完成。比如修改权限不允许的资源。</li>
+      <li>410(“Gone”):服务器知道被请求的URI过去曾指向一个资源，但该资源现在不存在了的情况。</li>
+      <li>411(“Length Required”):请求发送正确的 Content-Length请求头部数据。</li>
+      <li>412(“Precondition Failed”):对客户端的请求条件(客户端提供)不满足。不做处理。</li>
+      <li>413(“Request Entity Too Large”):客户端发送的表示太大，以至于服务器无法处理;并请求关闭连接。</li>
+      <li>414(“Request-URI Too Long”):URI长度超过服务器处理上限</li>
+      <li>415(“Unsupported Media Type”):不支持的媒体类型。</li>
+      <li>416(“Requestd Range Not Satisfiable”):客户端所请求的字节范围超出表示的实际大小。</li>
+      <li>417(“Expectation Failed”):在请求头 Expect 中指定的预期内容无法被服务器满足，或者这个服务器是一个代理服务器，它有明显的证据证明在当前路由的下一个节点上，Expect 的内容无法被满足。</li>
+      <li>421:客户端所在的IP地址比如用户的网关或者代理服务器地址）到服务器的连接数超过了服务器许可的最大范围</li>
+      <li>422:请求格式正确，但是由于含有语义错误，无法响应。</li>
+      <li>424:由于之前的某个请求发生的错误，导致当前请求失败</li>
+      <li>425:未定义</li>
+      <li>426:客户端应当切换到TLS/1.0</li>
+      <li>449:由微软扩展，代表请求应当在执行完适当的操作后进行重试。</li>
+    </ul>
+  </li>
+  <li>5XX 服务端错误
+    <ul>
+      <li>500(“Internal Server Error”):服务器未知内部错误。</li>
+      <li>501(“Not Implemented”):客户端试图使用一个服务器不支持的HTTP特性。</li>
+      <li>502(“Bad Gateway”):网关或者代理服务器错误。</li>
+      <li>503(“Service Unavailable”):HTTP服务器正常，只是下层web服务服务不能正常工作。表示服务器正在忙。</li>
+      <li>504(“Gateway Timeout”):跟502类似，只有HTTP代理会发送此响应代码。此响应代码表明代理无法连接上行服务器。</li>
+      <li>505(“HTTP Version Not Supported”):服务器不支持，或者拒绝支持在请求中使用的 HTTP 版本。</li>
+      <li>506(Variant Also Negotiates):代表服务器存在内部配置错误</li>
+      <li>507(Insufficient Storage): 服务器无法存储完成请求所必须的内容。</li>
+      <li>509:服务器达到带宽限制。</li>
+      <li>510(Not Extended):客户端需要对请求进一步扩展，服务器才能实现它。服务器会回复客户端发出扩展请求所需的所有信息。</li>
+      <li>511(Network Authentication Required):状态码指示客户端需要进行身份验证才能获得网络访问权限。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="8-https的请求流程">8. HTTPS的请求流程：</h2>
+
+<p><img src="https://pic2.zhimg.com/80/v2-cd198e0929f583fb87cffe9686edf901_720w.jpg" alt="HTTPS请求流程"></p>
+
+<ol>
+  <li>客户端（浏览器）向服务器请求https连接。</li>
+  <li>服务器返回证书（公钥）到客户端。</li>
+  <li>客户端随机的对称秘钥A（用于对称加密）。</li>
+  <li>客户端用公钥对A进行加密。</li>
+  <li>客户端将加密A后的密文发送给服务器。</li>
+  <li>服务器通过私钥对密文进行解密得到对称加密的秘钥。</li>
+  <li>客户端与服务器通过对称秘钥加密的密文通信。</li>
+</ol>
+
+<p>上述过程中第2步骤中是存在风险的，因为公钥是暴露出来的，当公钥被中间人非法截获时，同时将公钥替换成中间人自己的公钥发送给客户端，从而得到对称加密的秘钥，进而伪装与客户端通信。</p>
+
+<p>为了解决这种问题，就引入了数字证书与数字签名</p>
+
+<p>所以在第2步骤时，服务器发送了一个SSL证书给客户端，SSL证书中包含了具体的内容有证书的颁发机构、有效期、公钥、证书持有者、签名，通过第三方的校验保证身份的合法。</p>
+
+<p>一、首先客户端会读取证书所有者、有效期等信息进行校验。</p>
+
+<p>二、客户端（浏览器）开始查找操作系统中已内置的受信任的证书发布机构CA，与服务器发过来的证书的颁发CA比对，用于验证证书是否为合法机构颁发。</p>
+
+<p>三、如果找不到，浏览器就会报错。</p>
+
+<p>四、如果找到了，就会取出其中的公钥，对证书内的签名进行解密。</p>
+
+<p>五、使用相同的Hash算法对签名进行去摘要并与服务器发来的摘要进行对比。</p>
+
+<p>六、如果对比一致，则合法，这样就得到公钥了。</p>
+
+<h2 id="9-http1120版本新特性">9. HTTP1.1/2.0版本新特性</h2>
+
+<ul>
+  <li><a href="https://blog.csdn.net/ran_Max/article/details/105279644">HTTP1.1和HTTP2.0新特性</a></li>
+  <li><a href="https://www.cnblogs.com/heluan/p/8620312.html">HTTP1.0、HTTP1.1 和 HTTP2.0 的区别</a></li>
+  <li><a href="https://segmentfault.com/a/1190000013028798">HTTP1.0 HTTP1.1 HTTP2.0 主要特性对比</a></li>
+  <li>HTTP1.1 新特性：
+    <ul>
+      <li>
+        <ol>
+          <li>
+<strong>缓存处理</strong>：在HTTP1.0中主要使用header里的If-Modified-Since,Expires来做为缓存判断的标准，HTTP1.1则引入了更多的缓存控制策略例如Entity tag，If-Unmodified-Since, If-Match, If-None-Match等更多可供选择的缓存头来控制缓存策略。</li>
+          <li>
+<strong>带宽优化及网络连接的使用–断点续传</strong>：TTP1.0中，存在一些浪费带宽的现象，例如客户端只是需要某个对象的一部分，而服务器却将整个对象送过来了，并且不支持断点续传功能，HTTP1.1则在请求头引入了range头域，它允许只请求资源的某个部分，即返回码是206（Partial Content），这样就方便了开发者自由的选择以便于充分利用带宽和连接。</li>
+          <li>
+<strong>错误通知的管理</strong>，在HTTP1.1中新增了24个错误状态响应码，如409（Conflict）表示请求的资源与资源的当前状态发生冲突；410（Gone）表示服务器上的某个资源被永久性的删除。</li>
+          <li>
+<strong>Host头处理</strong>，在HTTP1.0中认为每台服务器都绑定一个唯一的IP地址，因此，请求消息中的URL并没有传递主机名（hostname）。但随着虚拟主机技术的发展，在一台物理服务器上可以存在多个虚拟主机（Multi-homed Web Servers），并且它们共享一个IP地址。HTTP1.1的请求消息和响应消息都应支持Host头域，且请求消息中如果没有Host头域会报告一个错误（400 Bad Request）。</li>
+          <li>
+<strong>长连接</strong>，HTTP 1.1支持长连接（PersistentConnection）和请求的流水线（Pipelining）处理，在一个TCP连接上可以传送多个HTTP请求和响应，减少了建立和关闭连接的消耗和延迟，在HTTP1.1中默认开启Connection： keep-alive，一定程度上弥补了HTTP1.0每次请求都要创建连接的缺点。</li>
+          <li><strong>管线化，客户端可以同时发出多个HTTP请求，而不用一个个等待响应（有问题）</strong></li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li>HTTP2.0:
+    <ul>
+      <li><img src="https://img-blog.csdnimg.cn/20200402215131738.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3Jhbl9NYXg=,size_16,color_FFFFFF,t_70" alt=""></li>
+      <li>
+        <ol>
+          <li>
+<strong>二进制分帧</strong>：<code class="language-plaintext highlighter-rouge">HTTP2.0</code>通过在应用层和传输层之间增加一个二进制分帧层，突破了<code class="language-plaintext highlighter-rouge">HTTP1.1</code>的性能限制、改进传输性能。http2.0将传输的消息分割未更小的帧，并采用二进制的编码。其中首部信息被封装到Headers帧，而我们的request body封装到data帧。</li>
+          <li>
+<strong>压缩头部</strong>：http2.0在客户端和服务器共同维护一个<strong>头部表head list</strong>，由客户端和服务端一起维护。对于相同没用变化的头部，不再传输，每次只将有变化的头部封装到headers frame中。新增和修改的头部会被追加到头部表中。<code class="language-plaintext highlighter-rouge">HTTP2.0</code>使用<code class="language-plaintext highlighter-rouge">encoder</code>来减少需要传输的<code class="language-plaintext highlighter-rouge">header</code>大小</li>
+          <li>
+<strong>多路复用</strong>：http2.0将消息分解为独立帧，交错发送，然后在另外一端重新组装，这样一个连接上就可以存在多个请求和响应。</li>
+          <li>
+<strong>服务器推送</strong>：指的是服务器还没有收到请求，就将要用到的资源推送给浏览器。这样的话，只需要一轮http通信，浏览器就可以得到所需要的全部资源。</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="10-http优化方案">10. HTTP优化方案</h2>
+
+<ul>
+  <li>
+<strong>TCP复用</strong>:TCP连接复用是将多个客户端的HTTP请求复用到一个服务器端TCP连接上，而HTTP复用则是一个客户端的多个HTTP请求通过一个TCP连接进行处理。前者是负载均衡设备的独特功能；而后者是HTTP 1.1协议所支持的新功能，目前被大多数浏览器所支持。</li>
+  <li>
+<strong>内容缓存</strong>:将经常用到的内容进行缓存起来，那么客户端就可以直接在内存中获取相应的数据了。</li>
+  <li>
+<strong>压缩</strong>:将文本数据进行压缩，减少带宽</li>
+  <li>
+<strong>SSL加速（SSL Acceleration）</strong>:使用SSL协议对HTTP协议进行加密，在通道内加密并加速。</li>
+  <li>
+<strong>TCP缓冲</strong>:通过采用TCP缓冲技术，可以提高服务器端响应时间和处理效率，减少由于通信链路问题给服务器造成的连接负担。</li>
+</ul>
+
+<h2 id="11-http-常用方法">11. HTTP 常用方法</h2>
+
+<p><img src="https://pic1.zhimg.com/80/v2-a1204f1884e4677f2e2fa37b36b85bb8_720w.jpg" alt="HTTP常用方法"></p>
+
+<h2 id="12-本地随机数被窃取怎么办">12. 本地随机数被窃取怎么办？</h2>
+
+<p>证书验证是采用非对称加密实现，但是传输过程是采用对称加密，而其中对称加密算法中重要的随机数是由本地生成并且存储于本地的，HTTPS 如何保证随机数不会被窃取？</p>
+
+<p>其实 HTTPS 并不包含对随机数的安全保证，HTTPS 保证的只是传输过程安全，而随机数存储于本地，本地的安全属于另一安全范畴，应对的措施有安装杀毒软件、反木马、浏览器升级修复漏洞等。</p>
+
+<h2 id="13-cookie与session区别">13 cookie与session区别</h2>
+
+<ul>
+  <li><a href="https://www.cnblogs.com/shiyangxt/articles/1305506.html">cookie 和session 的区别详解</a></li>
+</ul>
+
+<p>cookie机制。正统的cookie分发是通过扩展HTTP协议来实现的，服务器通过在HTTP的响应头中加上一行特殊的指示以提示浏览器按照指示生成相应的cookie。然而纯粹的客户端脚本如JavaScript或者VBScript也可以生成cookie。而cookie的使用是由浏览器按照一定的原则在后台自动发送给服务器的。浏览器检查所有存储的cookie，如果某个cookie所声明的作用范围大于等于将要请求的资源所在的位置，则把该cookie附在请求资源的HTTP请求头上发送给服务器。</p>
+
+<p>session机制是一种服务器端的机制，服务器使用一种类似于散列表的结构（也可能就是使用散列表）来保存信息。</p>
+
+<ul>
+  <li>cookie 和session 的区别：
+    <ul>
+      <li>cookie数据存放在客户的浏览器上，session数据放在服务器上。</li>
+      <li>cookie不是很安全，别人可以分析存放在本地的COOKIE并进行COOKIE欺骗;考虑到安全应当使用session。</li>
+      <li>session会在一定时间内保存在服务器上。当访问增多，会比较占用你服务器的性能;考虑到减轻服务器性能方面，应当使用COOKIE。</li>
+      <li>单个cookie保存的数据不能超过4K，很多浏览器都限制一个站点最多保存20个cookie。</li>
+      <li>登陆信息等重要信息存放为SESSION;其他信息如果需要保留，可以放在COOKIE中。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="14-http的权限校验">14. HTTP的权限校验</h2>
+
+<ul>
+  <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Authentication">通用的 HTTP 认证框架</a></li>
+  <li>服务器端向客户端返回 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/401"><code class="language-plaintext highlighter-rouge">401</code></a>（Unauthorized，未被授权的） 状态码，并在 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/WWW-Authenticate"><code class="language-plaintext highlighter-rouge">WWW-Authenticate</code></a> 首部提供如何进行验证的信息，其中至少包含有一种质询方式。之后有意向证明自己身份的客户端可以在新的请求中添加 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Authorization"><code class="language-plaintext highlighter-rouge">Authorization</code></a> 首部字段进行验证，字段值为身份验证凭证信息。通常客户端会弹出一个密码框让用户填写，然后发送包含有恰当的 <code class="language-plaintext highlighter-rouge">Authorization</code> 首部的请求。</li>
+  <li><img src="https://mdn.mozillademos.org/files/14689/HTTPAuth.png" alt=""></li>
+</ul>
+
+<h2 id="15-http中的跨域问题">15. http中的跨域问题</h2>
+
+<ul>
+  <li><a href="https://www.jianshu.com/p/a71708985a6d">http中的跨域问题</a></li>
+  <li><a href="https://blog.csdn.net/Star_CSU/article/details/90703526">HTTP跨域问题的解决方案</a></li>
+  <li>
+<strong>浏览器存在同源策略，当schema、IP、port中任何一个不相同，浏览器就认为是跨域</strong>，就会忽略返回结果，并且在console中报错。</li>
+  <li>可以在HTTP头部，添加，Access-Control-Allow-Origin’:’http://127.0.0.1:8888’或者’Access-Origin-Allow-Origin’:’<em>‘，浏览器检查到这个头，则准许8888对8887跨域访问。’</em>‘表示8887准许任何server对其访问。</li>
+  <li>注意:默认跨域允许方法：GET,HEAD,POST ；默认允许Content-Type:text/plain multipart/form-data application/x-www-form-urlencoded  （form表单的3种数据类型)</li>
+  <li>server端response header必须有对应的字段才能准许跨域请求。</li>
+  <li><strong>然而，浏览器对html标签中存在的src href等属性并不会做跨域限制，因此实际工作中我们利用这个特性来实现跨域的需求。这种方法通常称为JSONP</strong></li>
+  <li>
+<strong>简单跨域请求</strong>的满足要求：
+    <ul>
+      <li>
+<strong>1. 请求方法是以下三种方法之一：</strong>HEAD,GET,POST</li>
+      <li>
+<strong>2.HTTP的头信息不超出以下几种字段：</strong>
+        <ul>
+          <li>Accept</li>
+          <li>Accept-Language</li>
+          <li>Content-Language</li>
+          <li>Last-Event-ID</li>
+          <li>Content-Type：只限于三个值application/x-www-form-urlencoded、multipart/form-data、text/plain</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+<strong>出现跨域错误的三种可能</strong>:
+    <ul>
+      <li>服务器端没有对跨域进行支持
+        <ul>
+          <li>对reposeheader进行设置，添加<code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin</code>等字段</li>
+        </ul>
+      </li>
+      <li>前端带了跨域允许外的header字段（可以和第一种可能合并）
+        <ul>
+          <li>web端删除该字段；</li>
+          <li>如果该filepath字段是必须的，则让服务器修改代码，允许该header字段跨域</li>
+        </ul>
+      </li>
+      <li>由缓存(第二次请求时的图片缓存；不允许跨域)导致的跨域不允许（浏览器本地，cdn，nginx等各地缓存），常见于对静态资源的访问；解决方案：
+        <ul>
+          <li>无视缓存出现的位置，前端统一为每个文件url加上时间戳，这是最快的解决方法，同时也是下下策．缓存的不命中会导致文件访问速度变慢，以及加大资源服务器访问压力．</li>
+          <li>如果是浏览器的本地缓存导致的跨域问题（火狐不会导致这个问题，谷歌某些版本会出现这个问题），前端需要审查自身代码，是否对一个文件发出了两种不同的请求（先普通请求，再跨域请求），交换顺序或者去除一种请求都可以．</li>
+          <li>浏览器之外的所有导致跨域问题的缓存，排查哪个环节导致的跨域问题，修改缓存策略，建议对普通请求和跨域请求做出区分．（可以学习火狐浏览器的缓存策略）</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="15-说一说http中的uuid">15. 说一说HTTP中的UUID</h2>
+
+<ul>
+  <li><a href="https://www.cnblogs.com/Plorde/p/12303232.html">计算机网络(1): http原理和uuid</a></li>
+  <li>UUID:UUID是128位的全局唯一标识符，通常由32字节的字符串表示。它可以保证时间和空间的唯一性，也称为GUID，它通过MAC地址、时间戳、命名空间、随机数、伪随机数来保证生成ID的唯一性;标识一个唯一的连接。</li>
+  <li>HTTP中常常，通过COOKIE或者session中存储UUID的方式，来标明一次连接或者连续的请求。</li>
+</ul>
+
+<h2 id="16-对称加密与非对称加密">16 对称加密与非对称加密</h2>
+
+<ul>
+  <li>
+    <p><a href="https://www.cnblogs.com/jfzhu/p/4020928.html">对称加密与非对称加密</a></p>
+  </li>
+  <li>对称加密(Symmetric Cryptography)：
+    <ul>
+      <li>对称加密是最快速、最简单的一种加密方式，加密（encryption）与解密（decryption）用的是同样的密钥（secret key）。</li>
+      <li>对称加密通常使用的是相对较小的密钥，一般小于256 bit。因为密钥越大，加密越强，但加密与解密的过程越慢。</li>
+      <li>对称加密的一大缺点是密钥的管理与分配，换句话说，如何把密钥发送到需要解密你的消息的人的手里是一个问题。在发送密钥的过程中，密钥有很大的风险会被黑客们拦截。现实中通常的做法是将对称加密的密钥进行非对称加密，然后传送给需要它的人。</li>
+    </ul>
+  </li>
+  <li>非对称加密（Asymmetric Cryptography）:</li>
+  <li>非对称加密为数据的加密与解密提供了一个非常安全的方法，它使用了一对密钥，公钥（public key）和私钥（private key）。私钥只能由一方安全保管，不能外泄，而公钥则可以发给任何请求它的人。非对称加密使用这对密钥中的一个进行加密，而解密则需要另一个密钥。</li>
+  <li>目前最常用的非对称加密算法是RSA算法，是Rivest, Shamir, 和Adleman于1978年发明</li>
+  <li>https采用非对称加密算法+对称加密算法来保证数据的安全。
+    <ul>
+      <li>非对称加密算法涉及到需要向ca认证机构(证书签发机构，类似官方权威)申请证书。</li>
+      <li>当用户请求某个网站如：https://www.baidu.com，c发送请求到s，个人理解;在没有到达server的http层之前，首先server的ssl层会先发送证书给c，c会根据证书使用认证机构发布的公钥解密验证，证明确实是该网站，则会随机生成一对对称秘钥，并用s的公钥加密对称秘钥，并用对称秘钥加密发送的请求(url参数等信息)，s收到请求后，用私钥解密对称秘钥，并用对称秘钥解密c用对称秘钥加密的url，然后再用对称秘钥对返回给c的信息进行加密，c用对称秘钥进行解密，至此c和s握手完成，以后c和s相互发送消息就采用c发送的对称秘钥来加密解密，不需要每次都验证真伪。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="17-ssl的双向认证和单向认证">17 SSL的双向认证和单向认证</h2>
+
+<ul>
+  <li>
+    <p><a href="https://www.cnblogs.com/thbCode/p/5829719.html">公钥、私钥、SSL/TLS、会话密钥、DES</a></p>
+  </li>
+  <li>
+    <p><a href="https://blog.csdn.net/justinzengTM/article/details/103554470">总结DH密钥协商（会话密钥）</a></p>
+  </li>
+  <li>
+    <p><strong>SSL单向认证</strong></p>
+
+    <ul>
+      <li>① 客户端的浏览器向服务器传送客户端 SSL 协议的版本号，加密算法的种类，产生的随机数，以及其他服务器和客户端之间通讯所需要的各种信息。</li>
+      <li>② 服务器向客户端传送 SSL 协议的版本号，加密算法的种类，随机数以及其他相关信息，同时服务器还将向客户端传送自己的证书。</li>
+      <li>③ 客户利用服务器传过来的信息验证服务器的合法性，服务器的合法性包括：证书是否过期，发行服务器证书的 CA 是否可靠，发行者证书的公钥能否正确解开服务器证书的“发行者的数字签名”，服务器证书上的域名是否和服务器的实际域名相匹配。如果合法性验证没有通过， 通讯将断开；如果合法性验证通过，将继续进行第四步。</li>
+      <li>④ 用户端随机产生一个用于后面通讯的“对称密码”，然后用服务器的公钥（服务器的公钥从步骤②中的服务器的证书中获得）对其加密，然后将加密后的“预主密码”传给服务器。</li>
+      <li>⑤ 如果服务器要求客户的身份认证（在握手过程中为可选），用户可以建立一个随机数然后对其进行数据签名，将这个含有签名的随机数和客户自己的证书以及加密过的“预主密码”一起传给服务器。</li>
+      <li>⑥ 如果服务器要求客户的身份认证，服务器必须检验客户证书和签名随机数的合法性，具体的合法性验证过程包括：客户的证书使用日期是否有效，为客户提供证书的 CA 是否可靠，发行 CA 的公钥能否正确解开客户证书的发行 CA 的数字签名，检查客户的证书是否在证书废止列表（CRL）中。检验如果没有通过，通讯立刻中断；如果验证通过，服务器将用自己的私钥解开加密的“预主密 码”，然后执行一系列步骤来产生主通讯密码（客户端也将通过同样的方法产生相同的主通讯密码）。</li>
+      <li>⑦ 服务器和客户端用相同的主密码即“通话密码”，一个对称密钥用于 SSL 协议的安全数据通讯的加解密通讯。同时在 SSL 通讯过程中还要完成数据通讯的完整性，防止数据通讯中的任何变化。</li>
+      <li>⑧ 客户端向服务器端发出信息，指明后面的数据通讯将使用的步骤⑦中的主密码为对称密钥，同时通知服务器客户端的握手过程结束。</li>
+      <li>⑨ 服务器向客户端发出信息，指明后面的数据通讯将使用的步骤⑦中的主密码为对称密钥，同时通知客户端服务器端的握手过程结束。</li>
+      <li>⑩ SSL 的握手部分结束，SSL 安全通道的数据通讯开始，客户和服务器开始使用相同的对称密钥进行数据通讯，同时进行通讯完整性的检验。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>双向认证 SSL 协议的具体过程</strong></p>
+
+    <ul>
+      <li>
+        <p>① 浏览器发送一个连接请求给安全服务器。</p>
+      </li>
+      <li>
+        <p>② 服务器将自己的证书，以及同证书相关的信息发送给客户浏览器。</p>
+      </li>
+      <li>
+        <p>③ 客户浏览器检查服务器送过来的证书是否是由自己信赖的 CA 中心所签发的。如果是，就继续执行协议；如果不是，客户浏览器就给客户一个警告消息：警告客户这个证书不是可以信赖的，询问客户是否需要继续。</p>
+      </li>
+      <li>
+        <p>④ 接着客户浏览器比较证书里的消息，例如域名和公钥，与服务器刚刚发送的相关消息是否一致，如果是一致的，客户浏览器认可这个服务器的合法身份。</p>
+      </li>
+      <li>
+        <p>⑤ 服务器要求客户发送客户自己的证书。收到后，服务器验证客户的证书，如果没有通过验证，拒绝连接；如果通过验证，服务器获得用户的公钥。</p>
+      </li>
+      <li>
+        <p>⑥ 客户浏览器告诉服务器自己所能够支持的通讯对称密码方案。</p>
+      </li>
+      <li>
+        <p>⑦ 服务器从客户发送过来的密码方案中，选择一种加密程度最高的密码方案，用客户的公钥加过密后通知浏览器。</p>
+      </li>
+      <li>
+        <p>⑧ 浏览器针对这个密码方案，选择一个通话密钥，接着用服务器的公钥加过密后发送给服务器。</p>
+      </li>
+      <li>
+        <p>⑨ 服务器接收到浏览器送过来的消息，用自己的私钥解密，获得通话密钥。</p>
+      </li>
+      <li>
+        <p>⑩ 服务器、浏览器接下来的通讯都是用对称密码方案，对称密钥是加过密的。</p>
+      </li>
+      <li>
+        <p>上面所述的是双向认证 SSL 协议的具体通讯过程，这种情况<strong>要求服务器和用户双方都有证书</strong>。单向认证 SSL 协议不需要客户拥有 CA 证书，具体的过程相对于上面的步骤，只需将服务器端验证客户证书的过程去掉，以及在协商对称密码方案，对称通话密钥时，服务器发送给客户的是没有加过密的 （这并不影响 SSL 过程的安全性）密码方案。 这样，双方具体的通讯内容，就是加过密的数据，如果有第三方攻击，获得的只是加密的数据，第三方要获得有用的信息，就需要对加密的数据进行解密，这时候的 安全就依赖于密码方案的安全。而幸运的是，目前所用的密码方案，只要通讯密钥长度足够的长，就足够的安全。这也是我们强调要求使用 128 位加密通讯的原因。</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>一般客户端发送随机组成伪装密钥，发送给服务器并，协商会话密钥；如下；p是一个大质数，g则是一个小整数，一个公钥和一个私钥，接下来服务器端和客户端都会根据这些参数生成各自的密钥对，然后协商出会话密钥。</p>
+    <ul>
+      <li><img src="https://img-blog.csdnimg.cn/20191215220633190.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1c3RpbnplbmdUTQ==,size_16,color_FFFFFF,t_70" alt=""></li>
+      <li>流程:
+        <ul>
+          <li>客户端发送请求DH参数，服务器端生成DH密钥文件参数，包括p，g，公钥spub和私钥spri。</li>
+          <li>服务器端发送参数p，g以及公钥spub给客户端，客户端接收后，先是自己生成一个私钥cpri，然后根据参数p，g，服务器端公钥spub和自己的私钥cpri计算得出客户端公钥cpub。</li>
+          <li>客户端将公钥cpub发送给服务器端，服务器端根据客户端公钥cpub和自己的私钥spri计算得到会话密钥。</li>
+          <li>客户端根据私钥cpri和服务器端公钥spub计算得到会话密钥。密钥协商完成。</li>
+        </ul>
+      </li>
+      <li>总结:
+        <ul>
+          <li>上面的过程可以看到，生成会话密钥的关键是服务器端和客户端自己的私钥，这两个私钥是各自生成的，并不会发送出去，即使中间放拿到了客户端和服务器端的公钥以及参数p，g，也没办法计算出会话密钥。</li>
+          <li>一个完整的DH密钥协商过程，首先由通信双方任意一方生成DH密钥参数文件dhparam.pem。接着通信双方各自生成自己的密钥对，并分离出公钥和私钥，私钥自己保存，公钥发送给对方，最后双方根据对方发来的公钥和自己的私钥协商出会话密钥，可以看到，双方的会话密钥是一样的。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/03/10/work_find_post_log/" data-toggle="tooltip" data-placement="top" title="2020实习投递">
+                        Previous<br>
+                        <span>2020实习投递</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2020/03/14/tencent_interview/" data-toggle="tooltip" data-placement="top" title="腾讯一面面经">
+                        Next<br>
+                        <span>腾讯一面面经</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

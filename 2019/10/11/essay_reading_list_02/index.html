@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>文集补校(二) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/10/11/essay_reading_list_02/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E5%8D%B7%E7%A7%AF%E5%8A%A0%E9%80%9F" title="卷积加速">卷积加速</a>
+                        
+                        <a class="tag" href="/tags/#%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB" title="论文阅读">论文阅读</a>
+                        
+                        <a class="tag" href="/tags/#%E7%A8%80%E7%96%8F" title="稀疏">稀疏</a>
+                        
+                        <a class="tag" href="/tags/#%E5%B9%B6%E8%A1%8C" title="并行">并行</a>
+                        
+                        <a class="tag" href="/tags/#%E4%BC%98%E5%8C%96" title="优化">优化</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9B%BE%E5%BD%A2%E5%A4%84%E7%90%86%E5%99%A8" title="图形处理器">图形处理器</a>
+                        
+                    </div>
+                    <h1>文集补校(二)</h1>
+                    
+                    
+                    <h2 class="subheading">一种基于GPU的高性能稀疏卷积神经网络优化</h2>
+                    
+                    <span class="meta">Posted by 敬方 on October 11, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="论文名称tile">论文名称(Tile)</h1>
+
+<ul>
+  <li>作者(authors):方 程</li>
+  <li>
+    <p>文献引用(Published in):[1] 方程,邢座程,陈顼颢,张洋.一种基于GPU的高性能稀疏卷积神经网络优化[J].计算机工程与科学,2018,40(12):2103-2111.</p>
+  </li>
+  <li>文章链接:<a href="https://kns.cnki.net/KCMS/detail/detail.aspx?dbcode=CJFQ&dbname=CJFDLAST2019&filename=JSJK201812002&v=MDAzNTZWNzNQTHo3QlpiRzRIOW5Oclk5RlpvUjhlWDFMdXhZUzdEaDFUM3FUcldNMUZyQ1VSTE9lWitkdUZDam4=">知网</a>
+</li>
+  <li>期刊:<a href="http://navi.cnki.net/KNavi/JournalDetail?pcode=CJFD&pykm=JSJK">计算机工程与科学</a>
+</li>
+</ul>
+
+<h2 id="写作目的解决了什么问题what-is-the-motivation-for-this-work-both-people-problem-and-technical-problem">写作目的(解决了什么问题)(What is the motivation for this work (both people problem and technical problem)?)</h2>
+
+<p>CNN压缩之后的稀疏性导致的GPU性能的下降，提出了新的GPU卷积算法来解决这个问题。
+caffe中的im2col算法造成了大量的内存复制开销。</p>
+
+<p>本文通过在CPU上实现直接稀疏卷积算法,打破了GPU架构下传统稠密算法对于稀疏结构处理的局限性,有效解决了权重删减后SCNN在
+GPU上运行出现性能损失的问题。对于高稀疏度，甚至是GPU所不擅长处理的不规则数据，本文的设计仍然有着极大的优势。</p>
+
+<h2 id="提出建议的解决方案假设想法设计-what-is-the-proposed-solution-hypothesis-idea-design">提出/建议的解决方案(假设、想法、设计)? (What is the proposed solution (hypothesis, idea, design)?)</h2>
+
+<p>采用直接稀疏卷积算法，来加速GPU处理稀疏数据:将卷积运算转换为稀疏向量与稠密向量的内积运算，具体流程如下：</p>
+
+<p>对Wm中block的设置和线程的具体分配和计算流程;<strong>注意这里的一行卷积file的集合</strong></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-13-10-36-14.png" alt="优化前计算规则"></p>
+
+<p>优化后计算映射
+<img src="https://wangpengcheng.github.io/img/2019-10-13-10-34-06.png" alt="共享内存映射规则"></p>
+
+<ol>
+  <li>将Wm放入共享内存</li>
+  <li>将Wm分块化，块Tile_i设置为特定长度下的一维数组–block下的线程总数，线程Thread(z,y,x)将Title_i数据写入共享内存后进行等待，直到所有线程完成数据的分布</li>
+  <li>Thread(z,y,x)完成内存共享向量Tile_i与向量I(y*W+x)的内积运算。具体计算如下：</li>
+</ol>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-13-10-57-16.png" alt="计算过程"></p>
+
+<ol>
+  <li>每次累加之后，访问共享内存未命中时，证明计算完毕，替换下一个Tile块到共享内存</li>
+  <li>m中的所有数据计算完毕；将当前点的sum输出：output[(m<em>E+y)</em>F+x]=sum;</li>
+  <li>只对权重矩阵稀疏度达到0.6以上的才使用共享内存算法，避免过多的内存访问问题。</li>
+</ol>
+
+<h2 id="该解决方案作者和您的评价如何评价what-is-the-evaluation-of-the-solution-both-authors-and-yours">该解决方案（作者和您的评价）如何评价？(What is the evaluation of the solution (both author’s and yours)?)</h2>
+
+<p>在直接稀疏卷积的基础之上，使用了block的共享内存优化，本质上还是对于GPU访问存储的优化。<strong>注意这里最终连续存储的是channels中的数据，因此，可以直接进行计算加减</strong></p>
+
+<h2 id="文章中的疑惑或者不了解what-do-you-have-questions-about-or-dont-you-understand">文章中的疑惑或者不了解？(What do you have questions about or don’t you understand?)</h2>
+
+<p>代码的具体实现流程</p>
+
+<h2 id="在采用这种方法之前您需要了解什么what-would-you-need-to-know-before-you-would-adopt-this-approach">在采用这种方法之前，您需要了解什么？(What would you need to know before you would adopt this approach?)</h2>
+
+<ul>
+  <li>CNN基本操作</li>
+  <li>压缩CNN的方法：
+    <ul>
+      <li>基于分解：
+        <ul>
+          <li>
+<a href="https://www.semanticscholar.org/paper/Accelerating-Very-Deep-Convolutional-Networks-for-Zhang-Zou/b89d7f7439cab841934a1ede06bf6b1f593c754f">Accelerating Very Deep Convolutional Networks for Classification and Detection</a>
+            <ul>
+              <li>论文阅读解析:<a href="https://blog.csdn.net/weixin_41977410/article/details/83106099">深度卷积神经网络的加速</a>
+</li>
+            </ul>
+          </li>
+          <li><a href="https://arxiv.org/abs/1412.6553">Speeding up convolutional neural network susingfine-tuned CP-decomposition</a></li>
+        </ul>
+      </li>
+      <li>基于删减(剪枝)
+        <ul>
+          <li><a href="https://arxiv.org/abs/1509.09308v2">Fast Algorithms for Convolutional Neural Networks</a></li>
+          <li>
+<a href="http://arxiv.org/abs/1608.04493">Dynamic Network Surgery for Efficient DNNs</a>
+            <ul>
+              <li><a href="https://blog.csdn.net/zhangjunhit/article/details/53218211">Dynamic Network Surgery for Efficient DNNs阅读笔记</a></li>
+              <li>code:<a href="https://github.com/yiwenguo/Dynamic-Network-Surgery">https://github.com/yiwenguo/Dynamic-Network-Surgery</a>
+</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>SCNN(Sparse Convolutional Neural Networks)</li>
+  <li>CUDA
+    <ul>
+      <li>cuBLAS</li>
+      <li>cuSPARSE</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong><a href="https://www.jianshu.com/p/dd67c2b56a28">稀疏卷积神经网络</a></strong></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-12-12-49-05.png" alt="直接稀疏卷积"></p>
+
+<p><a href="https://blog.csdn.net/yyl424525/article/details/96327035#Direct_Sparse_Convolution_42">faster cnns with direct sparse convolutions and guided pruning 直接稀疏卷积和引导剪枝</a></p>
+
+<h2 id="论文的贡献作者和您的意见what-are-the-papers-contributions-authors-and-your-opinion">论文的贡献（作者和您的意见）？(What are the paper’s contributions (author’s and your opinion)?)</h2>
+
+<h3 id="作者文章中的贡献papers-contributions">作者文章中的贡献(paper’s contributions)</h3>
+
+<ol>
+  <li>针对卷积层关键优化路径上完成直接稀疏卷积 算法在GPU架构上的并行化实现，打破GPU上采用传统稠密算法的局限性，给出了一种可行且高效的GPU加速SCNN方案。</li>
+  <li>采用最大限度的线程映射，充分利用GPU的硬件计算资源，防止产生稀疏结构运算对GPU资源的浪费</li>
+  <li>采用最优的任务调度，合理安排每个单线程的任务工作，减少线程同步过程中某一部分线程的等待时间，提高资源利用率</li>
+  <li>充分利用<strong>直接稀疏卷积算法</strong>数据处理过程中的数据局部性，增加数据复用，对于同一个block的所有线程，采用共享内存来减少数据访存时间</li>
+</ol>
+
+<p>网络实现的加速比</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">网络类型</th>
+      <th style="text-align: center">相对cuBLAS加速比</th>
+      <th style="text-align: center">相对cuSPARSE加速比</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">AlexNet</td>
+      <td style="text-align: center">1.07~1.23</td>
+      <td style="text-align: center">1.31~1.42</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">GoogleNet</td>
+      <td style="text-align: center">1.17~3.51</td>
+      <td style="text-align: center">1.09~2.00</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">ResNet</td>
+      <td style="text-align: center">1.32~5.00</td>
+      <td style="text-align: center">1.07~3.22</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-13-11-06-55.png" alt="AlexNet卷积层优化参数"></p>
+
+<p>不同模型上的加速比</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-13-11-10-42.png" alt="不同模型上的加速比"></p>
+
+<h3 id="个人认为他的贡献your-opinion-about-papers-contributions">个人认为他的贡献(your opinion about paper’s contributions)</h3>
+
+<p>在直接稀疏卷积基础之上，改进了内存访问，对于大共享内存的GPU性能比较好。</p>
+
+<h2 id="这项研究作者和您的研究的未来方向是什么what-are-future-directions-for-this-research-authors-and-yours">这项研究（作者和您的研究）的未来方向是什么？(What are future directions for this research (author’s and yours)?)</h2>
+
+<h3 id="这项研究作者的未来研究方向what-are-future-directions-for-this-research-authors">这项研究作者的未来研究方向(What are future directions for this research author’s)</h3>
+
+<h3 id="这项研究你的未来研究方向what-are-future-directions-for-this-research-yours">这项研究你的未来研究方向(What are future directions for this research yours)</h3>
+
+<p>这种内存访问优化算法在不同卷积大小和内存上的访问优化，另外探究输入batch_size对设备的具体影响。</p>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/10/09/linux_kernel_development_02/" data-toggle="tooltip" data-placement="top" title="Linux内核设计与实现 学习笔记 (二)">
+                        Previous<br>
+                        <span>Linux内核设计与实现 学习笔记 (二)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/10/11/convolution_select/" data-toggle="tooltip" data-placement="top" title="卷积大集合">
+                        Next<br>
+                        <span>卷积大集合</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

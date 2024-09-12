@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>Linux程序设计 学习笔记 (三) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/09/03/beginning_linux_programming_03/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统">操作系统</a>
+                        
+                        <a class="tag" href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计">程序设计</a>
+                        
+                    </div>
+                    <h1>Linux程序设计 学习笔记 (三)</h1>
+                    
+                    
+                    <h2 class="subheading">Linux程序设计 学习笔记 (三)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on September 3, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="linux-程序设计-阅读笔记三">Linux 程序设计 阅读笔记(三)</h1>
+
+<h2 id="参考链接">参考链接：</h2>
+
+<ul>
+  <li><a href="https://www.kernel.org/doc/Documentation/">Linux内核文档首页</a></li>
+  <li><a href="https://linux.die.net/">Linux文档</a></li>
+  <li><a href="https://legacy.gitbook.com/book/wizardforcel/linux-c-api-ref/details">Linux c 开发手册</a></li>
+  <li><a href="https://www.kernel.org/doc/htmldocs/kernel-api/index.html">Linux Kernel API</a></li>
+  <li><a href="http://www.wrox.com/WileyCDA/WroxTitle/Beginning-Linux-Programming-4th-Edition.productCd-0470147628,descCd-DOWNLOAD.html">书中代码地址</a></li>
+</ul>
+
+<h2 id="第6章-使用curses函数库管理基于文本的屏幕">第6章 使用curses函数库管理基于文本的屏幕</h2>
+
+<h3 id="61-使用curses函数库进行编译">6.1 使用curses函数库进行编译</h3>
+
+<p>添加头文件<code class="language-plaintext highlighter-rouge">-I/usr/include/nucurses</code>,添加动态链接库<code class="language-plaintext highlighter-rouge">-lncurses</code>。</p>
+
+<p>curses中输出字符的过程如下：</p>
+
+<ul>
+  <li>使用curses函数刷新逻辑屏幕。</li>
+  <li>要求curses使用refresh函数来刷新物理屏幕。</li>
+</ul>
+
+<p>逻辑屏幕的布局通过一个字符数组来实现，它以屏幕的左上角为坐标原点。一般坐标表示(行，列)，y值在前、x值(列号)在后。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-04-15-27-49.png" alt="相关函数"></p>
+
+<p>一个简单示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;curses.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//初始化屏幕</span>
+
+    <span class="n">initscr</span><span class="p">();</span>
+    <span class="c1">//移动画笔位置</span>
+    <span class="n">move</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">15</span><span class="p">);</span>
+
+    <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span><span class="s">"Hello word"</span><span class="p">);</span>
+    <span class="c1">//刷新屏幕</span>
+
+    <span class="n">refresh</span><span class="p">();</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="c1">//结束窗口</span>
+
+    <span class="n">endwin</span><span class="p">();</span>
+    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="63-屏幕">6.3 屏幕</h3>
+
+<p>使用<code class="language-plaintext highlighter-rouge">WINDOW *initscr(void)</code>进行窗口的初始化。这个函数在一个程序中只能调用一次。当结束窗口时就是使用<code class="language-plaintext highlighter-rouge">endwin()</code>函数进行相关资源的销毁，当函数成功时返回OK否则返回ERR。</p>
+
+<h4 id="631-输出到屏幕">6.3.1 输出到屏幕</h4>
+
+<p>curses函数库提供了一些用于刷新屏幕的基本函数，它们是：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">int addch(const chtype char_to_add)</code>:。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int addchstr(chtype  *const string_to_add)</code>:。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int printw(char* format,...)</code>:</li>
+  <li><code class="language-plaintext highlighter-rouge">int refresh(void)</code></li>
+  <li><code class="language-plaintext highlighter-rouge">int box(WINDOW *win_ptr,chtype vertical_char,chtype horizontal_char)</code></li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int insch(chtype char_to_insert)</code>：插入一个字符，将已有字符向右移动</li>
+  <li><code class="language-plaintext highlighter-rouge">int insertln(void)</code></li>
+  <li><code class="language-plaintext highlighter-rouge">int delch(void)</code></li>
+  <li><code class="language-plaintext highlighter-rouge">int delectln(void)</code></li>
+  <li><code class="language-plaintext highlighter-rouge">int beep(void)</code></li>
+  <li><code class="language-plaintext highlighter-rouge">int flash(void)</code></li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int erase(void)</code>:清除屏幕，在每个屏幕位置写上空白字符。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int clear(void)</code>:调用erase后，再使用clearok来强制重现屏幕原文。彻底清除整个屏幕。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int clrtobot</code>函数清除当前光标位置直到屏幕结尾的所有内容。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int clrtobot</code>函数清除当前光标位置直到光标所处行位。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int move(int new_y,int new_x)</code>:将逻辑光标的位置移动到指定地点。希望变化立即显现使用<code class="language-plaintext highlighter-rouge">refresh</code>函数。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int leaveok(WINDOW *window_ptr,bool leave_flag)</code>；添加bool标志位，控制在屏幕刷新后curses刷新物理光标所放的位置。默认false，刷新后，硬件光标停留在屏幕上逻辑光标所处的位置。true,硬件光标会被随机地防止在屏幕的任意位置之上。</li>
+</ul>
+
+<p>注意：curses拥有自己的字符类型chtype，比标准char类型包含跟多的二进制。</p>
+
+<h4 id="635-字符属性">6.3.5 字符属性</h4>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">int attron(chtype attribute)</code>：启用指定的属性</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int attroff(chtype attribute)</code>：关闭指定的属性</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int attrset(chtype attribute)</code>:设置curses属性。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int standout(void)</code>:标准的输出</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int standend(void)</code>:标准输出</li>
+</ul>
+
+<h3 id="64-键盘">6.4 键盘</h3>
+
+<p>设置键盘的相关函数</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">int echo(void)</code>：输出。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int noecho(void)</code>：。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int cbreak(void)</code>:</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int raw(void)</code>:</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int noraw(void)</code>:</li>
+</ul>
+
+<h4 id="642-键盘输入">6.4.2 键盘输入</h4>
+
+<p><code class="language-plaintext highlighter-rouge">int getch(void)</code>、<code class="language-plaintext highlighter-rouge">int getstr(char *string)</code>、<code class="language-plaintext highlighter-rouge">int getnstr(char* string,int number_of_characters)</code>、<code class="language-plaintext highlighter-rouge">int scanw(char *format,...)</code>。</p>
+
+<h3 id="65-窗口">6.5 窗口</h3>
+
+<h4 id="651-window窗口">6.5.1 WINDOW窗口</h4>
+
+<p>使用<code class="language-plaintext highlighter-rouge">WINDOW * newwin(int num_of_lines,int num_of_cols,int start_y,int start_x)</code>来出那个键一个新窗口。<code class="language-plaintext highlighter-rouge">int delwin(WINDOW *window_to_delete)</code>删除一个窗口</p>
+
+<p>注意：千万不要尝试删除curses自己的窗口和stdscr和curscr。</p>
+
+<h4 id="653-移动和更新窗口">6.5.3 移动和更新窗口</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;curses.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">mvwin</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">window_to_move</span><span class="p">,</span><span class="kt">int</span> <span class="n">new_y</span><span class="p">,</span><span class="kt">int</span> <span class="n">new_x</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">wrefresh</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">window_ptr</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">wclear</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">window_ptr</span><span class="p">)</span>
+<span class="kt">int</span> <span class="n">werase</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">window_ptr</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">touchwin</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">window_ptr</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">scrollok</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">window_ptr</span><span class="p">,</span><span class="kt">bool</span> <span class="n">scroll_flag</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">scroll</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">window_ptr</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*  As usual let's get our definitions sorted first.  */</span>
+
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;curses.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">WINDOW</span> <span class="o">*</span><span class="n">new_window_ptr</span><span class="p">;</span>
+    <span class="n">WINDOW</span> <span class="o">*</span><span class="n">popup_window_ptr</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">x_loop</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">y_loop</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">a_letter</span> <span class="o">=</span> <span class="sc">'a'</span><span class="p">;</span>
+    <span class="c1">//初始化显示</span>
+
+    <span class="n">initscr</span><span class="p">();</span>
+
+<span class="cm">/*  Then we fill the base window with characters,
+    refreshing the actual screen once the logical screen has been filled:
+
+    move(5, 5);
+    printw("%s", "Testing multiple windows");
+    refresh();
+
+    for (x_loop = 0; x_loop &lt; COLS - 1; x_loop++) {
+        for (y_loop = 0; y_loop &lt; LINES - 1; y_loop++) {
+            mvwaddch(stdscr, y_loop, x_loop, a_letter);
+            a_letter++;
+            if (a_letter &gt; 'z') a_letter = 'a';
+        }
+    }
+
+    refresh();
+    sleep(2);
+*/</span>
+<span class="cm">/*  Now we create a new 10x20 window
+    and add some text to it before drawing it on the screen.  */</span>
+
+    <span class="c1">//创建新窗口</span>
+
+    <span class="n">new_window_ptr</span> <span class="o">=</span> <span class="n">newwin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="c1">//移动窗口并进行写操作</span>
+    <span class="n">mvwprintw</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s">"%s"</span><span class="p">,</span> <span class="s">"Hello World"</span><span class="p">);</span>
+
+    <span class="n">mvwprintw</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s">"%s"</span><span class="p">,</span> <span class="s">"Notice how very long lines wrap inside the window"</span><span class="p">);</span>
+    <span class="c1">//刷新窗口</span>
+
+    <span class="n">wrefresh</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="cm">/*  We now change the contents of the background window and, when we
+refresh the screen, the window pointed to by new_window_ptr is obscured.  */</span>
+
+   <span class="n">a_letter</span> <span class="o">=</span> <span class="sc">'0'</span><span class="p">;</span>
+     <span class="k">for</span> <span class="p">(</span><span class="n">x_loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">x_loop</span> <span class="o">&lt;</span> <span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">x_loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">y_loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">y_loop</span> <span class="o">&lt;</span> <span class="n">LINES</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y_loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">mvwaddch</span><span class="p">(</span><span class="n">stdscr</span><span class="p">,</span> <span class="n">y_loop</span><span class="p">,</span> <span class="n">x_loop</span><span class="p">,</span> <span class="n">a_letter</span><span class="p">);</span>
+            <span class="n">a_letter</span><span class="o">++</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">a_letter</span> <span class="o">&gt;</span> <span class="sc">'9'</span><span class="p">)</span> <span class="n">a_letter</span> <span class="o">=</span> <span class="sc">'0'</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">refresh</span><span class="p">();</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="cm">/*  If we make a call to refresh the new window, nothing will change,
+    because we haven't changed the new window.  */</span>
+
+    <span class="n">wrefresh</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="cm">/*  But if we touch the window first
+    and trick curses into thinking that the window has been changed.
+    The next call to wrefresh will bring the new window to the front again.  */</span>
+
+    <span class="n">touchwin</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">wrefresh</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="cm">/*  Next, we add another overlapping window with a box around it.  */</span>
+
+    <span class="n">popup_window_ptr</span> <span class="o">=</span> <span class="n">newwin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">);</span>
+    <span class="n">box</span><span class="p">(</span><span class="n">popup_window_ptr</span><span class="p">,</span> <span class="sc">'|'</span><span class="p">,</span> <span class="sc">'-'</span><span class="p">);</span>
+    <span class="n">mvwprintw</span><span class="p">(</span><span class="n">popup_window_ptr</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s">"%s"</span><span class="p">,</span> <span class="s">"Pop Up Window!"</span><span class="p">);</span>
+    <span class="n">wrefresh</span><span class="p">(</span><span class="n">popup_window_ptr</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="cm">/*  Then we fiddle with the new and pop-up windows before clearing and deleting them.  */</span>
+
+    <span class="n">touchwin</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">wrefresh</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">wclear</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">wrefresh</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    
+    <span class="n">delwin</span><span class="p">(</span><span class="n">new_window_ptr</span><span class="p">);</span>
+
+    <span class="n">touchwin</span><span class="p">(</span><span class="n">popup_window_ptr</span><span class="p">);</span>
+    <span class="n">wrefresh</span><span class="p">(</span><span class="n">popup_window_ptr</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    
+    <span class="n">delwin</span><span class="p">(</span><span class="n">popup_window_ptr</span><span class="p">);</span>
+    
+    <span class="n">touchwin</span><span class="p">(</span><span class="n">stdscr</span><span class="p">);</span>
+    <span class="n">refresh</span><span class="p">();</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">endwin</span><span class="p">();</span>
+    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h4 id="654-优化屏幕刷新">6.5.4 优化屏幕刷新</h4>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">int wnoutrefresh(WINDOW *window_ptr)</code>：把那些字符发送到屏幕上，实际的发送工作由dpupdate完成</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int doupdate(void)</code>：可以进行相关数据的更新工作。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">WINDOW *subwin(WINDOW *parent,int num_of_lines,int num_of_cols,int start_y,int start_x)</code>：创建子窗口</li>
+</ul>
+
+<h4 id="64-keypad模式">6.4 keypad模式</h4>
+
+<p>使用<code class="language-plaintext highlighter-rouge">int keypad(WINDOW *window_ptr,bool keypad_on)</code>设置keypad_on为true来启用keypad模式。让curses接管按键转义序列的处理工作。读取用户按下的键，还将返回与逻辑按键对应的KEY_定义。</p>
+
+<p>注意：识别escape转义序列的过程是与时间相关的，为了能够区分单独按下Escape按键和一个以Escape字符开头的键盘转义序列。不能处理二义性的escape转义序列。如果终端上两个而不同的按键会产生完全相同的专业序列，curses将不会处理这个转义序列，因为它不知道该返回哪个逻辑按键。</p>
+
+<p>下面是简单的使用示例：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;curses.h&gt;
+</span>
+<span class="cp">#define LOCAL_ESCAPE_KEY    27
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">key</span><span class="p">;</span>
+
+    <span class="n">initscr</span><span class="p">();</span>
+    <span class="n">crmode</span><span class="p">();</span>
+    <span class="n">keypad</span><span class="p">(</span><span class="n">stdscr</span><span class="p">,</span> <span class="n">TRUE</span><span class="p">);</span>
+
+<span class="cm">/*  Next, we must turn echo off
+    to prevent the cursor being moved when some cursor keys are pressed.
+    The screen is cleared and some text displayed.
+    The program waits for each key stroke
+    and, unless it's q, or produces an error, the key is printed.
+    If the key strokes match one of the terminal's keypad sequences, 
+    then that sequence is printed instead.  */</span>
+    <span class="c1">//截断输出</span>
+
+    <span class="n">noecho</span><span class="p">();</span>
+    <span class="c1">//清除</span>
+
+    <span class="n">clear</span><span class="p">();</span>
+    <span class="c1">//移动输出</span>
+
+    <span class="n">mvprintw</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s">"Key pad demonstration. Press 'q' to quit"</span><span class="p">);</span>
+    <span class="n">move</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="c1">//刷新</span>
+
+    <span class="n">refresh</span><span class="p">();</span>
+    <span class="c1">//获取字符</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="n">getch</span><span class="p">();</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">key</span> <span class="o">!=</span> <span class="n">ERR</span> <span class="o">&amp;&amp;</span> <span class="n">key</span> <span class="o">!=</span> <span class="sc">'q'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">move</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+        <span class="n">clrtoeol</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">((</span><span class="n">key</span> <span class="o">&gt;=</span> <span class="sc">'A'</span> <span class="o">&amp;&amp;</span> <span class="n">key</span> <span class="o">&lt;=</span> <span class="sc">'Z'</span><span class="p">)</span> <span class="o">||</span>
+            <span class="p">(</span><span class="n">key</span> <span class="o">&gt;=</span> <span class="sc">'a'</span> <span class="o">&amp;&amp;</span> <span class="n">key</span> <span class="o">&lt;=</span> <span class="sc">'z'</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">printw</span><span class="p">(</span><span class="s">"Key was %c"</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span><span class="p">)</span><span class="n">key</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+            <span class="k">switch</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">case</span> <span class="n">LOCAL_ESCAPE_KEY</span><span class="p">:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="s">"Escape key"</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="k">case</span> <span class="n">KEY_END</span><span class="p">:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="s">"END key"</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="k">case</span> <span class="n">KEY_BEG</span><span class="p">:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="s">"BEGINNING key"</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="k">case</span> <span class="n">KEY_RIGHT</span><span class="p">:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="s">"RIGHT key"</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="k">case</span> <span class="n">KEY_LEFT</span><span class="p">:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="s">"LEFT key"</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="k">case</span> <span class="n">KEY_UP</span><span class="p">:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="s">"UP key"</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="k">case</span> <span class="n">KEY_DOWN</span><span class="p">:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="s">"DOWN key"</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="nl">default:</span> <span class="n">printw</span><span class="p">(</span><span class="s">"Unmatched - %d"</span><span class="p">,</span> <span class="n">key</span><span class="p">);</span> <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span> <span class="cm">/* switch */</span>
+        <span class="p">}</span> <span class="cm">/* else */</span>
+
+        <span class="n">refresh</span><span class="p">();</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">getch</span><span class="p">();</span>
+    <span class="p">}</span> <span class="cm">/* end while */</span>
+
+    <span class="n">endwin</span><span class="p">();</span>
+    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="68-彩色显示">6.8 彩色显示</h3>
+
+<p>使用has_color()和start_color()可以实现对颜色例程的初始化。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;curses.h&gt;
+</span>
+
+<span class="kt">bool</span> <span class="nf">has_colors</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">start_color</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p>在将颜色作为属性使用之前，你必须首先调用<code class="language-plaintext highlighter-rouge">init_pair()</code>函数对准备使用的颜色组合进行初始化。对颜色属性的访问是通过COLOR_PAIR函数来完成的。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;curses.h&gt;
+</span>
+<span class="c1">//定义颜色组合</span>
+
+<span class="kt">int</span> <span class="nf">init_pair</span><span class="p">(</span><span class="kt">short</span> <span class="n">pair_number</span><span class="p">.</span><span class="kt">short</span> <span class="n">foreground</span><span class="p">,</span><span class="kt">short</span> <span class="n">background</span><span class="p">);</span>
+<span class="c1">//</span>
+
+<span class="kt">int</span> <span class="nf">COLOR_PAIT</span><span class="p">(</span><span class="kt">int</span> <span class="n">pair_number</span><span class="p">);</span>
+<span class="c1">//获取已有的颜色组合</span>
+
+<span class="kt">int</span> <span class="nf">pair_content</span><span class="p">(</span><span class="kt">short</span> <span class="n">pair_number</span><span class="p">,</span><span class="kt">short</span> <span class="o">*</span><span class="n">foreground</span><span class="p">,</span><span class="kt">short</span> <span class="o">*</span><span class="n">background</span><span class="p">);</span>
+<span class="c1">//重定义色彩</span>
+
+<span class="kt">int</span> <span class="nf">init_color</span><span class="p">(</span><span class="kt">short</span> <span class="n">color_number</span><span class="p">,</span><span class="kt">short</span> <span class="n">red</span><span class="p">,</span><span class="kt">short</span> <span class="n">green</span><span class="p">,</span><span class="kt">short</span> <span class="n">blue</span><span class="p">);</span> 
+</code></pre></div></div>
+
+<p>颜色的调用示例：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;curses.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="c1">//初始化curses</span>
+
+    <span class="n">initscr</span><span class="p">();</span>
+    <span class="c1">//检查是支持色彩的终端</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">has_colors</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">endwin</span><span class="p">();</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Error - no color support on this terminal</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">//初始化色彩选项</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">start_color</span><span class="p">()</span> <span class="o">!=</span> <span class="n">OK</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">endwin</span><span class="p">();</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Error - could not initialize colors</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="cm">/*  We can now print out the allowed number of colors and color pairs.
+    We create seven color pairs and display them one at a time.  */</span>
+    <span class="c1">//清除屏幕</span>
+
+    <span class="n">clear</span><span class="p">();</span>
+    <span class="c1">//输出文字</span>
+
+    <span class="n">mvprintw</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s">"There are %d COLORS, and %d COLOR_PAIRS available"</span><span class="p">,</span>
+             <span class="n">COLORS</span><span class="p">,</span> <span class="n">COLOR_PAIRS</span><span class="p">);</span>
+    <span class="c1">//进行刷新</span>
+
+    <span class="n">refresh</span><span class="p">();</span>
+    <span class="c1">//初始化颜色</span>
+
+    <span class="n">init_pair</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">COLOR_RED</span><span class="p">,</span> <span class="n">COLOR_BLACK</span><span class="p">);</span>
+    <span class="n">init_pair</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">COLOR_RED</span><span class="p">,</span> <span class="n">COLOR_GREEN</span><span class="p">);</span>
+    <span class="n">init_pair</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">COLOR_GREEN</span><span class="p">,</span> <span class="n">COLOR_RED</span><span class="p">);</span>
+    <span class="n">init_pair</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">COLOR_YELLOW</span><span class="p">,</span> <span class="n">COLOR_BLUE</span><span class="p">);</span>
+    <span class="n">init_pair</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">COLOR_BLACK</span><span class="p">,</span> <span class="n">COLOR_WHITE</span><span class="p">);</span>
+    <span class="n">init_pair</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">COLOR_MAGENTA</span><span class="p">,</span> <span class="n">COLOR_BLUE</span><span class="p">);</span>
+    <span class="n">init_pair</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">COLOR_CYAN</span><span class="p">,</span> <span class="n">COLOR_WHITE</span><span class="p">);</span>
+    <span class="c1">//输出显色字符串</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//开启属性设置</span>
+
+        <span class="n">attroff</span><span class="p">(</span><span class="n">A_BOLD</span><span class="p">);</span>
+        <span class="c1">//设置颜色属性</span>
+
+        <span class="n">attrset</span><span class="p">(</span><span class="n">COLOR_PAIR</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+        <span class="c1">//输出文字</span>
+
+        <span class="n">mvprintw</span><span class="p">(</span><span class="mi">5</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s">"Color pair %d"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+        <span class="c1">//设置属性</span>
+
+        <span class="n">attrset</span><span class="p">(</span><span class="n">COLOR_PAIR</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">|</span> <span class="n">A_BOLD</span><span class="p">);</span>
+        <span class="c1">//输出文字</span>
+
+        <span class="n">mvprintw</span><span class="p">(</span><span class="mi">5</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="s">"Bold color pair %d"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+        <span class="c1">//刷新</span>
+
+        <span class="n">refresh</span><span class="p">();</span>
+        <span class="c1">//睡眠</span>
+
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">endwin</span><span class="p">();</span>
+    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="69-pad">6.9 pad</h3>
+<p>curses提供了特殊的数据结构pad来控制尺寸大于正常窗口的逻辑屏幕。相关接口如下;</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//初始化pad</span>
+
+<span class="n">WINDOW</span> <span class="o">*</span><span class="nf">newpad</span><span class="p">(</span><span class="kt">int</span> <span class="n">number_of_lines</span><span class="p">,</span><span class="kt">int</span> <span class="n">number_of_columns</span><span class="p">);</span>
+<span class="c1">//执行刷新操作。指定放到屏幕上的pad范围和放置在屏幕上的位置。prefresh函数用于完成这一功能。</span>
+
+
+<span class="kt">int</span> <span class="n">prefresh</span><span class="p">(</span><span class="n">WINDOW</span> <span class="o">*</span><span class="n">pad_ptr</span><span class="p">,</span>
+            <span class="kt">int</span> <span class="n">pad_row</span><span class="p">,</span>
+            <span class="kt">int</span> <span class="n">pad_column</span><span class="p">,</span>
+            <span class="kt">int</span> <span class="n">screen_row_min</span><span class="p">,</span><span class="c1">//显示区域的坐标范文</span>
+            <span class="kt">int</span> <span class="n">screen_col_min</span><span class="p">,</span>
+            <span class="kt">int</span> <span class="n">screen_row_max</span><span class="p">,</span>
+            <span class="kt">int</span> <span class="n">screen_col_max</span>
+            <span class="p">)</span>
+</code></pre></div></div>
+<p>pad的简单示例：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;curses.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">WINDOW</span> <span class="o">*</span><span class="n">pad_ptr</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">pad_lines</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">pad_cols</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">disp_char</span><span class="p">;</span>
+
+    <span class="n">initscr</span><span class="p">();</span>
+
+    <span class="n">pad_lines</span> <span class="o">=</span> <span class="n">LINES</span> <span class="o">+</span> <span class="mi">50</span><span class="p">;</span>
+    <span class="n">pad_cols</span> <span class="o">=</span> <span class="n">COLS</span> <span class="o">+</span> <span class="mi">50</span><span class="p">;</span>
+    <span class="c1">//创建pad</span>
+
+    <span class="n">pad_ptr</span> <span class="o">=</span> <span class="n">newpad</span><span class="p">(</span><span class="n">pad_lines</span><span class="p">,</span> <span class="n">pad_cols</span><span class="p">);</span>
+
+    <span class="n">disp_char</span> <span class="o">=</span> <span class="sc">'a'</span><span class="p">;</span>
+    <span class="c1">//在内部添加字符串</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">pad_lines</span><span class="p">;</span> <span class="n">x</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">pad_cols</span><span class="p">;</span> <span class="n">y</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">mvwaddch</span><span class="p">(</span><span class="n">pad_ptr</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">disp_char</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">disp_char</span> <span class="o">==</span> <span class="sc">'z'</span><span class="p">)</span> <span class="n">disp_char</span> <span class="o">=</span> <span class="sc">'a'</span><span class="p">;</span>
+            <span class="k">else</span> <span class="n">disp_char</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="cm">/*  We can now draw different areas of the pad on the screen at different locations before quitting.  */</span>
+    <span class="c1">//更新局部窗口</span>
+    
+    <span class="n">prefresh</span><span class="p">(</span><span class="n">pad_ptr</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="c1">//更新大范围窗口</span>
+
+    <span class="n">prefresh</span><span class="p">(</span><span class="n">pad_ptr</span><span class="p">,</span> <span class="n">LINES</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">COLS</span> <span class="o">+</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">19</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="n">delwin</span><span class="p">(</span><span class="n">pad_ptr</span><span class="p">);</span>
+
+    <span class="n">endwin</span><span class="p">();</span>
+    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="第七章-数据管理">第七章 数据管理</h2>
+
+<p>本章中的主要内容</p>
+<ul>
+  <li>动态内存管理：可以做什么以及Linux不允许做什么。</li>
+  <li>文件锁定：协调锁、共享文件的锁定区域和避免死锁。</li>
+  <li>dbm数据库：一个大多数linux系统都提供的、基本的、不基于SQL的数据库函数库。</li>
+</ul>
+
+<h3 id="71">7.1</h3>
+
+<p>linux中的内存管理中一般情况下是265M的堆栈大小。linux中可以使用标准的c语言接口进行内存分配。注意当linux中的内存耗尽的时候，会linux内核会使用交换空间(独立的磁盘空间)。内核会在物理内存和交换空间之间移动数据和程序代码。
+每个Linux系统中运行的程序都只能看到属于自己的内存映像，不同的程序看到的内存映像不同。只有操作系统知道物理内存是如何安排的。</p>
+
+<p>Linux可以允许输出空指针，但是不允许空指针写入内存。</p>
+
+<p><strong>linux中一旦程序调用free释放了一块内存，它就不再属于这个进程。它将由malloc函数库负责管理。在对一块内存调用free之后，就绝不能再对其进行读写操作了</strong></p>
+
+<p>其它内存释放函数：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">void *calloc(size_t number_of_elements,size_t element_size);</code>:结构数组分配内存，需要元素个数和每个元素的大小作为其参数。并且分配的内存全部初始化为0.返回数组中第一个元素的指针。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">void *realloc(void *existing_memory,size_t new_size);</code>:释放内存。</li>
+</ul>
+
+<h3 id="72-文件锁定">7.2 文件锁定</h3>
+
+<p>文件锁与线程锁类似，都是使用锁来进行的。可以使用原子文件锁，来直接锁定文件，也可以只锁定文件的一部分，从而可以独享对这一部分内容的访问。</p>
+
+<p>创建文件锁后，通常被放在一个特定的位置，linux中通常会在/var/spool目录中创建一个文件。
+注意：<strong>文件锁只是建议锁，不是强制锁</strong></p>
+
+<p>可以贼打开文件时使用锁，想干参数在<code class="language-plaintext highlighter-rouge">fcnt.h</code>中，在此不做过多叙述。第三章中函数有详细叙述。</p>
+
+<p>文件读取使用fread时，将整个文件都读取到了内存中，再传递给程序，文件内容中未被锁定的部分。当其它部分被更改后，内容锁消失；但是因为程序获取的还是fread上次读取的内容，因此会产生数据的错误。可以使用<code class="language-plaintext highlighter-rouge">read()</code>和<code class="language-plaintext highlighter-rouge">write()</code>读取部分内容，避免这个问题的发生。</p>
+
+<p>下面是一个简单的读写锁示例</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;fcntl.h&gt;
+</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">test_file</span> <span class="o">=</span> <span class="s">"/tmp/test_lock"</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">file_desc</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">byte_count</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">byte_to_write</span> <span class="o">=</span> <span class="s">"A"</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">flock</span> <span class="n">region_1</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">flock</span> <span class="n">region_2</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">res</span><span class="p">;</span>
+
+        <span class="cm">/* open a file descriptor */</span>
+
+    <span class="n">file_desc</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">test_file</span><span class="p">,</span> <span class="n">O_RDWR</span> <span class="o">|</span> <span class="n">O_CREAT</span><span class="p">,</span> <span class="mo">0666</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">file_desc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Unable to open %s for read/write</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">test_file</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+
+        <span class="cm">/* put some data in the file */</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">byte_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">byte_count</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="n">byte_count</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">write</span><span class="p">(</span><span class="n">file_desc</span><span class="p">,</span> <span class="n">byte_to_write</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+        <span class="cm">/* setup region 1, a shared lock, from bytes 10 -&gt; 30 */</span>
+
+    <span class="n">region_1</span><span class="p">.</span><span class="n">l_type</span> <span class="o">=</span> <span class="n">F_RDLCK</span><span class="p">;</span>
+    <span class="n">region_1</span><span class="p">.</span><span class="n">l_whence</span> <span class="o">=</span> <span class="n">SEEK_SET</span><span class="p">;</span>
+    <span class="n">region_1</span><span class="p">.</span><span class="n">l_start</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="n">region_1</span><span class="p">.</span><span class="n">l_len</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span> 
+    
+        <span class="cm">/* setup region 2, an exclusive lock, from bytes 40 -&gt; 50 */</span>
+
+    <span class="n">region_2</span><span class="p">.</span><span class="n">l_type</span> <span class="o">=</span> <span class="n">F_WRLCK</span><span class="p">;</span>
+    <span class="n">region_2</span><span class="p">.</span><span class="n">l_whence</span> <span class="o">=</span> <span class="n">SEEK_SET</span><span class="p">;</span>
+    <span class="n">region_2</span><span class="p">.</span><span class="n">l_start</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
+    <span class="n">region_2</span><span class="p">.</span><span class="n">l_len</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+        <span class="cm">/* now lock the file */</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Process %d locking file</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">getpid</span><span class="p">());</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">file_desc</span><span class="p">,</span> <span class="n">F_SETLK</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">region_1</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Failed to lock region 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">file_desc</span><span class="p">,</span> <span class="n">F_SETLK</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">region_2</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Failed to lock region 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>    
+
+        <span class="cm">/* and wait for a while */</span>
+        
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Process %d closing file</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">getpid</span><span class="p">());</span>    
+    <span class="n">close</span><span class="p">(</span><span class="n">file_desc</span><span class="p">);</span>
+    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>下图显示了当程序开始等待时文件锁定的状态</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-11-22-05-31.png" alt="文件锁定状态"></p>
+
+<h4 id="725-其它锁命令">7.2.5 其它锁命令</h4>
+
+<p>使用lockf函数。通过文件描述符进行操作</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">lockf</span><span class="p">(</span><span class="kt">int</span> <span class="n">filds</span><span class="p">,</span><span class="kt">int</span> <span class="n">function</span> <span class="p">,</span><span class="kt">off_t</span> <span class="n">size_to_lock</span><span class="p">);</span>
+</code></pre></div></div>
+<p>function参数取值如下：</p>
+
+<ul>
+  <li>F_ULOCK:解锁</li>
+  <li>F_LOCK:设置独占锁</li>
+  <li>F_TLOCK:测试并设置独占锁</li>
+  <li>F_TEST:特使其它进程设置的锁</li>
+</ul>
+
+<p>size_to_clock参数是操作的字节数，它从文件的当前偏移值开始计算。</p>
+
+<h3 id="73-数据库">7.3 数据库</h3>
+
+<h4 id="731-abm数据库">7.3.1 abm数据库</h4>
+
+<p>这里主要介绍dbm数据库，这个是linux中数据库自带的基本的版本。其基本文件包含在<code class="language-plaintext highlighter-rouge">ndbm.h</code>中可以使用<code class="language-plaintext highlighter-rouge">-I/usr/include/gdbm -lgdbm</code>参数进行链接。</p>
+
+<h4 id="733-dbm访问函数">7.3.3 dbm访问函数</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;ndbm.h&gt;
+</span><span class="c1">//打开数据库</span>
+
+<span class="n">DBM</span> <span class="o">*</span><span class="nf">dbm_open</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">filename</span><span class="p">,</span><span class="kt">int</span> <span class="n">file_open_flags</span><span class="p">,</span><span class="n">mode_t</span> <span class="n">file_mode</span><span class="p">);</span>
+<span class="c1">//存储数据库</span>
+
+<span class="kt">int</span> <span class="nf">dbm_store</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">,</span><span class="n">datum</span> <span class="n">key</span><span class="p">,</span> <span class="n">datum</span> <span class="n">content</span> <span class="p">,</span><span class="kt">int</span> <span class="n">store_mode</span> <span class="p">);</span>
+<span class="c1">//数据库查询函数</span>
+
+<span class="n">datum</span> <span class="nf">dbm_fetch</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">,</span><span class="n">datum</span> <span class="n">key</span><span class="p">);</span>
+<span class="c1">//关闭数据库</span>
+
+<span class="n">datum</span> <span class="nf">dbm_close</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">);</span>
+</code></pre></div></div>
+<p>其它操作函数</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//删除数据库</span>
+
+<span class="kt">int</span> <span class="nf">dbm_delete</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">,</span><span class="n">datum</span> <span class="n">key</span><span class="p">);</span>
+<span class="c1">//测试数据库错误</span>
+
+<span class="kt">int</span> <span class="nf">dbm_error</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">);</span>
+<span class="c1">//清除数据库中所有以被置位的错误条件标志</span>
+
+<span class="kt">int</span> <span class="nf">dbm_clearerr</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">);</span>
+<span class="c1">//获取第一个关键数据</span>
+<span class="kt">int</span> <span class="nf">dbm_firstkey</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">);</span>
+<span class="c1">//获取第二个关键数据</span>
+
+<span class="kt">int</span> <span class="nf">dbm_nextkey</span><span class="p">(</span><span class="n">DBM</span> <span class="o">*</span><span class="n">database_descriptor</span><span class="p">);</span>
+
+</code></pre></div></div>
+<h2 id="第-八-章-mysql">第 八 章 MySQL</h2>
+
+<h3 id="mysql安装">MySQL安装</h3>
+
+<p>参考连接:</p>
+<ul>
+  <li><a href="https://www.jianshu.com/p/3111290b87f4">Ubuntu 16.04 mysql安装配置</a></li>
+  <li><a href="https://blog.csdn.net/weixx3/article/details/80782479">Ubuntu18.04 安装MySQL</a></li>
+</ul>
+
+<p>可以从官网下载，也可以直接使用<code class="language-plaintext highlighter-rouge">sudo apt-get install mysql-server</code>进行安装。</p>
+
+<p>安装完成后使用<code class="language-plaintext highlighter-rouge">sudo mysql_secure_installation</code>命令进行初始化设置。</p>
+
+<p>再使用<code class="language-plaintext highlighter-rouge">sudo mysql -uroot -p</code>进行登录。<code class="language-plaintext highlighter-rouge">use database</code>使用数据库。</p>
+
+<p>具体的请参考mysql对应文章。</p>
+
+<h3 id="83-使用c语言访问mysql">8.3 使用c语言访问mysql</h3>
+
+<p>使用样例：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include "mysql.h"
+</span>
+<span class="n">MYSQL</span> <span class="n">my_connection</span><span class="p">;</span>
+<span class="n">MYSQL_RES</span> <span class="o">*</span><span class="n">res_ptr</span><span class="p">;</span>
+<span class="n">MYSQL_ROW</span> <span class="n">sqlrow</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+   <span class="kt">int</span> <span class="n">res</span><span class="p">;</span>
+
+   <span class="n">mysql_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">);</span>  
+   <span class="k">if</span> <span class="p">(</span><span class="n">mysql_real_connect</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">,</span> <span class="s">"localhost"</span><span class="p">,</span> <span class="s">"rick"</span><span class="p">,</span> 
+                                              <span class="s">"secret"</span><span class="p">,</span> <span class="s">"foo"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+   <span class="n">printf</span><span class="p">(</span><span class="s">"Connection success</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+   
+   <span class="n">res</span> <span class="o">=</span> <span class="n">mysql_query</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">,</span> <span class="s">"SELECT childno, fname, age FROM children WHERE age &gt; 5"</span><span class="p">);</span>
+
+   <span class="k">if</span> <span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s">"SELECT error: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mysql_error</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">));</span>
+   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">res_ptr</span> <span class="o">=</span> <span class="n">mysql_store_result</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">res_ptr</span><span class="p">)</span> <span class="p">{</span>
+       <span class="n">printf</span><span class="p">(</span><span class="s">"Retrieved %lu rows</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">mysql_num_rows</span><span class="p">(</span><span class="n">res_ptr</span><span class="p">));</span>
+       <span class="k">while</span> <span class="p">((</span><span class="n">sqlrow</span> <span class="o">=</span> <span class="n">mysql_fetch_row</span><span class="p">(</span><span class="n">res_ptr</span><span class="p">)))</span> <span class="p">{</span>
+         <span class="n">printf</span><span class="p">(</span><span class="s">"Fetched data...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+       <span class="p">}</span>
+       <span class="k">if</span> <span class="p">(</span><span class="n">mysql_errno</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">))</span> <span class="p">{</span>
+         <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Retrive error: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mysql_error</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">));</span> 
+       <span class="p">}</span>
+       <span class="n">mysql_free_result</span><span class="p">(</span><span class="n">res_ptr</span><span class="p">);</span>
+      <span class="p">}</span>
+
+   <span class="p">}</span>
+   <span class="n">mysql_close</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">);</span>
+
+   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Connection failed</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">mysql_errno</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">))</span> <span class="p">{</span>
+         <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Connection error %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+                  <span class="n">mysql_errno</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">),</span> <span class="n">mysql_error</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_connection</span><span class="p">));</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+
+   <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="第-9-章-开发工具">第 9 章 开发工具</h2>
+
+<h3 id="92-make命令和makefile">9.2 make命令和makefile</h3>
+
+<p>make 选项参数：</p>
+
+<ul>
+  <li>-k:make发生错误时仍然继续执行。</li>
+  <li>-n:即刻输出将要执行的操作而不进行执行。</li>
+  <li>-f:使用那个文件作为makefile文件。</li>
+</ul>
+
+<p>具体参看makefile相关文章</p>
+
+<ul>
+  <li><a href="https://wangpengcheng.github.io/2019/07/06/write_makefile_with_me/">跟我一起写makefile</a></li>
+</ul>
+
+<h3 id="93-源代码控制">9.3 源代码控制</h3>
+
+<ul>
+  <li>SCCS:源代码控制系统。</li>
+  <li>RCS：版本控制系统。</li>
+  <li>CVS：并发版本控制系统。</li>
+</ul>
+
+<h2 id="第-10-章-调试">第 10 章 调试</h2>
+
+<h3 id="101-错误类型">10.1 错误类型</h3>
+
+<ul>
+  <li>功能定义错误:程序的功能被错误的定义了。</li>
+  <li>设计规划错误：程序设计需要多花时间进行思考。</li>
+  <li>代码编写错误：代码编写过程中的错误。</li>
+</ul>
+
+<h3 id="102-常用调试技巧">10.2 常用调试技巧</h3>
+
+<ul>
+  <li>测试：找出程序中存在的缺陷或者错误</li>
+  <li>固化：让程序的错误可重现</li>
+  <li>定位：确定相关的代码行</li>
+  <li>纠正：修改代码纠正错误</li>
+  <li>验证：确定修改解决了问题。</li>
+</ul>
+
+<h3 id="103-使用gdb进行调试">10.3 使用gdb进行调试</h3>
+
+<p>参考链接:</p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/horotororensu/article/details/82256832">Linux环境下的GDB调试方法</a></li>
+  <li><a href="https://www.cnblogs.com/chenmingjun/p/8280889.html">Linux下gdb的安装及使用入门</a></li>
+</ul>
+
+<p>重要指令和相关操作</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">gdb project_name (-tui)</code>:启动gdb(gui形式)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">help</code>:显示帮助信息</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">run</code>:程序开始运行。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">backtrace</code>:栈跟踪。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">print value_name</code>:输出变量的值。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">list</code>:列出源代码</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">breakpoint</code>:设置断点。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">display array[0]@5</code>,显示连续的数据项。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">info display</code>：获取显示信息。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">info break</code>:显示断点信息。</li>
+</ul>
+
+<h3 id="104-其它调试工具">10.4 其它调试工具</h3>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">splint</code>:工具可以提供有用的代码审查注释。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ctags</code>：为程序中的所有函数创建索引。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cxref</code>：分析c语言源代码并生成一个交叉引用表。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cflow</code>：打印出一个函数调用树。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">prof/gprof</code>产生执行存档</li>
+</ul>
+
+<p>使用<code class="language-plaintext highlighter-rouge">assert(int expression)</code>对表达式进行求值，如果结果非零，就向标准错误写一些诊断信息，然后调用abort函数结束程序的运行。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;assert.h&gt;
+</span>
+<span class="kt">void</span> <span class="nf">assert</span><span class="p">(</span><span class="kt">int</span> <span class="n">expression</span><span class="p">);</span>
+</code></pre></div></div>
+<p><strong>注意：assert中的宏受NDEBUG的影响，存在这个宏定义时会关闭断言功能</strong></p>
+
+<h3 id="106-内存调试">10.6 内存调试</h3>
+
+<p>在一个已经分配的内存块的尾部的后面(或者在它头部的前面)写数据，就可能会破坏malloc库用于记录内存分配情况的数据结构。</p>
+
+<p>使用ElectricFence函数库可以使用Linux的虚拟内存保护机制来保护malloc和free所使用的内存。</p>
+
+<h3 id="1062-valgrind">10.6.2 valgrind</h3>
+
+<p>这个是一个工具，有能力检测出前面讨论中的很多问题。</p>
+
+<h2 id="第-11-章-进程和信号">第 11 章 进程和信号</h2>
+
+<p>进程：一个其中运行着一个或者多个线程的地址空间和这些线程所需要的系统资源。进程是操作系统进行资源分配的最小单元。</p>
+
+<p>两个用户同时运行相同程序的进程资源分布图</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-18-44-44.png" alt="两个用户同时运行相同程序"></p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">ps -ef</code>指令进行进程表的查询。</p>
+
+<p>使用<code class="language-plaintext highlighter-rouge">ps ax</code>进行现在运行进程的状态查询。</p>
+
+<p>下面是stat状态码</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-18-56-40.png" alt="stat状态码"></p>
+
+<p>在Linux中执行期短的突发性任务比持续占用处理器来进行计算或者不断轮训系统来查看是否有新的输入达到的程序要更好。这个是是进程优先级的重要因素。称为nice,一个进程的nice值默认为0并将根据这个程序的表现而不断变化。长期不剪短运行的程序的优先级一般会比较低。这样可以帮助与用户进行呼叫的程序保持及时的响应。</p>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">ps -l</code>查看linux进程中的nice值。</p>
+
+<h3 id="113-启动新进程">11.3 启动新进程</h3>
+
+<h4 id="1131-替换进程映像">11.3.1 替换进程映像</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">system</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">string</span><span class="p">);</span>
+</code></pre></div></div>
+<p>system运行以字符串参数的形式传递给它的命令，并等待命令的完成。命令的执行情况就如同下面的情况<code class="language-plaintext highlighter-rouge">sh -c string</code>。</p>
+
+<p>注意：这里system函数并不是启动气他进程的理想手段，应为它必须用一个shell来启动需要的程序。</p>
+
+<p>可以优先使用<code class="language-plaintext highlighter-rouge">exec</code>系列函数。</p>
+
+<p>exec函数可以把当前进程替换为一个新进程，新进程由path或者file参数指定。可以使用exec函数将程序的执行从一个程序切换到另外一个程序。exec函数比system函数更有效，因为在新的程序启动后，原来的程序就不再运行了。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span><span class="kt">char</span> <span class="o">**</span><span class="n">environ</span><span class="p">;</span>
+<span class="c1">//参数可变函数</span>
+
+<span class="kt">int</span> <span class="nf">execl</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arg0</span><span class="p">,...,(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">execlp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">file</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arg0</span><span class="p">,...,(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">execle</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="k">const</span> <span class="n">chat</span> <span class="o">*</span><span class="n">arg0</span><span class="p">,...,(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="k">const</span> <span class="n">envp</span><span class="p">[]);</span>
+<span class="c1">//参数不可变函数。</span>
+
+<span class="kt">int</span> <span class="nf">execv</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="k">const</span> <span class="n">argv</span><span class="p">[]);</span>
+<span class="kt">int</span> <span class="nf">execvp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">file</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="k">const</span> <span class="n">argv</span><span class="p">[]);</span>
+<span class="kt">int</span> <span class="nf">execve</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="k">const</span> <span class="n">argv</span><span class="p">[],</span><span class="kt">char</span> <span class="o">*</span><span class="k">const</span> <span class="n">envp</span><span class="p">[]);</span>
+</code></pre></div></div>
+
+<p>注意：使用exec函数相当于直接进行了进程的切换，因此在exec函数之后的都不会进行。</p>
+
+<h4 id="1132-复制进程映像">11.3.2 复制进程映像</h4>
+
+<p>可以使用线程或者从源程序中创建一个全分离的进程，后者就想init的做法一样，而不想exec调用那样用新程序替换当前执行的线程。可以使用fork创建一个新进程。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/type.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="n">pid_t</span> <span class="nf">fork</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-19-46-39.png" alt="fork函数的使用示意图"></p>
+
+<p>一个简单的fork示例：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="cp">#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include &lt;stdlib.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">pid_t</span> <span class="n">pid</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">message</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"fork pogram starting</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">pid</span><span class="o">=</span><span class="n">fork</span><span class="p">();</span>
+    <span class="n">switcg</span><span class="p">(</span><span class="n">pid</span><span class="p">){</span>
+        <span class="k">case</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"fork failed"</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">message</span><span class="o">=</span><span class="s">"This is the child"</span><span class="p">;</span>
+            <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="nl">default:</span>
+            <span class="n">message</span><span class="o">=</span><span class="s">"This is the parent"</span><span class="p">;</span>
+            <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">for</span><span class="p">(;</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">;</span><span class="o">--</span><span class="n">n</span><span class="p">){</span>
+        <span class="n">puts</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>子进程被创建并且输出消息5次。原进程(即父进程)，只输出消息3次。具体结果如下</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fork program starting
+This is the parent
+This is the child
+This is the parent
+This is the child
+This is the parent
+This is the child
+This is the child
+This is the child
+</code></pre></div></div>
+
+<h4 id="等待一个进程">等待一个进程</h4>
+
+<p>当使用fork启动以这个子进程时，子进程就有了它自己的声明周期并将独立运行。可以在父进程中调用<code class="language-plaintext highlighter-rouge">wait()</code>函数让父进程等待子进程的结束。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;sys/wait.h&gt;
+</span>
+<span class="n">pid_t</span> <span class="nf">wait</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">stat_loc</span><span class="p">);</span>
+<span class="c1">//等待特定进程</span>
+<span class="n">pid_t</span> <span class="nf">waitpid</span><span class="p">(</span><span class="n">pid_t</span> <span class="n">pid</span><span class="p">,</span><span class="kt">int</span> <span class="o">*</span><span class="n">stat_loc</span><span class="p">,</span><span class="kt">int</span> <span class="n">options</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>wait系统调用将暂停父进程直到它的子进程结束为止，这个调用返回子进程的PID。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-20-19-14.png" alt="wait信号处理"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+if(pid!=0){
+    int stat_val;
+    pid_t child_pid;
+    child_pid=wait(&amp;stat_val);
+    printf("child has finished:PID =%d\n",childe_pid);
+    if(WIFEXITED(stat_val))
+        printf("Child exited with code %d\n",WEXITSTATUS(stat_val));
+    else
+        printf("Childe terminated abnormally \n");
+}
+</code></pre></div></div>
+
+<h4 id="僵尸进程">僵尸进程</h4>
+
+<p>当子进程终结时，它与父进程之间的关联还会保持，直到父进程也正常终止或者父进程调用wait才结束，在这段时间内，虽然子进程已经不再运行，但它仍然存在于系统中，因为它的退出码还需要保存起来，以备父进程今后的wait调用使用。这时称其为一个死(defunct)进程或者僵尸进程。</p>
+
+<h4 id="1134-线程">11.3.4 线程</h4>
+
+<p>线程可以共享内存段。但从本质上来说，它们是操作系统内各自独立的实体。</p>
+
+<h3 id="114-信号">11.4 信号</h3>
+
+<p>linux中由(raise)表示一个信号的产生，使用术语(catch)表示接收到一个信号。信号的名称在头文件<code class="language-plaintext highlighter-rouge">signal.h</code>中定义的。它们以SIG开头</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-20-38-49.png" alt="相关操作的实现"></p>
+
+<p>如果进程接收到这些信号中的一个，但事先没有安排捕获它，进程将会立刻终止。<strong>系统将生成核心转储存文件core</strong>,并将其放在当前目录下。该文件是进程在内存中的映像，它对程序的调试很有用处。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-20-41-32.png" alt="其它信号"></p>
+
+<p>相关函数</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;signal.h&gt;
+</span>
+<span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">signal</span><span class="p">(</span><span class="kt">int</span> <span class="n">sig</span><span class="p">,</span> <span class="kt">void</span><span class="p">((</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">int</span><span class="p">))))(</span><span class="kt">int</span><span class="p">);</span>
+</code></pre></div></div>
+<p>注意:这里并不推荐使用<code class="language-plaintext highlighter-rouge">signal()</code>接口，建议使用<code class="language-plaintext highlighter-rouge">sigaction()</code>函数。</p>
+
+<h4 id="1141-发送信号">11.4.1 发送信号</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/types.h&gt;
+</span>
+<span class="cp">#include &lt;signal.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">kill</span><span class="p">(</span><span class="n">pid_t</span> <span class="n">pid</span><span class="p">,</span><span class="kt">int</span> <span class="n">sig</span><span class="p">);</span>
+
+<span class="c1">//使用闹钟设置指定时间后运行</span>
+<span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">alarm</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">seconds</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p>kill函数将参数sig给定的信号发送给由参数pid给出的进程号所指定的进程，成功时返回0。错误时返回-1并设置errno变量。其类型如下：</p>
+
+<ul>
+  <li>EINVAL:给定的信号无效。</li>
+  <li>EPERM:发送进程权限不够。</li>
+  <li>ESRCH:目标进程不存在。</li>
+</ul>
+
+<p>信号接受使用pause(),将一个程序的执行挂起直到有一个信号出现位置。当程序接收到一个信号时，预先设置好的信号处理函数将开始运行。程序也将恢复正常的执行。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;unistd.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">pause</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><strong>一个简装的信号接口</strong></p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;signal.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">sigaction</span><span class="p">(</span><span class="kt">int</span> <span class="n">sig</span><span class="p">,</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sigaction</span> <span class="o">*</span><span class="n">act</span><span class="p">,</span><span class="k">struct</span> <span class="n">sigaction</span> <span class="o">*</span><span class="n">oact</span><span class="p">);</span>
+</code></pre></div></div>
+<p>sigaction结构定义在接收到参数sig指定的信号后应该采取的行动。该结构至少应该包括以下几个成员：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">sa_handler</span>  <span class="c1">//函数指针</span>
+<span class="n">sigset_t</span> <span class="n">sa_mask</span> <span class="c1">//指定了信号集</span>
+<span class="kt">int</span> <span class="n">sa_flags</span> <span class="c1">//对信号处理重置的效果，必须在sa_flags成员中包含值SA_RESETHAND</span>
+</code></pre></div></div>
+
+<h4 id="1142-信号集">11.4.2 信号集</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;signal.h&gt;
+</span>
+<span class="c1">//将信号集中添加信号</span>
+
+<span class="kt">int</span> <span class="nf">sigaddset</span><span class="p">(</span><span class="n">sigset_t</span> <span class="o">*</span><span class="n">set</span><span class="p">,</span><span class="kt">int</span> <span class="n">signo</span><span class="p">);</span>
+<span class="c1">//将信号集初始化为空</span>
+
+<span class="kt">int</span> <span class="nf">sigemptyset</span><span class="p">(</span><span class="n">sigset_t</span> <span class="o">*</span><span class="n">set</span><span class="p">);</span>
+<span class="c1">//sigfillset将信号集初始化为包含所有已定义的信号。</span>
+
+<span class="kt">int</span> <span class="nf">sigfillset</span><span class="p">(</span><span class="n">sigset_t</span> <span class="o">*</span><span class="n">set</span><span class="p">);</span>
+<span class="c1">//从信号集中删除信号</span>
+
+<span class="kt">int</span> <span class="nf">sigdelset</span><span class="p">(</span><span class="n">sigset_t</span> <span class="o">*</span><span class="n">set</span><span class="p">,</span><span class="kt">int</span> <span class="n">signo</span><span class="p">);</span>
+<span class="c1">//判断一个给定的信号是否是一个信号集的成员。如果是就返回1，不是返回0，信号无效就返回-1并设置errno</span>
+<span class="kt">int</span> <span class="nf">sigismember</span><span class="p">(</span><span class="n">sigset_t</span> <span class="o">*</span><span class="n">set</span><span class="p">,</span><span class="kt">int</span> <span class="n">signo</span><span class="p">);</span>
+<span class="c1">//信号屏蔽字的设置和检查</span>
+
+<span class="kt">int</span> <span class="nf">sigprocmask</span><span class="p">(</span><span class="kt">int</span> <span class="n">how</span><span class="p">,</span><span class="k">const</span> <span class="n">sigset_t</span> <span class="o">*</span><span class="n">set</span><span class="p">,</span><span class="n">sigset_t</span> <span class="o">*</span><span class="n">oset</span><span class="p">);</span>
+<span class="c1">//将被阻塞的信号中停留在待处理状态的一组信号写到参数set指向的信号集合中。进程挂起自己的执行，直到信号集中的一个信号到达为止。</span>
+
+<span class="kt">int</span> <span class="nf">sigpending</span><span class="p">(</span><span class="n">sigset_t</span> <span class="o">*</span><span class="n">set</span><span class="p">);</span>
+<span class="c1">//将进程的屏蔽字替换为由参数sigmask给出的信号集，然后挂起程序的执行。</span>
+
+<span class="kt">int</span> <span class="nf">sigsuspend</span><span class="p">(</span><span class="k">const</span> <span class="n">sigset_t</span> <span class="o">*</span><span class="n">sigmask</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<p>sigprocmask中how的取值如下</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-21-14-51.png" alt="sigprocmask中how的取值"></p>
+
+<p><strong>sigaction标志</strong></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-21-23-13.png" alt="sigaction标志"></p>
+
+<p><strong>Linux常用信号参考</strong></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-21-24-33.png" alt="linux常用信号参考"></p>
+
+<p>引起信号异常终止信号：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-21-25-37.png" alt="引起信号异常终止信号"></p>
+
+<p>接收之后挂起的信号</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-21-26-43.png" alt="接收之后挂起的信号"></p>
+
+<p>下面信号是重启被暂停的进程</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-09-18-21-27-46.png" alt="重启被暂停的进程"></p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/08/13/tensorrt_learning_note/" data-toggle="tooltip" data-placement="top" title="TensorRT 学习笔记">
+                        Previous<br>
+                        <span>TensorRT 学习笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/09/03/add_by_char/" data-toggle="tooltip" data-placement="top" title="字符串实现加法和乘法">
+                        Next<br>
+                        <span>字符串实现加法和乘法</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

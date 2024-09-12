@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>UNIX网络编程 学习笔记 (三) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/12/01/unix_network_programming_03/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#UNIX" title="UNIX">UNIX</a>
+                        
+                        <a class="tag" href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程">网络编程</a>
+                        
+                    </div>
+                    <h1>UNIX网络编程 学习笔记 (三)</h1>
+                    
+                    
+                    <h2 class="subheading">UNIX网络编程 学习笔记 (三)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on December 1, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="unix网络编程-学习笔记">UNIX网络编程 学习笔记</h1>
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/zzxiaozhao/article/details/102637708">《Unix网络编程》卷1 初级</a></li>
+  <li><a href="https://blog.csdn.net/zzxiaozhao/article/details/102662861">《Unix网络编程》卷1 中级</a></li>
+  <li><a href="https://zevvez.github.io/2017/12/13/unp/#%E7%AC%AC%E4%B8%80%E7%AB%A0-%E7%AE%80%E4%BB%8B">《UNIX网络编程卷一》读书笔记</a></li>
+</ul>
+
+<blockquote>
+  <p>2019-12-01 22:10:53</p>
+</blockquote>
+
+<h2 id="第-9-章-基本sctp套接字编程">第 9 章 基本SCTP套接字编程</h2>
+
+<p>略</p>
+
+<h2 id="第-10-章-sctp客户服务器程序例子">第 10 章 SCTP客户/服务器程序例子</h2>
+
+<p>略</p>
+
+<h3 id="第-11-章-名字与地址转换dns">第 11 章 名字与地址转换(DNS)</h3>
+
+<p>域名系统(Domain Name System, DNS):主要用于主机名字和IP地址之间的映射。主要使用<code class="language-plaintext highlighter-rouge">gethostbyname</code>和<code class="language-plaintext highlighter-rouge">gethostbyaddr</code>在主句名字与IPv4地址之间进行转换。<code class="language-plaintext highlighter-rouge">getservbyname</code>和<code class="language-plaintext highlighter-rouge">getservbyport</code>在服务器名字和端口号之间进行转换。</p>
+
+<p>DNS中的条目称为资源记录(resource record)；相关的资源记录方式如下：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">A</code>记录: 把一个主机名映射为一个32位IPv4地址</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">AAAA</code>记录: 把一个主机名映射为一个128位IPv6地址</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">PTR</code>记录: 称为指针记录(pointer record)把IP地址映射为主机名
+    <ul>
+      <li>对于IPv4,将32位地址的4个字节先反转顺序,每个字节都转为换各自的十进制ASCII值后,在添加in-addr.arpa,结果字符串用于PTR查询</li>
+      <li>对于IPv6, 128位地址的32个四位组先反转顺序,每个四位组都转换成相应的十六进制的ASCII值后在添加ip6.arpa</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">MX</code>记录: 把一个主机指定作为给定主机的“邮件交换器”</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">CNAME</code>: 代表”canonical name”(规范名字),常见的用法是为常用的服务指派CNAME记录</li>
+</ul>
+
+<h4 id="1122-解析器resolver和名字服务器name-server">11.2.2 解析器(resolver)和名字服务器(name server)</h4>
+
+<ul>
+  <li>应用程序通过调用解析器函数库中的函数(gethostbyname,gethostbyaddr)接触DNS服务器。</li>
+  <li>解析器函数库中的代码通过读取系统相关配置文件(/etc/resolv.conf)确定本地name server的地址。</li>
+  <li>解析器使用UDP向本地name server发出查询，如果本地name server不知道答案，解析器就会使用UDP向整个因特网查询其他的名字服务器；如果答案太长超过了UDP的承载能力，自动切换到TCP。</li>
+  <li>resolver可以看成DNS的客户端；nameserver可以看成DNS的服务器。</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-02-10-03-17.png" alt="客户、解析其和名字服务器的典型关系"></p>
+
+<p>解析器使用UDP向本地名字服务器发出查询，如果本地查找不到，就会使用UDP在整个Internet网上查询其他域名服务器。如果答案太长，超出了UDP的消息的承载能力，本地名字服务器和解析器会自动切换到TCP</p>
+
+<h4 id="1123-dns-替代方法">11.2.3 DNS 替代方法</h4>
+
+<ul>
+  <li>静态主机文件(/etc/hosts)</li>
+  <li>网络信息系统(NIS)</li>
+  <li>轻量级目录访问协议(LDAP)</li>
+</ul>
+
+<h3 id="113-gethostbyname-函数">11.3 gethostbyname 函数</h3>
+
+<p>这个函数只能返回IPv4地址，在新的程序中应该使用getaddrinfo；</p>
+<ul>
+  <li>函数定义: <code class="language-plaintext highlighter-rouge">struct hostent * gethostbyname(const char * hostname);</code>
+</li>
+  <li>返回：成功则返回非空指针, 失败则NULL且设置h_errno</li>
+  <li>注意此函数失败之后并不会设置errno变量,而是将全局整数变量h_errno设置为在头文件<netdb.h>中定义的常值之一:
+</netdb.h>    <ul>
+      <li><code class="language-plaintext highlighter-rouge">HOST_NOT_FOUND</code></li>
+      <li><code class="language-plaintext highlighter-rouge">TRY_AGAIN</code></li>
+      <li><code class="language-plaintext highlighter-rouge">NO_RECOVERY</code></li>
+      <li>
+<code class="language-plaintext highlighter-rouge">NO_DATA</code>(等同于<code class="language-plaintext highlighter-rouge">NO_ADDRESS</code>)
+        <ul>
+          <li>此错误表示所指向的名字有效,但是没有<code class="language-plaintext highlighter-rouge">A</code>记录</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>hostnet关键结构体如下：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">hostent</span><span class="p">{</span>
+    <span class="kt">char</span>    <span class="o">*</span><span class="n">h_name</span><span class="p">;</span>        <span class="cm">/* 主机的官方名称 */</span>
+    <span class="kt">char</span>    <span class="o">**</span><span class="n">h_aliases</span><span class="p">;</span>    <span class="cm">/* 主机别名的指针数组 */</span>
+    <span class="kt">int</span>     <span class="n">h_addrtype</span><span class="p">;</span>     <span class="cm">/* 主机IP地址的类型 */</span>
+    <span class="kt">int</span>     <span class="n">h_length</span><span class="p">;</span>       <span class="cm">/* IPv4的地址长度 */</span>
+    <span class="kt">char</span><span class="o">**</span>  <span class="n">h_addr_list</span><span class="p">;</span>    <span class="cm">/* 指向IPv4的地址指针 */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="https://img-blog.csdnimg.cn/20191026141722883.png#pic_center" alt="hostnet包含的结构体信息"></p>
+
+<p>例子：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="o">**</span> <span class="n">pptr</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">str</span><span class="p">[</span><span class="n">INET_ADDRSTRLEN</span><span class="p">];</span>
+    <span class="cm">/* 定义返回的结构体 */</span>
+    <span class="k">struct</span> <span class="nc">hostent</span> <span class="o">*</span> <span class="n">hptr</span><span class="p">;</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="o">--</span><span class="n">argc</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span>
+        <span class="cm">/* 获取输入参数 */</span>
+        <span class="n">ptr</span> <span class="o">=</span> <span class="o">*</span> <span class="o">++</span><span class="n">argv</span><span class="p">;</span>
+        <span class="cm">/* 查找对应的ip地址 */</span>
+        <span class="k">if</span><span class="p">((</span><span class="n">hptr</span> <span class="o">=</span> <span class="n">gethostbyname</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">err_msg</span><span class="p">(</span><span class="s">"gethostbyname error for host :%s : %s"</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">hstrerror</span><span class="p">(</span><span class="n">h_errno</span><span class="p">));</span>
+                <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"official hostname: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">hptr</span><span class="o">-&gt;</span><span class="n">h_name</span><span class="p">);</span>
+        <span class="cm">/* 遍历输出所有别名 */</span>
+        <span class="k">for</span><span class="p">(</span><span class="n">pptr</span> <span class="o">=</span> <span class="n">hptr</span><span class="o">-&gt;</span><span class="n">h_aliases</span><span class="p">;</span> <span class="o">*</span><span class="n">pptr</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">pptr</span><span class="o">++</span><span class="p">){</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\t</span><span class="s">alias: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">pptr</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="cm">/* 选择地址类型并输出 */</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="n">hptr</span><span class="o">-&gt;</span><span class="n">h_addrtype</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">case</span> <span class="n">AF_INET</span><span class="p">:</span>
+                <span class="n">pptr</span> <span class="o">=</span> <span class="n">hptr</span><span class="o">-&gt;</span><span class="n">h_addr_list</span><span class="p">;</span>
+                <span class="k">for</span> <span class="p">(;</span> <span class="o">*</span><span class="n">pptr</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">pptr</span><span class="o">++</span><span class="p">){</span>
+                    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\t</span><span class="s">address : %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+                    <span class="n">Inet_ntop</span><span class="p">(</span><span class="n">hptr</span><span class="o">-&gt;</span><span class="n">h_addrtype</span><span class="p">,</span> <span class="o">*</span> <span class="n">pptr</span><span class="p">,</span> <span class="n">str</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">str</span><span class="p">)));</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="nl">default:</span>
+                <span class="n">err_ret</span><span class="p">(</span><span class="s">"unknown address type"</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/* RUN
+./hostent music.163.com
+official hostname: music.163.com
+        address : 59.111.160.197
+        address : 59.111.160.195
+        address : 223.252.199.66
+*/</span>
+
+</code></pre></div></div>
+
+<h3 id="114-gethostbyaddr函数">11.4 gethostbyaddr函数</h3>
+
+<p>gethostbyaddr函数试图由一个二进制的IP地址找到相应的主机名，与 gethostbyname 的行为刚好相反。(<strong>注意：在新的程序中应该使用<code class="language-plaintext highlighter-rouge">getnameinfo</code></strong>)
+注：此处与原书中的 gethostbyaddr函数不同，原书中的函数在库<netdb.h>，且addr参数为 const char *</netdb.h></p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;sys/socket.h&gt;
+</span><span class="k">struct</span> <span class="n">hostent</span> <span class="o">*</span> <span class="nf">gethostbyaddr</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span> <span class="n">addr</span><span class="p">,</span><span class="n">socklen_t</span> <span class="n">len</span><span class="p">,</span><span class="kt">int</span> <span class="n">type</span><span class="p">);</span>
+<span class="c1">//if success return not NULL pointer,if error return NULL and set h_errno</span>
+</code></pre></div></div>
+
+<p>addr 参数是一个指向IPV4地址的某个in_addr结构的指针；len参数是这个结构的大小；family参数为<code class="language-plaintext highlighter-rouge">AF_INET</code>或<code class="language-plaintext highlighter-rouge">AF_INET6</code></p>
+
+<p>按照DNS的说法，<code class="language-plaintext highlighter-rouge">gethostbyaddr</code>在<code class="language-plaintext highlighter-rouge">in_addr.arpa</code>域中向一个名字服务器查询<code class="language-plaintext highlighter-rouge">PTR</code>记录。</p>
+
+<h3 id="115-getservbyname和getservbyport函数">11.5 getservbyname和getservbyport函数</h3>
+<h4 id="1151-getservbyname">11.5.1 getservbyname</h4>
+
+<p>getservbyname函数用于根据给定的名字查找相应的服务。一般服务器对应的IP地址保存在<code class="language-plaintext highlighter-rouge">/etc/services</code>中;典型内容如下：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>breap@breap ~]<span class="nv">$ </span><span class="nb">grep</span> <span class="nt">-e</span> ^ftp <span class="nt">-e</span> ^domain /etc/services
+ftp-data        20/tcp
+ftp-data        20/udp
+ftp             21/tcp
+ftp             21/udp          fsp fspd
+domain          53/tcp                          <span class="c"># name-domain server</span>
+domain          53/udp
+ftp-data        20/sctp                 <span class="c"># FTP</span>
+.......
+</code></pre></div></div>
+
+<p>函数的定义和声明如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;netdb.h&gt;
+</span><span class="k">struct</span> <span class="n">servent</span> <span class="o">*</span> <span class="nf">getservbyname</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">servname</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">protoname</span><span class="p">);</span>
+<span class="c1">//if success return not NULL pointer,if error return NULL</span>
+<span class="k">struct</span> <span class="n">servent</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span> <span class="n">s_name</span><span class="p">;</span> <span class="c1">//Official services name</span>
+    <span class="kt">char</span> <span class="o">**</span> <span class="n">s_aliases</span><span class="p">;</span> <span class="c1">//Alias list</span>
+    <span class="kt">int</span> <span class="n">s_port</span><span class="p">;</span> <span class="c1">//Port number,Network byte order</span>
+    <span class="kt">char</span> <span class="o">*</span> <span class="n">s_proto</span><span class="p">;</span> <span class="c1">//Protocol to use</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>参数说明：</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">servname</code>:服务器参数名称；必须指定</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">protoname</code>:协议名称，可选参数，非空时，必须有匹配的协议；有些因特网服务既用 TCP 也用 UDP 提供，其他英特网则仅仅支持单个协议。
+    <ul>
+      <li>如果<code class="language-plaintext highlighter-rouge">protoname</code>未指定而<code class="language-plaintext highlighter-rouge">servname</code>指定服务支持多个协议，那么返回哪个端口号取决于实现。
+        <ul>
+          <li>通常情况下这种选择无关紧要，因为支持多个协议的服务往往使用相同的<code class="language-plaintext highlighter-rouge">TCP</code>端口号和<code class="language-plaintext highlighter-rouge">UDP</code>端口号，不过这点并无保证。</li>
+        </ul>
+      </li>
+      <li>
+<code class="language-plaintext highlighter-rouge">servent</code>结构中我们关心的主要字段是端口号(网络字节序)
+        <ul>
+          <li>既然端口号是以网络字节序返回的，把它存放到套接字地址结构时绝对不能调用<code class="language-plaintext highlighter-rouge">htons</code>。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>函数调用示例：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">servent</span> <span class="o">*</span><span class="n">sptr</span><span class="p">;</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyname</span><span class="p">(</span><span class="s">"domain"</span><span class="p">,</span><span class="s">"udp"</span><span class="p">);</span> <span class="c1">//DNS using UDP</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyname</span><span class="p">(</span><span class="s">"ftp"</span><span class="p">,</span><span class="s">"tcp"</span><span class="p">);</span> <span class="c1">//FTP using TCP</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyname</span><span class="p">(</span><span class="s">"ftp"</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span> <span class="c1">//FTP using TCP</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyname</span><span class="p">(</span><span class="s">"ftp"</span><span class="p">,</span><span class="s">"udp"</span><span class="p">);</span> <span class="c1">//this call will fail</span>
+</code></pre></div></div>
+<h4 id="1152-getservbyport">11.5.2 getservbyport</h4>
+
+<p>getservbyport 函数用于给定端口号和可选协议查询相应服务.函数的定义如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;netdb.h&gt;
+</span><span class="k">struct</span> <span class="n">servent</span> <span class="o">*</span> <span class="nf">getservbyport</span><span class="p">(</span><span class="kt">int</span> <span class="n">port</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">protoname</span><span class="p">);</span>
+<span class="c1">//if success return not NULL pointer,if error return NULL</span>
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">port</code>参数的值必须为<strong>网络字节序</strong>。该函数的典型调用如下：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">servent</span> <span class="o">*</span><span class="n">sptr</span><span class="p">;</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyport</span><span class="p">(</span><span class="n">htons</span><span class="p">(</span><span class="mi">53</span><span class="p">),</span><span class="s">"udp"</span><span class="p">);</span> <span class="c1">//DNS using UDP</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyport</span><span class="p">(</span><span class="n">htons</span><span class="p">(</span><span class="mi">21</span><span class="p">),</span><span class="s">"tcp"</span><span class="p">);</span> <span class="c1">//FTP using TCP</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyport</span><span class="p">(</span><span class="n">htons</span><span class="p">(</span><span class="mi">21</span><span class="p">),</span><span class="nb">NULL</span><span class="p">);</span> <span class="c1">// FTP using TCP</span>
+<span class="n">sptr</span><span class="o">=</span><span class="n">getservbyport</span><span class="p">(</span><span class="n">htons</span><span class="p">(</span><span class="mi">21</span><span class="p">),</span><span class="s">"udp"</span><span class="p">);</span> <span class="c1">//this call will fail</span>
+</code></pre></div></div>
+
+<p>注意：</p>
+<ul>
+  <li><strong>某些端口号在TCP上是一种服务，在UDP上却用于完全不同的另一种服务。</strong></li>
+  <li>
+<strong>端口可以复用,只要协议不同</strong>
+例如：
+    <div class="language-sh highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="o">[</span>breap@breap ~]<span class="nv">$ </span><span class="nb">grep </span>514 /etc/services
+shell           514/tcp         cmd             <span class="c"># no passwords used</span>
+syslog          514/udp
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>使用示例如下：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">recvline</span><span class="p">[</span><span class="n">MAXLINE</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_in</span> <span class="n">servaddr</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">in_addr</span> <span class="o">**</span> <span class="n">pptr</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">in_addr</span> <span class="o">*</span> <span class="n">inetaddrp</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+    <span class="k">struct</span> <span class="nc">in_addr</span> <span class="n">inetaddr</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">hostent</span> <span class="o">*</span> <span class="n">hp</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">servent</span> <span class="o">*</span> <span class="n">sp</span><span class="p">;</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">!=</span><span class="mi">3</span><span class="p">){</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"usage: daytimetcpcli1 &lt;hostname&gt; &lt;services&gt;"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">((</span><span class="n">hp</span> <span class="o">=</span> <span class="n">gethostbyname</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* 确定是否为正确的ASCII地址格式 */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">inet_aton</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">inetaddr</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+            <span class="n">err_quit</span><span class="p">(</span><span class="s">"hostname error for %s : %s"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">hstrerror</span><span class="p">(</span><span class="n">h_errno</span><span class="p">));</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">inetaddrp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">inetaddr</span><span class="p">;</span>
+            <span class="n">inetaddrp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+            <span class="n">pptr</span> <span class="o">=</span> <span class="n">inetaddrp</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="n">pptr</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">in_addr</span> <span class="o">**</span> <span class="p">)</span><span class="n">hp</span><span class="o">-&gt;</span><span class="n">h_addr_list</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="cm">/* 获取服务 */</span>
+    <span class="k">if</span><span class="p">((</span><span class="n">sp</span> <span class="o">=</span> <span class="n">getservbyname</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">"tcp"</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"getservbyname error for %s : %s"</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">for</span><span class="p">(;</span> <span class="o">*</span><span class="n">pptr</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">pptr</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* 建立TCP连接 */</span>
+        <span class="n">sockfd</span> <span class="o">=</span> <span class="n">Socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">));</span>
+        <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+        <span class="n">servaddr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">sp</span><span class="o">-&gt;</span><span class="n">s_port</span><span class="p">;</span>
+        <span class="n">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">,</span> <span class="o">*</span> <span class="n">pptr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">in_addr</span><span class="p">));</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"trying %s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">Sock_ntop</span><span class="p">((</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">)));</span>
+        <span class="cm">/* 进行连接 */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">servaddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">servaddr</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">err_ret</span><span class="p">(</span><span class="s">"connect error"</span><span class="p">);</span>
+        <span class="n">close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">pptr</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"unable to connect"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* 执行read */</span>
+    <span class="k">while</span><span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">Read</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">recvline</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">))</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span>
+        <span class="n">recvline</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// null terminate</span>
+        <span class="n">Fputs</span><span class="p">(</span><span class="n">recvline</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*
+[breap@breap name_test]$ ./daytimetcpcli1 127.0.0.1 daytime
+trying 127.0.0.1:13
+Tue Jan 16 20\:06\:35 2018
+*/</span>
+
+</code></pre></div></div>
+
+<h3 id="116-getaddrinfo">11.6 getaddrinfo</h3>
+
+<p>这个函数能够处理名字到地址以及服务器到端口这两种转换。返回一个sockaddr结构而不是一个地址列表。该函数在POSIX规范中定义如下：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;netdb.h&gt;
+</span><span class="kt">int</span> <span class="nf">getaddrinfo</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">hostname</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">service</span><span class="p">,</span><span class="k">const</span> <span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">*</span><span class="n">hints</span><span class="p">,</span><span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">**</span><span class="n">result</span><span class="p">);</span>
+<span class="c1">//if success return 0,if error return not 0;</span>
+</code></pre></div></div>
+<p>参数解析：</p>
+<ul>
+  <li>hostname:主句名或者地址串(IPv4的点分十进制数串或IPv6的十六进制数串)</li>
+  <li>service:服务名或者十进制端口号数串</li>
+  <li>hints:期望返回的信息类型的暗示，可以为空指针，也可以指向某个addrinfo结构指针。</li>
+  <li>result:返回结果；由result参数指向的变量已被填入一个指针，它指向的是由其中的ai_next成员串接起来的addrinfo结构链表(多个addrinfo结构返回时，这些结构的先后顺序没有保证 )。
+    <ul>
+      <li>可导致返回多个<code class="language-plaintext highlighter-rouge">addrinfo</code>结构的情况有两个：
+        <ul>
+          <li>如果与<code class="language-plaintext highlighter-rouge">hostname</code>参数关联的地址有多个，那么适用于所请求地址族(可通过hints结构的 ai_family成员设置)的每个地址都返回一个对应的结构</li>
+          <li>如果<code class="language-plaintext highlighter-rouge">service</code>参数指定的服务支持多个套接字类型，那么每个套接字类型都可能返回一个对应的结构，具体取决与 <code class="language-plaintext highlighter-rouge">hints</code>结构的<code class="language-plaintext highlighter-rouge">ai_socktype</code>成员。 （注意，<code class="language-plaintext highlighter-rouge">getaddrinfo</code>的多数实现认为只能按照由<code class="language-plaintext highlighter-rouge">ai_socktype</code>成员请求的套接字类型端口号数串到端口的转换，如果没有指定这个成员，那就返回一个错误）
+addrinfo的定义如下：</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">addrinfo</span><span class="p">{</span>
+	<span class="kt">int</span> <span class="n">ai_flags</span><span class="p">;</span> <span class="c1">//AI_PASSIVE,AI_CANONNAME</span>
+	<span class="kt">int</span> <span class="n">ai_family</span><span class="p">;</span> <span class="c1">//AF_XXX</span>
+	<span class="kt">int</span> <span class="n">ai_socktype</span><span class="p">;</span> <span class="c1">//SOCK_XXX</span>
+	<span class="kt">int</span> <span class="n">ai_protocol</span><span class="p">;</span> <span class="c1">//0 or IPPROTO_XXX for IPV4 and IPV6</span>
+	<span class="n">socklen_t</span> <span class="n">ai_addrlen</span><span class="p">;</span> <span class="c1">//length of ai_addr</span>
+	<span class="kt">char</span> <span class="o">*</span> <span class="n">ai_canonname</span><span class="p">;</span> <span class="c1">//ptr to canonical name for host</span>
+	<span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span> <span class="n">ai_addr</span><span class="p">;</span> <span class="c1">//ptr to socket address structure</span>
+	<span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">*</span> <span class="n">ai_next</span><span class="p">;</span> <span class="c1">//ptr to next structure in linked list</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">addrinfo</code>结构中调用者(hints)可以设置的成员有, (如果hints参数是一个空指针，该函数就假设 ai_flags, ai_socktype, ai_protocol 的值均为0，ai_family的值为AF_UNSPEC。)
+调用者hints可以设置的成员包括：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">调用者(<code class="language-plaintext highlighter-rouge">hints</code>)</th>
+      <th style="text-align: left">可以设置的成员</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ai_flags</code></td>
+      <td style="text-align: left">零个或多个在一起的AI_XXX值.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ai_family</code></td>
+      <td style="text-align: left">某个AF_XXX</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ai_socktype</code></td>
+      <td style="text-align: left">某个SOCK_XXX值</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ai_protocol</code></td>
+      <td style="text-align: left">某个写控制协议</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">ai_flags可能值</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">AI_PASSIVE</code></td>
+      <td style="text-align: left">套接字将用于被动打开。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">AI_CANONNAME</code></td>
+      <td style="text-align: left">告知 getaddrinfo 函数返回主机的规范名字。(canon,规范)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">AI_NUMERICHOST</code></td>
+      <td style="text-align: left">防止任何类型的名字到地址映射， hostname参数必须为一个地址串</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">AI_NUMERICSERV</code></td>
+      <td style="text-align: left">防止任何类型的名字到服务的映射,service 参数必须是一个十进制端口号数串。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">AI_V4MAPPED</code></td>
+      <td style="text-align: left">如果同时指定 ai_family 成员的值为 AF_INET6,那么如果没有可用的AAAA记录，就返回与A记录对应的IPV4映射的IPV6地址。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">AI_ALL</code></td>
+      <td style="text-align: left">如果同时指定 AI_V4MAPPED 标志，那么除了返回与AAAA记录对应的IPV6地址外，还返回与A记录对应的IPV4映射的IPV6地址。</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">AI_ADDRCONFIG</code></td>
+      <td style="text-align: left">按照所在主机的配置选择返回地址类型，也就是只查找与所在主机回馈接口以外的网络接口配置的IP地址版本一致的地址。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>一些常见的输入 (<strong>如清楚知道自己需要的套接字类型，应该在<code class="language-plaintext highlighter-rouge">hints</code>中设置<code class="language-plaintext highlighter-rouge">ai_socktype</code>成员,避免返回多个结构，甚至出现错误的<code class="language-plaintext highlighter-rouge">ai_socktype</code>值</strong>):</p>
+
+<ul>
+  <li>指定<code class="language-plaintext highlighter-rouge">hostname</code>和<code class="language-plaintext highlighter-rouge">service</code>。这是TCP或UDP客户进程调用getaddrinfo的常规输入。</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">TCP</code>客户在一个循环中针对每个返回的IP地址，调用<code class="language-plaintext highlighter-rouge">socket</code>和<code class="language-plaintext highlighter-rouge">connect</code>，直到有一个连接成功，或者所有地址尝试完毕为止。</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">UDP</code>客户由<code class="language-plaintext highlighter-rouge">getaddrinfo</code>填入的套接字地址结构用于<code class="language-plaintext highlighter-rouge"> sendto</code> 或 <code class="language-plaintext highlighter-rouge">connect</code>。</li>
+  <li>只指定<code class="language-plaintext highlighter-rouge">service</code>而不指定<code class="language-plaintext highlighter-rouge">hostname</code>，同时在hints结构中指定 <code class="language-plaintext highlighter-rouge">AI_PASSIVE</code>标志。这是典型的服务器进程.
+    <ul>
+      <li>返回的套接字地址结构中应含有一个值为 <code class="language-plaintext highlighter-rouge">INADDR_ANY(IPV4)</code>或<code class="language-plaintext highlighter-rouge">IN6ADDR_ANY_INIT(IPV6)</code>。</li>
+      <li>TCP 服务器随后调用 <code class="language-plaintext highlighter-rouge">socket</code>、<code class="language-plaintext highlighter-rouge">bind</code>、<code class="language-plaintext highlighter-rouge">listen</code>、<code class="language-plaintext highlighter-rouge">accept</code>。</li>
+      <li>UDP服务器将调用 <code class="language-plaintext highlighter-rouge">socket</code>、<code class="language-plaintext highlighter-rouge">bind</code>、<code class="language-plaintext highlighter-rouge">recvfrom</code>。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>简单的使用示例如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">addrinfo</span> <span class="n">hints</span><span class="p">,</span><span class="o">*</span><span class="n">res</span><span class="p">;</span>
+<span class="cm">/* 重置结构 */</span>
+<span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">hints</span><span class="p">));</span>
+<span class="n">hints</span><span class="p">.</span><span class="n">ai_flags</span><span class="o">=</span><span class="n">AI_CANONNAME</span><span class="p">;</span>
+<span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span><span class="o">=</span><span class="n">AF_INET</span><span class="p">;</span>
+<span class="cm">/* 获取host和server的ip地址 */</span>
+<span class="n">getaddinfo</span><span class="p">(</span><span class="s">"freebad4"</span><span class="p">,</span><span class="s">"domain"</span><span class="p">,</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span><span class="o">&amp;</span><span class="n">res</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<p>上面主机freebsd4的规范名字是freebad4.unpbook.com；并且它在DNS中有2个IPv4地址；则返回结果如下：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-12-03-21-08-52.png" alt=""></p>
+
+<h3 id="117-gai_strerror函数">11.7 gai_strerror函数</h3>
+
+<p><code class="language-plaintext highlighter-rouge">getaddrinfo</code>返回非0值表示错误,而<code class="language-plaintext highlighter-rouge">gai_strerror</code>可以通过此非0值返回一个指向对应的出错信息串的指针。函数的基本使用如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;netdb.h&gt;
+</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="nf">gai_strerror</span><span class="p">(</span><span class="kt">int</span> <span class="n">error</span><span class="p">);</span>
+<span class="c1">// 返回：指向错误描述消息字符串的指针</span>
+</code></pre></div></div>
+<p>getaddrinfo返回的非0错误长值：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">常数</th>
+      <th style="text-align: left">说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_AGAIN</code></td>
+      <td style="text-align: left">名字解析中临时失败</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_BADFLAGS</code></td>
+      <td style="text-align: left">ai_flags的值无效</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_FAIL</code></td>
+      <td style="text-align: left">名字解析中不可恢复地失败</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_FAMILY</code></td>
+      <td style="text-align: left">不支持 ai_family</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_MEMORY</code></td>
+      <td style="text-align: left">内存分配失败</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_NONAME</code></td>
+      <td style="text-align: left">hostname或service未提供，或者不可知</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_OVERFLOW</code></td>
+      <td style="text-align: left">用户参数缓冲区溢出（仅限 getnameinfo 函数）</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_SERVICE</code></td>
+      <td style="text-align: left">不支持 ai_socktype 类型的service</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_SOCKTYPE</code></td>
+      <td style="text-align: left">不支持 ai_socktype</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">EAI_SYSTEM</code></td>
+      <td style="text-align: left">在errno变量中有系统错误返回</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="118-freeaddrinfo函数">11.8 freeaddrinfo函数</h3>
+
+<p>getaddrinfo返回的所有存储空间都是动态获取的。需要使用freeaddrinfo进行调用返还给系统。函数定义如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;netdb.h&gt;
+</span><span class="kt">void</span> <span class="nf">freeaddrinfo</span><span class="p">(</span><span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">*</span><span class="n">ai</span><span class="p">);</span>
+<span class="c1">// ai 参数应指向由 getaddrinfo 返回的第一个 addrinfo 结构。</span>
+</code></pre></div></div>
+
+<h3 id="119-getaddrinfo函数ipv6">11.9 getaddrinfo函数IPv6</h3>
+
+<p>POSIX 规范定义了 getaddrinfo 函数以及该函数为IPV4或IPV6返回的信息。</p>
+
+<p>注意以下几点：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">getadrinfo</code>在处理两个不同的输入：
+    <ul>
+      <li>一个是套接字地址结构类型，调用者期待返回的地址结构符合这个类型；</li>
+      <li>另一个是资源记录类型，在DNS或者其它数据库中执行的查找符合这个类型.</li>
+    </ul>
+  </li>
+  <li>由调用者在<code class="language-plaintext highlighter-rouge">hints</code>结构中提供的地址族指定调用者期待返回的套接字地址结构的类型</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">POSIX</code>声称如果调用者指定<code class="language-plaintext highlighter-rouge">AF_UNSPEC</code>,那么<code class="language-plaintext highlighter-rouge">getaddrinfo</code>函数返回的是适合于指定主机名和服务名且适合任意协议族的地址.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">POSIX</code>的这个声明也意味着如果设置了<code class="language-plaintext highlighter-rouge">AI_PASSIVE</code>标志但是没有指定主机名，那么IPV6通配地址(IN6ADDR_ANY_INIT或0::0)应该作为<code class="language-plaintext highlighter-rouge">sockaddr_in6</code>结构返回，同样IPV4通配地址 (INADDR_ANY 或 0.0.0.0)应该作为sockaddr_in结构返回。</li>
+  <li>在<code class="language-plaintext highlighter-rouge">hints</code>结构的<code class="language-plaintext highlighter-rouge">ai_family</code>成员中指定的地址族以及在<code class="language-plaintext highlighter-rouge">ai_flag</code>s成员中指定的<code class="language-plaintext highlighter-rouge">AI_V4MAPPED</code>和<code class="language-plaintext highlighter-rouge">AI_ALL</code>等标志决定了在DNS中查找的资源记录类型。</li>
+  <li>主机名参数还可以是IPV6的十六进制数串或IPV4的点分十进制数串。这个数串的有效性取决于调用者指定的地址族</li>
+</ul>
+
+<p>POSIX 规范定义了 getaddrinfo 函数以及该函数为IPV4或IPV6返回的信息。在下表汇总这些返回值之前，我们注意以下几点：</p>
+
+<ul>
+  <li>getaddrinfo 在处理两个不同的输入：一个是套接字地址结构类型，调用者期待返回的地址结构符合这个类型；另一个是资源记录类型，在DNS或其他数据库中执行的查找符合这个类型。</li>
+  <li>由调用者在hints结构中提供的地址族指定调用者期待返回的套接字地址结构的类型</li>
+  <li>POSIX声称如果调用者指定AF_UNSPEC,那么 getaddrinfo 函数返回的是适合于指定主机名和服务名且适合任意协议族的地址</li>
+  <li>POSIX的这个声明也意味着如果设置了 <code class="language-plaintext highlighter-rouge">AI_PASSIVE</code> 标志但是没有指定主机名，那么 IPV6 通配地址（<code class="language-plaintext highlighter-rouge">IN6ADDR_ANY_INIT</code>或0::0）应该作为 <code class="language-plaintext highlighter-rouge">sockaddr_in6</code> 结构返回，同样 IPV4 通配地址 (<code class="language-plaintext highlighter-rouge">INADDR_ANY</code> 或 0.0.0.0)应该作为 <code class="language-plaintext highlighter-rouge">sockaddr_in</code> 结构返回</li>
+  <li>在<code class="language-plaintext highlighter-rouge">hints</code>结构的 <code class="language-plaintext highlighter-rouge">ai_family</code> 成员中指定的地址族以及在<code class="language-plaintext highlighter-rouge">ai_flags</code>成员中指定的 <code class="language-plaintext highlighter-rouge">AI_V4MAPPED</code> 和 <code class="language-plaintext highlighter-rouge">AI_ALL</code> 等标志决定了在 DNS中查找的资源记录类型</li>
+  <li>主机名参数还可以是IPV6的十六进制数串或IPV4的点分十进制数串。这个数串的有效性取决于调用者指定的地址族</li>
+</ul>
+
+<hr>
+
+<table>
+<tbody>
+<tr>
+<td> 调用者指定的主机名</td>
+<td> 调用者指定的地址族</td>
+<td> 主机名字符串包含</td>
+<td> 结果</td>
+<td>行为 </td>
+</tr>
+<tr>
+<td rowspan="11">非空主机名字符串：主动或被动 </td>
+<td rowspan="3">AF_UNSPEC </td>
+<td> 主机名</td>
+<td>以 sockaddr_in6{} 返回所有 AAAA 记录，以 sockaddr_in{} 返回所有A记录</td>
+<td>AAAA记录搜索加上A记录搜索 </td>
+</tr>
+<tr>
+<td> 十六进制数串</td>
+<td> 一个sockaddr_in6{}</td>
+<td> inet_pton(AF_INET6)</td>
+</tr>
+<tr>
+<td> 点分十进制数串</td>
+<td> 一个sockaddr_in{}</td>
+<td> inet_pton(AF_INET) </td>
+</tr>
+<tr>
+<td rowspan="5">AF_INET6 </td>
+<td rowspan="3"> 主机名</td>
+<td>以 sockaddr_in6{} 返回所有 AAAA 记录</td>
+<td> AAAA记录搜索</td>
+</tr>
+<tr>
+<td> 在 ai_flags 含 AI_V4MAPPED前提下：若存在AAAA记录则以 sockaddr_in6{} 返回所有 AAAA 记录；否则以 sockaddr_in6{}作为IPV4映射的IPV6地址返回所有A记录</td>
+<td>AAAA记录搜索，若无结果则A记录搜索  </td>
+</tr>
+<tr>
+<td> 在 ai_flags 含 AI_V4MAPPED和 AI_ALL前提下：以 sockaddr_in6{} 返回所有 AAAA 记录，并且以 sockaddr_in6{}作为IPV4映射的IPV6地址返回所有A记录</td>
+<td>AAAA记录搜索加上A记录搜索  </td>
+</tr>
+<tr>
+<td> 十六进制数串</td>
+<td> 一个sockaddr_in6{}</td>
+<td> inet_pton(AF_INET6)</td>
+</tr>
+<tr>
+<td> 点分十进制数串</td>
+<td> 作为主机名查找</td>
+<td> </td>
+</tr>
+<tr>
+<td rowspan="3"> AF_INET</td>
+<td> 主机名</td>
+<td> 以 sockaddr_in{} 返回所有A记录</td>
+<td> A记录搜索</td>
+</tr>
+<tr>
+<td>  十六进制数串</td>
+<td>  作为主机名查找</td>
+<td> </td>
+</tr>
+<tr>
+<td>  点分十进制数串</td>
+<td> 一个sockaddr_in{}</td>
+<td> inet_pton(AF_INET) </td>
+</tr>
+<tr>
+<td rowspan="3">空主机名字符串：被动 </td>
+<td> AF_UNSPEC</td>
+<td> 隐含0::0隐含0.0.0.0</td>
+<td> 一个sockaddr_in6{}和 一个sockaddr_in{}</td>
+<td> inet_pton(AF_INET6) inet_pton(AF_INET) </td>
+</tr>
+<tr>
+<td> AF_INET6</td>
+<td> 隐含0::0</td>
+<td>  一个sockaddr_in6{}</td>
+<td> inet_pton(AF_INET6)</td>
+</tr>
+<tr>
+<td> AF_INET</td>
+<td>隐含0.0.0.0 </td>
+<td>  一个sockaddr_in{}</td>
+<td> inet_pton(AF_INET)</td>
+</tr>
+<tr>
+<td rowspan="3">空主机名字符串：主动  </td>
+<td> AF_UNSPEC</td>
+<td>隐含0::1隐含127.0.0.1 </td>
+<td>一个sockaddr_in6{}和 一个sockaddr_in{} </td>
+<td> inet_pton(AF_INET6) inet_pton(AF_INET) </td>
+</tr>
+<tr>
+<td> AF_INET6</td>
+<td> 隐含0::1</td>
+<td>  一个sockaddr_in6{}</td>
+<td> inet_pton(AF_INET6)</td>
+</tr>
+<tr>
+<td> AF_INET</td>
+<td> 隐含127.0.0.1</td>
+<td>  一个sockaddr_in{}</td>
+<td> inet_pton(AF_INET)</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h3 id="1110-getaddrinfo函数例子">11.10 getaddrinfo函数，例子</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="kt">void</span> <span class="nf">do_funccall</span><span class="p">(</span>
+                        <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span><span class="cm">/* 主机名 */</span>
+                        <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">serv</span><span class="p">,</span><span class="cm">/* 服务器名 */</span>
+                        <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="cm">/* 标志参数 */</span>
+                        <span class="kt">int</span> <span class="n">family</span><span class="p">,</span><span class="cm">/* 套接字协议族 */</span>
+                        <span class="kt">int</span> <span class="n">sockettype</span><span class="p">,</span> <span class="cm">/* 套接字类型 */</span>
+                        <span class="kt">int</span> <span class="n">protocol</span><span class="p">,</span> <span class="cm">/* 控制协议 */</span>
+                        <span class="kt">int</span> <span class="n">exprc</span> <span class="cm">/* 控制协议族 */</span>
+                        <span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">rc</span><span class="p">;</span>
+    <span class="cm">/* 定义地址结构体 */</span>
+    <span class="k">struct</span> <span class="nc">addrinfo</span> <span class="n">hints</span><span class="p">,</span> <span class="o">*</span><span class="n">res</span><span class="p">;</span>
+    <span class="cm">/* 初始化结构体 */</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">addrinfo</span><span class="p">));</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_flags</span><span class="o">=</span><span class="n">flags</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span><span class="o">=</span><span class="n">family</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">socktype</span><span class="p">;</span>
+	<span class="n">hints</span><span class="p">.</span><span class="n">ai_protocol</span> <span class="o">=</span> <span class="n">protocol</span><span class="p">;</span>
+    <span class="cm">/* 执行函数 */</span>
+    <span class="n">rc</span><span class="o">=</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span><span class="n">serv</span><span class="p">,</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span><span class="o">&amp;</span><span class="n">res</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">rc</span><span class="o">!=</span><span class="n">exprc</span><span class="p">){</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"expected return = %d (%s),</span><span class="se">\n</span><span class="s">actual return = %d (%s)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">exprc</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">exprc</span><span class="p">),</span> <span class="n">rc</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">rc</span><span class="p">));</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">host</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">" host =%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">host</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">serv</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">" serv=%s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">serv</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"  flags = %d, family = %s, socktype = %s, protocol = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+				<span class="n">flags</span><span class="p">,</span> <span class="n">str_fam</span><span class="p">(</span><span class="n">family</span><span class="p">),</span> <span class="n">str_sock</span><span class="p">(</span><span class="n">socktype</span><span class="p">),</span> <span class="n">protocol</span><span class="p">);</span>
+		<span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="1111-host_serv函数">11.11 host_serv函数</h3>
+
+<p>访问getaddrinfo的第一个接口函数不要求调用者调用者分配并填写一个 hints 结构。该结构中我们感兴趣的两个字段(<strong>地址族和套接字类型</strong>)成为这个名为host_serv的接口函数的参数。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span><span class="c1">//返回若成功则指向addrinfo结构的指针，若出错则为NULL</span>
+
+<span class="k">struct</span> <span class="nc">addrinfo</span> <span class="o">*</span><span class="nf">host_serv</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">hostname</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">service</span><span class="p">,</span><span class="kt">int</span> <span class="n">family</span><span class="p">,</span><span class="kt">int</span> <span class="n">socktype</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">addrinfo</span> <span class="n">hints</span><span class="p">,</span><span class="o">*</span><span class="n">res</span><span class="p">;</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">addrinfo</span><span class="p">));</span>
+    <span class="cm">/* always return canonical name */</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_flags</span><span class="o">=</span><span class="n">AI_CANONNAME</span><span class="p">;</span>
+    <span class="cm">/* AF_UNSPEC,AF_INET,AF_INET6,etc */</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span><span class="o">=</span><span class="n">family</span><span class="p">;</span>
+    <span class="cm">/* 0,SOCK_STREAM,SOCK_DGRAM,etc */</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span><span class="o">=</span><span class="n">socktype</span><span class="p">;</span>
+    <span class="cm">/* 执行函数，进行检查 */</span>
+    <span class="k">if</span><span class="p">((</span><span class="n">n</span><span class="o">=</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span><span class="n">serv</span><span class="p">,</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span><span class="o">&amp;</span><span class="n">res</span><span class="p">))</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="1112-tcp_connect函数">11.12 tcp_connect函数</h3>
+
+<p>tcp_connect函数执行客户的通常步骤：创建一个TCP套接字并连接到一个服务器：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+<span class="c1">// 返回：若成功则为已连接的套接字描述符，若出错则不返回</span>
+<span class="kt">int</span> <span class="nf">tcp_connect</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">service</span><span class="p">)</span> <span class="p">{</span>
+    <span class="cm">/* 定义socket套接字 */</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="cm">/* 定义地址信息结构体 */</span>
+    <span class="k">struct</span> <span class="nc">addrinfo</span> <span class="n">hints</span><span class="p">,</span> <span class="o">*</span><span class="n">res</span><span class="p">,</span> <span class="o">*</span><span class="n">ressave</span><span class="p">;</span>
+    <span class="cm">/* 初始化结构体 */</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">addrinfo</span><span class="p">));</span>
+    <span class="cm">/* 进行初始化 */</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_STREAM</span><span class="p">;</span>
+    <span class="cm">/* 查询地址 */</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"tcp_connect error for %s , %s : %s"</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span><span class="n">gai_strerror</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="n">ressave</span> <span class="o">=</span> <span class="n">res</span><span class="p">;</span>
+    <span class="cm">/* 遍历结果进行连接 */</span>
+    <span class="k">do</span><span class="p">{</span>
+        <span class="cm">/* 创建和初始化套接字 */</span>
+        <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">);</span>
+        <span class="cm">/* 建立连接 */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sockfd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span> <span class="c1">// ignore this one</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span> <span class="c1">// success</span>
+        <span class="cm">/* 关闭连接 */</span>
+        <span class="n">Close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span> <span class="c1">// ignore this one</span>
+    <span class="p">}</span><span class="k">while</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_next</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="cm">/* 检查结果 */</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="c1">// errno set from final connect()</span>
+        <span class="n">err_sys</span><span class="p">(</span><span class="s">"tcp_connect error for %s ,%s"</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">service</span><span class="p">);</span>
+    <span class="cm">/* 释放内存 */</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">ressave</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">sockfd</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>例子：时间获取客户程序</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">socket</span><span class="p">,</span><span class="n">n</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">recvline</span><span class="p">[</span><span class="n">MAXLINE</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+    <span class="n">socklen_t</span> <span class="n">len</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_storage</span> <span class="n">ss</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">!=</span><span class="mi">3</span><span class="p">)</span> <span class="n">err_quit</span><span class="p">(</span><span class="s">"usage : daytimetcpcli &lt;hostname/IPaddress&gt; &lt;service/prot#&gt;"</span><span class="p">);</span>
+    <span class="cm">/* 建立TCP连接 */</span>
+    <span class="n">sockfd</span><span class="o">=</span><span class="n">tcp_conect</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+    <span class="n">len</span><span class="o">=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ss</span><span class="p">);</span>
+    <span class="cm">/* 获取对端(服务器)的协议地址 */</span>
+    <span class="n">Getpeername</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ss</span><span class="p">,</span><span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+    <span class="cm">/* 输出解析地址 */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"connected to %s </span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">Sock_ntop_host</span><span class="p">((</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ss</span><span class="p">,</span> <span class="n">len</span><span class="p">));</span>
+    <span class="cm">/* 处理套接字连接 */</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">Read</span><span class="p">(</span><span class="n">sockd</span><span class="p">,</span><span class="n">recvline</span><span class="p">,</span><span class="n">MAXLINE</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span>
+        <span class="n">recvline</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">Fputs</span><span class="p">(</span><span class="n">recvline</span><span class="p">,</span><span class="n">stdout</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="1113-tcp_listen函数">11.13 tcp_listen函数</h3>
+
+<p><code class="language-plaintext highlighter-rouge">tcp_listen</code>函数执行<code class="language-plaintext highlighter-rouge">TCP</code>服务器的通常步骤：创建一个<code class="language-plaintext highlighter-rouge">TCP</code>套接字，给它捆绑服务器的众所周知的端口，并允许接受外来的连接请求。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span><span class="cm">/* 若成功则为套接字描述符，若出错则不返回 */</span>
+<span class="kt">int</span> <span class="nf">tcp_listen</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">serv</span><span class="p">,</span><span class="n">socklen_t</span> <span class="o">*</span><span class="n">addrlen</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* 初始化相关变量 */</span>
+    <span class="kt">int</span> <span class="n">listenfd</span><span class="p">,</span><span class="n">n</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">on</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">addrinfo</span> <span class="n">hints</span><span class="p">,</span><span class="o">*</span><span class="n">res</span><span class="p">,</span><span class="o">*</span><span class="n">ressave</span><span class="p">;</span>
+
+    <span class="cm">/* 初始化相关变量 */</span>
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">addrinfo</span><span class="p">));</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_flags</span><span class="o">=</span><span class="n">AI_PASSIVE</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span><span class="o">=</span><span class="n">AF_UNSPEC</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span><span class="o">=</span><span class="n">SOCK_STREAM</span><span class="p">;</span>
+    <span class="cm">/* 获取地址信息 */</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"tcp_listen error for %s , %s : %s"</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="n">ressave</span> <span class="o">=</span> <span class="n">res</span><span class="p">;</span>
+    <span class="cm">/* 遍历查询结果 */</span>
+    <span class="k">do</span><span class="p">{</span>
+        <span class="cm">/* 创建socket */</span>
+        <span class="n">listenfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">);</span>
+        <span class="c1">//error next</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">listenfd</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="cm">/* 设置socket选项;防止端口已经有连接存在 */</span>
+        <span class="n">Setsockopt</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span><span class="n">SOL_SOCKET</span><span class="p">,</span><span class="n">SO_REUSEADDR</span><span class="p">,</span><span class="o">&amp;</span><span class="n">on</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">on</span><span class="p">));</span>
+        <span class="cm">/* 连接地址和端口 */</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="err">，</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+        <span class="n">Close</span><span class="p">(</span><span class="n">listenfd</span><span class="p">);</span>
+    <span class="p">}</span><span class="k">while</span><span class="p">((</span><span class="n">res</span><span class="o">=</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_next</span><span class="p">)</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">res</span><span class="o">==</span><span class="nb">NULL</span><span class="p">){</span>
+        <span class="n">err_sys</span><span class="p">(</span><span class="s">"tcp listen error for %s,%s "</span><span class="p">,</span><span class="n">host</span><span class="p">,</span><span class="n">serv</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">Listen</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span><span class="n">LISTENQ</span><span class="p">);</span>
+    <span class="cm">/* 返回协议地址 */</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">addrlenp</span><span class="p">){</span>
+        <span class="o">*</span><span class="n">addrlenp</span><span class="o">=</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">ressave</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">listendfd</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>例子1：时间获取服务器程序</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+#include &lt;time.h&gt;
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="cm">/* 预定义变量 */</span>
+    <span class="kt">int</span> <span class="n">listenfd</span><span class="p">,</span><span class="n">connfd</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">len</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buff</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="kt">time_t</span> <span class="n">ticks</span><span class="p">;</span>
+    <span class="cm">/* 客户端地址 */</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_storage</span> <span class="n">cliaddr</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="o">!=</span><span class="mi">2</span><span class="p">){</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"usage:datatime cpsrvl &lt;service or support #&gt;"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">listenfd</span><span class="o">=</span><span class="n">tcp_listen</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="n">len</span><span class="o">=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+        <span class="n">connfd</span><span class="o">=</span><span class="n">Accpet</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,(</span><span class="n">SA</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span><span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"connect from %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">Sock_ntop_host</span><span class="p">((</span><span class="n">SA</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span><span class="n">len</span><span class="p">));</span>
+        <span class="n">ticks</span><span class="o">=</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">snprintf</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buff</span><span class="p">),</span><span class="s">"%.24s</span><span class="se">\r\n</span><span class="s">"</span><span class="p">,</span><span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ticks</span><span class="p">));</span>
+        <span class="n">Write</span><span class="p">(</span><span class="n">connfd</span><span class="p">,</span><span class="n">buff</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">buff</span><span class="p">));</span>
+        <span class="n">Close</span><span class="p">(</span><span class="n">connfd</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>注意：上述程序中，<code class="language-plaintext highlighter-rouge">tcp_listen</code>的第一个参数是一个空指针，而且tcp_listen函数内部指定的地址组<code class="language-plaintext highlighter-rouge">AF_UNSPEC</code>，两个结合可能导致<code class="language-plaintext highlighter-rouge">getaddrinfo</code>返回非期望地址族的套接字结构–双栈主机上返回的第一个套接字地址结构将是IPv6的，但是我们期望该服务器仅仅处理IPv4.</p>
+
+<p>例子2：可指定协议的时间获取服务器程序:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+<span class="cp">#include &lt;time.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">listenfd</span><span class="p">,</span> <span class="n">connfd</span><span class="p">;</span>
+    <span class="n">socklen_t</span> <span class="n">len</span><span class="p">,</span> <span class="n">addrlen</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buff</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="kt">time_t</span> <span class="n">ticks</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_storage</span> <span class="n">cliaddr</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="n">listenfd</span> <span class="o">=</span> <span class="n">tcp_listen</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">addrlen</span><span class="p">);</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="n">listenfd</span> <span class="o">=</span> <span class="n">tcp_listen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">addrlen</span><span class="p">);</span>
+    <span class="k">else</span> <span class="n">err_quit</span><span class="p">(</span><span class="s">"usage : daytimetcpsrv2 [&lt;host&gt;] &lt;sevice or port&gt;"</span><span class="p">);</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+        <span class="n">connfd</span> <span class="o">=</span> <span class="n">Accept</span><span class="p">(</span><span class="n">listenfd</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"connection from %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">Sock_ntop_host</span><span class="p">((</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="n">len</span><span class="p">));</span>
+
+        <span class="n">ticks</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">snprintf</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buff</span><span class="p">),</span> <span class="s">"%.24s</span><span class="se">\r\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ticks</span><span class="p">));</span>
+        <span class="n">Write</span><span class="p">(</span><span class="n">connfd</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">buff</span><span class="p">));</span>
+
+        <span class="n">Close</span><span class="p">(</span><span class="n">connfd</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="1114-udp_client函数">11.14 udp_client函数</h3>
+
+<p>udp_client： 用于创建未连接的 UDP 套接字。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+<span class="cm">/* 若成功则为未连接套接字描述符，若出错则不返回 */</span>
+
+<span class="kt">int</span> <span class="nf">udp_client</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">serv</span><span class="p">,</span> <span class="n">SA</span> <span class="o">**</span><span class="n">saptr</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="o">*</span><span class="n">lenp</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">addrinfo</span> <span class="n">hints</span><span class="p">,</span> <span class="o">*</span><span class="n">res</span><span class="p">,</span> <span class="o">*</span><span class="n">ressave</span><span class="p">;</span>
+
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">addrinfo</span><span class="p">));</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_DGRAM</span><span class="p">;</span>
+    <span class="cm">/* 这里获取的起始是服务器的IP和端口,而次函数的功能为,返回服务器套接字结构地址和本地套接字*/</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"udp_client erorr for %s, %s : %s"</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+    <span class="n">ressave</span> <span class="o">=</span> <span class="n">res</span><span class="p">;</span>
+
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="cm">/* 对于UDP套接字是可以不绑定的端口的,在第一次调用sendto的时候由内核指定一个临时端口 */</span>
+        <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sockfd</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_next</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+        <span class="n">err_sys</span><span class="p">(</span><span class="s">"udp_client error for %s , %s"</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="cm">/* 分配地址内存 */</span>
+    <span class="o">*</span><span class="n">saptr</span> <span class="o">=</span> <span class="n">Malloc</span><span class="p">(</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">);</span>
+    <span class="cm">/* 将结果复制到res中 */</span>
+    <span class="n">memecpy</span><span class="p">(</span><span class="o">*</span><span class="n">saptr</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">);</span>
+    <span class="cm">/* 返回地址长度 */</span>
+    <span class="o">*</span><span class="n">lenp</span> <span class="o">=</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">;</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">ressave</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>例子：协议无关时间获取客户程序</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">recvline</span><span class="p">[</span><span class="n">MAXLINE</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+    <span class="n">socklen_t</span> <span class="n">salen</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr</span> <span class="o">*</span> <span class="n">sa</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span> <span class="n">err_quit</span><span class="p">(</span><span class="s">"usage : daytimeudpcli1 &lt;hostname/IPaddress&gt; &lt;service/port#&gt;"</span><span class="p">);</span>
+
+    <span class="n">sockfd</span> <span class="o">=</span> <span class="n">Udp_client</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">sa</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">salen</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"sending to %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">Sock_ntop_host</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">salen</span><span class="p">));</span>
+    <span class="cm">/* send 1 byte datagram */</span>
+    <span class="n">Sendto</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">salen</span><span class="p">);</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">Recvfrom</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">recvline</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">recvline</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="err">'</span><span class="o">&lt;!</span><span class="n">JEKYLL</span><span class="err">@</span><span class="mi">2780</span><span class="err">@</span><span class="mi">140</span><span class="o">&gt;</span><span class="err">'</span><span class="p">;</span>
+    <span class="n">Fputs</span><span class="p">(</span><span class="n">recvline</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="1115-udp_connect">11.15 udp_connect</h3>
+
+<p>该函数创建一个已连接UDP套接字</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="cp">#include "unp.h"
+</span>
+<span class="c1">// 返回：若成功则为以连接套接字描述符，若出错则不返回</span>
+<span class="kt">int</span> <span class="nf">udp_connect</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">serv</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">addrinfo</span> <span class="n">hints</span><span class="p">,</span> <span class="o">*</span> <span class="n">res</span><span class="p">,</span> <span class="o">*</span> <span class="n">ressave</span><span class="p">;</span>
+
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">addrinfo</span><span class="p">));</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_DGRAM</span><span class="p">;</span>
+
+    <span class="k">if</span><span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"udp_connect error for %s, %s : %s"</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="n">ressave</span> <span class="o">=</span> <span class="n">res</span><span class="p">;</span>
+
+    <span class="k">do</span> <span class="p">{</span> 
+        <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sockfd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+        <span class="n">Close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_next</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="n">err_sys</span><span class="p">(</span><span class="s">"udp_connect error for %s, %s "</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">);</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">ressave</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">sockfd</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h3 id="1116-udp_server">11.16 udp_server</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+
+<span class="cm">/* 返回：若成功则为以连接套接字描述符，若出错则不返回 */</span>
+<span class="kt">int</span> <span class="nf">udp_server</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">serv</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="o">*</span><span class="n">addrlenp</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">addrinfo</span> <span class="n">hints</span><span class="p">,</span> <span class="o">*</span> <span class="n">res</span><span class="p">,</span> <span class="o">*</span> <span class="n">ressave</span><span class="p">;</span>
+
+    <span class="n">bzero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">addrinfo</span><span class="p">));</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_flags</span> <span class="o">=</span> <span class="n">AI_PASSIVE</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_DGRAM</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"udp_server error for %s, %s : %s"</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+    <span class="n">ressave</span> <span class="o">=</span> <span class="n">res</span><span class="p">;</span>
+
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sockfd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">addrlen</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+        <span class="n">Close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_next</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="n">err_sys</span><span class="p">(</span><span class="s">"udp_server error for %s, %s "</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">serv</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">addrlenp</span><span class="p">)</span> <span class="o">*</span><span class="n">addrlenp</span> <span class="o">=</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">;</span>
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">ressave</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">sockfd</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>例子：协议无关时间获取服务器程序</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "unp.h"
+</span>
+<span class="cp">#include &lt;time.h&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">){</span>
+    <span class="kt">int</span>				<span class="n">sockfd</span><span class="p">;</span>
+    <span class="kt">ssize_t</span>			<span class="n">n</span><span class="p">;</span>
+    <span class="kt">char</span>			<span class="n">buff</span><span class="p">[</span><span class="n">MAXLINE</span><span class="p">];</span>
+    <span class="kt">time_t</span>			<span class="n">ticks</span><span class="p">;</span>
+    <span class="n">socklen_t</span>		<span class="n">len</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">sockaddr_storage</span>	<span class="n">cliaddr</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">sockfd</span> <span class="o">=</span> <span class="n">udp_server</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">sockfd</span> <span class="o">=</span> <span class="n">udp_server</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">err_quit</span><span class="p">(</span><span class="s">"usage: daytimeudpsrv [ &lt;host&gt; ] &lt;service or port&gt;"</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span> <span class="p">;</span> <span class="p">;</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="n">len</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Recvfrom</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="n">MAXLINE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"datagram from %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">Sock_ntop</span><span class="p">((</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="n">len</span><span class="p">));</span>
+
+        <span class="n">ticks</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">snprintf</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buff</span><span class="p">),</span> <span class="s">"%.24s</span><span class="se">\r\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ticks</span><span class="p">));</span>
+        <span class="n">Sendto</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">buff</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">SA</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="1117-getnameinfo">11.17 getnameinfo</h3>
+
+<p>这个是getaddrinfo的补充含糊，使用一个套接字地址为参数，返回描述中的主句的一个字符串和描述其中的服务的另一个字符串。这个函数可以不关心地址协议的类型，由函数自身处理。函数定义如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;netdb.h&gt;
+</span><span class="cm">/* 返回：若成功则为0，若出错则为非0 */</span>
+<span class="kt">int</span> <span class="nf">getnameinfo</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">sockaddr</span><span class="p">,</span><span class="n">socklen_t</span> <span class="n">addrlen</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">,</span><span class="n">socklen_t</span> <span class="n">hostlen</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span> <span class="n">serv</span><span class="p">,</span><span class="n">socklen_t</span> <span class="n">servlen</span><span class="p">,</span><span class="kt">int</span> <span class="n">flags</span><span class="p">);</span>
+</code></pre></div></div>
+<p>参数解析:</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">sockaddr</code>和<code class="language-plaintext highlighter-rouge">addrlen</code>指定一个套接字地址结构，此套接字地址结构包含转换成直观可读的字符的协议地址</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">host</code>和<code class="language-plaintext highlighter-rouge">hostlen</code>指定主机字符串(由调用者预先分配存储空间)(调用者不想返回主机字符串；那就指定<code class="language-plaintext highlighter-rouge">hostlen</code>为0);</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">serv</code>和serlen指定服务字符串(由调用者预先分配存储空间)(调用者不想返回服务字符串，那就指定<code class="language-plaintext highlighter-rouge">servlen</code>为0)</li>
+</ul>
+
+<p>sock_ntop 和 getnameinfo 的差别在于，前者不涉及DNS，只返回IP 地址和端口号的一个可显示版本,后者通常尝试获取主机和服务的名字</p>
+
+<p>getnameinfo函数6个可指定的标志：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left"><strong>常值</strong></th>
+      <th style="text-align: left"><strong>说明</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">NI_DGRAM</code></td>
+      <td style="text-align: left">数据报服务</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">NI_NAMEREQD</code></td>
+      <td style="text-align: left">若不能从地址解析出名字则返回错误</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">NI_NOFQDN</code></td>
+      <td style="text-align: left">只返回<code class="language-plaintext highlighter-rouge">FQDN</code>的主机名部分,一般是主机名称如<code class="language-plaintext highlighter-rouge">aix</code>而不是<code class="language-plaintext highlighter-rouge">aix.unpbook.com</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">NI_NUMERICHOST</code></td>
+      <td style="text-align: left">以数串格式返回主机字符串，这样getnameinfo就不会调用DNS,而是直接返回IP地址</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">NI_NUMERICSCOPE</code></td>
+      <td style="text-align: left">以数串格式返回范围标识字符串</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">NI_NUMERICSERV</code></td>
+      <td style="text-align: left">以数串格式返回服务字符串</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>当处理的是数据报套接字时，调用者应该设置<code class="language-plaintext highlighter-rouge">NI_DGRAM</code>标志。否则getnameinfo无法确定所用协议(TCP和UDP)。</p>
+
+<h3 id="1118-可重入函数安全的可被中断而不出错的函数">11.18 可重入函数（安全的，可被中断而不出错的函数）</h3>
+
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/u011123091/article/details/81748686">浅谈可重入函数与不可重入函数</a></p>
+
+<p>查看本章讲解的名字和地址转换函数以及第4章中的inet_XXX函数，我们就重入函数提请注意以下几点:</p>
+<ul>
+  <li>重用相关函数
+    <ul>
+      <li>因历史原因, <code class="language-plaintext highlighter-rouge">gethostbyname</code>, <code class="language-plaintext highlighter-rouge">gethostbyname</code>, <code class="language-plaintext highlighter-rouge">getservbyname</code>, <code class="language-plaintext highlighter-rouge">getservbyport</code> 这4个函数是不可重入的，因为他们都返回指向同一个静态结构的指针(可能在静态结构可能被回调函数修改了)</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">inet_pton</code>,<code class="language-plaintext highlighter-rouge">inet_ntop</code>总是可重入的</li>
+      <li>因历史原因，<code class="language-plaintext highlighter-rouge">inet_ntoa</code>是不可重入的，不过支持线程的一些实现提供了使用线程特定数据的可重入版本。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">getaddrinfo</code> 可重入的前提是它调用的函数都是可重入的，这就是说，他应该调用可重入版本的 <code class="language-plaintext highlighter-rouge">gethostbyname</code>和<code class="language-plaintext highlighter-rouge">getservbyname</code>。该函数返回的结果全部存放在动态分配内存空间的原因之一就是允许它可重入。</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">getnameinfo</code>可重入的前提是它调用的函数都是可重入的，这就是说，他应该调用可重入版本的 <code class="language-plaintext highlighter-rouge">gethostbyaddr</code>和<code class="language-plaintext highlighter-rouge">getservbyport</code>
+</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">errono</code>变量存在类似的问题： 首先因该注意若没有任何错误发生则<code class="language-plaintext highlighter-rouge">errno</code>的值不会改变。因此，除非知道发生了一个错误，否则不应该查看<code class="language-plaintext highlighter-rouge">errno</code>的值。</li>
+</ul>
+
+<h4 id="1119-gethostbyname_r和gethostbyaddr_r函数">11.19 gethostbyname_r和gethostbyaddr_r函数</h4>
+
+<p>将gethostname之类的不可重入的函数更改为重入的函数。主要更改的思路和方法如下：</p>
+
+<ol>
+  <li>gethostname_r:主要将不可重入函数填写并返回静态结构的做法改为由调用者分配再由可重入函数填写结构。</li>
+  <li>getaddrinfo：由可重入函数调用malloc以动态分配内存空间。但是必须使用freeaddrinfo释放动态分配的内存空间。</li>
+</ol>
+
+<p>两个函数的定义如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 返回：若成功则为非空指针，若出错则为NULL */</span>
+
+<span class="kt">int</span> <span class="nf">gethostbyname_r</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+               <span class="k">struct</span> <span class="n">hostent</span> <span class="o">*</span><span class="n">ret</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">buflen</span><span class="p">,</span>
+               <span class="k">struct</span> <span class="n">hostent</span> <span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">h_errnop</span><span class="p">);</span>
+<span class="cm">/* 返回：若成功则为非空指针，若出错则为NULL */</span>
+
+<span class="kt">int</span> <span class="nf">gethostbyaddr_r</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">,</span>
+               <span class="k">struct</span> <span class="n">hostent</span> <span class="o">*</span><span class="n">ret</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">buflen</span><span class="p">,</span>
+               <span class="k">struct</span> <span class="n">hostent</span> <span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">h_errnop</span><span class="p">);</span>
+</code></pre></div></div>
+<p>注意：buf参数是由调用者分配且大小为buflen的缓冲区。主要存放规范主机名，别名指针数组，各个别名字符串，地址之恩数组以及各个实际地址。</p>
+
+<h3 id="1121-其它网络信息">11.21 其它网络信息</h3>
+
+<p>我们在本章中一直关注<code class="language-plaintext highlighter-rouge">主机名</code>和<code class="language-plaintext highlighter-rouge">IP地址</code>以及<code class="language-plaintext highlighter-rouge">服务名</code>和<code class="language-plaintext highlighter-rouge">端口号</code>。然而我们的视野可以更广阔，应用程序可能想要查找四类与网络相关的信息：<code class="language-plaintext highlighter-rouge">主机</code>、<code class="language-plaintext highlighter-rouge">网络</code>、<code class="language-plaintext highlighter-rouge">协议</code>、<code class="language-plaintext highlighter-rouge">服务</code>。</p>
+
+<ul>
+  <li>大多数查找针对的是主机(<code class="language-plaintext highlighter-rouge">gethostbyname</code>和 <code class="language-plaintext highlighter-rouge">bethostbyaddr</code>),</li>
+  <li>一小部分查找针对的是服务(<code class="language-plaintext highlighter-rouge">getservbyname</code>和<code class="language-plaintext highlighter-rouge">getservbyport</code>),</li>
+  <li>更小一部分查找针对的是网络和协议</li>
+</ul>
+
+<p>所有四类信息都可以存放在一个文件中，每类信息各定义有三个访问函数：</p>
+<ul>
+  <li>函数<code class="language-plaintext highlighter-rouge">getXXXent</code>读出文件中的下一个表项，必要的话首先打开文件。</li>
+  <li>函数<code class="language-plaintext highlighter-rouge">setXXXent</code>打开(如果尚未打开的话) 并回绕文件。</li>
+  <li>函数<code class="language-plaintext highlighter-rouge">endXXXent</code>关闭文件。</li>
+</ul>
+
+<p>每类信息都定义了各自的结构，包括 <code class="language-plaintext highlighter-rouge">hostent</code>,<code class="language-plaintext highlighter-rouge">netent</code>,<code class="language-plaintext highlighter-rouge">servent</code>. 都由 <netdb.h> 提供。</netdb.h></p>
+
+<p>除了顺序处理文件 <code class="language-plaintext highlighter-rouge">get</code>、<code class="language-plaintext highlighter-rouge">set</code>、<code class="language-plaintext highlighter-rouge">end</code>这三个函数外，每类信息还提供一些键值查找函数。这些函数顺序遍历整个文件(通过调用 <code class="language-plaintext highlighter-rouge">getXXXent</code>函数读出每一行)，并寻找与某个参数匹配的一个表项。这些键值查找函数具有形如 <code class="language-plaintext highlighter-rouge">getXXXbyYYY</code> 的名字。</p>
+
+<p>四类网络相关信息：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">信息</th>
+      <th style="text-align: left">数据文件</th>
+      <th style="text-align: left">结构</th>
+      <th style="text-align: left">键值查找函数</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">主机</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">/etc/hosts</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">hostent</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">gethostbyaddr</code>,<code class="language-plaintext highlighter-rouge">gethostbyname</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">网络</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">/etc/networks</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">netent</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">getnetbyaddr</code>, <code class="language-plaintext highlighter-rouge">getnetbyname</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">协议</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">/etc/protocols</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">protoent</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">getprotobyname</code>, <code class="language-plaintext highlighter-rouge">getprotobynumber</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">服务</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">/etc/services</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">servent</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">getservbyname</code>, <code class="language-plaintext highlighter-rouge">getservbyport</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>在使用DNS的前提下如何应用这些函数呢？首先只有主机和网络信息可以通过DNS获取，协议和服务信息总是从相应的文件中读取。我们之前有提到过，不同的实现有不同的方法供系统管理员指定是使用DNS还是使用文件来查找主机和网络信息。</p>
+
+<p>其次，如果使用DNS查找主机和网络信息，那么只有键值查找函数才有意义。举例来说，你不能使用gethostent并期待顺序遍历DNS中所有表项。如果调用gethostent,那么它仅仅读取/etc/hosts文件并避免访问DNS。</p>
+
+<p>注：虽然网络信息可以做成通过DNS能够访问到，但是很少有人这么做。</p>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/11/28/cplusplus_object_model/" data-toggle="tooltip" data-placement="top" title="深度探索C++对象模型">
+                        Previous<br>
+                        <span>深度探索C++对象模型</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/12/04/unix_network_programming_04/" data-toggle="tooltip" data-placement="top" title="UNIX网络编程 学习笔记 (四)">
+                        Next<br>
+                        <span>UNIX网络编程 学习笔记 (四)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

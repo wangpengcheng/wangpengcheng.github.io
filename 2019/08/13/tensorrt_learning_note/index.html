@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>TensorRT 学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/08/13/tensorrt_learning_note/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统">操作系统</a>
+                        
+                        <a class="tag" href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计">程序设计</a>
+                        
+                    </div>
+                    <h1>TensorRT 学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">TensorRT 官方文档笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on August 13, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-08-25 08:44:23</p>
+</blockquote>
+
+<h1 id="tensorrt学习笔记">TensorRT学习笔记</h1>
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li>
+<a href="https://docs.nvidia.com/deeplearning/sdk/tensorrt-developer-guide/index.html">官网指导手册</a>;</li>
+  <li><a href="https://github.com/NVIDIA/TensorRT">github 开源代码地址</a></li>
+  <li><a href="https://docs.nvidia.com/deeplearning/sdk/tensorrt-api/index.html">API</a></li>
+  <li>
+<a href="https://blog.csdn.net/qq_36673141?t=1">官方文章翻译</a>
+    <h2 id="1-tenosrrt的安装">1 tenosrRT的安装</h2>
+  </li>
+  <li><a href="https://docs.nvidia.com/deeplearning/sdk/tensorrt-install-guide/index.html">官方指导</a></li>
+</ul>
+
+<p>这里主要是使用Tar 安装,前提是已经安装好cudnn和cuda；</p>
+
+<p>下载文件后指直接解压</p>
+<h3 id="11-动态链接库安装">1.1 动态链接库安装</h3>
+
+<p>在~/.bashrc中添加lib目录</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#settensorrt
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/wangpengcheng/TensorRT-5.1.5.0/lib
+
+</code></pre></div></div>
+
+<h3 id="12-python环境安装">1.2 python环境安装</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>TensorRT-5.1.x.x/python
+<span class="c">#python2.7</span>
+<span class="nb">sudo </span>pip2 <span class="nb">install </span>tensorrt-5.1.x.x-cp27-none-linux_x86_64.whl
+
+<span class="c">#python3.x</span>
+<span class="nb">sudo </span>pip3 <span class="nb">install </span>tensorrt-5.1.x.x-cp3x-none-linux_x86_64.whl
+
+
+</code></pre></div></div>
+
+<h3 id="13-安装python-ufftenosrflow">1.3 安装Python UFF(tenosrflow)</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd TensorRT-5.1.x.x/uff
+#python2.7 
+sudo pip2 install uff-0.6.3-py2.py3-none-any.whl
+#python3.x
+sudo pip3 install uff-0.6.3-py2.py3-none-any.whl
+
+
+</code></pre></div></div>
+
+<h3 id="14-安装python-graphsurgeon">1.4 安装Python graphsurgeon</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>TensorRT-5.1.x.x/graphsurgeon
+
+<span class="c">#Python2.7</span>
+<span class="nb">sudo </span>pip2 <span class="nb">install </span>graphsurgeon-0.4.1-py2.py3-none-any.whl
+
+<span class="c">#python3.x</span>
+<span class="nb">sudo </span>pip3 <span class="nb">install </span>graphsurgeon-0.4.1-py2.py3-none-any.whl
+</code></pre></div></div>
+
+<h3 id="15-测试">1.5 测试</h3>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> &lt;TensorRT root directory&gt;/samples/sampleMNIST
+make 
+<span class="nb">cd </span>TensorRT-5.1.5.0/bin
+
+./sample_mnist
+</code></pre></div></div>
+<p>输出：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[I] Building and running a GPU inference engine for MNIST
+[I] Input:
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@%=#@@@@@%=%@@@@@@@@@@
+@@@@@@@           %@@@@@@@@@
+@@@@@@@           %@@@@@@@@@
+@@@@@@@#:-#-.     %@@@@@@@@@
+@@@@@@@@@@@@#    #@@@@@@@@@@
+@@@@@@@@@@@@@    #@@@@@@@@@@
+@@@@@@@@@@@@@:  :@@@@@@@@@@@
+@@@@@@@@@%+==   *%%%%%%%%%@@
+@@@@@@@@%                 -@
+@@@@@@@@@#+.          .:-%@@
+@@@@@@@@@@@*     :-###@@@@@@
+@@@@@@@@@@@*   -%@@@@@@@@@@@
+@@@@@@@@@@@*   *@@@@@@@@@@@@
+@@@@@@@@@@@*   @@@@@@@@@@@@@
+@@@@@@@@@@@*   #@@@@@@@@@@@@
+@@@@@@@@@@@*   *@@@@@@@@@@@@
+@@@@@@@@@@@*   *@@@@@@@@@@@@
+@@@@@@@@@@@*   @@@@@@@@@@@@@
+@@@@@@@@@@@*   @@@@@@@@@@@@@
+@@@@@@@@@@@@+=#@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+[I] Output:
+0: 
+1: 
+2: 
+3: 
+4: 
+5: 
+6: 
+7: **********
+8: 
+9: 
+
+&amp;&amp;&amp;&amp; PASSED TensorRT.sample_mnist # ./sample_mnist
+
+</code></pre></div></div>
+
+<h2 id="2-tensorrt简介">2. tensorRT简介</h2>
+
+<p>TensorRT是高性能c++推理库。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-25-11-21-13.png" alt="tensorRT推理">;</p>
+
+<p>其实类似TensorRT具体工作的有很多，例如<a href="https://github.com/dmlc/tvm/">TVM</a>、<a href="https://github.com/facebookresearch/TensorComprehensions">TC(Tensor Comprehensions)</a>，都做了一些类似于TensorRT的工作，将训练好的模型转化为运行在特定端(例如GPU)的进行模型优化等一系列操作后的代码，从而达到快速预测的效果。</p>
+
+<p>推理项目的一般实现过程：</p>
+
+<ul>
+  <li>模型的训练：主要是数据的预处理，网络的设计，模型的训练，</li>
+  <li>解决方案的设计：算法平台的确定，编程语言，硬件确定;网络的输入和输出等</li>
+  <li>解决方案的实施：使用tensorRT推理框架进行部署。</li>
+</ul>
+
+<h3 id="21-tensorrt的工作原理">2.1 tensorRT的工作原理</h3>
+
+<ul>
+  <li>网络定义(Network Definition):</li>
+  <li>建立(Builder):建立相关的网络。</li>
+  <li>推理引擎(Engine)：</li>
+</ul>
+
+<p>tenosrRT提供其他的工具可以将，其它的网络模型转换到当前的网络模型中。</p>
+
+<ul>
+  <li>Caffe Parser：</li>
+  <li>UFF Parse:</li>
+  <li>ONNX Parser:</li>
+</ul>
+
+<h2 id="3-tensorrt的一般使用">3. TensorRT的一般使用</h2>
+
+<h3 id="31-程序设计的一般流程">3.1 程序设计的一般流程：</h3>
+
+<ol>
+  <li>创建网络
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="n">IBuilder</span><span class="o">*</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">createInferBuilder</span><span class="p">(</span><span class="n">gLogger</span><span class="p">);</span>
+<span class="n">INetworkDefinition</span><span class="o">*</span> <span class="n">network</span> <span class="o">=</span> <span class="n">builder</span><span class="o">-&gt;</span><span class="n">createNetwork</span><span class="p">();</span>
+</code></pre></div>    </div>
+  </li>
+  <li>添加输入数据
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">data</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">addInput</span><span class="p">(</span><span class="n">INPUT_BLOB_NAME</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">Dims3</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="n">INPUT_H</span><span class="p">,</span> <span class="n">INPUT_W</span><span class="p">});</span>
+</code></pre></div>    </div>
+  </li>
+  <li>添加卷积层：传递给tensorRT的权重存在在host主机中
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">conv1</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">addConvolution</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="o">-&gt;</span><span class="n">getOutput</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">20</span><span class="p">,</span> <span class="n">DimsHW</span><span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">},</span> <span class="n">weightMap</span><span class="p">[</span><span class="s">"conv1filter"</span><span class="p">],</span> <span class="n">weightMap</span><span class="p">[</span><span class="s">"conv1bias"</span><span class="p">]);</span>
+<span class="n">conv1</span><span class="o">-&gt;</span><span class="n">setStride</span><span class="p">(</span><span class="n">DimsHW</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">});</span>
+</code></pre></div>    </div>
+  </li>
+  <li>添加池化层：
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">pool1</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">addPooling</span><span class="p">(</span><span class="o">*</span><span class="n">conv1</span><span class="o">-&gt;</span><span class="n">getOutput</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">PoolingType</span><span class="o">::</span><span class="n">kMAX</span><span class="p">,</span> <span class="n">DimsHW</span><span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">});</span>
+<span class="n">pool1</span><span class="o">-&gt;</span><span class="n">setStride</span><span class="p">(</span><span class="n">DimsHW</span><span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">});</span>
+</code></pre></div>    </div>
+  </li>
+  <li>添加全连接层
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">ip1</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">addFullyConnected</span><span class="p">(</span><span class="o">*</span><span class="n">pool1</span><span class="o">-&gt;</span><span class="n">getOutput</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">500</span><span class="p">,</span> <span class="n">weightMap</span><span class="p">[</span><span class="s">"ip1filter"</span><span class="p">],</span> <span class="n">weightMap</span><span class="p">[</span><span class="s">"ip1bias"</span><span class="p">]);</span>
+<span class="k">auto</span> <span class="n">relu1</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">addActivation</span><span class="p">(</span><span class="o">*</span><span class="n">ip1</span><span class="o">-&gt;</span><span class="n">getOutput</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">ActivationType</span><span class="o">::</span><span class="n">kRELU</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>添加SotfMax层
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">prob</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">addSoftMax</span><span class="p">(</span><span class="o">*</span><span class="n">relu1</span><span class="o">-&gt;</span><span class="n">getOutput</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="n">prob</span><span class="o">-&gt;</span><span class="n">getOutput</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">setName</span><span class="p">(</span><span class="n">OUTPUT_BLOB_NAME</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+  <li>获取输出层
+    <div class="language-plaintext highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>network-&gt;markOutput(*prob-&gt;getOutput(0));
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="32-导入外部模型">3.2 导入外部模型</h3>
+
+<ol>
+  <li>创建builder和网络
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="n">IBuilder</span><span class="o">*</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">createInferBuilder</span><span class="p">(</span><span class="n">gLogger</span><span class="p">);</span>
+<span class="n">nvinfer1</span><span class="o">::</span><span class="n">INetworkDefinition</span><span class="o">*</span> <span class="n">network</span> <span class="o">=</span> <span class="n">builder</span><span class="o">-&gt;</span><span class="n">createNetwork</span><span class="p">();</span>
+</code></pre></div>    </div>
+  </li>
+  <li>从其他特殊格式文件中创建
+```c++
+//获取相关网络参数</li>
+</ol>
+
+<p>//ONNX</p>
+
+<p>auto parser = nvonnxparser::createParser(*network, gLogger);
+//UFF</p>
+
+<p>auto parser = nvuffparser::createUffParser();
+//Caffe</p>
+
+<p>auto parser = nvcaffeparser1::createCaffeParser();</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3. 获取参数
+```c++
+parser-&gt;parse(args);
+</code></pre></div></div>
+
+<h3 id="33-导入一个caffe模型">3.3 导入一个caffe模型</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//创建builder</span>
+
+<span class="n">IBuilder</span><span class="o">*</span> <span class="n">builder</span><span class="o">=</span><span class="n">createInferBuilder</span><span class="p">(</span><span class="n">gLogger</span><span class="p">);</span>
+<span class="c1">//创建一个推理网络</span>
+
+<span class="n">INetworkDefinition</span><span class="o">*</span> <span class="n">network</span><span class="o">=</span><span class="n">builder</span><span class="o">-&gt;</span><span class="n">createNetwork</span><span class="p">();</span>
+
+<span class="c1">//创建caffe参数</span>
+
+<span class="n">ICaffeParser</span><span class="o">*</span> <span class="n">parser</span><span class="o">=</span><span class="n">createCaffeParser</span><span class="p">();</span>
+
+<span class="c1">//从参数中导入模型</span>
+
+<span class="k">const</span> <span class="n">IBlobNameToTensor</span><span class="o">=</span><span class="n">parser</span><span class="o">-&gt;</span><span class="n">parse</span><span class="p">(</span><span class="s">"deploy_file"</span> <span class="p">,</span> <span class="s">"modelFile"</span><span class="p">,</span> <span class="o">*</span><span class="n">network</span><span class="p">,</span> <span class="n">DataType</span><span class="o">::</span><span class="n">kFLOAT</span><span class="p">);</span>
+
+<span class="c1">//设置输出参数</span>
+
+<span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">s</span><span class="o">:</span><span class="n">outputs</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">network</span><span class="o">-&gt;</span><span class="n">markOutput</span><span class="p">(</span><span class="o">*</span><span class="n">blobNameToTensor</span><span class="o">-&gt;</span><span class="n">find</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">c</span><span class="p">,</span><span class="n">str</span><span class="p">()));</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h3 id="34-创建一个engine">3.4 创建一个Engine</h3>
+
+<h4 id="341-使用builder建立一个引擎">3.4.1 使用builder建立一个引擎</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">builder</span><span class="o">-&gt;</span><span class="n">setMaxBatchSize</span><span class="p">(</span><span class="n">maxBatchSize</span><span class="p">);</span>
+<span class="n">builder</span><span class="o">-&gt;</span><span class="n">setMaxWorkspaceSize</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">20</span><span class="p">);</span>
+<span class="n">ICudaEngine</span><span class="o">*</span> <span class="n">engine</span><span class="o">=</span><span class="n">builder</span><span class="o">-&gt;</span><span class="n">buildCudaEngine</span><span class="p">(</span><span class="o">*</span><span class="n">network</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<h4 id="342-相关变量的销毁">3.4.2 相关变量的销毁</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">parser</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+<span class="n">network</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+<span class="n">builder</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+
+</code></pre></div></div>
+<h3 id="35-在c中序列化模型">3.5 在c++中序列化模型</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//按照上文进行离线的builder建立--存储模型</span>
+
+<span class="n">IHostMemory</span> <span class="o">*</span><span class="n">serializedModel</span> <span class="o">=</span> <span class="n">engine</span><span class="o">-&gt;</span><span class="n">serialize</span><span class="p">();</span>
+<span class="c1">//将模型存储到磁盘上</span>
+<span class="p">...</span>
+<span class="c1">//销毁建立的模型</span>
+
+<span class="n">serializedModel</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+
+<span class="c1">//创建要反序列化的运行时对象--加载模型</span>
+<span class="n">IRuntime</span><span class="o">*</span> <span class="n">runtime</span><span class="o">=</span><span class="n">createInferRuntime</span><span class="p">(</span><span class="n">gLogger</span><span class="p">);</span>
+<span class="n">ICudaEngine</span><span class="o">*</span> <span class="n">engine</span><span class="o">=</span><span class="n">runtime</span><span class="o">-&gt;</span><span class="n">deserializeCudaEngine</span><span class="p">(</span><span class="n">modelData</span><span class="p">,</span> <span class="n">modelSize</span><span class="p">,</span> <span class="nb">nullptr</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<h3 id="36-高性能的推理">3.6 高性能的推理</h3>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//创建一个推理上下文</span>
+
+<span class="n">IExecutionContext</span> <span class="o">*</span><span class="n">context</span> <span class="o">=</span> <span class="n">engine</span><span class="o">-&gt;</span><span class="n">createExecutionContext</span><span class="p">();</span>
+<span class="c1">//根据输入和输出的名称确定输入输出blob的索引</span>
+
+<span class="kt">int</span> <span class="n">inputIndex</span> <span class="o">=</span> <span class="n">engine</span><span class="o">-&gt;</span><span class="n">getBindingIndex</span><span class="p">(</span><span class="n">INPUT_BLOB_NAME</span><span class="p">);</span>
+<span class="kt">int</span> <span class="n">outputIndex</span> <span class="o">=</span> <span class="n">engine</span><span class="o">-&gt;</span><span class="n">getBindingIndex</span><span class="p">(</span><span class="n">OUTPUT_BLOB_NAME</span><span class="p">);</span>
+<span class="c1">//创建指针，指向输入输出buffer</span>
+
+<span class="kt">void</span><span class="o">*</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="n">buffer</span><span class="p">[</span><span class="n">inputIndex</span><span class="p">]</span><span class="o">=</span><span class="n">inputbuffer</span><span class="p">;</span>
+<span class="n">buffer</span><span class="p">[</span><span class="n">outputIndex</span><span class="p">]</span><span class="o">=</span><span class="n">outputBuffer</span>
+<span class="c1">//因为tensorrt是异步的，因此将kerneks添加到cuda流当中</span>
+
+<span class="n">context</span><span class="o">-&gt;</span><span class="n">enqueue</span><span class="p">(</span><span class="n">batchSize</span><span class="p">,</span><span class="n">buffers</span><span class="p">,</span><span class="n">stream</span><span class="p">,</span><span class="nb">nullptr</span><span class="p">);</span>
+</code></pre></div></div>
+<h3 id="37-内存管理和引擎更改">3.7 内存管理和引擎更改</h3>
+
+<p>默认的内存管理是创建一个上下文：<code class="language-plaintext highlighter-rouge">IExecutionContext</code></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//建立一个可修改的推理引擎</span>
+
+<span class="n">builder</span><span class="o">-&gt;</span><span class="n">setRefittable</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="c1">//创建network推理引擎</span>
+
+<span class="n">builder</span><span class="o">-&gt;</span><span class="n">buildCudaEngine</span><span class="p">(</span><span class="n">network</span><span class="p">);</span>
+<span class="c1">//创建一个可更改的对象</span>
+
+<span class="n">ICudaEngine</span><span class="o">*</span> <span class="n">engine</span><span class="o">=</span><span class="p">...;</span>
+<span class="n">IRefitter</span><span class="o">*</span> <span class="n">refitter</span><span class="o">=</span><span class="n">createInferRefitter</span><span class="p">(</span><span class="o">*</span><span class="n">engine</span><span class="p">,</span><span class="n">gLogger</span><span class="p">);</span>
+<span class="c1">//更新权重,注意新权重应该在尺寸上和旧权重相同，避免内存错误</span>
+<span class="n">Weights</span> <span class="n">newWeights</span><span class="o">=</span><span class="p">...;</span>
+<span class="n">refitter</span><span class="o">-&gt;</span><span class="n">setWeights</span><span class="p">(</span><span class="s">"MyLayer"</span><span class="p">,</span><span class="n">WeightsRole</span><span class="o">::</span><span class="n">KKERNEL</span><span class="p">,</span><span class="n">newWeights</span><span class="p">);</span>
+<span class="c1">//找到其它必须被支持的网络参数</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">n</span><span class="o">=</span><span class="n">refitter</span><span class="o">-&gt;</span><span class="n">getMissing</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">nullptr</span><span class="p">,</span><span class="nb">nullptr</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span> <span class="n">layerName</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">WeightsRole</span><span class="o">&gt;</span> <span class="n">WeightsRoles</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="n">refitter</span><span class="o">-&gt;</span><span class="n">getMissing</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">layerNames</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="n">weightsRoles</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+<span class="c1">//支持丢失的权重</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="o">++</span><span class="n">i</span><span class="p">){</span>
+    <span class="n">refitter</span><span class="o">-&gt;</span><span class="n">setWeights</span><span class="p">(</span><span class="n">layerNames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">weightsRoles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">Weights</span><span class="p">{...});</span>
+<span class="p">}</span>
+
+<span class="c1">//更新整个推理引擎的权重</span>
+<span class="kt">bool</span> <span class="n">success</span><span class="o">=</span><span class="n">refitter</span><span class="o">-&gt;</span><span class="n">refitCudaEngine</span><span class="p">();</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+<span class="c1">//销毁 refitter</span>
+<span class="n">refitter</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+</code></pre></div></div>
+
+<h2 id="4-传统layers的tensorrt拓展">4. 传统layers的tensorRT拓展</h2>
+
+<p>tenosrRT中可以使用<code class="language-plaintext highlighter-rouge">IPluginV2Ext</code>和<code class="language-plaintext highlighter-rouge">IPluginCreator</code>来对已有的网络进行拓展。</p>
+
+<ul>
+  <li>
+<a href="https://docs.nvidia.com/deeplearning/sdk/tensorrt-api/c_api/classnvinfer1_1_1_i_plugin_v2_ext.html">IPluginV2Ext</a>
+    <ul>
+      <li>这个类是插件扩展的基础类，支持使用传统的版本</li>
+    </ul>
+  </li>
+  <li>
+<a href="https://docs.nvidia.com/deeplearning/sdk/tensorrt-api/c_api/classnvinfer1_1_1_i_plugin_creator.html">IPluginCreator</a>
+    <ul>
+      <li>IPluginCreator是自定义图层的创建者类，用户可以使用它来获取插件名称，版本和插件字段参数。 它还提供了在网络构建阶段创建插件对象的方法，并在推理期间对其进行反序列化。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>TensorRT还提供了通过调用REGISTER_TENSORRT_PLUGIN（pluginCreator）来注册插件的功能，该插件将插件创建者静态注册到插件注册表。在运行时，可以使用extern函数getPluginRegistry（）查询插件注册表。插件注册表存储指向所有已注册的插件创建器的指针，可用于根据插件名称和版本查找特定的插件创建器。TensorRT库包含可以加载到应用程序中的插件。所有这些插件的版本都设置为1.这些插件的名称是：</p>
+
+<ul>
+  <li>RPROI_TRT</li>
+  <li>Normalize_TRT</li>
+  <li>PriorBox_TRT</li>
+  <li>GridAnchor_TRT</li>
+  <li>NMS_TRT</li>
+  <li>LReLU_TRT</li>
+  <li>Reorg_TRT</li>
+  <li>Region_TRT</li>
+  <li>Clip_TRT</li>
+</ul>
+
+<p>注意为了能够使用这些插件，<code class="language-plaintext highlighter-rouge">libnvinfer_plugin.so</code>链接库，必须被包括在项目中。可以使用<code class="language-plaintext highlighter-rouge">initLibNvInferPlugins(void* logger, const char* libNamespace)</code>函数来进行初始化。</p>
+
+<p>一个简单的添加扩展layer的代码如下所示;</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//使用extern函数getPluginRegistry访问全局TensorRT插件注册表</span>
+
+<span class="k">auto</span> <span class="n">creator</span> <span class="o">=</span> <span class="n">getPluginRegistry</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">getPluginCreator</span><span class="p">(</span><span class="n">pluginName</span><span class="p">,</span> <span class="n">pluginVersion</span><span class="p">);</span>
+<span class="k">const</span> <span class="n">PluginFieldCollection</span><span class="o">*</span> <span class="n">pluginFC</span> <span class="o">=</span> <span class="n">creator</span><span class="o">-&gt;</span><span class="n">getFieldNames</span><span class="p">();</span>
+<span class="c1">//填充插件层的字段参数（比如layerFields）</span>
+
+<span class="n">PluginFieldCollection</span> <span class="o">*</span><span class="n">pluginData</span> <span class="o">=</span> <span class="n">parseAndFillFields</span><span class="p">(</span><span class="n">pluginFC</span><span class="p">,</span> <span class="n">layerFields</span><span class="p">);</span> 
+<span class="c1">//使用layerName和插件元数据创建插件对象</span>
+
+<span class="n">IPluginV2</span> <span class="o">*</span><span class="n">pluginObj</span> <span class="o">=</span> <span class="n">creator</span><span class="o">-&gt;</span><span class="n">createPlugin</span><span class="p">(</span><span class="n">layerName</span><span class="p">,</span> <span class="n">pluginData</span><span class="p">);</span>
+<span class="c1">//使用网络API将插件添加到TensorRT网络</span>
+
+<span class="k">auto</span> <span class="n">layer</span> <span class="o">=</span> <span class="n">network</span><span class="p">.</span><span class="n">addPluginV2</span><span class="p">(</span><span class="o">&amp;</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kt">int</span><span class="p">(</span><span class="n">inputs</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span> <span class="n">pluginObj</span><span class="p">);</span>
+
+<span class="err">…</span> <span class="p">(</span><span class="n">build</span> <span class="n">rest</span> <span class="n">of</span> <span class="n">the</span> <span class="n">network</span> <span class="n">and</span> <span class="n">serialize</span> <span class="n">engine</span><span class="p">)</span>
+<span class="c1">//销毁插件对象</span>
+
+<span class="n">pluginObj</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+<span class="err">…</span> <span class="p">(</span><span class="n">destroy</span> <span class="n">network</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">builder</span><span class="p">)</span>
+<span class="err">…</span> <span class="p">(</span><span class="n">free</span> <span class="n">allocated</span> <span class="n">pluginData</span><span class="p">)</span>
+
+</code></pre></div></div>
+<p>注意：</p>
+<ul>
+  <li>pluginData应该在传递给createPlugin之前在堆上分配PluginField条目。</li>
+  <li>上面的createPlugin方法将在堆上创建一个新的插件对象并返回指向它的指针。确保销毁pluginObj，如上所示，以避免内存泄漏。</li>
+</ul>
+
+<p>在序列化期间，TensorRT引擎将在内部存储所有IPluginV2类型插件的插件类型，插件版本和命名空间（如果存在）。在反序列化期间，TensorRT引擎会查找此信息，以便从插件注册表中找到插件创建器。这使TensorRT引擎能够在内部调用<code class="language-plaintext highlighter-rouge">IPluginCreator::deserializePlugin()</code>方法。 反序列化期间创建的插件对象将由TensorRT引擎通过调用<code class="language-plaintext highlighter-rouge">IPluginV2::destroy()</code>方法在内部销毁。</p>
+
+<p>在以前的TensorRT版本中，您必须实现<code class="language-plaintext highlighter-rouge">nvinfer1::IPluginFactory</code>类以在反序列化期间调用createPlugin方法。对于使用TensorRT注册并使用addPluginV2添加的插件，不再需要这样做。</p>
+
+<p>创建一个传统的caffe layer</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//创建一个新的FooPlugin</span>
+
+<span class="k">class</span> <span class="nc">FooPlugin</span><span class="o">:</span><span class="k">public</span> <span class="n">IPluginExt</span>
+<span class="p">{</span>
+    <span class="p">...</span><span class="n">implement</span> <span class="n">all</span> <span class="k">class</span> <span class="nc">methods</span> <span class="k">for</span> <span class="n">your</span> <span class="n">plugin</span>
+<span class="p">};</span>
+<span class="k">class</span> <span class="nc">MyPluginFactory</span> <span class="o">:</span> <span class="k">public</span> <span class="n">nvinfer1</span><span class="o">::</span><span class="n">IPluginFactory</span><span class="p">,</span> <span class="k">public</span> <span class="n">nvcaffeparser1</span><span class="o">::</span><span class="n">IPluginFactoryExt</span>
+<span class="p">{</span>
+    <span class="p">...</span><span class="n">implement</span> <span class="n">all</span> <span class="n">factory</span> <span class="n">methods</span> <span class="k">for</span> <span class="n">your</span> <span class="n">plugin</span>
+<span class="p">};</span>
+<span class="c1">//使用IPluginV2的插件注册器，可以不用导入nvinfer1::IPluginFactory，但是需要使用nvcaffeparser1::IPluginFactoryV2和IPluginCreator来代替注册导入</span>
+
+<span class="k">class</span> <span class="nc">FooPlugin</span><span class="o">:</span><span class="k">public</span> <span class="n">IPluginV2</span>
+<span class="p">{</span>
+    <span class="p">...</span><span class="n">implement</span> <span class="n">all</span> <span class="k">class</span> <span class="nc">methods</span> <span class="k">for</span> <span class="n">your</span> <span class="n">plugin</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">FooPluginFactory</span><span class="o">:</span><span class="k">public</span> <span class="n">nvcaffeparser1</span><span class="o">::</span><span class="n">IPluginFactoryV2</span>
+<span class="p">{</span>
+    <span class="k">virtual</span> <span class="n">nvinfer1</span><span class="o">::</span><span class="n">IPluginV2</span><span class="o">*</span> <span class="n">createPlugin</span><span class="p">(...)</span>
+    <span class="p">{</span>
+        <span class="p">...</span><span class="n">create</span> <span class="n">and</span> <span class="k">return</span> <span class="n">plugin</span> <span class="n">object</span> <span class="n">of</span> <span class="n">type</span> <span class="n">FooPlugin</span>
+    <span class="p">}</span>
+    <span class="kt">bool</span> <span class="n">isPlugin</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="p">...</span><span class="n">check</span> <span class="k">if</span> <span class="n">layer</span> <span class="n">name</span> <span class="n">corresponds</span> <span class="n">to</span> <span class="n">plugin</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">FooPluginCreator</span><span class="o">:</span><span class="k">public</span> <span class="n">IPluginCreator</span>
+<span class="p">{</span>
+    <span class="p">...</span><span class="n">implement</span> <span class="n">all</span> <span class="n">creator</span> <span class="n">methods</span> <span class="n">here</span>
+<span class="p">};</span>
+<span class="n">REGISTER_TENSORRT_PLUGIN</span><span class="p">(</span><span class="n">FooPluginCreator</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<h2 id="5-使用混合精度">5. 使用混合精度</h2>
+
+<p>TensorRT支持32-bit、16-bit和8-bit的混合精度的运算。使用如下API开启混合精度</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">builder</span><span class="o">-&gt;</span><span class="n">platformHasFastFp16</span><span class="p">())</span> <span class="p">{</span> <span class="err">…</span> <span class="p">};</span> 
+<span class="k">if</span> <span class="p">(</span><span class="n">builder</span><span class="o">-&gt;</span><span class="n">platformHasFastInt8</span><span class="p">())</span> <span class="p">{</span> <span class="err">…</span> <span class="p">};</span>
+</code></pre></div></div>
+
+<p>设置layer的精度</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//设置允许的精度</span>
+
+<span class="n">layer</span><span class="o">-&gt;</span><span class="n">setPrecision</span><span class="p">(</span><span class="n">nvinfer1</span><span class="o">::</span><span class="n">DataType</span><span class="o">::</span><span class="n">kINT8</span><span class="p">);</span>
+<span class="c1">//设置输出类型和精度</span>
+
+<span class="n">layer</span><span class="o">-&gt;</span><span class="n">setOutputType</span><span class="p">(</span><span class="n">out_tensor_index</span><span class="p">,</span> <span class="n">nvinfer1</span><span class="o">::</span><span class="n">DataType</span><span class="o">::</span><span class="n">kFLOAT</span><span class="p">)</span>
+<span class="c1">//使用严格模式，使得上述操作强制执行</span>
+
+<span class="n">builder</span><span class="o">-&gt;</span><span class="n">setStrictTypeConstraints</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="c1">//允许Fp16Mode推理</span>
+
+<span class="n">builder</span><span class="o">-&gt;</span><span class="n">setFp16Mode</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="c1">//此标志允许（但不保证）在构建引擎时将使用16位内核。您可以通过设置以下构建器标志来选择强制16位精度：</span>
+
+<span class="n">builder</span><span class="o">-&gt;</span><span class="n">setStrictTypeConstraints</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+</code></pre></div></div>
+<h3 id="58-使用int8量化">5.8 使用INT8量化</h3>
+<p><em>参考链接:</em></p>
+
+<ul>
+  <li><a href="https://zhuanlan.zhihu.com/p/58182172">Int8量化-介绍</a></li>
+</ul>
+
+<p>使用INT8量化之前需要首先设置推理允许使用INT8模式</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">builder</span><span class="o">-&gt;</span><span class="n">setInt8Mode</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>注意使用INT8量化之前，需要对32位的数据进行量化裁剪。TensorRT希望你使用动态范围技术来进行每个的推理。可以设置范围如下：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//设置量化范围</span>
+
+<span class="n">ITensor</span><span class="o">*</span> <span class="n">tensor</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">getLayer</span><span class="p">(</span><span class="n">layer_index</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">getOutput</span><span class="p">(</span><span class="n">output_index</span><span class="p">);</span>
+<span class="n">tensor</span><span class="o">-&gt;</span><span class="n">setDynamicRange</span><span class="p">(</span><span class="n">min_float</span><span class="p">,</span> <span class="n">max_float</span><span class="p">);</span>
+<span class="c1">//设置输入</span>
+
+<span class="n">ITensor</span><span class="o">*</span> <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">network</span><span class="o">-&gt;</span><span class="n">getInput</span><span class="p">(</span><span class="n">input_index</span><span class="p">);</span>
+<span class="n">input_tensor</span><span class="o">-&gt;</span><span class="n">setDynamicRange</span><span class="p">(</span><span class="n">min_float</span><span class="p">,</span> <span class="n">max_float</span><span class="p">);</span>
+
+</code></pre></div></div>
+<h4 id="581-使用c进行int8校准">5.8.1 使用C++进行INT8校准</h4>
+
+<p>INT8校准提供了生成每个激活张量动态范围的替代方案。可以将该方法归类为后训练技术以生成适当的量化比例。确定这些比例因子的过程称为校准，并要求应用程序传递批量的网络代表性输入（通常来自训练集的批次）。实验表明，大约500个图像足以校准ImageNet分类网络。</p>
+
+<p>构建INT8引擎时，构建器执行以下步骤：</p>
+<ul>
+  <li>构建一个32位引擎，在校准集上运行它，并记录激活值分布的每个张量的直方图。</li>
+  <li>根据直方图构建校准表。</li>
+  <li>从校准表和网络定义构建INT8引擎。</li>
+</ul>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/08/13/leetcode_1108/" data-toggle="tooltip" data-placement="top" title="leetcode 日常练习 1108">
+                        Previous<br>
+                        <span>leetcode 日常练习 1108</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/09/03/beginning_linux_programming_03/" data-toggle="tooltip" data-placement="top" title="Linux程序设计 学习笔记 (三)">
+                        Next<br>
+                        <span>Linux程序设计 学习笔记 (三)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

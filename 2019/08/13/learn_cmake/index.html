@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>cmake 学习笔记(一) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/08/13/learn_cmake/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+<script>MathJax={"tex":{"inlineMath":[["$","$"],["\\(","\\)"]],"displayMath":[["$$","$$"],["\\[","\\]"]]},"svg":{"fontCache":"global"},"svg":{"fontCache":"global"}}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#MakeFile" title="MakeFile">MakeFile</a>
+                        
+                        <a class="tag" href="/tags/#cmake" title="cmake">cmake</a>
+                        
+                    </div>
+                    <h1>cmake 学习笔记(一)</h1>
+                    
+                    
+                    <h2 class="subheading">cmake 学习笔记(一)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on August 13, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-08-13 12:58:56</p>
+</blockquote>
+
+<h1 id="cmake学习笔记一">cmake学习笔记(一)</h1>
+
+<p><em>参考链接：</em> <a href="https://mubu.com/docbgFI4BMB6V">CMake文档</a>;<a href="https://blog.csdn.net/dabenxiong666/article/details/53998998">CMake使用教程</a>;<a href="http://cliutils.gitlab.io/modern-cmake/">Modern CMake</a></p>
+
+<h2 id="cmake链接">CMake链接</h2>
+
+<ul>
+  <li><a href="https://cmake.org/">CMake官网</a></li>
+  <li><a href="https://cmake.org/Wiki/CMake">CMakeWiki</a></li>
+  <li><a href="https://github.com/Kitware/CMake">CMake源码</a></li>
+  <li><a href="https://github.com/Akagi201/learning-cmake">Learn CMake</a></li>
+  <li><a href="https://cmake.org/cmake/help/latest/manual/cmake.1.html">CMake文档</a></li>
+  <li><a href="https://cmake.org/cmake-tutorial/">CMake Tutorial</a></li>
+</ul>
+
+<h1 id="cmake文档">CMake文档</h1>
+
+<h2 id="思维导图">思维导图</h2>
+<p><a href="https://wangpengcheng.github.io/img/CMakeFile.png">点击查看思维导图</a></p>
+
+<hr>
+
+<h2 id="1-安装">1 安装</h2>
+<h3 id="11-windows安装">1.1 Windows安装</h3>
+<p>网址：https://cmake.org/download/</p>
+<h3 id="12-macos安装">1.2 macOS安装</h3>
+
+<ul>
+  <li>网址：https://cmake.org/download/，下载CMake，并正常安装</li>
+  <li>安装完成之后，使用以下指令创建/usr/local/bin下的CMake的软连接
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">sudo "/Applications/CMake.app/Contents/bin/cmake-gui" --install</code></li>
+      <li>注意：执行此命令的时候确保CMake处于关闭状态重新打开Terminal，即可正常使用 CMake 的各种指令了，也可以在应用程序列表中使用带 GUI 的 CMake 工具。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="13-linux安装">1.3 Linux安装</h3>
+<ul>
+  <li>网址：https://cmake.org/download/，下载对应版本的CMake（32位或者64位）</li>
+  <li>将下载的安装包上传到Linux服务器，比如:/root</li>
+  <li>输入以下命令进行解压
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">tar -zxvf cmake-3.13.0-rc1-Linux-x86_64.tar.gz</code></li>
+      <li>注意：后面是官网下载的对应版本的名字</li>
+    </ul>
+  </li>
+  <li>把解压后的目录改名为：cmake
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">mv cmake-3.10.0-rc4-Linux-x86_64 cmake</code></li>
+      <li>设置环境变量
+        <ul>
+          <li>使用指令<code class="language-plaintext highlighter-rouge">vi .bash_profile</code>来设置环境变量，找到<code class="language-plaintext highlighter-rouge">PATH=$PATH:$....</code>这一行，后面添加CMake安装目录里面的bin目录的地址</li>
+          <li>如果是在/root目录安装的CMake，那添加的目录就是：/root/cmake/bin</li>
+        </ul>
+      </li>
+      <li>安装完毕，环境变量设置成功之后，命令行输入：cmake –version检测是否安装成功
+        <ul>
+          <li>输出：cmake version 3.13，表示安装成功</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+<h2 id="2-使用cmake生成项目">2 使用CMake生成项目</h2>
+
+<h3 id="21-使用windows或者linux生成项目">2.1 使用Windows或者Linux生成项目</h3>
+<ul>
+  <li>进入项目目录（CMakeLists.txt所在目录），新建一个build文件夹，因为CMake会产生很多自己的中间文件。</li>
+  <li>执行 ：cmake ../ 就会在build目录产生项目文件，windows下面默认产生vs的项目。</li>
+  <li>如果要产生其他编译器的makefile，就需要使用-G指定编译器
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">cmake -G "MinGW Makefiles" ../</code></li>
+      <li>可以使用cmake –help 来查看使用的编译器的名字</li>
+      <li>生成项目工程文件或者makefile之后，就可以使用对应的编译器来编译项目</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-使用macos生成项目">2.2 使用macOS生成项目</h3>
+<ul>
+  <li>mac下基本操作和windows、Linux相同，不过cmake命令使用的是：cmake .. （没有右斜杠）</li>
+</ul>
+
+<h3 id="注意默认已经配置好环境变量">注意：（默认已经配置好环境变量）</h3>
+
+<hr>
+
+<h2 id="3-cmake命令行选项的设置">3 CMake命令行选项的设置</h2>
+
+<h3 id="31-指定构建系统生成器-g">3.1 指定构建系统生成器：-G</h3>
+<ul>
+  <li>使用：-G 命令可以指定编译器，当前平台支持的编译器名称可以通过帮助手册查看：cmake –help，
+  例如：
+  <code class="language-plaintext highlighter-rouge">cmake -G "Visual Studio 15 2017" </code>../ 使用vs2017构建工程</li>
+</ul>
+
+<h3 id="32cmakecachetxt文件">3.2CMakeCache.txt文件</h3>
+<ul>
+  <li>当cmake第一次运行一个空的构建的时候，他就会创建一个CMakeCache.txt文件，文件里面存放了一些可以用来制定工程的设置，比如：变量、选项等</li>
+  <li>对于同一个变量，如果Cache文件里面有设置，那么CMakeLists文件里就会优先使用Cache文件里面的同名变量。</li>
+  <li>CMakeLists里面通过设置了一个Cache里面没有的变量，那就将这个变量的值写入到Cache里面</li>
+</ul>
+
+<p>例子：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//变量var的值被设置成1024，如果变量var在Cache中已经存在，该命令不会覆盖cac he里面的值
+
+<span class="nf">SET</span><span class="p">(</span>var 1024<span class="p">)</span>
+//如果var在Cache中存在，就优先使用Cache里面的值，如果不存在，就将该值写入Cache里面​
+   
+<span class="nf">SET</span><span class="p">(</span>var 1024..CACHE..<span class="p">)</span>
+//无论Cache里面是否存在，都始终使用该值
+   
+<span class="nf">SET</span><span class="p">(</span>var..CACHE..FORCE<span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="33-添加变量到cache文件中-d">3.3 添加变量到Cache文件中：-D</h3>
+<p>注意：-D后面不能有空格，例如：cmake -DCMAKE_BUILD_TYPE:STRING=Debug</p>
+<h3 id="34-从cache文件中删除变量-u">3.4 从Cache文件中删除变量：-U</h3>
+<p>此选项和-D功能相反，从Cache文件中删除变量，支持使用*和？通配符</p>
+<h3 id="35-cmake命令行模式-e">3.5 CMake命令行模式：-E</h3>
+<p>CMake提供了很多和平台无关的命令，在任何平台都可以使用：chdir, copy,copy_if_different等
+可以使用：cmake -E help进行查询</p>
+<h3 id="36-打印运行的每一行cmake">3.6 打印运行的每一行CMake</h3>
+<ul>
+  <li>命令行选项中：<code class="language-plaintext highlighter-rouge">--trace</code>，将打印运行的每一行CMake，例如windows下执行: cmake –trace ..</li>
+  <li>命令：<code class="language-plaintext highlighter-rouge">--trace-source="filename"</code>就会打印出有关filename的执行</li>
+</ul>
+
+<h3 id="37-设置编译参数">3.7 设置编译参数</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">add_definitions（-DENABLED）</code>，当在CMake里面添加该定义的时候，如果代码里面定义了<code class="language-plaintext highlighter-rouge">#ifdef ENABLED #endif</code>相关的片段，此时代码里面这一块代码就会生效</li>
+  <li>add_definitions( “-Wall -ansi –pedantic –g”)：该命令现已经被取代，使用： add_compile_definitions(WITH_OPENCV2)</li>
+</ul>
+
+<h3 id="38-设置默认值命令option">3.8 设置默认值命令：option</h3>
+<p>option命令可以帮助我们设置一个自定义的宏，如下：</p>
+
+<ul>
+  <li>option(MY-MESSAGE “this is my message” ON)</li>
+  <li>第一个参数就是我们要设置的默认值的名字</li>
+  <li>第二个参数是对值的解释，类似于注释</li>
+  <li>第三个值是这个默认值的值，如果没有声明，CMake默认的是OFF</li>
+  <li>使用：设置好之后我们在命令行去使用的时候，也可以去给他设定值：cmake -DMY-MESSAGE=on ../</li>
+  <li>注意：使用的时候我们应该在值的前面加“D”</li>
+  <li>这条命令可将MY-MESSAGE的值设置为on，通过这个值我们可以去触发相关的判断</li>
+</ul>
+
+<h2 id="4-cmake基础知识简介">4 CMake基础知识简介</h2>
+
+<h3 id="41-最低版本">4.1 最低版本</h3>
+
+<p>每个CMakeList.txt中第一行都会写<code class="language-plaintext highlighter-rouge">cmake_minimum_required(VERSION X.X)</code>来指定cmake的最低版本，设置cmake版本必须大于X.X，也可以使用<code class="language-plaintext highlighter-rouge">cmake_minimum_required(VERSION X.X...Y.Y)</code>来设置cmake的版本范围。</p>
+
+<h4 id="411-判断cmake版本">4.1.1 判断cmake版本</h4>
+
+<div class="language-makefile highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c">#检查当前版本是否小鱼3.12是，则更新版本号变量,否则设置版本为3.12
+</span>
+<span class="err">if(${CMAKE_VERSION}</span> <span class="err">VERSION_LESS</span> <span class="err">3.12)</span>
+    <span class="err">cmake_policy(VERSION</span> <span class="err">${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})</span>
+<span class="err">else()</span>
+    <span class="err">cmake_policy(VERSION</span> <span class="err">3.12)</span>
+<span class="err">endif()</span>
+</code></pre></div></div>
+
+<p>现在可以使用<code class="language-plaintext highlighter-rouge">cmake_minimum_required(VERSION 2.8.3)</code>检查cmake的最小版本</p>
+
+<h3 id="42-设置项目名称">4.2 设置项目名称</h3>
+
+<p>cmake中使用 <code class="language-plaintext highlighter-rouge">project(MyProject[C] [C++])</code> 不过后面的语言参数经常省略，默认支持所有语言。</p>
+
+<p>执行project()函数就是定义了一个项目名称，并且会生成两个变量<code class="language-plaintext highlighter-rouge">_BINARY_DIR和_SOURCE_DIR</code>和<code class="language-plaintext highlighter-rouge">PROJECT_BINARY_DIR</code>者两个变量是cmake中预定义的变量。变量是否相同，关键在于是内部构建还是外部构建：</p>
+
+<ul>
+  <li>内部构建： <code class="language-plaintext highlighter-rouge">cmake ./ &amp;&amp; make</code>
+</li>
+  <li>外部构建：<code class="language-plaintext highlighter-rouge">mkdir build &amp;&amp; cd build &amp;&amp; cmake ../ &amp;&amp; make</code>
+当cmake在外部构建时，产生的中间文件和可执行文件并不在同一目录，因此<code class="language-plaintext highlighter-rouge">PROJECT_BINARY_DIR</code>和<code class="language-plaintext highlighter-rouge">_BINARY_DIR</code>内容相同，内部构建的时候指向CMakeLists.txt文件的目录，外部构建的，指向target编译的目录。
+此外：PROJECT_SOURCE_DIR和_SOURCE_DIR无论内部构建还是外部构建，指向的内容都是一样的，都指向工程的根目录</li>
+</ul>
+
+<h3 id="43-生成可执行文件">4.3 生成可执行文件</h3>
+
+<p>语法：<code class="language-plaintext highlighter-rouge">add_executable(exename srcname)</code></p>
+
+<ul>
+  <li>exename:生成的可执行文件的名字</li>
+  <li>srcname:以来的源文件</li>
+</ul>
+
+<p>生成exe的名字，并且指出需要的源文件。
+获取文件路径中的所有源文件：<code class="language-plaintext highlighter-rouge">aux_sourcr_directory(&lt;dir&gt; &lt;variable&gt;)</code>例如：<code class="language-plaintext highlighter-rouge">aux_sourcr_directory(. DIR_SRCS)</code>将当前目录下的源文件名字存放到变量DIR_SRCS里面 ，如果源文件比较多，直接用DIR_SRCS变量即可。<code class="language-plaintext highlighter-rouge">add_executable(Demo ${DIR_SRCS})</code>生成名为Demo的可执行文件。</p>
+
+<h3 id="44-生成库文件">4.4 生成库文件</h3>
+
+<p>cmake中使用<code class="language-plaintext highlighter-rouge">add_library</code>来实现库文件的生成；
+命令：</p>
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">add_library</span><span class="p">(</span>
+    libname 
+    [SHARED|STATIC|MODULE] 
+    [EXCLUDE_FROM_ALL] 
+    source1 
+    source2 
+    ... 
+    sourceN
+    <span class="p">)</span>
+
+</code></pre></div></div>
+
+<ul>
+  <li>libname:生成的库文件的名字</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+<code class="language-plaintext highlighter-rouge">[SHARED|STATIC|MODULE]</code>：生成库文件的类型（动态库</td>
+          <td>静态库</td>
+          <td>模块）</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>EXCLUDE_FROM_ALL：有这个参数表示该库不会被默认构建​</li>
+  <li>source2 … sourceN：生成库依赖的源文件，如果源文件比较多，可以使用​aux_sourcr_directory命令获取路径下所有源文件，具体章节参见：CMake基础知识简介-&gt;生成可执行文件-&gt;获取路径中所有源文件</li>
+</ul>
+
+<p>示例：<code class="language-plaintext highlighter-rouge">add_library(ALib SHARE alib.cpp)</code></p>
+
+<h3 id="45-添加头文件目录">4.5 添加头文件目录</h3>
+
+<p>命令1：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>target_include_directories(
+    &lt;target&gt; [SYSTEM] 
+    [BEFORE] 
+    &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...] 
+    [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...]
+    )
+
+</code></pre></div></div>
+
+<p>示例1：<code class="language-plaintext highlighter-rouge">target_include_directories(RigelEditor PUBLIC ./include/rgeditor)</code>，表示给RigelEditor 这个子项目添加一个库文件的路径。</p>
+
+<p>命令2：<code class="language-plaintext highlighter-rouge">include_directories([AFTER|BEFORE] [SYSTEM] dir1 [dir2 …])</code>
+参数解析：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">AFTER|BEFORE</code>：指定了要添加路径是添加到原有列表之前还是之后</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SYSTEM</code>​：若指定了system参数，则把被包含的路径当做系统包含路径来处理。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">dir1 [dir2 …]​</code>:把这些路径添加到CMakeLists及其子目录的CMakeLists的头文件包含项目中相当于g++选项中的-l的参数的作用。</li>
+</ul>
+
+<p>示例2：<code class="language-plaintext highlighter-rouge">include_directories("/opt/MATLAB/R2012a/extern/include")</code></p>
+
+<p>注意：两者都是将include目录添加到目标区域中，但是include_directories是对整个项目进行全局添加，target_include_directories是将CMake中针对指定的目标进行添加。</p>
+
+<h3 id="46-添加链接库文件路径">4.6 添加链接库文件路径</h3>
+
+<h4 id="461-添加需要的库文件路径">4.6.1 添加需要的库文件路径</h4>
+
+<p>命令1:</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">target_link_libraries</span><span class="p">(</span>
+    &lt;target&gt; 
+    [item1 [item2 [...]]] 
+    <span class="s2">[[debug|optimized|general] &lt;item&gt;] 
+    ...
+    )
+</span></code></pre></div></div>
+
+<p>参数解析：</p>
+
+<ul>
+  <li>item: 对应的链接库文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">debug|optimized|general</code>:调试配置/其它配置/所有配置</li>
+</ul>
+
+<p>示例1：target_link_libraries(MyProject a b.a c.so) 将文件库链接到项目中，target_link_libraries中的库文件的顺序符合gcc/g++链接顺序规则，即：被依赖的库放在依赖其他的库的后面。</p>
+
+<p>命令2：link_libraries
+给当前工程链接需要的文件库。</p>
+
+<p>注意：target_link_libraries可以给工程或者库文件设置其需要链接的库文件，而且不需要填写全路径，但是link_libraries只能给工程添加依赖的库，而且必须添加全路径。</p>
+
+<h4 id="462-添加需要的库文件的目录">4.6.2 添加需要的库文件的目录</h4>
+
+<p>link_directories</p>
+
+<h3 id="47-控制目标属性">4.7 控制目标属性</h3>
+
+<p>以上的几条命令的区分都是：是否带target前缀，在CMake里面，一个target有自己的属性集，如果我们没有显示的设置这些target的属性的话，CMake默认是由相关的全局属性来填充target的属性，我们如果需要单独的设置target的属性，需要使用命令：set_target_properties()</p>
+
+<p>命令格式：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set_target_properties(
+    target1 
+    target2 
+    ... 
+    PROPERTIES 属性名称1 值 
+    属性名称2 值 
+    ... 
+    )
+
+</code></pre></div></div>
+
+<ul>
+  <li>控制编译选项的属性是：COMPILE_FLAGS</li>
+  <li>控制链接选项的属性是：LINK_FLAGS</li>
+  <li>控制输出路径的属性：EXECUTABLE_OUTPUT_PATH（exe的输出路径）、LIBRARY_OUTPUT_PATH（库文件的输出路径）</li>
+</ul>
+
+<p>示例：</p>
+<div class="language-makefile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">set_target_properties(exe</span> 
+    <span class="err">PROPERTIES</span> 
+    <span class="err">LINK_FLAGS</span> <span class="err">-static</span> 
+    <span class="err">LINK_FLAGS_RELEASE</span> <span class="err">-s</span> 
+    <span class="err">)</span>
+
+</code></pre></div></div>
+<p>这条指令会使得exe这个目标在所有的情况下都采用-static选项，而且在release build的时候-static -s 选项。但是这个属性仅仅在exe这个target上面有效。</p>
+
+<h3 id="48-变量和缓存">4.8 变量和缓存</h3>
+
+<h4 id="481-局部变量">4.8.1 局部变量</h4>
+<p>CMakeLists.txt相当于一个函数，第一个执行的CMakeLists.txt相当于主函数，正常设置的变量不能跨越CMakeLists.txt文件，相当于局部变量只在当前函数域里面作用一样。但是当使用include()直接进行.cmake文件的引入时，可以实现变量的通用引用。</p>
+
+<h4 id="482-缓存变量">4.8.2 缓存变量</h4>
+
+<p>缓存变量就是cache变量，相当于全局变量，都是在第一个执行的CMakeLists.txt里面被设置的，不过在子项目的CMakeLists.txt文件里面也是可以修改这个变量的，此时会影响父目录的CMakeLists.txt，这些变量用来配置整个工程，配置好之后对整个工程使用。
+设置缓存变量:
+<code class="language-plaintext highlighter-rouge">set(MY_CACHE_VALUE "cache_value" CACHE INTERNAL "THIS IS MY CACHE VALUE")</code>；//THIS IS MY CACHE VALUE，这个字符串相当于对变量的描述说明，不能省略，但可以自己随便定义。</p>
+
+<h4 id="483-环境变量">4.8.3 环境变量</h4>
+
+<p>设置环境变量：<code class="language-plaintext highlighter-rouge">set(ENV{variable_name} value)</code>
+获取环境变量：<code class="language-plaintext highlighter-rouge">$ENV{variable_name}</code></p>
+
+<h4 id="484-内置变量">4.8.4 内置变量</h4>
+
+<p>CMake中包含大量的内置变量，和自定义的变量相同，常用的有以下：</p>
+
+<ul>
+  <li>CMAKE_C_COMPILER：指定C编译器</li>
+  <li>CMAKE_CXX_COMPILER：指定C++编译器</li>
+  <li>EXECUTABLE_OUTPUT_PATH：指定可执行文件的存放路径</li>
+  <li>LIBRARY_OUTPUT_PATH：指定库文件的放置路径</li>
+  <li>CMAKE_CURRENT_SOURCE_DIR：当前处理的CMakeLists.txt所在的路径</li>
+  <li>CMAKE_BUILD_TYPE：控制构建的时候是Debug还是Release命令：set(CMAKE_BUILD_TYPE Debug)</li>
+  <li>CMAKE_SOURCR_DIR：无论外部构建还是内部构建，都指的是工程的顶层目录（参考project命令执行之后，生成的_SOURCR_DIR以及CMake预定义的变量PROJECT_SOURCE_DIR）</li>
+  <li>CMAKE_BINARY_DIR：内部构建指的是工程顶层目录，外部构建指的是工程发生编译的目录（参考project命令执行之后，生成的_BINARY_DIR以及CMake预定义的变量PROJECT_BINARY_DIR）</li>
+  <li>CMAKE_CURRENT_LIST_LINE：输出这个内置变量所在的行。</li>
+</ul>
+
+<p>CMake中的缓存大多数存储在CMakeCache.txt文件文件中。</p>
+
+<h2 id="5-cmake基本控制语法">5 CMake基本控制语法</h2>
+
+<h3 id="51-if">5.1 if</h3>
+
+<p>基本语法：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if(expression)    
+    COMMAND1(ARGS ...)    
+    COMMAND2(ARGS ...)    
+    ...
+else(expression)    
+    COMMAND1(ARGS ...)    
+    COMMAND2(ARGS ...)    
+    ...
+endif(expression)
+</code></pre></div></div>
+
+<p>注意：ENDIF要和IF对应​</p>
+
+<ul>
+  <li>if (expression)，expression不为：空,0,N,NO,OFF,FALSE,NOTFOUND或<var>_NOTFOUND,为真</var>
+</li>
+  <li>IF (not exp)，与上面相反</li>
+  <li>if (var1 AND var2)，var1且var2都为真，条件成立</li>
+  <li>if (var1 OR var2)，var1或var2其中某一个为真，条件成立</li>
+  <li>if (COMMAND cmd)， 如果cmd确实是命令并可调用，为真；</li>
+  <li>if (EXISTS dir) 如果目录存在，为真</li>
+  <li>if (EXISTS file) 如果文件存在，为真</li>
+  <li>if (file1 IS_NEWER_THAN file2)，当file1比file2新，或file1/file2中有一个不存在时为真，文件名需使用全路径</li>
+  <li>if (IS_DIRECTORY dir) 当dir是目录时，为真</li>
+  <li>if (DEFINED var) 如果变量被定义，为真</li>
+  <li>if (string MATCHES regex) 当给定变量或字符串能匹配正则表达式regex时，为真</li>
+</ul>
+
+<p>例：IF (“hello” MATCHES “ell”) MESSAGE(“true”) ENDIF (“hello” MATCHES “ell”)</p>
+
+<p><strong>数字表达式</strong></p>
+
+<ul>
+  <li>if (var LESS number)，var小于number为真。</li>
+  <li>if (var GREATER number)，var大于number为真。</li>
+  <li>if (var EQUAL number)，var等于number为真。</li>
+</ul>
+
+<p><strong>字母顺序比较</strong></p>
+
+<ul>
+  <li>IF (var1 STRLESS var2)，var1字母顺序小于var2为真。</li>
+  <li>IF (var1 STRGREATER var2)，var1字母顺序大于var2为真。</li>
+  <li>IF (var1 STREQUAL var2)，var1和var2字母顺序相等为真。</li>
+</ul>
+
+<h3 id="52-while">5.2 while</h3>
+
+<p>WHILE(condition) COMMAND1(ARGS …) COMMAND2(ARGS …) …ENDWHILE(condition)</p>
+
+<p>条件判断参考if</p>
+
+<h3 id="53-foreach">5.3 Foreach</h3>
+<p>FOREACH有三种使用形式的语法，且每个FOREACH都需要一个ENDFOREACH()与之匹配。</p>
+
+<p><strong>列表循环</strong></p>
+
+<ul>
+  <li>语法：</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FOREACH(loop_var arg1 arg2 ...) 
+    COMMAND1(ARGS ...) 
+    COMMAND2(ARGS ...) 
+    ...
+ENDFOREACH(loop_var)
+</code></pre></div></div>
+
+<ul>
+  <li>例子：
+    <div class="language-cmake highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="nf">AUX_SOURCE_DIRECTORY</span><span class="p">(</span>.SRC_LIST<span class="p">)</span>
+<span class="nf">FOREACH</span><span class="p">(</span>F <span class="si">${</span><span class="nv">SRC_LIST</span><span class="si">}</span><span class="p">)</span> 
+  <span class="nf">MESSAGE</span><span class="p">(</span><span class="si">${</span><span class="nv">F</span><span class="si">}</span><span class="p">)</span>
+<span class="nf">ENDFOREACH</span><span class="p">(</span>F<span class="p">)</span>
+</code></pre></div>    </div>
+    <p>例子中，先将当前路径的源文件名放到变量SRC_LIST里面，然后遍历输出文件名</p>
+  </li>
+</ul>
+
+<p><strong>循环范围</strong></p>
+
+<ul>
+  <li>语法：</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FOREACH(loop_var RANGE total) 
+    COMMAND1(ARGS ...) 
+    COMMAND2(ARGS ...)
+    ... 
+ENDFOREACH(loop_var)
+</code></pre></div></div>
+
+<ul>
+  <li>例子：</li>
+</ul>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">FOREACH</span><span class="p">(</span>VAR RANGE 100<span class="p">)</span>
+    <span class="nf">MESSAGE</span><span class="p">(</span><span class="si">${</span><span class="nv">VAR</span><span class="si">}</span><span class="p">)</span>
+<span class="nf">ENDFOREACH</span><span class="p">(</span>VAR<span class="p">)</span>​​
+</code></pre></div></div>
+<p>例子中默认起点为0，步进为1，作用就是输出：0~100。</p>
+
+<p><strong>范围步进循环</strong></p>
+<ul>
+  <li>语法:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FOREACH(loop_var RANGE start stop [step]) 
+    COMMAND1(ARGS ...) 
+    COMMAND2(ARGS ...)
+    ... 
+ENDFOREACH(loop_var)
+
+</code></pre></div></div>
+
+<ul>
+  <li>例子：</li>
+</ul>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">FOREACH</span><span class="p">(</span>A RANGE 0 100 10<span class="p">)</span>
+    <span class="nf">MESSAGE</span><span class="p">(</span><span class="si">${</span><span class="nv">A</span><span class="si">}</span><span class="p">)</span>
+<span class="nf">ENDFOREACH</span><span class="p">(</span>A<span class="p">)</span>​
+</code></pre></div></div>
+<p>例子中，起点是0，终点是100，步进是10，输出：0,10,20,30,40,50,60,70,80,90,100。</p>
+
+<h2 id="6-构建规范以及构建属性">6 构建规范以及构建属性</h2>
+
+<p>用于指定构建规则以及程序使用要求的指令：</p>
+<ul>
+  <li>target_include_directories()</li>
+  <li>target_compile_definitions()</li>
+  <li>target_compile_options()</li>
+</ul>
+
+<p>指令格式：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>target_include_directories(
+    &lt;target&gt; 
+    [SYSTEM] 
+    [BEFORE] 
+    &lt;INTERFACE|PUBLIC|PRIVATE&gt; 
+    [items1...] 
+    [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...]
+    )
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>主要是设置include的头文件的查找目录，也就是GCC的[-lidr...]选项
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+target_compile_definitions(
+    &lt;target&gt; 
+    &lt;INTERFACE|PUBLIC|PRIVATE&gt; 
+    [items1...]
+    [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...]
+    )
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>设置c++文件中预定义的宏变量。 ```
+</code></pre></div></div>
+
+<p>target_compile_options(
+    <target> [BEFORE] 
+    &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...] 
+    [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...]
+    )</target></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+    gcc其它的一些编译选项，比如-fPIC,-fPIC作用于编译阶段，告诉编译器产生与位置无关代码Position-Independent Code)，则产生的代码中，没有绝对地址，全部使用相对地址，故而代码可以被加载器加载到内存的任意位置，都可以正确的执行。这正是共享库所要求的，共享库被加载时，在内存的位置不是固定的。
+
+以上的额三个命令会生成
+
+- INCLUDE_DIRECTORIES, 
+- COMPILE_DEFINITIONS, 
+- COMPILE_OPTIONS
+变量的值。或者 :
+- INTERFACE_INCLUDE_DIRECTORIES
+- INTERFACE_COMPILE_DEFINITIONS
+- INTERFACE_COMPILE_OPTIONS
+
+这三个命令都有三种可选模式: PRIVATE, PUBLIC。INTERFACE.PRIVATE模式仅填充不是接口的目标属性;INTERFACE模式仅填充接口目标的属性.PUBLIC模式填充这两种的目标属性。
+
+## 7 宏和函数
+CMake里面可以定义自己的函数（function）和宏（macro）
+函数和宏的区别：
+
+函数是有范围的，而宏没有。如果希望函数设置的变量在函数的外部也可以看见，就需要使用PARENT_SCOPE来修饰，但是函数对于变量的控制会比较好，不会有变量泄露。函数很难将计算结果传出来，使用宏就可以将一些值简单的传出来。
+
+使用示例
+- 宏(macro)
+
+```cmake
+macro( [arg1 [arg2 [arg3 ...]]])     
+    COMMAND1(ARGS ...)     
+    COMMAND2(ARGS ...)     
+    ...
+endmacro()
+</code></pre></div></div>
+
+<ul>
+  <li>函数(function)</li>
+</ul>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">function</span><span class="p">(</span> [arg1 [arg2 [arg3 ...]]]<span class="p">)</span>     
+    <span class="nf">COMMAND1</span><span class="p">(</span>ARGS ...<span class="p">)</span>     
+    <span class="nf">COMMAND2</span><span class="p">(</span>ARGS ...<span class="p">)</span>     
+    ...
+
+<span class="nb">endfunction</span><span class="p">()</span>
+
+</code></pre></div></div>
+<p>使用示例:</p>
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">macro</span><span class="p">(</span>macroTest<span class="p">)</span>
+    <span class="nb">set</span><span class="p">(</span>test1 <span class="s2">"aaa"</span><span class="p">)</span>
+<span class="nb">endmacro</span><span class="p">()</span>
+​
+<span class="nb">function</span><span class="p">(</span>funTest<span class="p">)</span>
+    <span class="nb">set</span><span class="p">(</span>test2 <span class="s2">"bbb"</span><span class="p">)</span>
+<span class="nb">endfunction</span><span class="p">()</span>
+​
+<span class="nf">macroTest</span><span class="p">()</span>
+<span class="nb">message</span><span class="p">(</span><span class="s2">"</span><span class="si">${</span><span class="nv">test1</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+​<span class="nf">funTest</span><span class="p">()</span>
+<span class="nb">message</span><span class="p">(</span><span class="s2">"</span><span class="si">${</span><span class="nv">test2</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+​
+<span class="c1">#最终显示结果为aaa,test2为局部变量，已经超出了他的工作范围。</span>
+
+</code></pre></div></div>
+
+<h2 id="8-和其它文件的交互">8 和其它文件的交互</h2>
+
+<h3 id="81-在代码中使用cmake中定义的变量">8.1 在代码中使用CMake中定义的变量</h3>
+
+<p>使用configure_file命令可以使得在普通文件中也能使用CMake中的变量</p>
+
+<p>语法：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>configure_file(
+    &lt;input&gt; &lt;output&gt; 
+    [COPYONLY] 
+    [ESCAPE_QUOTES] 
+    [@ONLY] 
+    [NEWLINE_STYLE [UNIX|DOS|WIN32|LF|CRLF] ]
+    )​;
+</code></pre></div></div>
+
+<p>参数：</p>
+
+<ul>
+  <li>
+    <p>COPYONLY：</p>
+
+    <p>只拷贝文件，不进行任何的变量替换。这个选项在指定了 NEWLINE_STYLE 选项时不能使用（无效）。</p>
+  </li>
+  <li>
+    <p>ESCAPE_QUOTES：</p>
+
+    <p>躲过任何的反斜杠(C风格)转义。躲避转义，比如你有个变量在CMake中是这样的 set(FOO_STRING “"foo"”) 那么在没有 ESCAPE_QUOTES 选项的状态下，通过变量替换将变为 <code class="language-plaintext highlighter-rouge">"foo"</code>，如果指定了 ESCAPE_QUOTES 选项，变量将不变。</p>
+  </li>
+  <li>
+    <p>@ONLY：</p>
+
+    <p>限制变量替换:，让其只替换被 @VAR@ 引用的变量（那么 ${VAR}格式的变量将不会被替换）。这在配置 ${VAR} 语法的脚本时是非常有用的。</p>
+  </li>
+  <li>
+    <p>NEWLINE_STYLE:</p>
+
+    <p>指定输出文件中的新行格式。UNIX 和 LF 的新行是 \n ，DOS 和 WIN32 和 CRLF 的新行格式是 \r\n 。 这个选项在指定了 COPYONLY 选项时不能使用（无效）。</p>
+  </li>
+</ul>
+
+<h3 id="82-在cmake对文件的操作">8.2 在CMake对文件的操作</h3>
+
+<h4 id="821-file命令">8.2.1 file命令：</h4>
+
+<ul>
+  <li>
+    <p>file(WRITE filename “message to write”… ):</p>
+
+    <p>WRITE选项会写一条消息到名为filename中，如果文件存在，则会覆盖原文件，如果文件不存在，他将创建该文件。</p>
+  </li>
+  <li>
+    <p>file(APPEND filename “message to write”… ):</p>
+
+    <p>APPEND选项和WRITE选项一样，只是APPEND会写到文件的末尾。</p>
+  </li>
+  <li>
+    <p>file(READ filename variable [LIMIT numBytes] [OFFSET offset] [HEX])：</p>
+
+    <p>READ选项会将读取的文件内容存放到变量variable，读取numBytes个字节，从offset位置开始，如果指定了[HEX]参数，二进制代码就会转换为十六进制的转换方式。</p>
+  </li>
+  <li>
+    <p>file(STRINGS filename variable [LIMIT_COUNT num] [LIMIT_INPUT numBytes] [LIMIT_OUTPUT numBytes] [LENGTH_MINIMUM numBytes] [LENGTH_MAXIMUM numBytes] [NEWLINE_CONSUME] [REGEX regex] [NO_HEX_CONVERSION])：</p>
+
+    <p>STRINGS标志，将会从一个文件中将ASCII字符串的list解析出来，然后储存在variable 变量中，文件中的二进制数据将会被忽略，回车换行符会被忽略（可以设置NO_HEX_CONVERSION选项来禁止这个功能）。LIMIT_COUNT：设定了返回字符串的最大数量；LIMIT_INPUT：设置了从输入文件中读取的最大字节数；LIMIT_OUTPUT：设置了在输出变量中允许存储的最大字节数；LENGTH_MINIMUM：设置了返回字符串的最小长度，小于该长度的字符串将会被忽略；LENGTH_MAXIMUM设置了返回字符串的最大长度，大于该长度的字符串将会被忽略；NEWLINE_CONSUME：该标志允许新行被包含到字符串中，而不是终止他们；REGEX：指定了返回的字符串必须满足的正则表达式。例如：<code class="language-plaintext highlighter-rouge">file(STRINGS myfile.txt myfile)</code>，将myfile.txt中的文本按行存储到myfile这个变量中。</p>
+  </li>
+  <li>
+    <p>file(GLOB variable [RELATIVE path] [globbing expressions]…)</p>
+
+    <p>GLOB：该选项将会为所有匹配表达式的文件生成一个文件list，并将该list存放在variable 里面，文件名的查询表达式和正则表达式类似，匹配和正则表达式相似。</p>
+  </li>
+  <li>
+    <p>file(GLOB_RECURSE variable [RELATIVE path] [FOLLOW_SYMLINKS] [globbing expressions]…)</p>
+
+    <p>GLOB_RECURSE会生成一个类似于通常GLOB选项的list，不过该选项可以递归查找文件中的匹配项。例如：/dir/*.py -就会匹配所有在/dir文件下面的python文件。</p>
+  </li>
+  <li>
+    <p>file(RENAME <oldname> <newname>)</newname></oldname></p>
+
+    <p>RENAME选项对同一个文件系统下的一个文件或目录重命名。</p>
+  </li>
+  <li>
+    <p>file(REMOVE [file1 …])</p>
+
+    <p>REMOVE选项将会删除指定的文件，包括在子路径下的文件。</p>
+  </li>
+  <li>
+    <p>file(REMOVE_RECURSE [file1 …])</p>
+
+    <p>REMOVE_RECURSE选项会删除给定的文件以及目录，包括非空目录</p>
+  </li>
+  <li>
+    <p>file(MAKE_DIRECTORY [directory1 directory2 …])</p>
+
+    <p>MAKE_DIRECTORY选项将会创建指定的目录，如果它们的父目录不存在时，同样也会创建。</p>
+  </li>
+  <li>
+    <p>file(RELATIVE_PATH variable directory file)</p>
+
+    <p>RELATIVE_PATH选项会确定从direcroty参数到指定文件的相对路径，然后存到变量variable中。</p>
+  </li>
+  <li>
+    <p>file(TO_CMAKE_PATH path result)</p>
+
+    <p>TO_CMAKE_PATH选项会把path转换为一个以unix的 / 开头的cmake风格的路径</p>
+  </li>
+  <li>
+    <p>file(TO_NATIVE_PATH path result)</p>
+
+    <p>TO_NATIVE_PATH选项与TO_CMAKE_PATH选项很相似，但是它会把cmake风格的路径转换为本地路径风格</p>
+  </li>
+  <li>
+    <p>file(DOWNLOAD url file [TIMEOUT timeout] [STATUS status] [LOG log] [EXPECTED_MD5 sum] [SHOW_PROGRESS])</p>
+
+    <p>DOWNLOAD将给定的url下载到指定的文件中，如果指定了LOG log，下载的日志将会被输出到log中，如果指定了STATUS status选项下载操作的状态就会被输出到status里面，该状态的返回值是一个长度为2的list，list第一个元素是操作的返回值，是一个数字 ，第二个返回值是错误的字符串，错误信息如果是0，就表示没有错误；如果指定了TIMEOUT time选项，time秒之后，操作就会推出。如果指定了EXPECTED_MD5 sum选项，下载操作会认证下载的文件的实际MD5和是否与期望值相匹配，如果不匹配，操作将返回一个错误；如果指定了SHOW_PROGRESS，进度信息会被打印出来，直到操作完成。</p>
+  </li>
+</ul>
+
+<h4 id="822-source_group命令">8.2.2 source_group命令</h4>
+
+<p>使用该命令可以将文件在VS中进行分组显示；<code class="language-plaintext highlighter-rouge">source_group("Header Files" FILES ${HEADER_FILES})</code>；以上命令是将变量HEADER_FILES里面的文件，在VS显示的时候都显示在“Header Files”选项下面</p>
+
+<h2 id="9-如何构建项目">9 如何构建项目</h2>
+
+<p>使用include直接包含指定的文件，文件后缀名相关性不大，也可以使用add_subdirectories()来添加子文件夹，但是要求子文件夹中存在对应的CMakeList.txt文件。</p>
+
+<p>存在项目目录如下：</p>
+
+<ul>
+  <li>project_dir
+    <ul>
+      <li>lib文件夹
+        <ul>
+          <li>libA.c</li>
+          <li>libB.c</li>
+          <li>CMakeLists.txt</li>
+        </ul>
+      </li>
+      <li>include文件夹
+        <ul>
+          <li>includeA.h</li>
+          <li>inclueeB.h</li>
+          <li>CMakeLists.txt</li>
+        </ul>
+      </li>
+      <li>main.c</li>
+      <li>CMakeLists.txt</li>
+    </ul>
+  </li>
+</ul>
+
+<p>第一层CMakeLists.txt内容如下：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#项目名称</span>
+<span class="nb">project</span><span class="p">(</span>main<span class="p">)</span>
+<span class="c1">#需要的cmake最低版本</span>
+<span class="nf">cmake_minium_required</span><span class="p">(</span>VERSION 2.8<span class="p">)</span>
+<span class="c1">#将当前目录下的源文件名都赋给DIR_SRC目录</span>
+<span class="nf">aux_source_directories</span><span class="p">(</span>. DIR_SRC<span class="p">)</span>
+<span class="c1">#添加include目录</span>
+<span class="nb">include_directories</span><span class="p">(</span>include<span class="p">)</span>
+<span class="c1">#生成可执行文件</span>
+<span class="nb">add_executable</span><span class="p">(</span>main <span class="si">${</span><span class="nv">DIR_SRC</span><span class="si">}</span><span class="p">)</span>
+<span class="c1">#添加子目录</span>
+<span class="nf">add_subdirectories</span><span class="p">(</span>lib<span class="p">)</span>
+<span class="c1">#将生成的文件与动态库相连</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span>main test<span class="p">)</span>
+<span class="c1">#test是lib目录里面生成的​</span>
+
+</code></pre></div></div>
+
+<p>lib目录下的CMakeLists</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">#将当前的源文件名字都添加到DIR_LIB变量下​</span>
+<span class="nf">aux_source_director</span><span class="p">(</span>. DIR_LIB<span class="p">)</span>
+<span class="c1">#生成库文件命名为</span>
+<span class="nf">testadd_libraries</span><span class="p">(</span>test <span class="si">${</span><span class="nv">DIR_LIB</span><span class="si">}</span><span class="p">)</span>​​
+
+</code></pre></div></div>
+
+<h2 id="10-运行其它程序">10 运行其它程序</h2>
+
+<p>CMakeLists.txt中可以使用<code class="language-plaintext highlighter-rouge">execute_process</code> 来运行系统中的程序。</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">execute_process</span><span class="p">(</span>
+    [COMMAND &lt;cmd1&gt; [args1...]] 
+    [COMMAND &lt;cmd2&gt; [args2...] [...]] 
+    [WORKING_DIRECTORY &lt;directory&gt;] 
+    [TIMEOUT &lt;seconds&gt;] 
+    [RESULT_VARIABLE &lt;variable&gt;] 
+    [OUTPUT_VARIABLE &lt;variable&gt;] 
+    [ERROR_VARIABLE &lt;variable&gt;] 
+    [INPUT_FILE &lt;file&gt;] 
+    [OUTPUT_FILE &lt;file&gt;] 
+    [ERROR_FILE &lt;file&gt;] 
+    [OUTPUT_QUIET] 
+    [ERROR_QUIET] 
+    [OUTPUT_STRIP_TRAILING_WHITESPACE] 
+    [ERROR_STRIP_TRAILING_WHITESPACE]
+    <span class="p">)</span>​
+
+</code></pre></div></div>
+
+<p><strong>参数解析</strong></p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">COMMAND</code>：子进程的命令行，CMake使用操作系统的API直接执行子进程，所有的参数逐字传输，没有中间脚本参与，像“&gt;”的输出重定向也会被直接的传输到子进程里面，当做普通的参数进行处理。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">WORKING_DIRECTORY</code>：指定的工作目录将会设置为子进程的工作目录</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">TIMEOUT</code>：子进程如果在指定的秒数之内没有结束就会被中断</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">RESULT_VARIABLE</code>：变量被设置为包含子进程的运算结果，也就是命令执行的最后结果将会保存在这个变量之中，返回码将是来自最后一个子进程的整数或者一个错误描述字符串</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">OUTPUT_VARIABLE</code>、<code class="language-plaintext highlighter-rouge">ERROR_VARIABLE</code>：输出变量和错误变量</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">INPUT_FILE</code>、<code class="language-plaintext highlighter-rouge">OUTPUT_FILE</code>、<code class="language-plaintext highlighter-rouge">ERROR_FILE</code>：输入文件、输出文件、错误文件</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">OUTPUT_QUIET</code>、<code class="language-plaintext highlighter-rouge">ERROR_QUIET</code>:输出忽略、错误忽略，标准输出和标准错误的结果将被默认忽略.</li>
+</ul>
+
+<p>使用示例:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set(MAKE_CMD "/src/bin/make.bat")
+MESSAGE("COMMAND: ${MAKE_CMD}")
+execute_process(
+    COMMAND "${MAKE_CMD}" 
+    RESULT_VARIABLE 
+    CMD_ERROR OUTPUT_FILE CMD_OUTPUT
+    )
+MESSAGE( 
+    STATUS "CMD_ERROR:" 
+    ${CMD_ERROR}
+    )
+MESSAGE(
+    STATUS 
+    "CMD_OUTPUT:" 
+    ${CMD_OUTPUT}
+    )
+
+#输出：​​COMMAND:/src/bin/make.batCMD_ERROR:​No such file or directoryCMD_OUTPUT:​（因为这个路径下面没有这个文件）​​
+
+</code></pre></div></div>
+
+<h2 id="11-find_package-查找链接库函数">11 find_package() 查找链接库函数</h2>
+
+<h3 id="111-find_package命令查找cmake的顺序">11.1 find_package（）命令查找***.cmake的顺序。</h3>
+
+<p>find_package()会优先从CMAKE_MODULE_PATH中寻找FindXXX.cmake来进行寻找。这种模式也成为Model模式。CMAKE_MODULE_PATH是cmake预先定义，但是一般没有值，一旦赋值则按照最先优先级去寻找。</p>
+
+<p>因此我们可以通过set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)来进行添加，比较建议的做法是<code class="language-plaintext highlighter-rouge">LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)</code>这样解可以在多个列表后面直接添加。</p>
+
+<p>如果没有在CMAKE_MODULE_PATH找到，就会在<code class="language-plaintext highlighter-rouge">../.cmake/packages</code>或者<code class="language-plaintext highlighter-rouge">../uesr/local/share/</code>中的包目录中查找：Config.cmake或者-config.cmake。这种查找模式称作Config模式。库名字小写&gt;库名字大写&gt;</p>
+
+<p>无论那种方式只要找到XXXX.cmake文件，里面都会定义下面这些变量</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;NAME&gt;_FOUND&lt;NAME&gt;_INCLUDE_DIRS</code></li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;NAME&gt;_INCLUDES&lt;NAME&gt;_LIBRARIES</code></li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;NAME&gt;_LIBRARIES </code></li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;NAME&gt;_LIBS&lt;NAME&gt;_DEFINITIONS</code></li>
+</ul>
+
+<p>然后就可以使用<code class="language-plaintext highlighter-rouge">include_directories(&lt;Name&gt;_INCLUDE_DIRS)</code>来包含库的头文件。使用:<code class="language-plaintext highlighter-rouge">link_libraries(&lt;NAME&gt;_LIBRARIES)</code>来链接动态库。</p>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">cmake --help-module-list</code>命令来查看当前cmake支持的模块。</p>
+
+<h3 id="112-find_package的命令参数">11.2 find_package()的命令参数</h3>
+
+<p>命令：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">FIND_PACKAGE</span><span class="p">(</span> 
+    &lt;name&gt; 
+    [version] 
+    [EXACT] 
+    [QUIET] 
+    [NO_MODULE] 
+    [ [ REQUIRED | COMPONENTS ] [ componets... ] ]
+    <span class="p">)</span>
+</code></pre></div></div>
+<p><strong>参数解释</strong></p>
+
+<ul>
+  <li>version：需要一个版本号，给出这个参数而没有给出EXACT，那个就是找到和给出的这个版本号相互兼容就符合条件。</li>
+  <li>EXACT：要求版本号必须和version给出的精确匹配。没有指定时只要兼容就不会报错，但是当指定后不符合就会报错，因此建议使用版本范围。如：</li>
+</ul>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">find_package</span><span class="p">(</span>OpenCV 3.0 QUIET<span class="p">)</span>
+<span class="nb">if</span><span class="p">(</span>NOT OpenCV_FOUND<span class="p">)</span>
+   <span class="nb">find_package</span><span class="p">(</span>OpenCV 2.4.3 QUIET<span class="p">)</span>
+   <span class="nb">if</span><span class="p">(</span>NOT OpenCV_FOUND<span class="p">)</span>
+      <span class="nb">message</span><span class="p">(</span>FATAL_ERROR <span class="s2">"OpenCV &gt; 2.4.3 not found."</span><span class="p">)</span>
+   <span class="nb">endif</span><span class="p">()</span>
+<span class="nb">endif</span><span class="p">()</span>
+</code></pre></div></div>
+
+<ul>
+  <li>QUIET：会禁掉查找的包没有被发现的警告信息。对应于Find<name>.cmake模块里面的的NAME_FIND_QUIETLY变量。</name>
+</li>
+  <li>NO_MODULE：给出该指令之后，cmake将直接跳过Module模式的查找，直接使用Config模式查找。</li>
+  <li>COMPONENTS: 有些库不是一个整体比如Qt，其中还包含QtOpenGL和QtXml组件，当我们需要使用库的组件的时候，就使用COMPONENTS这个选项.</li>
+</ul>
+
+<h3 id="113-编写find模块">11.3 编写find模块。</h3>
+
+<p><strong>find模块的编写流程</strong></p>
+
+<ul>
+  <li>使用：find_path和find_library查找模块的头文件以及库文件，然后将结果放到<name>_INCLUDE_DIR和<name>_LIBRARY里面。</name></name>
+</li>
+  <li>设置：<code class="language-plaintext highlighter-rouge">&lt;NAME&gt;_INCLUDE_DIRS</code>为<code class="language-plaintext highlighter-rouge">&lt;NAME&gt;_INCLUDE_DIR&lt;dependency1&gt;_INCLUDE_DIRS ...</code>
+</li>
+  <li>设置 <code class="language-plaintext highlighter-rouge">&lt;name&gt;_LIBRARIES</code> 为 <code class="language-plaintext highlighter-rouge">&lt;name&gt;_LIBRARY &lt;dependency1&gt;_LIBRARIES ...</code>
+</li>
+  <li>调用宏 find_package_handle_standard_args() 设置 <code class="language-plaintext highlighter-rouge">&lt;name&gt;_FOUND</code> 并打印或失败信息。</li>
+</ul>
+
+<p>find_path函数使用方式为：</p>
+
+<p><code class="language-plaintext highlighter-rouge">find_path(&lt;VAR&gt; name1 [path1 path2 ...])</code></p>
+
+<p>该命令搜索包含某个文件的路径，用于给定名字的文件坐在路径。<var>的cache将会被创建。在路径中找到文件就存到变量中。除非变量被清除否则，搜索不会继续进行(者也是cmake配置错误需要删除cache的原因)。如果没有发现该文件就在<var>里面存储`<var>-NOTFOUND`</var></var></var></p>
+
+<p>下面是一个FindBZip2.cmake模块的简单示例：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">#.rst:</span>
+<span class="c1"># FindBZip2</span>
+<span class="c1"># ---------</span>
+<span class="c1">#</span>
+<span class="c1"># Try to find BZip2</span>
+<span class="c1">#</span>
+<span class="c1"># Once done this will define</span>
+<span class="c1">#</span>
+<span class="c1"># ::</span>
+<span class="c1">#</span>
+<span class="c1">#   BZIP2_FOUND - system has BZip2</span>
+<span class="c1">#   BZIP2_INCLUDE_DIR - the BZip2 include directory</span>
+<span class="c1">#   BZIP2_LIBRARIES - Link these to use BZip2</span>
+<span class="c1">#   BZIP2_NEED_PREFIX - this is set if the functions are prefixed with BZ2_</span>
+<span class="c1">#   BZIP2_VERSION_STRING - the version of BZip2 found (since CMake 2.8.8)</span>
+
+<span class="c1">#=============================================================================</span>
+<span class="c1"># Copyright 2006-2012 Kitware, Inc.</span>
+<span class="c1"># Copyright 2006 Alexander Neundorf &lt;neundorf@kde.org&gt;</span>
+<span class="c1"># Copyright 2012 Rolf Eike Beer &lt;eike@sf-mail.de&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># Distributed under the OSI-approved BSD License (the "License");</span>
+<span class="c1"># see accompanying file Copyright.txt for details.</span>
+<span class="c1">#</span>
+<span class="c1"># This software is distributed WITHOUT ANY WARRANTY; without even the</span>
+<span class="c1"># implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</span>
+<span class="c1"># See the License for more information.</span>
+<span class="c1">#=============================================================================</span>
+<span class="c1"># (To distribute this file outside of CMake, substitute the full</span>
+<span class="c1">#  License text for the above reference.)</span>
+
+<span class="c1">#设置_BZIP2_PATHS</span>
+
+<span class="nb">set</span><span class="p">(</span>_BZIP2_PATHS PATHS
+  <span class="s2">"[HKEY_LOCAL_MACHINE\SOFTWARE\GnuWin32\Bzip2;InstallPath]"</span>
+  <span class="p">)</span>
+<span class="c1">#查找文件路径并保存到变量BZIP2_INCLUDE_DIR中</span>
+
+<span class="nb">find_path</span><span class="p">(</span>BZIP2_INCLUDE_DIR bzlib.h <span class="si">${</span><span class="nv">_BZIP2_PATHS</span><span class="si">}</span> PATH_SUFFIXES include<span class="p">)</span>
+
+<span class="c1">#如果没有定义BZIP2_LIBRARIES，进行查找</span>
+
+<span class="nb">if</span> <span class="p">(</span>NOT BZIP2_LIBRARIES<span class="p">)</span>
+    <span class="nb">find_library</span><span class="p">(</span>BZIP2_LIBRARY_RELEASE NAMES bz2 bzip2 <span class="si">${</span><span class="nv">_BZIP2_PATHS</span><span class="si">}</span> PATH_SUFFIXES lib<span class="p">)</span>
+    <span class="nb">find_library</span><span class="p">(</span>BZIP2_LIBRARY_DEBUG NAMES bzip2d <span class="si">${</span><span class="nv">_BZIP2_PATHS</span><span class="si">}</span> PATH_SUFFIXES lib<span class="p">)</span>
+
+    <span class="nb">include</span><span class="p">(</span><span class="si">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="si">}</span>/SelectLibraryConfigurations.cmake<span class="p">)</span>
+    <span class="nf">SELECT_LIBRARY_CONFIGURATIONS</span><span class="p">(</span>BZIP2<span class="p">)</span>
+<span class="nb">endif</span> <span class="p">()</span>
+
+<span class="c1">#include文件存在，进行正则匹配查找文件名中的版本信息。</span>
+
+<span class="nb">if</span> <span class="p">(</span>BZIP2_INCLUDE_DIR AND EXISTS <span class="s2">"</span><span class="si">${</span><span class="nv">BZIP2_INCLUDE_DIR</span><span class="si">}</span><span class="s2">/bzlib.h"</span><span class="p">)</span>
+    <span class="nb">file</span><span class="p">(</span>STRINGS <span class="s2">"</span><span class="si">${</span><span class="nv">BZIP2_INCLUDE_DIR</span><span class="si">}</span><span class="s2">/bzlib.h"</span> BZLIB_H REGEX <span class="s2">"bzip2/libbzip2 version [0-9]+\.[^ ]+ of [0-9]+ "</span><span class="p">)</span>
+    <span class="nb">string</span><span class="p">(</span>REGEX REPLACE <span class="s2">".* bzip2/libbzip2 version ([0-9]+\.[^ ]+) of [0-9]+ .*"</span> <span class="s2">""</span> BZIP2_VERSION_STRING <span class="s2">"</span><span class="si">${</span><span class="nv">BZLIB_H</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">endif</span> <span class="p">()</span>
+
+<span class="c1"># handle the QUIETLY and REQUIRED arguments and set BZip2_FOUND to TRUE if</span>
+<span class="c1"># all listed variables are TRUE</span>
+<span class="nb">include</span><span class="p">(</span><span class="si">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="si">}</span>/FindPackageHandleStandardArgs.cmake<span class="p">)</span>
+<span class="c1">#答应获取的相关信息</span>
+<span class="nf">FIND_PACKAGE_HANDLE_STANDARD_ARGS</span><span class="p">(</span>BZip2
+                                  REQUIRED_VARS BZIP2_LIBRARIES BZIP2_INCLUDE_DIR
+                                  VERSION_VAR BZIP2_VERSION_STRING<span class="p">)</span>
+<span class="c1">#如果找到了</span>
+<span class="nb">if</span> <span class="p">(</span>BZIP2_FOUND<span class="p">)</span>
+   <span class="nb">include</span><span class="p">(</span><span class="si">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="si">}</span>/CheckSymbolExists.cmake<span class="p">)</span>
+   <span class="nb">include</span><span class="p">(</span><span class="si">${</span><span class="nv">CMAKE_CURRENT_LIST_DIR</span><span class="si">}</span>/CMakePushCheckState.cmake<span class="p">)</span>
+   <span class="c1">#确认cmake状态</span>
+   <span class="nf">cmake_push_check_state</span><span class="p">()</span>
+   //设置CMAKE_REQUIRED_QUIET无错误的找到
+   <span class="nb">set</span><span class="p">(</span>CMAKE_REQUIRED_QUIET <span class="si">${</span><span class="nv">BZip2_FIND_QUIETLY</span><span class="si">}</span><span class="p">)</span>
+   <span class="nb">set</span><span class="p">(</span>CMAKE_REQUIRED_INCLUDES <span class="si">${</span><span class="nv">BZIP2_INCLUDE_DIR</span><span class="si">}</span><span class="p">)</span>
+   <span class="nb">set</span><span class="p">(</span>CMAKE_REQUIRED_LIBRARIES <span class="si">${</span><span class="nv">BZIP2_LIBRARIES</span><span class="si">}</span><span class="p">)</span>
+   <span class="nf">CHECK_SYMBOL_EXISTS</span><span class="p">(</span>BZ2_bzCompressInit <span class="s2">"bzlib.h"</span> BZIP2_NEED_PREFIX<span class="p">)</span>
+   <span class="nf">cmake_pop_check_state</span><span class="p">()</span>
+<span class="nb">endif</span> <span class="p">()</span>
+<span class="c1">#这个主要是给cmake-gui进行使用的</span>
+<span class="nb">mark_as_advanced</span><span class="p">(</span>BZIP2_INCLUDE_DIR<span class="p">)</span>
+
+
+</code></pre></div></div>
+
+<p>下面是对这个FindBZip2.cmake模块的调用示例：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cmake_minimum_required</span><span class="p">(</span>VERSION 2.8<span class="p">)</span>
+<span class="nb">project</span><span class="p">(</span>helloword<span class="p">)</span>
+<span class="nb">add_executable</span><span class="p">(</span>hello main.c<span class="p">)</span>
+<span class="nb">find_package</span><span class="p">(</span>BZip2<span class="p">)</span>
+<span class="c1">#如果查找成功BZIP2_FOUND会被设置成为1</span>
+
+<span class="nb">if</span><span class="p">(</span>BZIP2_FOUND<span class="p">)</span>
+    <span class="nb">include_directories</span><span class="p">(</span><span class="si">${</span><span class="nv">BZIP2_INCLUDE_DIRS</span><span class="si">}</span><span class="p">)</span>
+    <span class="nb">target_link_libraries</span><span class="p">(</span>hello <span class="si">${</span><span class="nv">BZIP_LIBRARIES</span><span class="si">}</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">(</span>BZIP_FOUND<span class="p">)</span>
+
+</code></pre></div></div>
+
+<h2 id="12-自定义内容">12 自定义内容</h2>
+
+<h3 id="121--add_custom_command-为某一个工程添加一个自定义的命令">12.1  add_custom_command 为某一个工程添加一个自定义的命令</h3>
+
+<p><em>参考链接：</em> <a href="https://www.jianshu.com/p/66df9650a9e2">各平台编译器中的Pre-build及Post-build操作</a></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add_custom_command(TARGET target 
+    PRE_BUILD | PRE_LINK| POST_BUILD 
+    COMMAND command1[ARGS] [args1...] 
+    [COMMAND command2[ARGS] [args2...] ...] 
+    [WORKING_DIRECTORYdir] 
+    [COMMENT comment][VERBATIM]
+    )
+
+</code></pre></div></div>
+<p>执行命令的时间由第二个参数决定:</p>
+
+<ol>
+  <li>PRE_BUILD - 命令将会在其他依赖项执行前执行。</li>
+  <li>PRE_LINK - 命令将会在其他依赖项执行完后执行。</li>
+  <li>POST_BUILD - 命令将会在目标构建完后执行。</li>
+</ol>
+
+<p>例子：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add_custom_command(
+    TARGET ${PROJECT_NAME} 
+    POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E sleep 5
+    )
+#目标就是TARGET后面跟的工程，​当PROJECT_NAME被生成的时候就会执行COMMAND后面的命令。
+
+add_custom_command(
+    TARGET test_elf ​
+    PRE_BUILD 
+    COMMAND 
+    move E:/cfg/start.o ${CMAKE_BINARY_DIR}/. &amp;&amp; 
+    )
+
+#在test_el执行依赖之前，将start.o文件复制到编译目录
+</code></pre></div></div>
+
+<h3 id="122-add_custom_command2添加自定义命令来产生一个输出">12.2 add_custom_command：（2）添加自定义命令来产生一个输出</h3>
+
+<p>参数格式：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add_custom_command(
+    OUTPUT output1 [output2 ...]
+    COMMAND command1[ARGS] [args1...]
+    [COMMAND command2 [ARGS] [args2...] ...]
+    [MAIN_DEPENDENCYdepend]
+    [DEPENDS[depends...]]
+    [IMPLICIT_DEPENDS&lt;lang1&gt; depend1 ...]
+    [WORKING_DIRECTORYdir]
+    [COMMENT comment] [VERBATIM] [APPEND]
+    )
+
+</code></pre></div></div>
+<p>参数解析：</p>
+
+<ul>
+  <li>其中ARGS选项 是为了向后兼容，MAIN_DEPENDENCY选项是针对VisualStudio给出一个建议，这两选项可以忽略。</li>
+  <li>COMMAND：指定一些在构建阶段执行的命令。如果指定了多于一条的命令，他会按照顺序去执行。如果指定了一个可执行目标的名字（被add_executable()命令创建），他会自动被在构建阶段创建的可执行文件的路径替换。</li>
+  <li>DEPENDS:指定目标依赖的文件，如果依赖的文件是和CMakeLists.txt相同目录的文件，则命令就会在CMakeLists.txt文件的，目录执行。如果没有指定DEPENDS，则只要缺少OUTPUT，该命令就会执行。如果指定的位置和CMAkeLists.txt不是同一位置，会先去创建依赖关系，先去将依赖的目标或者命令先去编译。</li>
+  <li>WORKING_DIRECTORY：使用给定的当前目录执行命令，如果是相对路径，则相对于当前源目录对应的目录结构进行解析</li>
+</ul>
+
+<p>例子：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#首先生成creator的可执行文件 ​
+add_executable(creator creator.cxx) 
+#获取EXE_LOC的LOCATION属性存放到creator里面​​ 
+get_target_property(creator EXE_LOC LOCATION) ​
+#生成created.c文件 
+add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/created.c 
+    DEPENDS creator 
+    COMMAND ${EXE_LOC} 
+    ARGS ${PROJECT_BINARY_DIR}/created.c 
+    ) 
+#使用上一步生成的created.c文件来生成Foo可执行文件​​ 
+add_executable(Foo ${PROJECT_BINARY_DIR}/created.c)
+
+</code></pre></div></div>
+<p>注意：不要在多个相互独立的文件中使用该命令产生相同的文件，放置冲突。</p>
+
+<h3 id="123-add_custom_target增加定制目标">12.3 add_custom_target:增加定制目标。</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add_custom_target(
+    Name [ALL] [command1 [args1...]] 
+    [COMMAND command2 [args2...] ...] 
+    [DEPENDS depend depend depend ... ] 
+    [BYPRODUCTS [files...]] 
+    [WORKING_DIRECTORY dir] 
+    [COMMENT comment] 
+    [VERBATIM] [USES_TERMINAL] 
+    [SOURCES src1 [src2...]]
+    )
+
+</code></pre></div></div>
+
+<p>add_custom_target 可以增加定制目标，常常用于编译文档、运行测试用例等。</p>
+
+<h3 id="124-add_custom_command和add_custom_target的区别">12.4 add_custom_command和add_custom_target的区别</h3>
+
+<ul>
+  <li>命令命名里面的区别就在于：command和target，前者是自定义命令，后者是自定义目标</li>
+  <li>目标：使用add_custom_target定义的叫做自定义目标，因此这些“目标”区别于正常的目标，他们不生成exe或者lib，但是仍然会具有一些正常目标相同的属性，构建他们的时候，只是调用了为他们设置的命令，如果自定义目标对于其他目标有依赖，那么就会优先生成依赖的那些目标。</li>
+  <li>自定义命令：自定义命令不是一个“可构建”的对象，并且没有可以设置的属性，自定义命令是一个在构建依赖目标之前被调用的命令，自定义命令的依赖可以通过add_custom_command(TARGET target …)形式显式设置，也可以通过add_custom_command(OUTPUT output1 …)生成文件的形式隐式设置。显示执行的时候，每次构建目标，首先会执行自定义的命令，隐式执行的时候，如果自定义的命令依赖于其他文件，则在构建目标的时候先去执行生成其他文件。</li>
+</ul>
+
+<h2 id="13-c中的常用选项">13 C++中的常用选项</h2>
+
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/turbock/article/details/90034787">CMake编译中target_link_libraries中属性PRIVATE、PUBLIC、INTERFACE含义</a></p>
+
+<h3 id="131-c11功能的激活">13.1 C++11功能的激活</h3>
+
+<p>使用<code class="language-plaintext highlighter-rouge">target_compile_features(&lt;target&gt; &lt;PRIVATE|PUBLIC|INTERFACE&gt; &lt;feature&gt; [...])</code></p>
+
+<p>添加c++11标准：<code class="language-plaintext highlighter-rouge">target_compile_features(&lt;project_name&gt; PUBLIC cxx_std_11)</code>。</p>
+
+<p>注意：target必须是由:<code class="language-plaintext highlighter-rouge">add_executable</code>或者<code class="language-plaintext highlighter-rouge">add_library</code>生成的目标。</p>
+
+<p>也可以使用下面的方式来进行支持：</p>
+
+<div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#设置c++标准级别</span>
+
+<span class="nb">set</span><span class="p">(</span>CMAKE_CXX_STANDARD 11<span class="p">)</span>
+<span class="c1">#告诉cmake使用它</span>
+
+<span class="nb">set</span><span class="p">(</span>CMAKE_CXX_STANDARD_REQUIRED ON<span class="p">)</span>
+<span class="c1">#(可选)确保-std=c++11</span>
+
+</code></pre></div></div>
+
+<h3 id="132-中间过程优化">13.2 中间过程优化</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#检测编译器是否支持过程间优化
+
+check_ipo_supported(RESULT result)
+
+#如果不支持，判断进不去
+if(result)
+    #为工程设置过程间优化
+
+    set_target_properties(foo PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+</code></pre></div></div>
+
+<h3 id="133-cmake中的option">13.3 cmake中的option</h3>
+
+<p>option命令可以设置默认值；例如<code class="language-plaintext highlighter-rouge">option(address "this is path for value" ON)</code>设置address的默认值为ON，并且添加注释提示。</p>
+
+<p>注意：没有设置默认值时，默认的默认值是OFF，如果值已经改变一定要清除CMakeCache.txt。</p>
+
+<p>可以另外当去创建option.txt文件，然后使用include进行包含。</p>
+
+<p>可以使用<code class="language-plaintext highlighter-rouge">cmake_dependent_option</code>设置存在依赖的option ,但是一般建议使用if判断来进行配置。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cmake_dependent_option(DEPENT_USE_CURL "this is dependent on USE_CURL" ON "USE_CURL;NOT USE_MATH" OFF)
+
+
+#设置一个option：​​DEPENT_USE_CURL,第二个参数是他的说明，ON后面的参数是一个表达式，当“USE_CURL”且“USE_MATH”为真的时候，DEPENT_USE_CURL取ON，为假取OFF
+</code></pre></div></div>
+
+<h3 id="134-属性调试模块cmakeprinthelpers">13.4 属性调试模块(CMakePrintHelpers)</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+CMAKE_PRINT_PROPERTIES(
+    [TARGETS target1 .. targetN]
+    [SOURCES source1 .. sourceN]
+    [DIRECTORIES dir1 .. dirN]
+    [TESTS test1 .. testN]
+    [CACHE_ENTRIES entry1 .. entryN]
+    PROPERTIES prop1 .. propN
+    )
+</code></pre></div></div>
+
+<p>如果要检查foo目标的INTERFACE_INCLUDE_DIRS和LOCATION的值，则执行：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cmake_print_properties(
+    TARGETS foo 
+    PROPERTIES 
+    INTERFACE_INCLUDE_DIRS 
+    LOCATION
+    )
+
+</code></pre></div></div>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/08/13/beginning_linux_programming_02/" data-toggle="tooltip" data-placement="top" title="Linux程序设计 学习笔记 (二)">
+                        Previous<br>
+                        <span>Linux程序设计 学习笔记 (二)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/08/13/learn_cmake_02/" data-toggle="tooltip" data-placement="top" title="cmake 学习笔记 (二)">
+                        Next<br>
+                        <span>cmake 学习笔记 (二)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

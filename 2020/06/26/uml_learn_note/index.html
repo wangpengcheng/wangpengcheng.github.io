@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>PlantUML学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2020/06/26/uml_learn_note/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Java" title="Java">Java</a>
+                        
+                        <a class="tag" href="/tags/#UML" title="UML">UML</a>
+                        
+                        <a class="tag" href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记">学习笔记</a>
+                        
+                    </div>
+                    <h1>PlantUML学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">PlantUML学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on June 26, 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="java-uml-学习笔记">JAVA UML 学习笔记</h1>
+<blockquote>
+  <p>2020-06-26 15:29:58</p>
+</blockquote>
+
+<h1 id="0-uml基础知识">0. UML基础知识</h1>
+
+<h1 id="1-plantuml语法笔记">1. PlantUML语法笔记</h1>
+<p><em>参考链接:</em></p>
+<ul>
+  <li><a href="https://plantuml.com/zh/">PlantUML官网</a></li>
+  <li><a href="https://plantuml.com/zh/guide">用户指南</a></li>
+</ul>
+
+<h2 id="11-时序图">1.1 时序图</h2>
+<p><em>参考链接:</em></p>
+<ul>
+  <li><a href="https://blog.csdn.net/wulingmin21/article/details/6840819?utm_medium=distribute.pc_relevant.none-task-blog-baidujs-1">实体类 边界类 控制类</a></li>
+  <li><a href="https://blog.csdn.net/greensure/article/details/70882308">UML中边界类、控制类和实体类</a></li>
+</ul>
+
+<p>声明参与者:</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">actor</code> : 参与者</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">boundary</code>: 边界类;边界对象的抽象，通常是用来完成参与者（用户、外部系统）与系统之间交互的对象，例如：From、对话框、菜单、接口等。一般来说就是View层或者前端层。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">control</code>: 控制类;控制对象的抽象，主要用来体现应用程序的执行逻辑，将其抽象出来，可以使变化不影响用户界面和数据库中的表。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">entity</code>: 实体类;实体对象的抽象，通常来自域模型（现实世界），用来描述具体的实体，通常映射到数据库表格与文件中。比如对象成员域的状态值，枚举类等。相当于是DO</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">database</code>: 数据库</li>
+</ul>
+
+<p>使用示例如下:</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a2720e59ca8e8bf99e9878ce8aebee7bdaee9a29ce889b20d0a6163746f7220466f6f312020237265640d0a626f756e6461727920466f6f320d0a636f6e74726f6c20466f6f330d0a656e7469747920466f6f340d0a646174616261736520466f6f350d0a636f6c6c656374696f6e7320466f6f360d0a466f6f31202d3e20466f6f32203a20546f20626f756e646172790d0a466f6f31202d3e20466f6f33203a20546f20636f6e74726f6c0d0a466f6f31202d3e20466f6f34203a20546f20656e746974790d0a466f6f31202d3e20466f6f35203a20546f2064617461626173650d0a466f6f31202d3e20466f6f36203a20546f20636f6c6c656374696f6e730d0a40656e64756d6c"></p>
+
+<p>可以使用as结合字符串设置各个对象实体的别名。这样可以很容易更改它的名称。里面的字符串可以使用<code class="language-plaintext highlighter-rouge">\n</code>进行换行。也支持HTML的语法格式。</p>
+
+<p>箭头的样式代码示例如下;也可以使用<code class="language-plaintext highlighter-rouge">-[#color]x</code>进行颜色的更改</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a6865616465722050616765204865616465720d0a666f6f746572205061676520257061676525206f6620256c61737470616765250d0a27e8bf99e9878ce4b99fe58fafe4bba5e4bdbfe794a8206372656f6c6520e4bfaee694b9e6a087e9a2980d0a7469746c65205f5f66726973745f5f20202d2d706167652d2d200d0a0d0a0d0a27e887aae58aa8e7bc96e58fb70d0a6175746f6e756d6265720d0a426f62202d3e7820416c6963650d0a2720e59ca8e8bf99e9878ce8aebee7bdaee9a29ce889b20d0a426f62202d5b23626c61636b5d3e20416c6963650d0a426f62202d3e3e20416c6963650d0a426f62202d5c20416c6963650d0a426f62205c2d20416c6963650d0a426f62202f2f2d2d20416c6963650d0a426f62202d3e6f20416c6963650d0a426f62206f5c2d2d20416c6963650d0a426f62203c2d3e20416c6963650d0a426f62203c2d3e6f20416c6963650d0a0d0a27e6b7bbe58aa0e58886e9a1b5e7aca60d0a6e6577706167650d0a0d0a0d0a40656e64756d6c"></p>
+
+<p>可以在设置编号时，格式是由 Java 的 DecimalFormat 类实现的；可以根据它的规则来更改格式。例如:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>autonumber "&lt;b&gt;[000]"
+autonumber 15 "&lt;b&gt;(&lt;u&gt;##&lt;/u&gt;)"
+autonumber 40 10 "&lt;font color=red&gt;&lt;b&gt;Message 0 "
+</code></pre></div></div>
+<h3 id="1110-组合消息">1.1.10 组合消息</h3>
+
+<p>我们可以通过以下关键词将组合消息：</p>
+<ul>
+  <li>alt/else : 相当于if/else</li>
+  <li>opt:</li>
+  <li>par:</li>
+  <li>break:</li>
+  <li>critical:</li>
+  <li>group:可以嵌套使用</li>
+</ul>
+
+<p>标签后面添加<code class="language-plaintext highlighter-rouge">end</code>表示结束。</p>
+
+<h3 id="1111-给消息添加注释">1.1.11 给消息添加注释</h3>
+
+<p>我们可以通过如下方法；在消息后面注释；如</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">note left</code>/ <code class="language-plaintext highlighter-rouge">note right</code>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">end note </code>来添加多行注释。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">note over </code>在节点的相对位置添加注释</li>
+</ul>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a7061727469636970616e7420416c6963650d0a7061727469636970616e7420426f620d0a6e6f7465206c656674206f6620416c696365202361717561200d0a5468697320697320646973706c61796564206c656674206f6620416c6963652e0d0a656e64206e6f74650d0a6e6f7465207269676874206f6620416c6963653a205468697320697320646973706c61796564207269676874206f6620416c6963652e0d0a6e6f7465206f76657220416c6963653a205468697320697320646973706c61796564206f76657220416c6963652e0d0a6e6f7465206f76657220416c6963652c20426f6220234646414141413a205468697320697320646973706c617965645c6e206f76657220426f6220616e6420416c6963652e0d0a0d0a6e6f7465206f76657220426f622c20416c6963650d0a546869732069732079657420616e6f746865720d0a6578616d706c65206f660d0a61206c6f6e67206e6f74652e0d0a656e64206e6f7465200d0a0d0a40656e64756d6c"></p>
+
+<h3 id="1113-改变备注框的形状">1.1.13 改变备注框的形状</h3>
+<p>你可以使用 hnote 和 rnote 这两个关键字来修改备注框的形状。 使用示例如下:</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a63616c6c6572202d3e20736572766572203a20636f6e5265710d0a686e6f7465206f7665722063616c6c6572203a2069646c650d0a63616c6c6572203c2d20736572766572203a20636f6e436f6e660d0a726e6f7465206f766572207365727665720d0a202020202272222061732072656374616e676c650d0a202020202268222061732068657861676f6e0d0a656e64726e6f74650d0a0d0a40656e64756d6c"></p>
+<h3 id="1115-分隔符">1.1.15 分隔符</h3>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a3d3d20496e697469616c697a6174696f6e203d3d0d0a416c696365202d3e20426f623a2041757468656e7469636174696f6e2052657175657374200d0a426f62202d2d3e20416c6963653a2041757468656e7469636174696f6e20526573706f6e73650d0a3d3d2052657065746974696f6e203d3d0d0a416c696365202d3e20426f623a20416e6f746865722061757468656e7469636174696f6e20526571756573740d0a20416c696365203c2d2d20426f623a20616e6f746865722061757468656e7469636174696f6e20526573706f6e73650d0a0d0a0d0a40656e64756d6c"></p>
+<h3 id="1116-引用和延迟">1.1.16 引用和延迟</h3>
+
+<p>你可以在图中通过使用 <code class="language-plaintext highlighter-rouge">ref over</code> 关键词来实现引用;<code class="language-plaintext highlighter-rouge">...</code>表示延迟。<code class="language-plaintext highlighter-rouge">|||来增加空间</code>
+<code class="language-plaintext highlighter-rouge">activate/deactivate</code>来表示激活/结束 
+使用示例如下:</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a416c696365202d3e20426f623a2041757468656e7469636174696f6e2052657175657374200d0a616374697661746520426f620d0a2e2e2e200d0a426f62202d2d3e20416c6963653a2041757468656e7469636174696f6e20526573706f6e7365200d0a64656163746976617465200d0a27e5a29ee58aa0e68c87e5ae9ae7a9bae997b4e995bfe5baa60d0a7c7c35307c7c0d0a0d0a2e2e2e35206d696e75746573206c61747465722e2e2e200d0a426f62202d2d3e20416c6963653a2042796520210d0a726566206f76657220426f620d0a2020202074686973206973206120626f62207265660d0a656e64207265660d0a0d0a0d0a40656e64756d6c"></p>
+<h3 id="1121-创建参与者">1.1.21 创建参与者</h3>
+
+<p>你可以把关键字 <code class="language-plaintext highlighter-rouge">create</code> 放在第一次接收到消息之前，以强调本次消息实际上是在创建新的对象。
+也可以使用<code class="language-plaintext highlighter-rouge">return</code>快速返回</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a426f62202d3e20416c696365203a2068656c6c6f0d0a637265617465204f74686572200d0a416c696365202d3e204f74686572203a206e65770d0a63726561746520636f6e74726f6c20537472696e67200d0a416c696365202d3e20537472696e67200d0a6e6f7465207269676874203a20596f752063616e20616c736f20707574206e6f746573210d0a416c696365202d2d3e20426f62203a206f6b0d0a0d0a40656e64756d6c"></p>
+<h3 id="1122-进入和发出消息">1.1.22 进入和发出消息</h3>
+<p>如果只想关注部分图示，你可以使用进入和发出箭头。 使用方括号 [和] 表示图示的左、右两侧。 
+<img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a5b2d3e20413a20446f576f726b0d0a616374697661746520410d0a41202d3e20413a20496e7465726e616c2063616c6c200d0a616374697661746520410d0a41202d3e5d203a203c3c2063726561746552657175657374203e3e0d0a413c2d2d5d203a205265717565737443726561746564200d0a646561637469766174652041200d0a5b3c2d20413a20446f6e6520646561637469766174652041200d0a40656e64756d6c"></p>
+
+<h3 id="1123-构造类型和圈点">1.1.23 构造类型和圈点</h3>
+
+<p>可以使用 <code class="language-plaintext highlighter-rouge">&lt;&lt;</code> 和 <code class="language-plaintext highlighter-rouge">&gt;&gt;</code> 给参与者添加构造类型。 在构造类型中，你可以使用 (X,color) 格式的语法添加一个圆圈圈起来的字符。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a7061727469636970616e74202246616d6f757320426f622220617320426f62203c3c2047656e657261746564203e3e200d0a7061727469636970616e7420416c696365203c3c2028432c2341444431423229205465737461626c65203e3e0d0a426f622d3e416c6963653a204669727374206d6573736167650d0a0d0a0d0a40656e64756d6c"></p>
+
+<h3 id="1125-包裹参与者">1.1.25 包裹参与者</h3>
+<p>可以使用 box 和 end box 画一个盒子将参与者包裹起来。 还可以在 box 关键字之后添加标题或者背景颜色。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a626f782022496e7465726e616c20536572766963652220234c69676874426c7565200d0a7061727469636970616e7420426f62200d0a7061727469636970616e7420416c696365200d0a656e6420626f78200d0a7061727469636970616e74204f746865720d0a426f62202d3e20416c696365203a2068656c6c6f200d0a416c696365202d3e204f74686572203a2068656c6c6f0d0a0d0a40656e64756d6c"></p>
+
+<h2 id="12-用例图">1.2 用例图</h2>
+
+<p><em>参考链接:</em></p>
+<ul>
+  <li><a href="https://baijiahao.baidu.com/s?id=1661400666935924580&wfr=spider&for=pc">详解 UML 用例图画法 &amp; 用例说明方式</a></li>
+</ul>
+
+<p>用例图主要是从用户的角度对，整个程序的结构和用例进行分析。主要是说明，参与者、用例以及参与者与用例之间的关系:</p>
+<ul>
+  <li>参与者: 代表系统外部与系统发生交互的人或事物；需要注意，人指的是参与者与系统发生交互时的角色，不代指具体的人。</li>
+  <li>事务: 指的是某一个应用程序或者特殊进程；例如微信登录，通过跳转微信确认登录信息，微信对系统产生输入时，可以把微信作为参与者；而设定时间，强制退出账号时，时间这一特殊进程对系统产生输入，因此时间也可以作为参与者。</li>
+  <li>用例:用例是系统外部可见的一个功能单元，是某一个参与者在系统中做某件事从开始到结束的一系列活动的集合，以及结束时应该返回的可观测、有意义的结果,其中还包含可能的各种分支情况；具体用例在用例属性中说明。
+    <ul>
+      <li>其特征如下:
+        <ul>
+          <li>用例都是动宾结构;例如：登录账号</li>
+          <li>用例都是相互独立的</li>
+          <li>用例由参与者启动</li>
+          <li>有可观测的执行结果</li>
+        </ul>
+      </li>
+      <li>角色和用例之间的关系主要包括:
+        <ul>
+          <li>关联关系:表示参与者与用例之间的关系，带箭头的实线来描述。</li>
+          <li>归纳(泛化)关系:表示参与者可以执行的动作一个用例可以被列举为多个子用例，这就被成为用例泛化，这与类间的泛化关系类似。例如客户预定可以泛化为预定大巴/小车.</li>
+          <li><img src="https://pics6.baidu.com/feed/9358d109b3de9c82d4db73b6e955de0c18d843a3.jpeg?token=3e0fe371798f45c06804d49223f474cf" alt=""></li>
+          <li>包含关系:指的是其中一个用例（称为基础用例）的行为包含了另一个用例（称为包含用例）。基础用例包含用例并依赖包含用例的执行结果。但是二者不能访问对方的属性。包含关系的图形为虚线箭头加<code class="language-plaintext highlighter-rouge">&lt;&lt;include&gt;&gt;</code>，箭头指向包含用例。例如汽车租赁中，预定、取车等动作都包含登录</li>
+          <li><img src="https://image.woshipm.com/wp-files/2019/07/5qoSbaSdktjnugp1jSvX.png" alt="包含关系"></li>
+          <li>拓展关系:基础用例的增量扩展，它俩之间为扩展关系。使用虚线箭头，上面加<code class="language-plaintext highlighter-rouge">&lt;&lt;exclude&gt;&gt;</code>,箭头指向基础用例。往往表示特定情况的发生。</li>
+          <li>依赖关系:一个用例需要另外一个用例的实现。直接使用直线将两个用例相互连接</li>
+        </ul>
+      </li>
+      <li>子系统：强调某部分用例的强关联性，使用子系统来概括，例如门户包括系统登录、首页信息展示等
+        <ul>
+          <li><img src="https://pics3.baidu.com/feed/6a63f6246b600c33e20913d994980f09d8f9a18e.jpeg?token=c212c53328630df909c3094dbf8759a9" alt="子系统使用示例"></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="121-用例">1.2.1 用例</h3>
+
+<p>用例用圆括号括起来。 也可以用关键字 usecase 来定义用例。还可以用关键字 as 定义一个别名，这个别名可以在以后定义关 系的时候使用。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a2846697273742075736563617365290d0a28416e6f746865722075736563617365292061732028554332290d0a75736563617365205543330d0a7573656361736520284c617374205c6e207573656361736529206173205543340d0a0d0a40656e64756d6c"></p>
+<h3 id="122-角色">1.2.2 角色</h3>
+
+<p>角色用两个冒号包裹起来；也可以用 actor 关键字来定义角色。还可以用关键字 as 来定义一个别名，这个别名可以在以后定义关 系的时候使用。 后面我们会看到角色的定义是可选的。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a3a4669727374204163746f723a0d0a3a416e6f746865725c6e6163746f723a206173204d656e320d0a6163746f72204d656e330d0a6163746f72203a4c617374206163746f723a206173204d656e340d0a0d0a0d0a40656e64756d6c"></p>
+<h3 id="123-用例描述">1.2.3 用例描述</h3>
+
+<p>如果想定义跨越多行的用例描述，可以用双引号将其裹起来。还可以使用这些分隔符：<code class="language-plaintext highlighter-rouge">--.. ==__</code>。并且还可以在分隔符中间放置标题。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a75736563617365205543312061732022596f752063616e20757365200d0a7365766572616c206c696e657320746f20646566696e6520796f757220757365636173652e0d0a596f752063616e20616c736f2075736520736570617261746f72732e200d0a2d2d0d0a5365766572616c20736570617261746f72732061726520706f737369626c652e200d0a3d3d20416e6420796f752063616e20616464207469746c65733a200d0a2e2e436f6e636c7573696f6e2e2e200d0a5468697320616c6c6f7773206c61726765206465736372697074696f6e2e220d0a0d0a0d0a40656e64756d6c">
+使用<code class="language-plaintext highlighter-rouge">--&gt;</code>连接角色和用例<code class="language-plaintext highlighter-rouge">-</code>越多，箭头越长。可以通过在箭头定义后的后面加一个冒号以及文字的方式来添加标签。给箭头添加注释。</p>
+
+<h3 id="125-继承">1.2.5 继承</h3>
+<p>使用<code class="language-plaintext highlighter-rouge">&lt;|--</code>表示角色或者用例继承于另一个。</p>
+
+<p>可以用 note left of,note right of,note top of,note bottom of 等关键字给一个对象添加注释。 注释还可以通过 note 关键字来定义，然后用.. 连接其他对象。 
+使用示例如下:</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a3a4d61696e2041646d696e3a2061732041646d696e200d0a2855736520746865206170706c69636174696f6e292061732028557365290d0a55736572202d3e2028537461727429200d0a55736572202d2d3e2028557365290d0a41646d696e202d2d2d3e2028557365290d0a6e6f7465207269676874206f662041646d696e203a205468697320697320616e206578616d706c652e0d0a0d0a6e6f7465207269676874206f66202855736529200d0a2020202041206e6f74652063616e20616c736f200d0a202020206265206f6e207365766572616c206c696e65730d0a656e64206e6f74650d0a0d0a6e6f7465202254686973206e6f746520697320636f6e6e65637465645c6e746f207365766572616c206f626a656374732e22206173204e320d0a28537461727429202e2e204e320d0a4e32202e2e2028557365290d0a0d0a55736572203c7c2d2d2041646d696e0d0a0d0a0d0a40656e64756d6c"></p>
+
+<h3 id="126-构造类型">1.2.6 构造类型</h3>
+
+<p>用<code class="language-plaintext highlighter-rouge">&lt;&lt;</code>和<code class="language-plaintext highlighter-rouge">&gt;&gt;</code>来定义角色或者用例的构造类型
+可以通过反转箭头改变方向
+还可以通过给箭头添加 left,right,up 或 down 等关键字来改变方向。 
+<img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a27e8a1a8e7a4ba0d0a6163746f722055736572203c3c48756d616e3e3e0d0a3a4d61696e2044617461626173653a206173204d7953716c203c3c4170706c69636174696f6e3e3e0d0a28537461727429203c3c204f6e652053686f74203e3e200d0a2855736520746865206170706c69636174696f6e29206173202855736529203c3c204d61696e203e3e0d0a55736572202d3e2028537461727429200d0a55736572202d2d3e2028557365290d0a4d7953716c202d2d3e2028557365290d0a27e59ca8e8bf99e9878ce69bb4e694b9e9bb98e8aea4e79a84e696b9e590910d0a4d7953716c202d75702d3e2028537461727429200d0a0d0a40656e64756d6c"></p>
+
+<h3 id="1210-更改构建方向">1.2.10 更改构建方向</h3>
+
+<p>可以通过<code class="language-plaintext highlighter-rouge">xxx to xxx direction</code>修饰来修改构图的方向。示例如下:</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a200d0a272064656661756c74200d0a746f7020746f20626f74746f6d20646972656374696f6e200d0a7573657231202d2d3e2028557365636173652031290d0a7573657232202d2d3e2028557365636173652032290d0a0d0a0d0a27206c65667420746f20726967687420646972656374696f6e200d0a27207573657233202d2d3e2028557365636173652033290d0a27207573657234202d2d3e2028557365636173652034290d0a0d0a0d0a40656e64756d6c"></p>
+
+<h3 id="1212-一个完整的例子">1.2.12 一个完整的例子</h3>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a6c65667420746f20726967687420646972656374696f6e0d0a736b696e706172616d207061636b6167655374796c652072656374616e676c650d0a6163746f7220637573746f6d6572200d0a6163746f7220636c65726b0d0a72656374616e676c6520636865636b6f75747b0d0a20202020637573746f6d6572202d2d2028636865636b6f7574290d0a2020202028636865636b6f757429202e3e20287061796d656e74293a20696e636c7564650d0a202020202868656c7029202e3e2028636865636b6f757429203a20657874656e64730d0a2020202028636865636b6f757429202d2d20636c65726b0d0a7d0d0a0d0a40656e64756d6c"></p>
+
+<h2 id="13-类图">1.3 类图</h2>
+<p><em>参考链接:</em></p>
+<ul>
+  <li><a href="http://www.woshipm.com/pd/2593231.html">产品经理必学UML：类图</a></li>
+  <li><a href="https://blog.csdn.net/weixin_38234890/article/details/80055362">类和类之间的依赖、关联、聚合、组合关系</a></li>
+  <li><a href="https://blog.csdn.net/K346K346/article/details/59582926?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase">认识 UML 类关系——依赖、关联、聚合、组合、泛化</a></li>
+</ul>
+
+<p><img src="https://image.woshipm.com/wp-files/2019/07/iNU5tAcBujZysjToDXf0.png" alt="UML中的静态/动态图"></p>
+
+<p>类图（Class Diagrame）是描述类、接口、协作以及它们之间关系的图，用来显示系统中各个类的静态结构。</p>
+
+<p>类图包含7个元素：</p>
+<ul>
+  <li>类:</li>
+  <li>接口</li>
+  <li>协作</li>
+  <li>依赖关系:表示某一类元以某种形式依赖于其他类元，它表现了这样一种场景，如下图，对于一个元素（提供者）的某些更改会影响或提供消息给其他元素（客户），即客户以某种形式依赖于提供者。
+    <ul>
+      <li><img src="http://image.woshipm.com/wp-files/2019/07/O5gfNkokhAK6R7GIGdWK.png" alt="依赖关系"></li>
+    </ul>
+  </li>
+  <li>泛化关系:表示一种存在于一般元素和特殊元素之间的分级关系，描述了“is a kind of”（是……的一种）的关系，如汽车是交通工具的一种。在类中一般元素称为超类或父类，特殊元素称为子类。
+    <ul>
+      <li><img src="http://image.woshipm.com/wp-files/2019/07/6RrXKEGxRwEfNQ5RYTPT.png" alt="泛化关系"></li>
+    </ul>
+  </li>
+  <li>实现关系:
+    <ul>
+      <li>表示规格说明和其实现之间的关系，将一种模型元素和另一种模型元素连接起来，比如类和接口。 如打字员和键盘，键盘保证自己的部分行为可以实现打字员的行为。
+        <ul>
+          <li><img src="http://image.woshipm.com/wp-files/2019/07/6epU1xZDQZeARPDC3erv.png" alt="实现关系"></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>关联关系:表示一组具有共同结构特征、行为特征、关系和语义的链接，是一种结构关系，指明一个事物的对象与另一个事物的对象间的关系。如学生和大学的关系，学生在大学里学习，大学又包括了很多学生，所以可以在学生和大学之间建立关联关系。
+    <ul>
+      <li><img src="http://image.woshipm.com/wp-files/2019/07/OBvVcd4sDdAY3L30juY1.png" alt="关联关系"></li>
+    </ul>
+  </li>
+  <li>聚合（Aggregation）关系:是一种特殊形式的关联关系。表示整体与部分关系的关联，简单来说，就是关联关系中的一组元素组成了一个更大、更复杂的单元。描述了“has  a”的关系。如大学和学院，大学是由很多个学院组成的，因此两者之间是聚合关系。
+    <ul>
+      <li><img src="http://image.woshipm.com/wp-files/2019/07/0VsPzJVUOocWJO7ezaIc.png" alt="聚合关系"></li>
+    </ul>
+  </li>
+  <li>组合关系:组合也是关联关系的一种特例，它体现的是一种contains-a的关系，这种关系比聚合更强，也称为强聚合。它同样体现整体与部分间的关系，但此时整体与部分是不可分的，整体的生命周期结束也就意味着部分的生命周期结束，比如人和人的大脑。表现在代码层面，和关联关系是一致的，只能从语义级别来区分。在UML类图设计中，组合关系以实心菱形加实线箭头表示。</li>
+  <li>相关小结:
+    <ul>
+      <li><img src="http://image.woshipm.com/wp-files/2019/07/KarulUQZ0mvv9UP0yUll.png" alt=""></li>
+    </ul>
+  </li>
+  <li>小练习——简易听歌系统类图
+    <ul>
+      <li><img src="http://image.woshipm.com/wp-files/2019/07/mEMJrfB0hfLS1VPudkzs.png" alt="简易听歌系统"></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="131">1.3.1</h3>
+
+<p>类图之间的关系通过如下的符号进行定义:</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-06-27-10-42-58.png" alt="基本符号定义"></p>
+
+<p>注意类图中的虚线是使用<code class="language-plaintext highlighter-rouge">..</code>来代替–可以得到点线。这里和时序图是不一样的。</p>
+
+<p>关系上的标识符可以在每一边使用<code class="language-plaintext highlighter-rouge">""</code>来说明
+在标签的开始或者结束位置添加<code class="language-plaintext highlighter-rouge">&lt;</code>或<code class="language-plaintext highlighter-rouge">&gt;</code>以表明是哪个对象作用到哪个对象上。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a436c617373303120223122202a2d2d20226d616e792220436c6173733032203a20636f6e7461696e73203e0d0a436c6173733033206f2d2d20436c6173733034203a206167677265676174696f6e203e0d0a436c6173733035202d2d3e2022312220436c61737330360d0a0d0a40656e64756d6c"></p>
+<h3 id="133-添加方法">1.3.3 添加方法</h3>
+
+<p>为了声明字段(对象属性)或者方法，可以使用后接字段名或方法名。
+系统检查是否有括号来判断是方法还是字段</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a4f626a656374203c7c2d2d2041727261794c6973740d0a4f626a656374203a20657175616c7328290d0a41727261794c697374203a204f626a6563745b5d20656c656d656e7444617461200d0a41727261794c697374203a2073697a6528290d0a0d0a0d0a40656e64756d6c"></p>
+
+<p>也可以使用 <code class="language-plaintext highlighter-rouge">{}</code> 把字段或者方法括起来 注意，这种语法对于类型/名字的顺序是非常灵活的。使用示例如下:</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a636c6173732044756d6d797b0d0a20202020537472696e6720646174610d0a20202020766f6964206d6574686f647328290d0a7d0d0a636c61737320466c69676874207b0d0a20202020666c696768744e756d626572203a20496e74656765720d0a2020202064617061727475726554696d65203a20446174650d0a7d0d0a44756d6d79203c7c2d20466c696768740d0a0d0a40656e64756d6c">
+你可以（显式地）使用 <code class="language-plaintext highlighter-rouge">{field}</code> 和 <code class="language-plaintext highlighter-rouge">{method}</code> 修饰符来覆盖解析器的对于字段和方法的默认行为：
+<img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a636c6173732044756d6d797b0d0a202020207b6669656c647d2041206669656c6420286465737069746520706172656e746865736573290d0a202020207b6d6574686f647d20536f6d65206d6574686f640d0a7d0d0a0d0a40656e64756d6c"></p>
+<h3 id="134-定义方法的可访问性">1.3.4 定义方法的可访问性</h3>
+
+<p>定义方法域的可访问性</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2020-06-27-11-20-58.png" alt="方法的可访问性"></p>
+
+<p>也可以使用<code class="language-plaintext highlighter-rouge">skinparam classAttributeIconSize 0</code> 停用这些新特性</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a736b696e706172616d20636c61737341747472696275746549636f6e53697a652030200d0a636c6173732044756d6d79207b0d0a202020202d6669656c64310d0a20202020236669656c64320d0a202020207e6d6574686f643128290d0a202020202b6d6574686f643228290d0a7d0d0a0d0a40656e64756d6c"></p>
+
+<h3 id="135-抽象与静态">1.3.5 抽象与静态</h3>
+
+<p>通过修饰符<code class="language-plaintext highlighter-rouge">{static}</code>或者<code class="language-plaintext highlighter-rouge">{abstract}</code>,可以定义静态或者抽象的方法或者属性。
+这些修饰符可以写在行的开始或者结束。也可以使用 <code class="language-plaintext highlighter-rouge">{classifier}</code> 这个修饰符来代替 <code class="language-plaintext highlighter-rouge">{static}</code>。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a636c6173732044756d6d79207b0d0a202020207b7374617469637d20537472696e672069640d0a202020207b61627374726163747d20766f6964206d6574686f647328290d0a7d0d0a0d0a40656e64756d6c"></p>
+<h3 id="136-高级类体">1.3.6 高级类体</h3>
+
+<p>PlantUML 默认自动将方法和属性重新分组，你可以自己定义分隔符来重排方法和属性，下面的分隔符都 是可用的：<code class="language-plaintext highlighter-rouge">--.. ==__</code>。
+注意:分隔符后面不能有空格否则会失效</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a200d0a636c61737320466f6f31207b200d0a20202020596f752063616e207573650d0a202020207365766572616c206c696e65730d0a202020202e2e0d0a20202020617320796f752077616e740d0a20202020616e642067726f7570200d0a202020203d3d0d0a202020207468696e677320746f6765746865722e200d0a202020205f5f0d0a20202020596f752063616e2068617665206173206d616e792067726f757073200d0a20202020617320796f752077616e74200d0a202020202d2d0d0a20202020456e64206f6620636c6173730d0a7d0d0a636c6173732055736572207b200d0a202020202e2e53696d706c65204765747465722e2e200d0a202020202b206765744e616d6528290d0a202020202b206765744164647265737328290d0a202020202e2e536f6d65207365747465722e2e0d0a202020202b207365744e616d6528290d0a202020202d2d20707269766174652064617461202d2d0d0a20202020696e74206167650d0a202020202d2d20656e63727970746564202d2d0d0a20202020537472696e672070617373776f72640d0a7d0d0a0d0a0d0a40656e64756d6c"></p>
+<h3 id="137-备注和模板">1.3.7 备注和模板</h3>
+
+<p>模板通过类关键字 (“«” 和”»”) 来定义；你可以使用 note left of,note right of,note top of,note bottom of 这些关键字来添加备注。 你还可以在类的声明末尾使用 note left,note right,note top,note bottom 来添加备注。 此外，单独用 note 这个关键字也是可以的，使用 .. 符号可以作出一条连接它与其它对象的虚线。</p>
+
+<p>还可以使用note on link 给链接添加注释</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a200d0a636c617373204f626a656374203c3c2067656e6572616c203e3e200d0a4f626a656374203c7c2d2d2d2041727261794c6973740d0a6e6f7465206f6e206c696e6b2023726564203a2074686973206e6f746520697320726561640d0a6e6f746520746f70206f66204f626a656374203a20496e206a6176612c20657665727920636c6173735c6e657874656e64732074686973206f6e652e0d0a6e6f7465202254686973206973206120666c6f6174696e67206e6f746522206173204e31200d0a6e6f7465202254686973206e6f746520697320636f6e6e65637465645c6e746f207365766572616c206f626a656374732e22206173204e32200d0a4f626a656374202e2e204e32200d0a4e32202e2e2041727261794c6973740d0a636c61737320466f6f200d0a6e6f7465206c6566743a204f6e206c61737420646566696e656420636c6173730d0a0d0a0d0a40656e64756d6c"></p>
+<h3 id="1310-抽象类和接口">1.3.10 抽象类和接口</h3>
+
+<p>用关键字 <code class="language-plaintext highlighter-rouge">abstract</code> 或 <code class="language-plaintext highlighter-rouge">abstract class</code> 来定义抽象类。抽象类用斜体显示。也可以使用 interface, annotation 和 enum 关键字。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a0d0a616273747261637420636c6173732041627374726163744c6973740d0a6162737472616374204162737472616374436f6c6c656374696f6e0d0a696e74657266616365204c6973740d0a696e7465726661636520436f6c6c656374696f6e0d0a4c697374203c7c2d2d2041627374726163744c6973740d0a436f6c6c656374696f6e203c7c2d2d204162737472616374436f6c6c656374696f6e0d0a436f6c6c656374696f6e203c7c2d204c6973740d0a4162737472616374436f6c6c656374696f6e203c7c2d2041627374726163744c6973740d0a41627374726163744c697374203c7c2d2d2041727261794c6973740d0a636c6173732041727261794c697374207b200d0a202020204f626a6563745b5d20656c656d656e74446174610d0a2020202073697a6528290d0a7d0d0a656e756d2054696d65556e6974207b200d0a20202020444159530d0a20202020484f5552530d0a202020204d494e555445530d0a7d0d0a616e6e6f746174696f6e2053757070726573735761726e696e67730d0a0d0a40656e64756d6c"></p>
+<h3 id="1312-隐藏属性函数等">1.3.12 隐藏属性、函数等</h3>
+
+<p>通过使用命令“hide/show”，你可以用参数表示类的显示方式。 基础命令是: hide empty members. 这个命令会隐藏空白的方法和属性。 除 empty members 外，你可以用:</p>
+<ul>
+  <li>empty fields 或者 empty attributes 空属性</li>
+  <li>empty methods 空函数，</li>
+  <li>fields 或 attributes 隐藏字段或属性，即使是被定义了</li>
+  <li>methods 隐藏方法，即使是被定义了</li>
+  <li>members 隐藏字段 和 方法，即使是被定义了</li>
+  <li>circle 类名前带圈的，</li>
+  <li>stereotype 原型。</li>
+</ul>
+
+<p>同样可以使用 hide 或 show 关键词，对以下内容进行设置：</p>
+<ul>
+  <li>class 所有类，</li>
+  <li>interface 所有接口，</li>
+  <li>enum 所有枚举</li>
+  <li>«foo1» 实现 foo1 的类，</li>
+  <li>一个既定的类名。</li>
+</ul>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a636c6173732044756d6d7931207b0d0a202020202b6d794d6574686f647328290d0a7d0d0a636c6173732044756d6d7932207b0d0a202020202b68696464656e4d6574686f6428290d0a7d0d0a636c6173732044756d6d7933203c3c53657269616c697a61626c653e3e207b0d0a20202020537472696e67206e616d650d0a7d0d0a68696465206d656d626572730d0a68696465203c3c53657269616c697a61626c653e3e20636972636c650d0a73686f772044756d6d7931206d6574686f64730d0a73686f77203c3c53657269616c697a61626c653e3e206669656c64730d0a0d0a0d0a40656e64756d6c"></p>
+
+<h3 id="1316-包">1.3.16 包</h3>
+
+<p>可以通过关键字<code class="language-plaintext highlighter-rouge">package</code>声明包，同时可选的来声明对应的背景颜色(通过html的色彩代码或者名称)。
+注意:包可以被定义为嵌套类</p>
+
+<p>也可以通过不同的代码来定义包的样式</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a7061636b6167652022436c617373696320436f6c6c656374696f6e73222023444444444444207b0d0a202020204f626a656374203c7c2d2d2041727261794c6973740d0a7d0d0a7061636b616765206e65742e736f75726365666f7267652e706c616e74756d6c207b0d0a202020204f626a656374203c7c2d2d2044656d6f310d0a2020202044656d6f31202a2d2044656d6f320d0a7d0d0a0d0a0d0a7061636b61676520666f6f31203c3c4e6f64653e3e207b200d0a20202020636c61737320436c61737331200d0a7d0d0a7061636b61676520666f6f32203c3c52656374616e676c653e3e207b200d0a20202020636c61737320436c61737332200d0a7d0d0a7061636b61676520666f6f33203c3c466f6c6465723e3e207b200d0a20202020636c61737320436c61737333200d0a7d0d0a7061636b61676520666f6f34203c3c4672616d653e3e207b200d0a20202020636c61737320436c61737334200d0a7d0d0a7061636b61676520666f6f35203c3c436c6f75643e3e207b200d0a20202020636c61737320436c617373350d0a202020207d0d0a7061636b61676520666f6f36203c3c44617461626173653e3e207b200d0a20202020636c61737320436c617373360d0a202020207d0d0a0d0a0d0a40656e64756d6c"></p>
+
+<p>可以使用头部和<code class="language-plaintext highlighter-rouge">--</code>或者<code class="language-plaintext highlighter-rouge">..</code>的方向，或者直接使用<code class="language-plaintext highlighter-rouge">left</code>等关键字来改变箭头的方向。</p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a0d0a666f6f202d6c6566742d3e2064756d6d794c6566740d0a666f6f20223122202d2d72696768742d3e20222a222064756d6d7952696768740d0a666f6f202d75702d3e2064756d6d7955700d0a666f6f202d646f776e2d3e2064756d6d79446f776e0d0a0d0a0d0a40656e64756d6c"></p>
+
+<h3 id="1326-辅助布局">1.3.26 辅助布局</h3>
+
+<p>你可以使用 together 关键词将某些类进行分组：布局引擎会尝试将它们捆绑在一起（如同在一个包 (package) 内) 你也可以使用建立 隐藏链接的方式来强制布局
+<img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a636c61737320426172310d0a636c61737320426172320d0a746f676574686572207b200d0a20202020636c61737320546f676574686572310d0a20202020636c61737320546f676574686572320d0a20202020636c61737320546f676574686572330d0a7d0d0a546f67657468657231202d20546f676574686572320d0a546f67657468657232202d20546f676574686572330d0a546f67657468657232202d5b68696464656e5d2d2d3e20426172310d0a42617231202d5b68696464656e5d3e20426172320d0a40656e64756d6c"></p>
+
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a73746172740d0a3a436c69636b536572766c65742e68616e646c655265717565737428293b0d0a3a6e657720706167653b0d0a69662028506167652e6f6e5365637572697479436865636b29207468656e202874727565290d0a20203a506167652e6f6e496e697428293b0d0a2020696620286973466f72776172643f29207468656e20286e6f290d0a202020203a50726f6365737320636f6e74726f6c733b0d0a2020202069662028636f6e74696e75652070726f63657373696e673f29207468656e20286e6f290d0a20202020202073746f700d0a20202020656e6469660d0a0d0a20202020696620286973506f73743f29207468656e2028796573290d0a2020202020203a506167652e6f6e506f737428293b0d0a20202020656c736520286e6f290d0a2020202020203a506167652e6f6e47657428293b0d0a20202020656e6469660d0a202020203a506167652e6f6e52656e64657228293b0d0a2020656e6469660d0a656c7365202866616c7365290d0a656e6469660d0a0d0a69662028646f2072656469726563743f29207468656e2028796573290d0a20203a72656469726563742070726f636573733b0d0a656c73650d0a202069662028646f20666f72776172643f29207468656e2028796573290d0a202020203a466f727761726420726571756573743b0d0a2020656c736520286e6f290d0a202020203a52656e64657220706167652074656d706c6174653b0d0a2020656e6469660d0a656e6469660d0a0d0a73746f700d0a40656e64756d6c"></p>
+
+<p>流程图尝试
+<img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0d0a407374617274756d6c20e6b581e7a88be59bbe0d0a6469677261706820666c6f776368617274207b0d0a202020206e6f64655b73686170653d22626f78222c207374796c653d22726f756e646564225d0d0a202020202020202053746172745b6c6162656c3d22737461727432225d3b20456e643b0d0a202020206e6f64655b73686170653d22626f78222c207374796c653d22225d0d0a2020202020202020537465705f413b20537465705f423b20537465705f433b20537465705f443b20537465705f453b20537465705f463b0d0a202020206e6f64655b73686170653d226469616d6f6e64222c207374796c653d22225d0d0a2020202020202020436f6e646974696f6e5f313b20436f6e646974696f6e5f323b0d0a202020205374617274202d3e20537465705f413b0d0a20202020537465705f41202d3e20436f6e646974696f6e5f313b0d0a20202020436f6e646974696f6e5f31202d3e20537465705f425b6c6162656c3d22796573225d3b0d0a20202020537465705f42202d3e20537465705f463b0d0a20202020436f6e646974696f6e5f31202d3e20537465705f435b6c6162656c3d226e6f225d3b0d0a20202020537465705f43202d3e20436f6e646974696f6e5f323b0d0a20202020436f6e646974696f6e5f32202d3e20537465705f455b6c6162656c3d22796573225d0d0a20202020537465705f45202d3e20537465705f463b0d0a20202020537465705f46202d3e20456e643b0d0a20202020436f6e646974696f6e5f32202d3e20537465705f445b6c6162656c3d226e6f225d3b0d0a20202020537465705f44202d3e20537465705f413b0d0a2020202073756267726170682022636c75737465725f673122207b0d0a202020206c6162656c3d226731220d0a202020206267636f6c6f723d6361646574626c75650d0a20202020226c6576656c31222d3e226c6576656c32222d3e226c6576656c33222d3e226c6576656c34220d0a20207d0d0a7d0d0a0d0a40656e64756d6c0d0a40656e64756d6c"></p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/06/12/java_progream_standrd_note/" data-toggle="tooltip" data-placement="top" title="Java开发规范学习笔记">
+                        Previous<br>
+                        <span>Java开发规范学习笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2020/08/05/distributed_systems_concepts_design/" data-toggle="tooltip" data-placement="top" title="分布式系统概念与设计学习笔记(一)">
+                        Next<br>
+                        <span>分布式系统概念与设计学习笔记(一)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

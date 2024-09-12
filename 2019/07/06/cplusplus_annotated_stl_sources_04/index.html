@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>STL 源码剖笔记(四) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/07/06/cplusplus_annotated_stl_sources_04/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析">STL源码解析</a>
+                        
+                    </div>
+                    <h1>STL 源码剖笔记(四)</h1>
+                    
+                    
+                    <h2 class="subheading">STL 源码剖析笔记(四)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on July 6, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-08-04 21:47:52</p>
+</blockquote>
+
+<h2 id="第七章-仿函数">第七章 仿函数</h2>
+
+<p>仿函数也叫对象函数；在STL提供的各种算法中，都允许用户自定义相关算法。以结果的false或者true来进行相关的排序操作，用来执行函数的就是仿函数。一般步骤是先设计一个函数，在将函数的相关指针指向函数对应的结果。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-11-10-20-39.png" alt="STL仿函数与STL算法之间的关系"></p>
+
+<p>仿函数的分类：</p>
+
+<ul>
+  <li>操作数的个数：一元和二元仿函数</li>
+  <li>功能划分:算术运算、关系运算、逻辑运算。</li>
+</ul>
+
+<p>使用STL内建的仿函数，都必须含有<functional>头文件。</functional></p>
+
+<h3 id="72-可配接adaptable的关键">7.2 可配接(Adaptable)的关键</h3>
+
+<ul>
+  <li>unary_function 用来呈现一元函数的参数型别和返回值类型。</li>
+  <li>binary_function 用来呈现二元函数的参数型别和返回值类型。</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Arg1</span><span class="p">,</span><span class="k">class</span> <span class="nc">Arg2</span><span class="p">,</span><span class="k">class</span> <span class="nc">Result</span><span class="p">&gt;</span>
+
+<span class="k">struct</span> <span class="nc">binary_function</span>
+<span class="p">{</span>
+    <span class="n">typdef</span> <span class="n">Arg1</span> <span class="n">first_argument_type</span><span class="p">;</span>
+    <span class="n">typdef</span> <span class="n">Arg2</span> <span class="n">second_argument_type</span><span class="p">;</span>
+    <span class="n">typdef</span> <span class="n">Result</span> <span class="n">result_type</span><span class="p">;</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<h3 id="73-算术类arithmetic仿函数">7.3 算术类(Arithmetic)仿函数</h3>
+
+<ul>
+  <li>加法：plus<t></t>
+</li>
+  <li>减法：minus<t></t>
+</li>
+  <li>乘法:multiplies<t></t>
+</li>
+  <li>除法：divides<t></t>
+</li>
+  <li>膜取(modulus):modulus<t></t>
+</li>
+  <li>否定(negation):negate<t></t>
+</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">struct</span> <span class="nc">plus</span><span class="o">:</span><span class="k">public</span> <span class="n">binary_function</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="p">{</span>
+    <span class="n">T</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="p">;}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<p><strong>证同元素</strong></p>
+
+<p>数值A若与该元素做OP运算，会得到A自己。加法的同证元素为0，因为任何匀速加上0仍为自己。乘法的同证元素为1，因为任何元素乘以1任然为自己</p>
+
+<h3 id="74-关系运算类仿函数">7.4 关系运算类仿函数</h3>
+<p>他们都是二元的运算函数</p>
+
+<ul>
+  <li>等于：equal_to<t></t>
+</li>
+  <li>不等于：not_equal_to<t></t>
+</li>
+  <li>大于: greater<t></t>
+</li>
+  <li>大于或者等于：greater_equal<t></t>
+</li>
+  <li>小于：less<t></t>
+</li>
+  <li>小于或者等于:less_equal<t></t>
+</li>
+</ul>
+
+<h3 id="75-逻辑运算类仿函数">7.5 逻辑运算类仿函数</h3>
+
+<p>其中And和Or为二元运算符，Not为一元运算符</p>
+
+<ul>
+  <li>And:logical_and<t></t>
+</li>
+  <li>Or:logical_or<t></t>
+</li>
+  <li>Not:logical_not<t></t>
+</li>
+</ul>
+
+<h3 id="76-证同identity选择select投射project">7.6 证同(identity)、选择(select)、投射(project)</h3>
+
+<ul>
+  <li>证同：任何数值通过此函数后，不会有任何改变，此式运用于<stl_set.h>用来指定RB-tree所需要的KeyOfValue op ，因为set元素的键值即实值，所以采用identity</stl_set.h>
+</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="k">struct</span> <span class="nc">identity</span><span class="o">:</span><span class="k">public</span> <span class="n">unary_function</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">(){</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">}</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">x</span><span class="p">;}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<ul>
+  <li>
+    <p>选择： 接受一个pair,传回第一元素。此式运用于<stl_map.h>用来指定RB-tree所需要的KeyOfValue op ，因为map系以pair元素的第一个元素为其键值，所以采用select1st。</stl_map.h></p>
+  </li>
+  <li>
+    <p>投射函数：传回第一参数，忽略第二参数</p>
+  </li>
+</ul>
+
+<h2 id="第8章-配接器">第8章 配接器</h2>
+
+<p>Adapter实际上是一种设计模式，将一个class的借口转换为另外一个class的接口。</p>
+
+<h3 id="81-配接器之概观与分类">8.1 配接器之概观与分类</h3>
+
+<ul>
+  <li>function adapter:改变仿函数(functors)接口</li>
+  <li>container adapter:改变容器(container)接口</li>
+  <li>iterators adapter:改变迭代器借口</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-11-13-58-31.png" alt="function adapters及其辅助函数"></p>
+
+<h3 id="82-container-adapter">8.2 container adapter</h3>
+
+<p>stack和queue的底层都是使用deque构成。</p>
+
+<h3 id="83-iterator-adapters">8.3 iterator adapters</h3>
+<p>insert  iterator底层的调用是push_front()或者push_back()或者insert()操作函数。</p>
+
+<h4 id="832-reverse-iterators">8.3.2 reverse iterators</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">deque</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">id</span><span class="o">=</span><span class="p">{</span><span class="mi">32</span><span class="p">,</span><span class="mi">26</span><span class="p">,</span><span class="mi">99</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">};</span>
+<span class="c1">//32</span>
+
+<span class="n">cout</span> <span class="o">&lt;&lt;*</span><span class="p">(</span><span class="n">id</span><span class="p">.</span><span class="n">begin</span><span class="p">())</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="c1">//3</span>
+
+<span class="n">cout</span> <span class="o">&lt;&lt;*</span><span class="p">(</span><span class="n">id</span><span class="p">.</span><span class="n">rbegin</span><span class="p">())</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="c1">//0</span>
+
+<span class="n">cout</span> <span class="o">&lt;&lt;*</span><span class="p">(</span><span class="n">id</span><span class="p">.</span><span class="n">end</span><span class="p">())</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="c1">//0</span>
+
+<span class="n">cout</span> <span class="o">&lt;&lt;*</span><span class="p">(</span><span class="n">id</span><span class="p">.</span><span class="n">rend</span><span class="p">())</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="c1">//查找对应的值</span>
+
+<span class="n">deque</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">ite</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">id</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">id</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="mi">99</span><span class="p">);</span>
+<span class="n">reverse_iterator</span><span class="o">&lt;</span><span class="n">deque</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span><span class="o">&gt;</span> <span class="n">rite</span><span class="p">(</span><span class="n">ite</span><span class="p">);</span>
+<span class="c1">//99</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;*</span><span class="n">ite</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="c1">//26</span>
+
+<span class="n">cout</span><span class="o">&lt;&lt;*</span><span class="n">rite</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>注意，由于迭代器区间的“前闭后开”的习惯，当迭代器被逆向方向时，虽然实体位置(真正的地址)不变，但其逻辑位置(迭代器所代表的元素)改变了(必须如此改变)：因此正向和逆向迭代器所取出的是不同的元素：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-11-14-20-30.png" alt="当迭代器被逆转"></p>
+
+<p>对逆向迭代器取值，就是将“对应之正向迭代器”后退一格而后取值。</p>
+
+<h4 id="833-stream-iterators">8.3.3 stream iterators</h4>
+
+<p>可以将一个迭代器绑定到一格stream对象上。绑定到istream对象例如(std::cin)者，就是istream_iterator拥有输入能力，同理输出对象上有输出能力。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-11-15-13-25.png" alt="copy istream_iterator"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-11-15-14-45.png" alt="copy ostream_iterator"></p>
+
+<h3 id="84-function-adapters">8.4 function adapters</h3>
+
+<p>容器是以class templates完成，算法是以function templates完成，仿函数是一种将operator()重载的class template,迭代器则是一种将operator++和operator*等指针习惯性常行为重载的class template。</p>
+
+<p>function adapters也内藏了一格member object</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-11-15-22-14.png" alt=""></p>
+
+<p>因此function adapters多是在内部实现函数的合成与操作</p>
+
+<h4 id="844-用于函数指针-ptr_fun">8.4.4 用于函数指针： ptr_fun</h4>
+
+<p>这种配接器使得我们能够将一般函数当做仿函数使用。一般函数当做仿函数传给STL算法。其实质就是把一个函数指针包裹起来。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//当仿函数被使用时，就调用该函数指针,这里是一元函数指针的封装</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Arg</span><span class="p">,</span><span class="k">class</span> <span class="nc">Result</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">pointer_to_unary_function</span><span class="o">:</span><span class="k">public</span> <span class="n">unary_function</span><span class="o">&lt;</span><span class="n">Arg</span><span class="p">,</span><span class="n">Result</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="nl">protected:</span>
+    <span class="c1">//内部成员，一个函数指针</span>
+
+    <span class="n">Result</span> <span class="p">(</span><span class="o">*</span><span class="n">Ptr</span><span class="p">)(</span><span class="n">Arg</span><span class="p">);</span>
+<span class="nl">public:</span>
+    <span class="n">pointer_to_unary_function</span><span class="p">(){}</span>
+    <span class="c1">//以下constructor将函数指针记录于内部成员之中</span>
+
+    <span class="k">explicit</span> <span class="n">pointer_to_unary_function</span><span class="p">(</span><span class="n">Result</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)(</span><span class="n">Arg</span><span class="p">))</span><span class="o">:</span><span class="n">ptr</span><span class="p">(</span><span class="n">x</span><span class="p">){}</span>
+    <span class="c1">//以下，通过函数指针指向函数</span>
+
+    <span class="n">Result</span> <span class="k">operator</span><span class="p">()(</span><span class="n">Arg</span> <span class="n">x</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">ptr</span><span class="p">(</span><span class="n">x</span><span class="p">);}</span>
+<span class="p">};</span>
+<span class="c1">//辅助函数，让我们得以方便运用</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Arg</span><span class="p">,</span><span class="k">class</span> <span class="nc">Result</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="n">pointer_to_unary_function</span><span class="o">&lt;</span><span class="n">Arg</span><span class="p">,</span><span class="n">Result</span><span class="o">&gt;</span> <span class="n">ptr_fun</span><span class="p">(</span><span class="n">Result</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)(</span><span class="n">Arg</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">pointer_to_unary_function</span><span class="o">&lt;</span><span class="n">Arg</span><span class="p">,</span><span class="n">Result</span><span class="o">&gt;</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">//二元函数指针的封装</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Arg1</span><span class="p">,</span><span class="k">class</span> <span class="nc">Arg2</span><span class="p">,</span><span class="k">class</span> <span class="nc">Result</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">pointer_to_binary_function</span><span class="o">:</span><span class="k">public</span> <span class="n">binary_function</span><span class="o">&lt;</span><span class="n">Arg1</span><span class="p">,</span><span class="n">Arg2</span><span class="p">,</span><span class="n">Result</span><span class="o">&gt;</span><span class="p">{</span>
+<span class="nl">protected:</span>
+    <span class="c1">//内部成员，一个函数指针</span>
+
+    <span class="n">Result</span> <span class="p">(</span><span class="o">*</span><span class="n">ptr</span><span class="p">)(</span><span class="n">Arg1</span><span class="p">,</span><span class="n">Arg2</span><span class="p">);</span>
+<span class="nl">public:</span>
+    <span class="n">pointer_to_binary_function</span><span class="p">(){}</span>
+    <span class="c1">//将函数指针记录在内部成员之中</span>
+
+    <span class="k">explicit</span> <span class="n">pointer_to_binary_function</span><span class="p">(</span><span class="n">Result</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)(</span><span class="n">Arg1</span><span class="p">,</span><span class="n">Arg2</span><span class="p">))</span><span class="o">:</span><span class="n">ptr</span><span class="p">(</span><span class="n">x</span><span class="p">){}</span>
+    <span class="c1">//函数指针执行函数</span>
+
+    <span class="n">Result</span> <span class="k">operator</span><span class="p">()(</span><span class="n">Arg1</span> <span class="n">x</span><span class="p">,</span><span class="n">Arg2</span> <span class="n">y</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">ptr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">);}</span>
+<span class="p">};</span>
+<span class="c1">//辅助函数，方便函数的使用</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Arg1</span><span class="p">,</span><span class="k">class</span> <span class="nc">Arg2</span><span class="p">,</span><span class="k">class</span> <span class="nc">Result</span><span class="p">&gt;</span>
+<span class="c1">//定义返回类型</span>
+
+<span class="kr">inline</span> <span class="n">pointer_to_binary_function</span><span class="o">&lt;</span><span class="n">Arg1</span><span class="p">,</span><span class="n">Arg2</span><span class="p">,</span><span class="n">Result</span><span class="o">&gt;</span>
+<span class="n">ptr_fun</span><span class="p">(</span><span class="n">Result</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)(</span><span class="n">Arg1</span><span class="p">,</span><span class="n">Arg2</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">pointer_to_binary_function</span><span class="o">&lt;</span><span class="n">Arg1</span><span class="p">,</span><span class="n">Arg2</span><span class="p">,</span><span class="n">Result</span><span class="o">&gt;</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="845-用于成员函数指针mem_funmem_fun_ref">8.4.5 用于成员函数指针：mem_fun,mem_fun_ref；</h4>
+
+<p>这种配接器使得我们能够将成员函数当做仿函数来进行使用，使得成员函数可以搭配各种泛型算法。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-11-15-48-03.png" alt="类阶层体系"></p>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/07/06/cplusplus_annotated_stl_sources_03/" data-toggle="tooltip" data-placement="top" title="STL 源码剖笔记(三)">
+                        Previous<br>
+                        <span>STL 源码剖笔记(三)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/07/06/write_makefile_with_me/" data-toggle="tooltip" data-placement="top" title="跟我一起写makefile 学习笔记">
+                        Next<br>
+                        <span>跟我一起写makefile 学习笔记</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

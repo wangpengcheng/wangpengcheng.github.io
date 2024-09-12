@@ -1,0 +1,2423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>STL 源码剖笔记(二) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/07/06/cplusplus_annotated_stl_sources_02/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析">STL源码解析</a>
+                        
+                    </div>
+                    <h1>STL 源码剖笔记(二)</h1>
+                    
+                    
+                    <h2 class="subheading">STL 源码剖析笔记(二)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on July 6, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-7-28 19:46:53</p>
+</blockquote>
+
+<h2 id="序列式容器">序列式容器</h2>
+
+<h3 id="41-容器的概观与分类">4.1 容器的概观与分类</h3>
+
+<p>容器主要分为两类：</p>
+<ul>
+  <li>序列式容器：数据的有序存放如list、vector</li>
+  <li>关联式容器：数据的相互关联如map和pair等</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-19-54-47.png" alt="序列容器和关联容器"></p>
+
+<p>第四章主要讲述序列容器</p>
+
+<h3 id="42-vector">4.2 vector</h3>
+
+<h4 id="421-vector概述">4.2.1 vector概述</h4>
+
+<p>vector与array非常想死，但是array是静态空间，一旦配置了就不嫩改变，vector是动态空间，可以自己动态增长；</p>
+
+<p>vector本质还是使用的allocator来进行内存空间的分配，因此它的内存模式是由allocator来决定的。所以vector是一个连续的空间，但是每次分配的过于小的时候，会造成数据的搬移，比较浪费时间。而vector的迭代器是普通的指针。(<a href="https://www.cnblogs.com/LLD-3/p/9664100.html">指针和引用的区别</a>;<a href="https://blog.csdn.net/qq_39539470/article/details/81273179">C++中指针和引用区别—详解版</a>);</p>
+
+<p><strong>数据结构</strong></p>
+
+<p>vector所采用的数据结构非常简单：线性连续空间。它以两个迭代器start和finish分别指向配置得来的连续空间中目前已经被使用的范围，并以迭代器end_of_storage指向整块连续空间(含备用空间)的尾端，并且为了方便扩充，vector实际配置的大小(capacity)可能比客户端需求更大一些，以备将来可能的扩充。vector的容量永远大于或等于其大小。一旦容量等于大小，便是满载，下次再有新增元素，整个vector就要进行搬移。即capacity&gt;size永远成立</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span><span class="k">class</span> <span class="nc">Alloc</span><span class="o">=</span><span class="n">alloc</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">vector</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+<span class="nl">protected:</span>
+    <span class="c1">//目前使用的空间的头部</span>
+
+    <span class="n">iterator</span> <span class="n">start</span><span class="p">;</span>
+    <span class="c1">//目前使用的空间的尾部</span>
+
+    <span class="n">iterator</span> <span class="n">finish</span><span class="p">;</span>
+    <span class="c1">//目前可用空间的尾部</span>
+
+    <span class="n">iterator</span> <span class="n">end_of_storage</span><span class="p">;</span>  
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-20-38-53.png" alt="vector示意图"></p>
+
+<p>这里内存分配的关键函数代码如下</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span><span class="k">class</span> <span class="nc">Alloc</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert_aux</span><span class="p">(</span><span class="n">iterator</span> <span class="n">position</span><span class="p">,</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="c1">//检查是否还有备用空间</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">finish</span><span class="o">!=</span><span class="n">end_of_storage</span><span class="p">){</span>
+        <span class="c1">//在备用空间起始处构造一个元素，并以vector最后一个元素为其初始值</span>
+
+        <span class="n">construct</span><span class="p">(</span><span class="n">finish</span><span class="p">,</span><span class="o">*</span><span class="p">(</span><span class="n">finish</span><span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+        <span class="c1">//移动finish指针</span>
+        
+        <span class="o">++</span><span class="n">finish</span><span class="p">;</span>
+        <span class="c1">//拷贝内容</span>
+
+        <span class="n">T</span> <span class="n">x_copy</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+        <span class="c1">//执行拷贝</span>
+
+        <span class="n">copy_backward</span><span class="p">(</span><span class="n">position</span><span class="p">,</span><span class="n">finish</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">finish</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+        <span class="o">*</span><span class="n">position</span><span class="o">=</span><span class="n">x_copy</span><span class="err">；</span>
+    <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+        <span class="c1">//进入这里表示已经不存在可用空间</span>
+
+        <span class="k">const</span> <span class="n">size_type</span> <span class="n">old_size</span><span class="o">=</span><span class="n">size</span><span class="p">();</span>
+        <span class="c1">//决定分配空间的大小</span>
+
+        <span class="k">const</span> <span class="n">size_type</span> <span class="n">len</span><span class="o">=</span><span class="n">old_size</span><span class="o">!=</span><span class="mi">0</span><span class="o">?</span><span class="mi">2</span><span class="o">*</span><span class="n">old_size</span><span class="o">:</span><span class="mi">1</span><span class="p">;</span>
+        <span class="c1">//实际分配</span>
+
+        <span class="n">iterator</span> <span class="n">new_start</span><span class="o">=</span><span class="n">data_allocator</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
+        <span class="n">iterator</span> <span class="n">new_finish</span><span class="o">=</span><span class="n">new_start</span><span class="p">;</span>
+        <span class="k">try</span><span class="p">{</span>
+            <span class="c1">//拷贝元素</span>
+
+            <span class="n">new_finish</span><span class="o">=</span><span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">position</span><span class="p">,</span><span class="n">new_start</span><span class="p">);</span>
+            <span class="c1">//为新元素设定初值x</span>
+            
+            <span class="n">construct</span><span class="p">(</span><span class="n">new_finish</span><span class="p">,</span><span class="n">x</span><span class="p">);</span>
+            <span class="c1">//调整指针位置</span>
+
+            <span class="o">++</span><span class="n">new_finish</span><span class="p">;</span>
+            <span class="c1">//将备用空间中的内容拷贝过来，这里主要是为了，后面的容量指针和相关信息</span>
+
+            <span class="n">new_finish</span><span class="o">=</span><span class="n">uninitialized_copy</span><span class="p">(</span><span class="n">position</span><span class="p">,</span><span class="n">finish</span><span class="p">,</span><span class="n">new_finish</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">catch</span><span class="p">(...){</span>
+            <span class="n">destroy</span><span class="p">(</span><span class="n">new_start</span><span class="p">,</span><span class="n">new_finish</span><span class="p">);</span>
+            <span class="n">data_allocator</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">new_start</span><span class="p">,</span><span class="n">len</span><span class="p">);</span>
+            <span class="k">throw</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//释放原来的内存</span>
+        <span class="n">destroy</span><span class="p">(</span><span class="n">begin</span><span class="p">(),</span><span class="n">end</span><span class="p">());</span>
+        <span class="n">deallocate</span><span class="p">();</span>
+
+        <span class="c1">//调整迭代器，指向新vector</span>
+        <span class="n">start</span><span class="o">=</span><span class="n">new_start</span><span class="p">;</span>
+        <span class="n">finish</span><span class="o">=</span><span class="n">new_finish</span><span class="p">;</span>
+        <span class="n">end_of_storage</span><span class="o">=</span><span class="n">new_start</span><span class="o">+</span><span class="n">len</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-16-32.png" alt="局部清除操作"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-18-12.png" alt="局部插入操作1"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-19-32.png" alt="局部插入操作2"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-20-36.png" alt="局部插入操作3"></p>
+
+<p>注意这里的迭代器失效。</p>
+
+<h3 id="43-list">4.3 list</h3>
+
+<p>相较于vector的连续线性空间，list相对复杂很多，但是，它的好处是每次插入或者删除一个元素就配置或者释放一个元素空间，因此list对空间的运用有绝对的精准，一点也不浪费。并且任何元素的插入或者删除，list永远是常数运行时间。</p>
+
+<p>list不能像vector那样使用普通指针作为迭代器，因为其节点不保证子啊存储空间中连续存在。迭代器在递增时指向下一个节点，递减时指向上一个节点。</p>
+
+<p>list的插入和接合(splice)都不会造成原有的list迭代失效，这在vector中是不成立的。但是它会使得操作指向的迭代器失效。</p>
+
+<p>SGI的list不仅是一个双向链表，而且还是一个环状双向链表。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-31-54.png" alt="SGI"></p>
+
+<p><strong>list的构造和内存管理</strong></p>
+
+<p>list为了方便空间配置器，额外定义了一个list_node_allocator，为的就是更方便地以节点大小为配置单位；</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">protected:</span>
+    <span class="c1">//配置一个节点并传回</span>
+
+    <span class="n">link_type</span> <span class="nf">get_node</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">list_node_allocator</span><span class="o">::</span><span class="n">allocate</span><span class="p">();}</span>
+    <span class="c1">//释放一个节点</span>
+
+    <span class="kt">void</span> <span class="nf">put_node</span><span class="p">(</span><span class="n">link_type</span> <span class="n">p</span><span class="p">){</span><span class="n">list_node_allocator</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">p</span><span class="p">);}</span>
+    <span class="c1">//产生(配置并构造)一个节点，带有元素值</span>
+
+    <span class="n">link_type</span> <span class="nf">create_node</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">link_type</span> <span class="n">p</span><span class="o">=</span><span class="n">get_node</span><span class="p">();</span>
+        <span class="c1">//全局函数，构造/析构函数</span>
+
+        <span class="n">construct</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">,</span><span class="n">x</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//销毁一个节点</span>
+
+    <span class="kt">void</span> <span class="nf">destroy_node</span><span class="p">(</span><span class="n">link_type</span> <span class="n">p</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//析构函数</span>
+
+        <span class="n">destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+        <span class="n">put_node</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+<p>list提供多个构造函数，default constructor允许我们不指定任何参数做出一个空的list出来。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-42-02.png" alt="空链表结构"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-43-26.png" alt="插入操作"></p>
+
+<p>注意这里的插入是先产生在插入，并且是头插法。这样可以避免尾部迭代器的变动，减少工作量。</p>
+
+<p>list内部提供一个transfer操作；将某个连续范围的元素迁移到某个特定位置之前。操作比较复杂。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//transfer</span>
+
+<span class="c1">// typedef list_node* link_type;</span>
+<span class="kt">void</span> <span class="nf">transfer</span><span class="p">(</span><span class="n">iterator</span> <span class="n">position</span><span class="p">,</span><span class="n">iterator</span> <span class="n">first</span><span class="p">,</span><span class="n">iterator</span> <span class="n">last</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">position</span><span class="o">!=</span><span class="n">last</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">link_type</span><span class="p">((</span><span class="o">*</span><span class="n">last</span><span class="p">.</span><span class="n">node</span><span class="p">).</span><span class="n">prev</span><span class="p">))).</span><span class="n">next</span><span class="o">=</span><span class="n">position</span><span class="p">.</span><span class="n">node</span><span class="p">;</span>
+        <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">link_type</span><span class="p">((</span><span class="o">*</span><span class="n">first</span><span class="p">.</span><span class="n">node</span><span class="p">).</span><span class="n">prev</span><span class="p">))).</span><span class="n">next</span><span class="o">=</span><span class="n">last</span><span class="p">.</span><span class="n">node</span><span class="p">;</span>
+        <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">link_type</span><span class="p">((</span><span class="o">*</span><span class="n">position</span><span class="p">.</span><span class="n">node</span><span class="p">).</span><span class="n">prev</span><span class="p">))).</span><span class="n">next</span><span class="o">=</span><span class="n">first</span><span class="p">.</span><span class="n">node</span><span class="p">;</span>
+        <span class="n">link_type</span> <span class="n">tmp</span><span class="o">=</span><span class="n">link_type</span><span class="p">((</span><span class="o">*</span><span class="n">position</span><span class="p">.</span><span class="n">node</span><span class="p">).</span><span class="n">prev</span><span class="p">);</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">last</span><span class="p">.</span><span class="n">node</span><span class="p">).</span><span class="n">prev</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="n">first</span><span class="p">.</span><span class="n">node</span><span class="p">).</span><span class="n">prev</span><span class="p">;</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">first</span><span class="p">.</span><span class="n">node</span><span class="p">).</span><span class="n">prev</span><span class="o">=</span><span class="n">tmp</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-53-20.png" alt="转移操作图"></p>
+
+<p>list的splice()结合函数，有许多版本，便便指针的重新链接；但是因为链表的链接特性，因此链表无法使用sort()算法，必须使用自己的sort()</p>
+
+<h3 id="44-deque">4.4 deque</h3>
+
+<p>deque是双向开口的连续性空间；</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-21-57-16.png" alt="deque结构"></p>
+
+<p>deque允许常数时间内对端进行匀速的插入或者移除操作，并且没有所谓的容量(capacity)的概念，因为他是动态地以分段连续空间组合而成的，随时可以增加一段新的空间并链接起来。因此deque的迭代器并不是普通的指针；因此除非必要，我们应该尽可能选择使用vector而非deque，为了操作的高效，可将deque先完整复制到一个vector身上，将vector排序后，再复制回去。</p>
+
+<p>deque避开了vector中的反复内存搬移，但是迭代器架构却异常复杂。</p>
+
+<p>deque采用一块所谓的map(一小块连续内存空间)作为主空。其中每个元素都是指针，指向另外一段较大的连续线性空间，称为缓冲区，缓冲区才是deqeue的存储空间主体。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">protected:</span>
+    <span class="c1">//指向元素的指针</span>
+
+    <span class="k">typedef</span> <span class="n">pointer</span><span class="o">*</span> <span class="n">map_pointer</span><span class="p">;</span>
+
+<span class="k">protected</span><span class="o">:</span>
+    <span class="c1">//指向的map节点指针</span>
+
+    <span class="n">map_pointer</span> <span class="n">map</span><span class="p">;</span>
+    <span class="c1">//map指针数量</span>
+
+    <span class="n">size_type</span> <span class="n">map_size</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-27-22-13-47.png" alt="deqeue结构"></p>
+
+<p>下面是deque中的迭代器关键代码</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">_deque_iterator</span>
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">__deque_iterator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">T</span><span class="o">&amp;</span><span class="p">,</span><span class="n">T</span><span class="o">*</span><span class="p">,</span><span class="n">BufSize</span><span class="o">&gt;</span> <span class="n">iterator</span><span class="p">;</span>
+    <span class="k">static</span> <span class="kt">size_t</span> <span class="n">buffer_size</span><span class="p">(){</span><span class="k">return</span> <span class="n">__deque_buf_size</span><span class="p">(</span><span class="n">BufSize</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">));}</span>
+    <span class="c1">//保持与容器的联结</span>
+    <span class="c1">//此迭代器所指缓冲区中的当前行(current)元素</span>
+
+    <span class="n">T</span><span class="o">*</span> <span class="n">cur</span><span class="p">;</span>
+    <span class="c1">//缓冲区的头部元素</span>
+
+    <span class="n">T</span><span class="o">*</span> <span class="n">first</span><span class="p">;</span>
+    <span class="c1">//缓冲区的尾部元素</span>
+
+    <span class="n">T</span><span class="o">*</span> <span class="n">last</span><span class="p">;</span>
+    <span class="c1">//缓冲区管理中心</span>
+
+    <span class="n">map_pointer</span> <span class="n">node</span><span class="p">;</span>
+
+    <span class="kr">inline</span> <span class="kt">size_t</span> <span class="n">__deque_buf_size</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">sz</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">n</span><span class="o">!=</span><span class="mi">0</span><span class="o">?</span><span class="n">n</span><span class="o">:</span><span class="p">(</span><span class="n">sz</span><span class="o">&lt;</span><span class="mi">512</span><span class="o">?</span><span class="kt">size_t</span><span class="p">(</span><span class="mi">512</span><span class="o">/</span><span class="n">sz</span><span class="p">)</span><span class="o">:</span><span class="kt">size_t</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="p">}</span>
+
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-10-20-39.png" alt="相互关系"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-10-23-19.png" alt="插入结果"></p>
+
+<p>deque数据结构</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span><span class="k">class</span> <span class="nc">Alloc</span><span class="o">=</span><span class="n">alloc</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">BufSiz</span><span class="o">=</span><span class="mi">0</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">deque</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="k">typedef</span> <span class="n">T</span> <span class="n">value_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">value_type</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="kt">size_t</span> <span class="n">size_type</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="nl">protected:</span>
+    <span class="c1">//元素的指针的指针</span>
+
+    <span class="k">typedef</span> <span class="n">pointer</span><span class="o">*</span> <span class="n">map_pointer</span><span class="p">;</span>
+    <span class="c1">//第一个节点</span>
+
+    <span class="n">iterator</span> <span class="n">start</span><span class="p">;</span>
+    <span class="c1">//最后一个节点</span>
+
+    <span class="n">iterator</span> <span class="n">finish</span><span class="p">;</span>
+    <span class="c1">//指向mao,mao是连续空间</span>
+
+    <span class="n">map_pointer</span> <span class="n">map</span><span class="p">;</span>
+    <span class="c1">//map内指针数量</span>
+
+    <span class="n">size_type</span> <span class="n">map_size</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-10-46-24.png" alt="尾端元素插入"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-10-48-20.png" alt="前端元素插入"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-10-49-02.png" alt="插入后续"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-10-50-18.png" alt="元素寻找"></p>
+
+<h3 id="45-stack">4.5 stack</h3>
+
+<p>stack允许新增元素、移除元素、取得最顶端元素。但是不允许遍历行为。
+stack没有迭代器，所有元素都是靠存取函数进行操作。
+stack以list作为底层容器，键list作为底层结构并封闭其头端口。</p>
+
+<h3 id="46-queue">4.6 queue</h3>
+
+<p>queue是一种先进先出的数据结构。有两个出口，允许新增元素、移除元素、从最低端加入元素、取得最顶端元素。</p>
+
+<p>queue主要是用deque作为双向开口的数据结构，作为缺省的情况下作为queue底部结构。</p>
+
+<p>queue没有迭代器，符合“先进先出”的条件，只有queue顶端的元素，才有机会被外界取用。queue不提供遍历功能，也不提供迭代器。</p>
+
+<h3 id="47-heap隐式表示implicit-representation">4.7 heap(隐式表示，implicit representation)</h3>
+
+<p>可以使用arry的i表示某一个节点，那么左子节点就必须位于array的2i处，右子节点必须位于array的2i+1处。
+根据元素排列方式，heap可以分为：</p>
+<ul>
+  <li>max-heap: 每个节点键值都大于或者等于其子节点的键值</li>
+  <li>min-heap: 每个节点键值都小于或者等于其子节点的键值</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-13-16-29.png" alt=""></p>
+
+<p>下面是进行插入排序的关键代码</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">push_heap</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+                        <span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//调用此函数时，新元素应该已经置于底部容器的最尾端</span>
+
+    <span class="n">__push_heap_aux</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">distance_type</span><span class="p">(</span><span class="n">first</span><span class="p">),</span><span class="n">value_type</span><span class="p">(</span><span class="n">first</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">Distance</span><span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__push_heap_aux</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span><span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">,</span><span class="n">Distance</span><span class="o">*</span><span class="p">,</span><span class="n">T</span><span class="o">*</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//将新值置于底部容器的最底端</span>
+
+    <span class="n">__push_heap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">Distance</span><span class="p">((</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">Distance</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">T</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="mi">1</span><span class="p">)));</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">Distance</span><span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">__push_heap</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span><span class="n">Distance</span> <span class="n">holeIndex</span><span class="p">,</span><span class="n">Distance</span> <span class="n">topIndex</span><span class="p">,</span><span class="n">T</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//找到父节点</span>
+
+    <span class="n">Distance</span> <span class="n">parent</span><span class="o">=</span><span class="p">(</span><span class="n">holeIndex</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+    <span class="c1">//这里使用while循环，循环调节插入的节点位置</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">holeIndex</span><span class="o">&gt;</span><span class="n">topIndex</span><span class="o">&amp;&amp;</span>
+        <span class="o">*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">parent</span><span class="p">)</span><span class="o">&lt;</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//当尚未达到顶端，且父节点小鱼新值(于是不符合heap的次序特性)</span>
+
+        <span class="c1">//令当前值为父值</span>
+
+        <span class="o">*</span><span class="err">（</span><span class="n">first</span><span class="o">+</span><span class="n">holeIndex</span><span class="err">）</span><span class="o">=*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">parent</span><span class="p">);</span>
+        <span class="n">holeIndex</span><span class="o">=</span><span class="n">parent</span><span class="p">;</span>
+        <span class="c1">//更新parent index</span>
+
+        <span class="n">parent</span><span class="o">=</span><span class="p">(</span><span class="n">holeIndex</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//令洞值为新值，完成插入操作</span>
+
+    <span class="o">*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">holeIndex</span><span class="p">)</span><span class="o">=</span><span class="n">value</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p>对于heap_pop：将根节点取走后，填入上述失去声明空间的叶节点值，再将它拿来和其它两个子节点比较值，并与较大子节点对调位置，直到根节点的键值大于左右两个子节点，或者直到放至叶节点为止。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28-20-19-46.png" alt="pop heap"></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">pop_heap</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+                        <span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//调用此函数时，新元素应该已经置于底部容器的最尾端</span>
+
+    <span class="n">__pop_heap_aux</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">value_type</span><span class="p">(</span><span class="n">first</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">Distance</span><span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__pop_heap_aux</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span><span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">,</span><span class="n">Distance</span><span class="o">*</span><span class="p">,</span><span class="n">T</span><span class="o">*</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//pop操作应该为容器的第一个元素，因此，首先设定欲调整值为尾值，然后将首值调至尾节点(所以以上将迭代器result设为last-1)。然后重整[first,last-1)，使之重新形成一个合格的heap</span>
+
+    <span class="n">__pop_heap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span><span class="n">distance_type</span><span class="p">(</span><span class="n">first</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">Distance</span><span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">__pop_heap</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+        <span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">,</span>
+        <span class="n">RandomAccessIterator</span> <span class="n">result</span><span class="p">,</span>
+        <span class="n">T</span> <span class="n">value</span><span class="p">,</span>
+        <span class="n">Distance</span><span class="o">*</span>
+        <span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//设定尾值为首值，于是尾值即为欲求结果，可由客户端稍后再以底层容器之pop_back()取出尾值</span>
+
+    <span class="o">*</span><span class="n">result</span><span class="o">=*</span><span class="n">first</span><span class="p">;</span>
+    <span class="c1">//重新调整heap,洞号为0(亦即树根处)，欲调整值为value(原尾值)；</span>
+
+    <span class="n">__adjust_heap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">Distance</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">Distance</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="p">),</span><span class="n">value</span><span class="p">);</span>
+
+<span class="p">}</span>
+<span class="c1">//一下这个__adjust_head()不允许指定“大小比较标准”</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">,</span><span class="k">class</span> <span class="nc">Distance</span><span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">__adjust_heap</span><span class="p">(</span>
+    <span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+    <span class="n">Distance</span> <span class="n">holeIndex</span><span class="p">,</span>
+    <span class="n">Distance</span> <span class="n">len</span><span class="p">,</span>
+    <span class="n">T</span> <span class="n">value</span>
+    <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Distance</span> <span class="n">topIndex</span><span class="o">=</span><span class="n">holeIndex</span><span class="p">;</span>
+    <span class="c1">//洞节点的右节点</span>
+
+    <span class="n">Distance</span> <span class="n">secondchild</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">holeIndex</span><span class="o">+</span><span class="mi">2</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">secondchild</span><span class="o">&lt;</span><span class="n">len</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//使secondchild代表较大节点</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">secondchild</span><span class="p">)</span><span class="o">&lt;*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="p">(</span><span class="n">secondchild</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="p">{</span>
+            <span class="n">secondchild</span><span class="o">--</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//令较大子值为洞值，再令洞号下移至较大子节点处</span>
+
+        <span class="o">*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">holeIndex</span><span class="p">)</span><span class="o">=*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">secondchild</span><span class="p">);</span>
+        <span class="n">holeIndex</span><span class="o">=</span><span class="n">secondchild</span><span class="p">;</span>
+        <span class="c1">//找出新洞节点的右子节点</span>
+
+        <span class="n">secondchild</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">secondchild</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">//没有右子节点，只有左子节点</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">secondchild</span><span class="o">==</span><span class="n">len</span><span class="p">){</span>
+        <span class="c1">//Percolate down:令左子值为洞值，再令洞号下移至左子节点处。</span>
+
+        <span class="o">*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">holeIndex</span><span class="p">)</span><span class="o">=*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="p">(</span><span class="n">secondchild</span><span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+        <span class="n">holeIndex</span><span class="o">=</span><span class="n">secondchild</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//将欲调整值填入目前的洞号内，注意，此时肯定满足次序特性</span>
+
+    <span class="n">__push_heap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">holeIndex</span><span class="p">,</span><span class="n">topIndex</span><span class="p">,</span><span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><strong>sort_heap算法</strong></p>
+
+<p>可以通过每次取得heap的最大值来进行pop_heap操作，对，每次操作将操作范围从后向前缩减一个元素(因为pop_heap会把键值最大的元素放在底部容器的最尾端)，当整个程序执行完毕时，我们便有了一个递增序列</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">sort_heap</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+                <span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//以下，每执行一次pop_heap(),极值(在STL heap中为极大值)即被放在尾端。这样一直下去，最后得到排序结果</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//每执行pop_heap()一次，操作范围即退缩一格</span>
+
+        <span class="n">pop_heap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="o">--</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-28%20-21-36-15.png" alt="调整过程"></p>
+
+<p><strong>make_heap算法</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span><span class="p">&gt;</span>
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">make_heap</span><span class="p">(</span>
+    <span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+    <span class="n">RandomAccessIterator</span> <span class="n">last</span>
+    <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">__make_heap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">last</span><span class="p">,</span><span class="n">value_type</span><span class="p">(</span><span class="n">first</span><span class="p">),</span><span class="n">distance_type</span><span class="p">(</span><span class="n">first</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">RandomAccessIterator</span> <span class="p">,</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span><span class="k">class</span> <span class="nc">Distance</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="nf">__make_heap</span><span class="p">(</span><span class="n">RandomAccessIterator</span> <span class="n">first</span><span class="p">,</span>
+                <span class="n">RandomAccessIterator</span> <span class="n">last</span><span class="p">,</span>
+                <span class="n">T</span><span class="o">*</span><span class="p">,</span>
+                <span class="n">Distance</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//长度不够直接跳出</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="c1">//获取数据的长度</span>
+
+    <span class="n">Distance</span> <span class="n">len</span><span class="o">=</span><span class="n">last</span><span class="o">-</span><span class="n">first</span><span class="p">;</span>
+    <span class="c1">//找出第一个需要重排的子树头部，以parent标出。由于任何叶节点都不需要执行 perlocate down,所以有一下计算。parent命名佳，以holeIndex更好</span>
+
+    <span class="n">Distance</span> <span class="n">parent</span><span class="o">=</span><span class="p">(</span><span class="n">len</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//重新排列以parent为首的子树。len是为了让__adjust_heap()判断操作范围</span>
+
+        <span class="n">__adjust_heap</span><span class="p">(</span><span class="n">first</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="n">len</span><span class="p">,</span><span class="n">T</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">first</span><span class="o">+</span><span class="n">parent</span><span class="p">)));</span>
+        
+        <span class="k">if</span><span class="p">(</span><span class="n">parent</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        <span class="c1">//移动头部节点</span>
+
+        <span class="n">parent</span><span class="o">--</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>注意heap没有迭代器</p>
+
+<h3 id="48-priority_queue">4.8 priority_queue</h3>
+
+<p>priority_queue是一个具有权值观念的queue，它允许加入新元素、移除旧元素、审视元素值等功能。其内部的函数是按照权值进行排序的。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-13-37-30.png" alt="priority_queue"></p>
+
+<h3 id="49-slist">4.9 slist</h3>
+
+<p>STL list是一个双向链表(double linked list)。SGI STL 另外提供了一个单项链表(slist)。这个容器并不再标准规格之内。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-15-07-53.png" alt="节点和架构设计"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-15-09-01.png" alt="节点实际构造"></p>
+
+<h2 id="第五章-关联式associative容器">第五章 关联式(associative)容器</h2>
+
+<p>当元素被插入到关联式容器中时，容器内部结构(可能是RB-tree或者hash-table)便依照其键值大小，以某种特定规则将这个元素放置于合适的位置，关联式容器没有所谓头尾(只有最大元素和最小元素)；所以不会有所谓<code class="language-plaintext highlighter-rouge">push_back()</code>、<code class="language-plaintext highlighter-rouge">push_front()</code>等行为的操作。
+一般而言关联式容器的内部结构是一个二叉平衡树，以便获得良好的搜寻效率。二叉平衡树有许多变形包括：AVL-tree、RB-tree、AA-tree；其中RB-tree被广泛应用于关联式容器。</p>
+
+<h3 id="51-树的导览">5.1 树的导览</h3>
+
+<p>这里可以去看数据结构与算法中关于树的描述，在此不做过多叙述。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-15-23-54.png" alt="树结构的相关术语整理"></p>
+
+<h3 id="52-rb-tree红黑树">5.2 RB-tree(红黑树)</h3>
+<p><em>参考链接：</em> <a href="https://www.cnblogs.com/skywang12345/p/3624291.html">红黑树(四)之 C++的实现</a></p>
+
+<p>AVL-tree基本规则：</p>
+
+<ul>
+  <li>每个节点不是红色就是黑色(图中深色底纹代表黑色，浅色底纹代表红色，同下)。</li>
+  <li>根节点为黑色</li>
+  <li>如果节点为红，其子节点必须为黑色</li>
+  <li>任一节点至NULL(树尾端)的任何路径，所含之黑节点数木必须相同</li>
+</ul>
+
+<p>关于它的特性，需要注意的是：</p>
+<ul>
+  <li>特性(3)中的叶子节点，是只为空(NIL或null)的节点。</li>
+  <li>特性(5)，确保没有一条路径会比其他路径长出俩倍。因而，红黑树是相对是接近平衡的二叉树。</li>
+</ul>
+
+<p><img src="https://images0.cnblogs.com/i/497634/201403/251730074203156.jpg" alt="红黑树示例"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-15-32-27.png" alt="RB-tree的条件与实例"></p>
+
+<h4 id="521-插入节点">5.2.1 插入节点</h4>
+
+<p>因为红黑树的规则对于不同的插入存在以下四种情况：</p>
+
+<ul>
+  <li>状况1：s为黑色x为外侧插入，对此情况，先对P,G做一次单旋转，再更改P,G颜色，即可重新满足红黑树的规则3。</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-16-25-21.png" alt="状况1"></p>
+
+<ul>
+  <li>状况2:S为黑且x为内侧插入，对此情况，我们必须先对P,X做一次单旋转并更改G,X颜色，再将结果对G做一次单旋转，级可再次满足红黑树规则3.</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-16-29-18.png" alt="状况2"></p>
+
+<ul>
+  <li>状况3:S为红色且X为外侧插入，对此情况，先对P和G做一次单旋转，并改变X的颜色。此时如果GG为黑，一切搞定，如果GG为红，则是状况4</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-16-32-15.png" alt="状况3"></p>
+
+<ul>
+  <li>状况4:S为红且X为外侧插入。对此情况，先对P和G做一次单旋转，并改变X的颜色。此时如果GG亦为红，还得持续往上做，直到不再有父子连续为红的情况发生。</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-16-34-38.png" alt="状况4"></p>
+
+<h4 id="522-一个由上而下的程序">5.2.2 一个由上而下的程序</h4>
+
+<p>一个由上而下的程序，假设新增节点为A,那么就沿着A的路径，只要看到某个节点X的两个子节点皆为红色，就把X该为红色，并把两个子节点改为黑色。然后在进行旋转变换。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-16-47-07.png" alt="自上而下的变换"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-29-16-48-18.png" alt="插入结果"></p>
+
+<h4 id="523-rb-tree的节点设计">5.2.3 RB-tree的节点设计</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="kt">bool</span> <span class="n">__rb_tree_color_type</span><span class="p">;</span>
+<span class="c1">//红色为0</span>
+
+<span class="k">const</span> <span class="n">__rb_tree_color_type</span> <span class="n">__rb_tree_red</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">__rb_tree_color_type</span> <span class="n">__rb_tree_black</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="nc">__rb_tree_node_base</span>
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_color_type</span> <span class="n">color_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">base_ptr</span><span class="p">;</span>
+    <span class="c1">//节点颜色，非红即黑</span>
+
+    <span class="n">color_type</span> <span class="n">color</span><span class="p">;</span>
+    <span class="c1">//节点的父节点指针</span>
+
+    <span class="n">base_ptr</span> <span class="n">parent</span><span class="p">;</span>
+    <span class="c1">//左节点指针</span>
+
+    <span class="n">base_ptr</span> <span class="n">left</span><span class="p">;</span>
+    <span class="c1">//右节点指针</span>
+
+    <span class="n">base_ptr</span> <span class="n">right</span><span class="p">;</span>
+    <span class="k">static</span> <span class="n">base_ptr</span> <span class="n">minimum</span><span class="p">(</span><span class="n">base_ptr</span> <span class="n">x</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">static</span> <span class="n">base_ptr</span> <span class="n">maximum</span><span class="p">(</span><span class="n">base_ptr</span> <span class="n">x</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Value</span><span class="p">&gt;</span>
+<span class="k">struct</span>  <span class="nc">_rb_tree_node</span><span class="o">:</span><span class="k">public</span> <span class="n">__rb_tree_node_base</span>
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_node</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;*</span> <span class="n">link_type</span><span class="p">;</span>
+    <span class="c1">//节点值</span>
+
+    <span class="n">Value</span> <span class="n">value_field</span><span class="p">;</span>
+    
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h4 id="524-rb-tree的迭代器">5.2.4 RB-tree的迭代器</h4>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-30-15-46-23.png" alt="迭代器和节点之间的关系"></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">struct</span> <span class="nc">__rb_tree_base_iterator</span>
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_node_base</span><span class="o">::</span><span class="n">base_ptr</span> <span class="n">base_ptr</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">bidirectional_iterator_tag</span> <span class="n">iterator_category</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="kt">ptrdiff_t</span> <span class="n">difference_type</span><span class="p">;</span>
+    <span class="c1">//用来与容器之间产生一个连接关系</span>
+
+    <span class="n">base_ptr</span> <span class="n">node</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">increment</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//状况1</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">//存在右节点，就往右节点走</span>
+            
+            <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+            <span class="c1">//然后一直往左子树，走到底</span>
+
+            <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="c1">//状况2</span>
+
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="c1">//没有右子节点，先找出父节点</span>
+
+            <span class="n">base_ptr</span> <span class="n">y</span><span class="o">=</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+            <span class="c1">//如果现行节点本身就是个右子节点,就一直上朔，直到"不为右子节点"为止</span>
+
+            <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">==</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">node</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">node</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="c1">//如果此时右子节点不等于次吃的父节点状况3，此时的父节点即为解答，否则此时的node为解答状况4</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">!=</span><span class="n">y</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">node</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">//注意：以上判断"若此时的右子节点不等于次吃的父节点"，是为了应付一种特殊情况：</span>
+    <span class="c1">//我们欲寻找根节点的下一个节点，而恰巧根节点无左右子节点</span>
+    <span class="c1">//以上的特殊做法必须配合RB-tree根节点与特殊之header之间的特殊关系</span>
+
+    <span class="c1">//以下可以实现于operator--内，因为再无他处会调用此函数了</span>
+
+    <span class="kt">void</span> <span class="n">decrement</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//如果是红节点，且父节点的父节点等于自己,即node为head或者end节点的时候</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">==</span><span class="n">__rb_tree_red</span><span class="o">&amp;&amp;</span>
+            <span class="n">node</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">==</span><span class="n">node</span><span class="p">){</span>
+            <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">base_ptr</span> <span class="n">y</span><span class="o">=</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+            <span class="c1">//一直向右循环查找下去，直到没有右子节点</span>
+
+            <span class="k">while</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">!=</span><span class="mi">0</span><span class="p">){</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">node</span><span class="o">=</span><span class="n">y</span><span class="p">;</span> 
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="c1">//即非根节点，亦无左子节点</span>
+            <span class="c1">//先找到符节点</span>
+
+            <span class="n">base_ptr</span> <span class="n">y</span><span class="o">=</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+            <span class="c1">//找寻父节点的左子节点直到node不是左子节点</span>
+
+            <span class="k">while</span><span class="p">(</span><span class="n">node</span><span class="o">==</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">//这里主要是一直上朔</span>
+
+                <span class="n">node</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">};</span>
+<span class="c1">//RB-tree的正规迭代器</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Value</span><span class="p">,</span><span class="k">class</span> <span class="nc">Ref</span><span class="p">,</span><span class="k">class</span> <span class="nc">Ptr</span><span class="p">&gt;</span>
+<span class="k">struct</span> <span class="nc">__rb_tree_iteraror</span><span class="o">:</span><span class="k">public</span> <span class="n">__rb_tree_base_iterator</span>
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">Value</span> <span class="n">value_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">Ref</span> <span class="n">reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">Ptr</span> <span class="n">pointer</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_iterator</span><span class="o">&lt;</span><span class="n">Value</span><span class="p">,</span><span class="n">Value</span><span class="o">&amp;</span><span class="p">,</span><span class="n">Value</span><span class="o">*&gt;</span> <span class="n">iterator</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_iterator</span><span class="o">&lt;</span><span class="n">Value</span><span class="p">,</span><span class="k">const</span> <span class="n">Value</span><span class="o">&amp;</span><span class="p">,</span><span class="k">const</span> <span class="n">Value</span><span class="o">*&gt;</span> <span class="n">const_iterator</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_iterator</span><span class="o">&lt;</span><span class="n">Value</span><span class="p">,</span><span class="n">Ref</span><span class="p">,</span><span class="n">Ptr</span><span class="o">&gt;</span> <span class="n">self</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_node</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;*</span> <span class="n">link_type</span><span class="p">;</span>
+
+    <span class="n">__rb_tree_iterator</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="n">__rb_tree_iterator</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span><span class="n">node</span><span class="o">=</span><span class="n">x</span><span class="p">;}</span>
+    <span class="n">__rb_tree_iterator</span><span class="p">(</span><span class="k">const</span> <span class="n">iterator</span><span class="o">&amp;</span> <span class="n">it</span><span class="p">){</span><span class="n">node</span><span class="o">=</span><span class="n">it</span><span class="p">.</span><span class="n">node</span><span class="p">;}</span>
+
+    <span class="n">reference</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">link_type</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">value_field</span><span class="p">;}</span>
+<span class="cp">#ifndef __SGI_STL_NO_ARROW_OPERATOR
+</span>    <span class="n">pointer</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">&amp;</span><span class="p">(</span><span class="k">operator</span><span class="o">*</span><span class="p">());}</span>
+<span class="cp">#endif
+</span>    <span class="n">self</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">++</span><span class="p">()</span> <span class="p">{</span><span class="n">increment</span><span class="p">();</span> <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;}</span>
+    <span class="n">self</span> <span class="k">operator</span><span class="o">++</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span>
+        <span class="n">self</span> <span class="n">tmp</span><span class="o">=*</span><span class="k">this</span><span class="p">;</span>
+        <span class="n">increment</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">self</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">--</span><span class="p">()</span> <span class="p">{</span><span class="n">decrement</span><span class="p">();</span><span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;}</span>
+    <span class="n">self</span> <span class="k">operator</span><span class="o">--</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span>
+        <span class="n">self</span> <span class="n">tmp</span><span class="o">=*</span><span class="k">this</span><span class="p">;</span>
+        <span class="n">decrement</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-30-21-04-00.png" alt="函数中比较费解的情况"></p>
+
+<p>这里主要是因为当红黑数中为空的时候，head与end互为父节点</p>
+
+<p><strong>RB-tree的数据结构</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span><span class="k">class</span> <span class="nc">Value</span><span class="p">,</span><span class="k">class</span> <span class="nc">KeyOfValue</span><span class="p">,</span><span class="k">class</span> <span class="nc">Compare</span><span class="p">,</span><span class="k">class</span> <span class="nc">Alloc</span><span class="o">=</span><span class="n">alloc</span><span class="p">&gt;</span>
+<span class="k">class</span> <span class="nc">rb_tree</span><span class="p">{</span>
+<span class="nl">protected:</span>
+    <span class="k">typedef</span> <span class="kt">void</span><span class="o">*</span>  <span class="n">void_pointer</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">base_ptr</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_node</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;</span> <span class="n">rb_tree_node</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">simple_alloc</span><span class="o">&lt;</span><span class="n">rb_tree_node</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;</span> <span class="n">rb_tree_node_allocator</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_color_type</span> <span class="n">color_type</span><span class="p">;</span>
+<span class="nl">public:</span>
+    <span class="k">typedef</span> <span class="n">key</span> <span class="n">key_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">Value</span> <span class="n">value_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">value_type</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">const</span> <span class="n">value_type</span><span class="o">*</span> <span class="n">const_pointer</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">const_reference</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">rb_tree_node</span><span class="o">*</span> <span class="n">link_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="kt">size_t</span> <span class="n">size_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="kt">ptrdiff_t</span> <span class="n">difference_type</span><span class="p">;</span>
+<span class="nl">protected:</span>
+    <span class="n">link_type</span> <span class="n">get_node</span><span class="p">(){</span><span class="k">return</span> <span class="n">rb_tree_node_allocator</span><span class="o">::</span><span class="n">allocate</span><span class="p">();}</span>
+    <span class="kt">void</span> <span class="n">put_node</span><span class="p">(</span><span class="n">link_type</span> <span class="n">p</span><span class="p">){</span><span class="n">rb_tree_node_allocator</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">p</span><span class="p">);}</span>
+
+    <span class="n">link_type</span> <span class="n">create_node</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">link_type</span> <span class="n">tmp</span><span class="o">=</span><span class="n">get_node</span><span class="p">();</span>
+        <span class="n">__STL_TRY</span><span class="p">{</span>
+            <span class="c1">//构造内容</span>
+
+            <span class="n">construct</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tmp</span><span class="o">-&gt;</span><span class="n">value_field</span><span class="p">,</span><span class="n">x</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">__STL_UNWIND</span><span class="p">(</span><span class="n">put_node</span><span class="p">(</span><span class="n">tmp</span><span class="p">));</span>
+        <span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//复制一个节点(的值和颜色)</span>
+
+    <span class="n">link_type</span> <span class="n">clone_node</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">link_type</span> <span class="n">tmp</span><span class="o">=</span><span class="n">create_node</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">value_field</span><span class="p">);</span>
+        <span class="n">tmp</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">;</span>
+        <span class="n">tmp</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">tmp</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">void</span> <span class="n">destroy_node</span><span class="p">(</span><span class="n">link_type</span> <span class="n">p</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//析构内容</span>
+
+        <span class="n">destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">value_field</span><span class="p">);</span>
+        <span class="c1">//释放内存</span>
+
+        <span class="n">put_node</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="nl">protected:</span>
+    <span class="c1">//节点数目</span>
+
+    <span class="n">size_type</span> <span class="n">node_count</span><span class="p">;</span>
+    <span class="n">link_type</span> <span class="n">header</span><span class="p">;</span>
+    <span class="c1">//节点的键值大小比较准则，应该会是一个function object;</span>
+
+    <span class="n">Compare</span> <span class="n">key_compare</span><span class="p">;</span>
+    <span class="c1">//方便的header成员取用</span>
+
+    <span class="n">link_type</span><span class="o">&amp;</span> <span class="n">root</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="o">&amp;</span><span class="p">)</span> <span class="n">header</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;}</span>
+    <span class="n">link_type</span><span class="o">&amp;</span> <span class="n">leftmost</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="o">&amp;</span><span class="p">)</span> <span class="n">header</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;}</span>
+    <span class="n">link_type</span><span class="o">&amp;</span> <span class="n">rightmost</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="o">&amp;</span><span class="p">)</span> <span class="n">header</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;}</span>
+    <span class="c1">//获取节点x的成员变量</span>
+
+    <span class="k">static</span> <span class="n">link_type</span><span class="o">&amp;</span> <span class="n">left</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="o">&amp;</span><span class="p">)(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">);}</span>
+    <span class="k">static</span> <span class="n">link_type</span><span class="o">&amp;</span> <span class="n">right</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="o">&amp;</span><span class="p">)(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">);}</span>
+    <span class="k">static</span> <span class="n">link_type</span><span class="o">&amp;</span> <span class="n">parent</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="o">&amp;</span><span class="p">)(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">);}</span>
+    <span class="k">static</span> <span class="n">reference</span> <span class="n">value</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="n">x</span><span class="o">-&gt;</span><span class="n">value_field</span><span class="p">;}</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">Key</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="n">KeyOfValue</span><span class="p">()(</span><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="p">));}</span>
+    <span class="k">static</span> <span class="n">color_type</span><span class="o">&amp;</span> <span class="n">color</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="p">(</span><span class="n">color_type</span><span class="o">&amp;</span><span class="p">)(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">);}</span>
+    <span class="c1">//求取极大值和极小值</span>
+    <span class="k">static</span> <span class="n">link_type</span> <span class="n">minimum</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="p">)</span> <span class="n">__rb_tree_node_base</span><span class="o">::</span><span class="n">minimum</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">static</span> <span class="n">link_type</span> <span class="n">maximum</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">){</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">link_type</span><span class="p">)</span><span class="n">__rb_tree_node_base</span><span class="o">::</span><span class="n">maximum</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="nl">public:</span>
+    <span class="k">typedef</span> <span class="n">__rb_tree_iterator</span><span class="o">&lt;</span><span class="n">value_type</span><span class="p">,</span><span class="n">reference</span><span class="p">,</span><span class="n">pointer</span><span class="o">&gt;</span> <span class="n">iterator</span><span class="p">;</span>
+<span class="nl">private:</span>
+    <span class="n">iterator</span> <span class="n">__insert</span><span class="p">(</span><span class="n">base_ptr</span> <span class="n">x</span><span class="p">,</span><span class="n">base_ptr</span> <span class="n">y</span><span class="p">,</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">);</span>
+    <span class="n">link_type</span> <span class="n">__copy</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">,</span><span class="n">link_type</span> <span class="n">p</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">__erase</span><span class="p">(</span><span class="n">link_type</span> <span class="n">x</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">init</span><span class="p">(){</span>
+        <span class="c1">//产生一个节点空间，令header指向它</span>
+
+        <span class="n">header</span><span class="o">=</span><span class="n">get_node</span><span class="p">();</span>
+        <span class="c1">//令header为红色，用来区分header和root</span>
+        
+        <span class="n">color</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">=</span><span class="n">__rb_tree_red</span><span class="p">;</span>
+        <span class="n">root</span><span class="p">()</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="c1">//header的左右子节点都为自己</span>
+
+        <span class="n">leftmost</span><span class="p">()</span><span class="o">=</span><span class="n">header</span><span class="p">;</span>
+        <span class="n">rightmost</span><span class="p">()</span><span class="o">=</span><span class="n">header</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nl">public:</span>
+    <span class="n">rb_tree</span><span class="p">(</span><span class="k">const</span> <span class="n">Compare</span><span class="o">&amp;</span> <span class="n">comp</span><span class="o">=</span><span class="n">Compare</span><span class="p">())</span><span class="o">:</span><span class="n">node_count</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">key_compare</span><span class="p">(</span><span class="n">comp</span><span class="p">){</span><span class="n">init</span><span class="p">();}</span>
+    <span class="o">~</span><span class="n">rb_tree</span><span class="p">(){</span>
+        <span class="n">clear</span><span class="p">();</span>
+        <span class="n">put_node</span><span class="p">(</span><span class="n">header</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;&amp;</span> <span class="n">x</span><span class="p">);</span>
+    <span class="c1">//相关的基本函数</span>
+
+    <span class="n">Compare</span> <span class="n">key_comp</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">key_compare</span><span class="p">;}</span>
+    <span class="n">iterator</span> <span class="n">begin</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">leftmost</span><span class="p">();}</span>
+    <span class="n">iterator</span> <span class="n">end</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">header</span><span class="p">;}</span>
+    <span class="kt">bool</span> <span class="n">empty</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">node_count</span><span class="o">==</span><span class="mi">0</span><span class="p">;}</span>
+    <span class="n">size_type</span> <span class="n">size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">node_count</span><span class="p">;}</span>
+    <span class="n">size_type</span> <span class="n">max_size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">size_type</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);}</span>
+<span class="nl">public:</span>
+    <span class="c1">//将x插入到红黑树中,保持节点独一无二</span>
+
+    <span class="n">pair</span><span class="o">&lt;</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">insert_unique</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+    <span class="c1">//插入，允许值重复</span>
+
+    <span class="n">iterator</span> <span class="n">insert_equal</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>RB-tree的构造方式有两种，一种是拷贝构造，一种是空值构造。下面是其init()的关键函数</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">private:</span>
+    <span class="kt">void</span> <span class="nf">init</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">get_node</span><span class="p">();</span>
+        <span class="n">color</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">=</span><span class="n">rb_tree_redl</span>
+
+        <span class="n">root</span><span class="p">()</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">leftmost</span><span class="p">()</span><span class="o">=</span><span class="n">header</span><span class="p">;</span>
+        <span class="n">rightmost</span><span class="p">()</span><span class="o">=</span><span class="n">header</span><span class="p">;</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-31-16-37-06.png" alt="初始化结果"></p>
+
+<p><strong>RB-tree的关键操作</strong></p>
+
+<p><strong>元素插入 insert_equal()</strong></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span><span class="k">class</span> <span class="nc">Value</span><span class="p">,</span><span class="k">class</span> <span class="nc">KeyOfValue</span><span class="p">,</span><span class="k">class</span> <span class="nc">Compare</span><span class="p">,</span><span class="k">class</span> <span class="nc">Alloc</span><span class="p">&gt;</span>
+
+<span class="k">typename</span> <span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span> 
+
+<span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert_equal</span><span class="p">(</span><span class="k">const</span> <span class="n">Value</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">link_type</span> <span class="n">y</span><span class="o">=</span><span class="n">header</span><span class="p">;</span>
+    <span class="n">link_type</span> <span class="n">x</span><span class="o">=</span><span class="n">root</span><span class="p">();</span>
+    <span class="c1">//从根节点开始向下寻找适当的传播节点，直到到根节点，注意这里y为x的parent节点</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+        <span class="c1">//遇大则左，遇小或者等于就右--v&lt;x向左，v&gt;=x向右</span>
+
+        <span class="n">x</span><span class="o">=</span><span class="n">key_compare</span><span class="p">(</span><span class="n">KeyOfValue</span><span class="p">()(</span><span class="n">v</span><span class="p">),</span><span class="n">key</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">?</span><span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">:</span><span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">//x为新值插入点，y为插入点之父节点，v为新值</span>
+
+    <span class="k">return</span> <span class="n">__insert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">v</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><strong>元素插入操作insert_unique()</strong></p>
+
+<p>元素插入操作–不允许重复值存在，否则插入无效
+函数返回的元素是一个pair值，第一个个是RB-tree迭代器，指向新增节点，第二个元素表示是否插入成功。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">Class</span> <span class="n">Key</span><span class="p">,</span><span class="k">class</span> <span class="nc">Value</span><span class="p">,</span><span class="k">class</span> <span class="nc">KeyOfValue</span><span class="p">,</span><span class="k">class</span> <span class="nc">Compare</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Alloc</span><span class="p">&gt;</span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span>
+
+<span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">insert_unique</span><span class="p">(</span><span class="k">const</span> <span class="n">Value</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">link_type</span> <span class="n">y</span><span class="o">=</span><span class="n">header</span><span class="p">;</span>
+    <span class="c1">//从根节点开始</span>
+
+    <span class="n">link_type</span> <span class="n">x</span><span class="o">=</span><span class="n">root</span><span class="p">();</span>
+    <span class="c1">//判断是否相同</span>
+
+    <span class="kt">bool</span> <span class="n">comp</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+    <span class="c1">//一直遍历到根节点</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+        <span class="c1">//v是否小于目前节点的键值</span>
+
+        <span class="n">comp</span><span class="o">=</span><span class="n">key_compare</span><span class="p">(</span><span class="n">KeyOfValue</span><span class="p">()(</span><span class="n">v</span><span class="p">),</span><span class="n">key</span><span class="p">(</span><span class="n">x</span><span class="p">));</span>
+        <span class="c1">//遇“大”向左，否则向右</span>
+
+        <span class="n">x</span><span class="o">=</span><span class="n">comp</span><span class="o">?</span><span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">:</span><span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">//离开while循环之后，即插入父节点</span>
+    <span class="c1">//令迭代器j指向插入点的父节点</span>
+
+    <span class="n">iterator</span> <span class="n">j</span><span class="o">=</span><span class="n">iterator</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+    <span class="c1">//如果在左边插入</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//如果插入节点为最左节点</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">j</span><span class="o">==</span><span class="n">begin</span><span class="p">())</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">__insert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">v</span><span class="p">),</span><span class="nb">true</span><span class="p">);</span> 
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="c1">//调整j准备回头进行测试</span>
+
+            <span class="o">--</span><span class="n">j</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">//如果小于新值，将插入右侧</span>
+    <span class="c1">//比较是否存在重复的值</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">key_compare</span><span class="p">(</span><span class="n">key</span><span class="p">(</span><span class="n">j</span><span class="p">.</span><span class="n">node</span><span class="p">),</span><span class="n">KeyOfValue</span><span class="p">()(</span><span class="n">v</span><span class="p">))){</span>
+        <span class="k">return</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">__insert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">v</span><span class="p">),</span><span class="nb">true</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="nb">false</span><span class="p">);</span>
+
+<span class="p">}</span>
+<span class="c1">//关键插入程序</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span><span class="k">class</span> <span class="nc">Value</span><span class="p">,</span><span class="k">class</span> <span class="nc">KeyOfValue</span><span class="p">,</span><span class="k">class</span> <span class="nc">Compare</span><span class="p">,</span><span class="k">class</span> <span class="nc">Alloc</span><span class="p">&gt;</span>
+<span class="k">typename</span> <span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span>
+
+<span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">__insert</span><span class="p">(</span><span class="n">base_ptr</span> <span class="n">x_</span><span class="p">,</span><span class="n">base_ptr</span> <span class="n">y_</span><span class="p">,</span><span class="k">const</span> <span class="n">Value</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//将值隐式转换为节点指针，x插入位置，y插入父节点，v插入的值</span>
+
+    <span class="n">link_type</span> <span class="n">x</span><span class="o">=</span><span class="p">(</span><span class="n">link_type</span><span class="p">)</span><span class="n">x_</span><span class="p">;</span>
+    <span class="n">link_type</span> <span class="n">y</span><span class="o">=</span><span class="p">(</span><span class="n">link_type</span><span class="p">)</span><span class="n">y_</span><span class="p">;</span>
+    <span class="n">link_type</span> <span class="n">z</span><span class="p">;</span>
+    <span class="c1">//判断是否为首节点</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">==</span><span class="n">header</span><span class="o">||</span><span class="n">x</span><span class="o">!=</span><span class="mi">0</span><span class="o">||</span><span class="n">key_compare</span><span class="p">(</span><span class="n">KeyOfValue</span><span class="p">()(</span><span class="n">v</span><span class="p">),</span><span class="n">key</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span>
+    <span class="p">{</span>
+        <span class="c1">//产生一个新节点</span>
+
+        <span class="n">z</span><span class="o">=</span><span class="n">create_node</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+        <span class="c1">//重新调整最由节点</span>
+
+        <span class="n">left</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">=</span><span class="n">z</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">==</span><span class="n">header</span><span class="p">){</span>
+            <span class="n">root</span><span class="p">()</span><span class="o">=</span><span class="n">z</span><span class="p">;</span>
+            <span class="n">rightmost</span><span class="p">()</span><span class="o">=</span><span class="n">z</span><span class="p">;</span>
+            <span class="c1">//如果y为最左节点</span>
+
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">==</span><span class="n">leftmost</span><span class="p">()){</span>
+            <span class="c1">//让最左节点永远指向z</span>
+
+            <span class="n">leftmost</span><span class="p">()</span><span class="o">=</span><span class="n">z</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">//不是head节点或者空节点</span>
+
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="c1">//产生一个新节点</span>
+
+        <span class="n">z</span><span class="o">=</span><span class="n">create_node</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+        <span class="c1">//令新节点作为插入节点的右兄弟节点</span>
+
+        <span class="n">right</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">=</span><span class="n">z</span><span class="p">;</span>
+        <span class="c1">//更新最右指针位置</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">==</span><span class="n">rightmost</span><span class="p">()){</span>
+            <span class="n">rightmost</span><span class="p">()</span><span class="o">=</span><span class="n">z</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">//设置新节点的父节点,右子节点和左子节点</span>
+
+    <span class="n">parent</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+    <span class="n">left</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">right</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="c1">//调整和设置新节点的颜色</span>
+
+    <span class="n">__rb_tree_rebalance</span><span class="p">(</span><span class="n">z</span><span class="p">,</span><span class="n">header</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">);</span>
+    <span class="o">++</span><span class="n">node_count</span><span class="p">;</span>
+    <span class="c1">//返回插入的迭代器</span>
+
+    <span class="k">return</span> <span class="n">iterator</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">//调整rb-tree(旋转和改变颜色)，节点和节点的父节点</span>
+
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__rb_tree_rebalance</span><span class="p">(</span><span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">x</span><span class="p">,</span><span class="n">__rb_tree_node_base</span><span class="o">*&amp;</span> <span class="n">root</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//新节点毕为红</span>
+
+    <span class="n">x</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_red</span><span class="p">;</span>
+    <span class="c1">//假设父节点为红色,按照之前的4种情况进行判断然后调整</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="n">root</span><span class="o">&amp;&amp;</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">==</span><span class="n">__rb_tree_red</span><span class="p">){</span>
+        <span class="c1">//判断父节点是否为左子节点</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">==</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">){</span>
+            <span class="c1">//y指向右伯节点</span>
+
+            <span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+            <span class="c1">//如果y存在并且也为红色</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">&amp;&amp;</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">==</span><span class="n">__rb_tree_red</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">//更改父节点为黑色</span>
+
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_black</span><span class="p">;</span>
+                <span class="c1">//更改父节点为黑色</span>
+
+                <span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_black</span><span class="p">;</span>
+                <span class="c1">//更改祖父节点为红</span>
+
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_red</span><span class="p">;</span>
+                <span class="c1">//x重新指向祖节点,再次循环迭代更改</span>
+
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+                <span class="c1">//无伯父节点，或者伯父节点为黑</span>
+
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="c1">//如果新节点为右子节点</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">){</span>
+                    <span class="c1">//x重新指向父节点</span>
+
+                    <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+                    <span class="c1">//第一参数为左旋点进行左旋</span>
+
+                    <span class="n">__rb_tree_rotate_left</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">root</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="c1">//改变颜色</span>
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_black</span><span class="p">;</span>
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_red</span><span class="p">;</span>
+                <span class="c1">//第一参数为右旋点</span>
+
+                <span class="n">__rb_tree_rotate_right</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">,</span><span class="n">root</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="c1">//父节点为祖父节点之右子节点</span>
+
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="c1">//y为左伯父节点</span>
+
+            <span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+            <span class="c1">//左伯父节点存在且为红色</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">&amp;&amp;</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">==</span><span class="n">__rb_tree_red</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">//更改父节点为黑</span>
+
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_black</span><span class="p">;</span>
+                <span class="c1">//伯父节点为黑色</span>
+
+                <span class="n">y</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_black</span><span class="p">;</span>
+                <span class="c1">//更改祖父节点为红色</span>
+
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_red</span><span class="p">;</span>
+                <span class="c1">//移动指针准备继续向上查</span>
+                
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+            <span class="c1">//无伯父节点或伯父节点为黑</span>
+
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="c1">//如果新节点为父节点之左子节点</span>
+
+                <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">){</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+                    <span class="c1">//第一参数为右旋点</span>
+
+                    <span class="n">__rb_tree_rotate_right</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">root</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_black</span><span class="p">;</span>
+                <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_red</span><span class="p">;</span>
+                <span class="c1">//第一参数为左旋点</span>
+
+                <span class="n">__rb_tree_rotate_left</span><span class="p">(</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">,</span><span class="n">root</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="c1">//end while</span>
+    <span class="c1">//root节点永远为黑</span>
+
+    <span class="n">root</span><span class="o">-&gt;</span><span class="n">color</span><span class="o">=</span><span class="n">__rb_tree_black</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//左旋函数，主要是将x和它的右子节点进行交换</span>
+
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__rb_tree_rotate_left</span><span class="p">(</span><span class="n">__rb_tree_bode_base</span><span class="o">*</span> <span class="n">x</span><span class="p">,</span><span class="n">__rb_tree_bode_base</span><span class="o">*&amp;</span> <span class="n">root</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//x为旋转点，y为旋转点的右子节点</span>
+
+    <span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+    <span class="c1">//将x的右子节点为其右子节点的左节点</span>
+
+    <span class="n">x</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">=</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+    <span class="c1">//存在且不为0，则交换指针位置，指直接将x的右子节点与x交换位置</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">!=</span><span class="mi">0</span><span class="p">){</span>
+        <span class="c1">//更新x指针位置</span>
+
+        <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+    <span class="c1">//这里分空节点和单左/右节点进行讨论</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">root</span><span class="p">){</span>
+        <span class="n">root</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">){</span>
+        <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">y</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+    <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__rb_tree_rotate_right</span><span class="p">(</span><span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">x</span><span class="p">,</span><span class="n">__rb_tree_node_base</span><span class="o">*&amp;</span> <span class="n">root</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//x为旋转点,y为旋转的左子节点</span>
+
+    <span class="n">__rb_tree_node_base</span><span class="o">*</span> <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+    <span class="n">x</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">=</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">!=</span><span class="mi">0</span><span class="p">){</span>
+        <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">y</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">=</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+    <span class="c1">//令y完全顶替x的地位(必须将x对其父节点的关系完全接收过来)</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">root</span><span class="p">){</span>
+        <span class="n">root</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">){</span>
+        <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">y</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+    <span class="n">x</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">=</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//rb-tree的查找函数</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span><span class="k">class</span> <span class="nc">Value</span><span class="p">,</span><span class="k">class</span> <span class="nc">KeyOfValue</span><span class="p">,</span><span class="k">class</span> <span class="nc">Compare</span><span class="p">,</span><span class="k">class</span> <span class="nc">Alloc</span><span class="p">&gt;</span>
+<span class="k">typename</span> <span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">iterator</span>
+
+<span class="n">rb_tree</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span><span class="n">Value</span><span class="p">,</span><span class="n">KeyOfValue</span><span class="p">,</span><span class="n">Compare</span><span class="p">,</span><span class="n">Alloc</span><span class="o">&gt;::</span><span class="n">find</span><span class="p">(</span><span class="k">const</span> <span class="n">Key</span><span class="o">&amp;</span> <span class="n">k</span><span class="p">){</span>
+    <span class="c1">//rb树的头部</span>
+
+    <span class="n">link_type</span> <span class="n">y</span><span class="o">=</span><span class="n">header</span><span class="p">;</span>
+    <span class="n">link_type</span> <span class="n">x</span><span class="o">=</span><span class="n">root</span><span class="p">();</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="mi">0</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">key_compare</span><span class="p">(</span><span class="n">key</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="n">k</span><span class="p">)){</span>
+            <span class="c1">//x大于k向左走</span>
+
+            <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="c1">//x小于k,遇到小值就向右走</span>
+
+            <span class="n">x</span><span class="o">=</span><span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">iterator</span> <span class="n">j</span><span class="o">=</span><span class="n">iterator</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">j</span><span class="o">==</span><span class="n">end</span><span class="p">()</span><span class="o">||</span> <span class="n">key_compare</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">key</span><span class="p">(</span><span class="n">j</span><span class="p">.</span><span class="n">node</span><span class="p">)))</span><span class="o">?</span><span class="n">end</span><span class="p">()</span><span class="o">:</span><span class="n">j</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-31-21-14-15.png" alt="插入操作1"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-31-21-16-48.png" alt="插入操作2"></p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-07-31-21-17-58.png" alt="插入操作3"></p>
+
+<h3 id="53-set">5.3 set</h3>
+
+<p>set中所有元素都会根据元素的键值自动被排序。set的元素不像map那样可以同时拥有key和value,set的键值就是实值。并且set不允许两个元素拥有相同的值。</p>
+
+<p>set与list拥有相同的某些性质：操作过程中，除了删除元素的迭代器外，其它迭代器不会失效。</p>
+
+<p>set的compare默认情况下是使用<code class="language-plaintext highlighter-rouge">less&lt;Key&gt;</code>缺省情况下采用递增排序。</p>
+
+<p>set采用红黑树来进行排序和数据存储。</p>
+
+<h3 id="54-map">5.4 map</h3>
+
+<p>map的特性是，所有元素都会根据元素的键值自动被排序。map的所有元素都是pair，同时拥有实值(value)和键值(key)。pair的第一元素被视为键值，第二元素被视为实值。map不允许两个元素拥有相同的键值。</p>
+
+<p>下面是<std_pair.h>中的pair定义</std_pair.h></p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T1</span><span class="p">,</span><span class="k">class</span> <span class="nc">T2</span><span class="p">&gt;</span>
+<span class="k">struct</span> <span class="nc">pair</span>
+<span class="p">{</span>
+    <span class="k">typedef</span> <span class="n">T1</span> <span class="n">first_type</span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="n">T2</span> <span class="n">second_type</span><span class="p">;</span>
+    <span class="n">T1</span> <span class="n">first</span><span class="p">;</span>
+    <span class="n">T2</span> <span class="n">second</span><span class="p">;</span>
+    <span class="n">pair</span><span class="p">()</span><span class="o">:</span><span class="n">first</span><span class="p">(</span><span class="n">T1</span><span class="p">()),</span><span class="n">second</span><span class="p">(</span><span class="n">T2</span><span class="p">()){}</span>
+    <span class="n">pair</span><span class="p">(</span><span class="k">const</span> <span class="n">T1</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span><span class="k">const</span> <span class="n">T2</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span><span class="o">:</span><span class="n">first</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">second</span><span class="p">(</span><span class="n">b</span><span class="p">){}</span>    
+<span class="p">};</span>
+
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-08-01-20-41-43.png" alt="STL map"></p>
+
+<h3 id="55-multiset">5.5 multiset</h3>
+
+<p>multiset的特性以及用法和set完全相同，唯一的差别在于它允许键值重复。它的底层机制是使用RB-tree的insert_equal()而非insert_unique()；</p>
+
+<h3 id="56-multimap">5.6 multimap</h3>
+
+<p>与map的用法完全相同，唯一的差别在于，它允许键值重复。</p>
+
+<h3 id="57-hashtable">5.7 hashtable</h3>
+<p>hashtable的原理和替换算法参考原王道数据结构不再过多叙述</p>
+
+<p>二叉搜索树具有对数时间平均的表现，但是这个是建立在数据输入有足够的随机性这个基础之上的。hash_table就是这种。</p>
+
+<h4 id="571-hashtable-概述">5.7.1 hashtable 概述</h4>
+
+<p>碰撞问题解决办法</p>
+
+<ul>
+  <li>线性探测</li>
+  <li>复式散列(double hashing):</li>
+  <li>开链：在每个表格元素中维护一个list;hash function 为我们分配某一个list,然后我们在那个list上执行元素的相关操作。SGI STL的hash table就是这种做法</li>
+</ul>
+
+<h4 id="572-hashtale的桶子buckets与节点nodes">5.7.2 hashtale的桶子(buckets)与节点(nodes)</h4>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-10-04-57.png" alt="开链法的hash table"></p>
+
+<p>注意：</p>
+
+<ul>
+  <li>hashtable 的迭代器没有后退操作，也没有所谓的反向迭代器。</li>
+  <li>hash tble 没有供应default constructor</li>
+</ul>
+
+<p>hash_table的关键数据结构</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">node</span><span class="o">*</span> <span class="nf">new_node</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">node</span><span class="o">*</span> <span class="n">n</span><span class="o">=</span><span class="n">node_allocator</span><span class="o">::</span><span class="n">allocate</span><span class="p">();</span>
+    <span class="n">n</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="n">__STL_TRY</span><span class="p">{</span>
+        <span class="n">construct</span><span class="p">(</span><span class="o">&amp;</span><span class="n">n</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">,</span><span class="n">obj</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">__STL_UNWIND</span><span class="p">(</span><span class="n">node_allocator</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">delete_node</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">n</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
+    <span class="n">node_allocator</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">hashtable</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">HashFcn</span><span class="o">&amp;</span> <span class="n">hf</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">EqualKey</span><span class="o">&amp;</span> <span class="n">eql</span><span class="p">)</span>
+    <span class="o">:</span><span class="n">hash</span><span class="p">(</span><span class="n">hf</span><span class="p">),</span><span class="n">equals</span><span class="p">(</span><span class="n">eql</span><span class="p">),</span><span class="n">get_key</span><span class="p">(</span><span class="n">ExtractKey</span><span class="p">()),</span><span class="n">num_elements</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">initialize_buckets</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">initialize_buckets</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">n_buckets</span><span class="o">=</span><span class="n">next_size</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+    <span class="n">buckets</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">n_buckets</span><span class="p">);</span>
+    <span class="n">buckets</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">buckets</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="n">n_buckets</span><span class="p">,(</span><span class="n">node</span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">num_elements</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">//返回接近n并大于n的质数</span>
+
+<span class="n">size_type</span> <span class="nf">next_size</span><span class="p">(</span><span class="n">size_type</span> <span class="n">n</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">__stl_next_prime</span><span class="p">(</span><span class="n">n</span><span class="p">);</span><span class="err">}</span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">insert_unique</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//是否需要重建表格</span>
+
+    <span class="n">resize</span><span class="p">(</span><span class="n">num_elements</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">insert_unique_noresize</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">V</span><span class="p">,</span><span class="k">class</span> <span class="nc">K</span><span class="p">,</span><span class="k">class</span> <span class="nc">HF</span><span class="p">,</span><span class="k">class</span> <span class="nc">Ex</span><span class="p">,</span><span class="k">class</span> <span class="nc">Eq</span><span class="p">,</span><span class="k">class</span> <span class="nc">A</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">hashtable</span><span class="o">&lt;</span><span class="n">V</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">HF</span><span class="p">,</span><span class="n">Ex</span><span class="p">,</span><span class="n">Eq</span><span class="p">,</span><span class="n">A</span><span class="o">&gt;::</span><span class="n">resize</span><span class="p">(</span><span class="n">size_type</span> <span class="n">num_elements_hint</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//将元素个数(新增元素计入后)与bucket vector的大小比较。如果大于就重建表格</span>
+
+    <span class="c1">//这里的buckets是 vector&lt;node*,Alloc&gt; buckets</span>
+
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">old_n</span><span class="o">=</span><span class="n">buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="c1">//是否重新配置元素</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">num_elements_hint</span><span class="o">&gt;</span><span class="n">old_n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">//找出下一个质数</span>
+
+        <span class="k">const</span> <span class="n">size_type</span> <span class="n">n</span><span class="o">=</span><span class="n">next_size</span><span class="p">(</span><span class="n">num_elements_hint</span><span class="p">);</span>
+        <span class="c1">//确定下一个质数是否越界</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="n">old_n</span><span class="p">){</span>
+            <span class="c1">//设立新的桶</span>
+
+            <span class="n">vector</span><span class="o">&lt;</span><span class="n">node</span><span class="o">*</span><span class="p">,</span><span class="n">A</span><span class="o">&gt;</span> <span class="n">tmp</span><span class="p">(</span><span class="n">n</span><span class="p">,(</span><span class="n">node</span><span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+            <span class="n">__STL_TRY</span><span class="p">{</span>
+                <span class="c1">//处理每一个旧的bucket</span>
+
+                <span class="k">for</span><span class="p">(</span><span class="n">size_type</span> <span class="n">buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">buckets</span><span class="o">&lt;</span><span class="n">old_n</span><span class="p">;</span><span class="o">++</span><span class="n">buckets</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="c1">//指向节点所对应串行的起始节点</span>
+
+                    <span class="n">node</span><span class="o">*</span> <span class="n">first</span><span class="o">=</span><span class="n">buckets</span><span class="p">[</span><span class="n">buckets</span><span class="p">];</span>
+                    <span class="c1">//以下处理每个就bucket所含(串行)的每个节点</span>
+                    <span class="c1">//遍历串行</span>
+
+                    <span class="k">while</span><span class="p">(</span><span class="n">first</span><span class="p">){</span>
+                        <span class="c1">//找出节点落在那个新bucket内</span>
+
+                        <span class="n">size_type</span> <span class="n">new_bucket</span><span class="o">=</span><span class="n">bkt_num</span><span class="p">(</span><span class="n">first</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+                        <span class="c1">//令旧bucket指向其所对应串行的下一个节点(以便迭代处理)</span>
+
+                        <span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">]</span><span class="o">=</span><span class="n">first</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+                        <span class="c1">//将当前节点插入到新bucket内，成为对应串行的第一个节点</span>
+
+                        <span class="n">first</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">tmp</span><span class="p">[</span><span class="n">new_bucket</span><span class="p">];</span>
+                        <span class="c1">//回到旧bucket所指的待处理串行，准备处理下一个节点</span>
+
+                        <span class="n">first</span><span class="o">=</span><span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">];</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+                <span class="c1">//对调两个新旧桶</span>
+
+                <span class="n">buckets</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
+                <span class="c1">//注意，对调两方，如果大小不同，大的会变小，小的会变大</span>
+                <span class="c1">//离开时释放local tmp的内存</span>
+
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//插入节点的关键函数</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">V</span><span class="p">,</span><span class="k">class</span> <span class="nc">K</span><span class="p">,</span><span class="k">class</span> <span class="nc">HF</span><span class="p">,</span><span class="k">class</span> <span class="nc">Ex</span><span class="p">,</span><span class="k">class</span> <span class="nc">Eq</span><span class="p">,</span><span class="k">class</span> <span class="nc">A</span><span class="p">&gt;</span>
+<span class="kt">void</span> <span class="n">hashtable</span><span class="o">&lt;</span><span class="n">V</span><span class="p">,</span><span class="n">K</span><span class="p">,</span><span class="n">HF</span><span class="p">,</span><span class="n">Ex</span><span class="p">,</span><span class="n">Eq</span><span class="p">,</span><span class="n">A</span><span class="o">&gt;::</span><span class="n">insert_unique_noresize</span><span class="p">(</span><span class="k">const</span> <span class="n">value_type</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//决定obj的桶位置</span>
+
+    <span class="k">const</span> <span class="n">size_type</span> <span class="n">n</span><span class="o">=</span><span class="n">bkt_num</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+    <span class="c1">//first指向bucket对应之串行头部</span>
+
+    <span class="n">node</span><span class="o">*</span> <span class="n">first</span><span class="o">=</span><span class="n">buckets</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+    <span class="c1">//如果位置已经被占用，即first!=0;循环遍历查找新位置</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">cur</span><span class="o">=</span><span class="n">first</span><span class="p">;</span><span class="n">cur</span><span class="p">;</span><span class="n">cur</span><span class="o">=</span><span class="n">cur</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">equals</span><span class="p">(</span><span class="n">get_key</span><span class="p">(</span><span class="n">cur</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">),</span><span class="n">get_key</span><span class="p">(</span><span class="n">obj</span><span class="p">))){</span>
+            <span class="k">return</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">iterator</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span><span class="k">this</span><span class="p">),</span><span class="nb">false</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">//离开以上循环，first指向bucket所值链表的头部节点</span>
+    <span class="c1">//产生新节点</span>
+
+    <span class="n">node</span><span class="o">*</span> <span class="n">tmp</span><span class="o">=</span><span class="n">new_node</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+    <span class="n">tmp</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">=</span><span class="n">first</span><span class="p">;</span>
+    <span class="c1">//令节点成为链表的第一个节点</span>
+
+    <span class="n">buckets</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="n">tmp</span><span class="p">;</span>
+    <span class="c1">//节点个数累加1</span>
+
+    <span class="o">++</span><span class="n">num_elements</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">iterator</span><span class="p">,</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">iterator</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span><span class="k">this</span><span class="p">),</span><span class="nb">true</span><span class="p">);</span>
+
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-08-02-16-02-48.png" alt="表格重建操作分解"></p>
+
+<p>hash_table的关键相关函数</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">size_type</span> <span class="n">bkt_num_key</span><span class="p">(</span><span class="k">const</span> <span class="n">key_type</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="c1">//这里的hash函数在实例话模板的时候决定</span>
+
+    <span class="k">return</span> <span class="n">hash</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">%</span><span class="n">n</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>注意hash_table的中的数目的排序是无序的。</p>
+
+<h3 id="58-hash_set">5.8 hash_set</h3>
+
+<p>hash_set以hashtable为底层机制。由于hash_set所供应的操作接口。
+注意：hash_table中没有自动排序功能</p>
+
+<h3 id="hash_maphash_multisethash_multimap">hash_map、hash_multiset、hash_multimap</h3>
+
+<p>基本都与对应的类型相同，只是底层机制由hash_table来进行实现。</p>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/07/06/cplusplus_annotated_stl_sources_01/" data-toggle="tooltip" data-placement="top" title="STL 源码剖笔记(一)">
+                        Previous<br>
+                        <span>STL 源码剖笔记(一)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/07/06/cplusplus_annotated_stl_sources_03/" data-toggle="tooltip" data-placement="top" title="STL 源码剖笔记(三)">
+                        Next<br>
+                        <span>STL 源码剖笔记(三)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

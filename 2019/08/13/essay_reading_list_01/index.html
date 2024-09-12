@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>文集补校(一) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/08/13/essay_reading_list_01/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84%E4%BC%98%E5%8C%96%E7%BB%BC%E8%BF%B0" title="卷积神经网络结构优化综述">卷积神经网络结构优化综述</a>
+                        
+                        <a class="tag" href="/tags/#%E4%BC%98%E5%8C%96" title="优化">优化</a>
+                        
+                        <a class="tag" href="/tags/#%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C" title="神经网络">神经网络</a>
+                        
+                        <a class="tag" href="/tags/#%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0" title="论文笔记">论文笔记</a>
+                        
+                        <a class="tag" href="/tags/#%E8%AE%BA%E6%96%87" title="论文">论文</a>
+                        
+                    </div>
+                    <h1>文集补校(一)</h1>
+                    
+                    
+                    <h2 class="subheading">卷积神经网络结构优化综述</h2>
+                    
+                    <span class="meta">Posted by 敬方 on August 13, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="卷积神经网络结构优化综述">卷积神经网络结构优化综述</h1>
+
+<p><strong>参考文献格式</strong></p>
+
+<p><a href="http://kns.cnki.net/KCMS/detail/11.2109.TP.20190710.1703.009.html">[1]林景栋,吴欣怡,柴毅,尹宏鹏.卷积神经网络结构优化综述[J/OL].自动化学报:1-14[2019-08-21].https://doi.org/10.16383/j.aas.c180275.</a></p>
+
+<h4 id="专业关键词">专业关键词</h4>
+
+<ul>
+  <li>结构优化(structure optimization)</li>
+  <li>网络剪枝(network pruning)</li>
+  <li>张量分解(tensor factorization)</li>
+  <li>知识迁移(knowledge transferring)</li>
+</ul>
+
+<h2 id="1-网路剪枝与稀疏化">1. 网路剪枝与稀疏化</h2>
+
+<p><em>参考文献：</em> <a href="https://arxiv.org/abs/1607.03250">Network trimming: a
+data-driven neuron pruning approach towards efficient deep
+architectures</a>
+卷积神经网络从卷积层到全连接层存在大量的冗余参数,当参数趋近于0的时候可以进行参数裁剪，剔除掉不重
+要的连接、节点甚至卷积核，以达到精简网络结构的目的.好处如下：</p>
+
+<ul>
+  <li>有效缓解了过拟合现象的发生</li>
+  <li>稀疏网络在以 CSR (Compressed sparse row format, CSR) 和 CSC (Compressed sparse column format)等稀疏矩阵存储格式存储于计算机中可大幅降低内存开销。</li>
+  <li>训练参数的减少使得网络训练阶段和预测阶段花费时间更少。</li>
+</ul>
+
+<p>主要方法：</p>
+
+<ul>
+  <li>训练中稀疏约束
+    <ul>
+      <li>Collins等在参数空间中通过贪婪搜索决定需要稀疏化的隐含层(<a href="https://arxiv.org/abs/1412.1442">Memory bounded deep convolutional networks</a>)</li>
+      <li>迭代硬阈值 (Iter-ative hard thresholding, IHT)(<a href="https://arxiv.org/abs/1607.05423">Training skinny deep
+neural networks with iterative hard thresholding methods</a>):
+        <ul>
+          <li>第一步中剔除隐含节点间权值较小的连接 , 然后微调 (Fine-tune) 其他重要的卷积核.</li>
+          <li>第二步中激活断掉的连接,重新训练整个网络以获取更有用的特征</li>
+        </ul>
+      </li>
+      <li>前向–后向切分法(Forward-backward splitting method)([19]):</li>
+      <li>结构化稀疏学习(Structured sparsity learning, SSL)([20]):接学习到的硬件友好型稀疏网络不仅具有更加紧凑的结构 , 而且运行速度可提升 3 倍至 5 倍.</li>
+      <li>以分组形式剪枝卷积核输入,以数据驱动的方式获取最优感受野 (Receptive field)([21])</li>
+      <li>利用一系列优化措施将不可微分的 l 0 范数正则项加入到目标函数 ,学习到的稀疏网络不仅具有良好的泛化性能 , 而且极大加速了模型训练和推导过程。([22])</li>
+      <li>Dropout 作为一种强有力的网络优化方法 , 可被视为特殊的正则化方法 , 被广泛用于防止网络训练过拟合[23-24]</li>
+      <li>自适应 Dropout:根据特征和神经元的分布使用不同的多项式采样方式 , 其收敛速度相对于标准Dropout 提高 50 %.[25]</li>
+    </ul>
+  </li>
+  <li>训练后剪枝:从已有模型入手，消除网络中的冗余信息。由剪枝粒度不同划分如下[26]：
+    <ul>
+      <li>层间剪枝:减少网络深度</li>
+      <li>特征图剪枝:减少网络宽度</li>
+      <li>kxk核剪枝:减少网络参数，提升网络性能；</li>
+      <li>
+        <p>核内剪枝:提升模型性能
+<img src="https://wangpengcheng.github.io/img/2019-08-21-15-27-18.png" alt="剪枝方式"></p>
+      </li>
+      <li>最优脑损伤(Optimal brain damage, OBD)[8]：通过移除网络中不重要的连接 ,在网络复杂度和训练误差之间达到一种最优平衡状态 , 极大加快了网络的训练过程.</li>
+      <li>最优脑手术 (Optimal brain sur-geon, OBS)[9]:损失函数中的 Hessian 矩阵没有约束,这使得 OBS 在其他网络中具有比 OBD 更普遍的泛化能力。上述两种方法都面临者严重的网络精度损失。</li>
+      <li>深度压缩 (Deep compression)[28]:综合应用了剪枝、量化、编码等方法 , 在不影响精度的前提下可压缩网络 35 ∼ 49 倍 , 使得深度卷积网络移植到移动设备上成为可能。</li>
+      <li>针对全连接层进行剪枝操作，摆脱了对于训练数据的依赖[29]。</li>
+      <li>动态网络手术 (Dynamic network surgery)[30]:在剪枝过程中添加了修复操作，可以重新激活重要的操作。交替进行，极大的改变了网络学习效率</li>
+      <li>ReLU 激活函数移至 Winograd域 , 然后对 Winograd 变换之后的权重进行剪枝[31]。</li>
+      <li>LASSO 正则化剔除冗余卷积核与其对应的特征图 , 然后重构剩余网络 , 对于多分支网络也有很好的效果。[32]</li>
+      <li>去除对于输出精度影响较小的卷积核以及对应的特征图[33]:</li>
+      <li>一次性 (One-shot) 优化方法:可获得60%∼70%的稀疏度[26]:</li>
+      <li>ThiNet[34]:在训练和预测阶段同时压缩并加速卷积神经网络,从下一卷积层而非当前卷积层的概率信息获取卷积核的重要程度 , 并决定是否剪枝当前卷积核 , 对于紧凑型网络也有不错的压缩效果。
+<img src="https://wangpengcheng.github.io/img/2019-08-21-15-44-48.png" alt="网络剪枝对不同网络的压缩效果">
+</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-张量分解">2. 张量分解</h2>
+
+<p>神经网络的主要计算量，来自于卷积层。网络仅仅需要很少一部分参数就可以进行准确的预测[35];卷积核是四维张量。将原始张量分解为若干低秩张量，减少卷积操作数目。</p>
+
+<p><strong>常见的张量分解方法有：</strong></p>
+
+<ul>
+  <li>CP分解：<img src="https://wangpengcheng.github.io/img/2019-08-21-15-56-02.png" alt="主要公式">
+</li>
+  <li>Tucker分解：将卷积分解为一个核张量与若干因子矩阵。是一种高阶的主成分分析方法。
+<img src="https://wangpengcheng.github.io/img/2019-08-21-15-57-01.png" alt="主要公式">
+</li>
+  <li>矩阵奇异值分解 (Singular value decomposition, SVD)常用于全连接层分解:<img src="https://wangpengcheng.github.io/img/2019-08-21-15-58-19.png" alt="SVD公式">
+</li>
+</ul>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-21-15-59-44.png" alt="张量分解过程"></p>
+
+<p>图 3 (a)中W为原始张量数据维度为：(d,d,i,o);复杂度为O(d^2<em>i</em>o);进行b中的张量分解后复杂度为O(o<em>k)+O(d^2</em>k*i);大大降低了复杂度，复杂度降低为原来的(o/k),k越小压缩效果越明显。</p>
+
+<p>张量的典型引用是将高维离散余弦变换(Discrete cosine transform, DCT)分解为一系列一维DCT变换。</p>
+
+<p>卷积的张量分解方法：</p>
+
+<ul>
+  <li>分离卷积核学习方法 (Learning separable filters)[36]:能够将原始卷积核用低秩卷积核表示,减少所需卷积核数量以降低计算负担。</li>
+  <li>逐层分解方法[37]：每当一个卷积核被分解为若干一阶张量则固定此卷积核并基于一种重构误差标准以微调其余卷积核。在场景文本识别中可加速网络4.5倍</li>
+  <li>全连接层奇异值分解[38]：全连接层进行展开奇异值分解，可以大大减少网可以参数，并提升网络速度。</li>
+  <li>基于cp分解的卷积核张量分解方法[39]：用最小二乘法，将卷积核进行分解为四个一阶卷积核张量。并且表明张量分解具有正则化效果。</li>
+  <li>约束的张量分解新算法[40]：将非凸优化的张量分解转，化为凸优化问题 , 与同类方法相比提速明显。</li>
+  <li>非对称张量分解方法[41]：加速整体网络运行。</li>
+</ul>
+
+<p><strong>网络整体压缩</strong></p>
+
+<ul>
+  <li>基于PCA累积能量的低秩选择方法和具有非先行的重构误差优化方法[41]:</li>
+  <li>基于变分贝叶斯的低秩选择方法和基于 Tucker 张量分解的整体压缩方法[42]：尺寸和运行时间都大大降低。</li>
+  <li>利用循环矩阵剔除特征图中的冗余信息,获取特征图中最本质的特征[43],减少参数但是性能不减少</li>
+  <li>等提出了一种基于优化CP分解全部卷积层的网络压缩方法[44]：克服了由于PC分解带来的网络精度下降问题。</li>
+</ul>
+
+<p>张量分解过后都需要重新训练网络至收敛，进一步加剧了网络训练的复杂度。</p>
+
+<h2 id="3-知识迁移">3. 知识迁移</h2>
+
+<p>知识迁移是属于迁移学习的一种网络结构优化方法 , 即将教师网络 (Teacher networks) 的相关领域知识迁移到学生网络 (Student networks)以指导学生网络的训练。</p>
+
+<p>教师网络拥有良好的性能和泛化能力，学生网络拥有更好的针对性和性能</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-21-16-32-50.png" alt="知识迁移过程"></p>
+
+<p>注释迁移主要由教师网络获取和学生网络训练两部分构成。</p>
+
+<ul>
+  <li>教师网络：主要要求准确率</li>
+  <li>
+    <p>学生网络:少数数据的快速训练</p>
+  </li>
+  <li>基于知识迁移的模型压缩方法[45]：</li>
+  <li>利用 logits ( 通过 softmax 函数前的输入值 , 均值为 0) 来表示学习到的知识[46]:</li>
+  <li>知识精馏(Knowledge distilling, KD)[47]:采用合适的 T 值 , 可以产生一个类别概率分布较缓和的输出(称为软概率标签(Soft probability labels)).</li>
+  <li>FitNet[48]:</li>
+  <li>Net2Net[50]:基于函数保留变换 (Function-preserving transfor-mation)可以快速地将教师网络的有用信息迁移到更深 ( 或更宽 ) 的学生网络</li>
+  <li>于注意力的知识迁移方法[51]：从低、中、高三个层次进行注意力迁移;极大改善了残差网络等深度卷积神经网络的性能</li>
+  <li>结合 Fisher 剪枝与知识迁移的优化方法[52]: 利用显著性图训练网络并利用 Fisher 剪枝方法剔除冗余的特征图 , 在图像显著度预测中可加速网络运行多达 10 倍。</li>
+  <li>知识迁移的端到端的多目标检测框架[54]:解决了目标检测任务中存在的欠拟合问题 , 在精度与速度方面都有较大改善。</li>
+</ul>
+
+<p>知识迁移方法能够直接加速网络运行而不需要较高硬件要求，大幅降低了学生网络学习到不重要信息的比例 , 是一种有效的网络结构优化方法 . 然而知识迁移需要研究者确定学生网络的具体结构，对研究者的水平提出了较高的要求。此外,目前的知识迁移方法仅仅将网络输出概率值作为一种领域知识进行迁移，没有考虑到教师网络结构对学生网络结构的影响。提取教师网络的内部结构知识 ( 如神经元 ) 并指导学生网络的训练，有可能使学生网络获得更高的性能。</p>
+
+<h2 id="4-精细模块设计">4. 精细模块设计</h2>
+
+<p>通过对高效精细化模块的构造，可以实现优化网络结构的目的，采用模块化的网络结构优化方法，网络的设计与构造流程大幅缩短。目前就有代表性的精细模块有：Inception模块、网中网、残差模块</p>
+
+<h3 id="41-inception模块">4.1 Inception模块</h3>
+
+<h4 id="411-inception-v1">4.1.1 Inception-v1</h4>
+<p>Szegedy [4. 等从网中网 (Net-work in network, NiN) [55. 中得到启发，提出了如图所示的 Inception-v1 网络结构：</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-21-18-51-11.png" alt="Inception 结构"></p>
+
+<p><strong>将不同尺寸的卷积核并行连接能够增加特征提取的多样性</strong>；而引入的 1 × 1 卷积核则加速了网络运行过程。</p>
+
+<h4 id="412-inception-v2">4.1.2 Inception-v2</h4>
+
+<p>因为卷积神经网络在训练时，每层网络的输入分布都会发生改变，会导致模型训练速度降低。因此使用批标准化(Batch normalization BN)。主要用于解决激活函数之前，作用是解决梯度问题[56]。</p>
+
+<h4 id="413-inception-v357">4.1.3 Inception-v3[57]</h4>
+
+<p>除了将 7 × 7 、 5 × 5 等较大的卷积核分解为若干连续的 3 × 3 卷积核 , 还将 n × n 卷积核非对称分解为 1 × n 和 n × 1 两个连续卷积核 ( 当 n = 7 时效果最好 ).</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-21-19-00-03.png" alt="卷积核分解"></p>
+
+<p>nception 结构与残差结构相结合 , 发现了残差结构可以极大地加快网络的训练速度[58]:</p>
+
+<p>Xception[59]:用卷积核对输入特征图进行卷积操作.</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-21-21-12-12.png" alt="Xception 模块"></p>
+
+<h3 id="42-网中网network-in-network">4.2 网中网（Network in network）</h3>
+
+<p>Mlpcover[55]：即在卷积核后面添加一个多层感知机，(Multilayer perceptron, MLP)由于多层感知机能够拟合任何函数 , 因此 Mlpconv 结构增强了网络对局部感知野的特征辨识能力和非线性表达能力。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-08-22-20-42-32.png" alt="多层感知机卷积结构"></p>
+
+<p>Maxout network in network(MIN)[56]:用Maxout替代ReLU解决梯度消失问题。之后[57]使用稀疏连MLP并使用分离卷积(Unshared convolution)空间维度上使用共享卷积。即卷积中的卷积 (Convolution in convolution, CiC)。</p>
+
+<p>MPNIN(Mlpconv-wise supervised pretraining network in network)[62]：通过监督式预处理方法初始化网络模型的各层训练参数 , 并结合批标准化与网中网结构能够训练更深层次的卷积神经网络。</p>
+
+<p><strong>Mlpconv 结构引入了额外的多层感知机,有可能会导致网络运行速度降低,对此进行改善将会是未来研究的一个方向.</strong></p>
+
+<h3 id="43-残差模块">4.3 残差模块</h3>
+
+<p>随着卷积神经网络逐渐向更深层次发展 , 网络将面临退化问题而不是过拟合问题 , 具体表现在网络性能不再随着深度的增加而提升 , 甚至在网络深度进一步增加的情况下性能反而快速下降。</p>
+
+<ul>
+  <li>LSTM(Long short-term memory)[64]:用来解决这个问题，旁路连接的引入，突破了深度在达到 40 层时网络将面临退化问题的限制，进一步促进了网络深度的增加[65]。</li>
+  <li>残差网络(Residual network,ResNet):残差网络的门限机制不再是可学习的 , 也即始终保持信息畅通状态 , 这极大地降低了网络复杂度 , 加速了网络训练过程 , 同时突破了由网络退化引起的深度限制。
+<img src="https://wangpengcheng.github.io/img/2019-08-22-22-04-25.png" alt="残差模块">。</li>
+</ul>
+
+<p>之后残差模块使得网络深度进一步加深，但是后面发现，深度并不能很好的进行参数和特征的学习，有人认为练超过50层的网络是毫无必要的[69].因此接下来的网络逐渐向宽度进行靠拢。通过增加宽度对其进行更改。</p>
+
+<h3 id="44-其它精细模块">4.4 其它精细模块</h3>
+
+<ul>
+  <li>全均值池化(Global average pooling, GAP)[55]:代替全连接层，相当于在整个网络结构上做正则化防止过拟合。</li>
+  <li>密集模块 (Dense block):在任何两层网络之间都有直接连接[74]:改善了网络中信息与梯度的流动，对于网络具有正则化的作用。</li>
+  <li>跨连卷积神经网络[75]：允许第二个池化层跨过两层直接与全连接层相连接。</li>
+  <li>MobileNet 将传统卷积过程分解为深度可分离卷积 (Depthwise convolution)和逐点卷积 (Pointwise convolution) 两步[77]</li>
+  <li>反向残差模块 (Inverted residual with linear bottleneck)[78]:等将残差模块与深度可分离卷积相结合。</li>
+  <li>ShuffleNet[79]：等在MobileNet 的基础上进一步提出了基于逐点群卷积(Pointwise group convolution) 和通道混洗 (Channel shuffle).</li>
+</ul>
+
+<h2 id="5-总结">5 总结</h2>
+
+<p>主要研究方向：</p>
+
+<ul>
+  <li>网络剪枝与稀疏化():</li>
+</ul>
+
+<p>稳定地优化并调整网络结构,目前大多数的方法是剔除网络中冗余的连接或神经元 , 这种低层级的剪枝具有非结构化 (Non-structural) 风险 ,在计算机运行过程中的非正则化 (Irregular) 内存存取方式反而会阻碍网络进一步加速.一些特殊的软硬件措施能够缓解这一问题,然而会给模型的部署另一方面,尽管一些针对卷积核和卷积图的结构化剪枝方法能够获得硬件友好型网络,在 CPU和GPU上速度提升明显,但由于剪枝卷积核和卷积通道会严重影响下一隐含层的输入,有可
+能存在网络精度损失严重的问题.</p>
+<ul>
+  <li>张量分解():</li>
+  <li>知识迁移</li>
+  <li>精细模块设计</li>
+</ul>
+
+<p>主要评价指标：</p>
+
+<ul>
+  <li>准确率</li>
+  <li>运行时间</li>
+  <li>模型大小</li>
+  <li>有待加入的指标：
+    <ul>
+      <li>乘加 (Multiply-and-accumulate )操作量</li>
+      <li>推导时间</li>
+      <li>数据吞吐量</li>
+      <li>硬件能耗</li>
+    </ul>
+  </li>
+</ul>
+
+<p>设计硬件友好型深度模型将有助于加速推进深度学习的工程化实现，也是网络结构优化的重点研究方向。</p>
+
+<h3 id="参考文献列表">参考文献列表</h3>
+
+<ol>
+  <li>Krizhevsky A, Sutskever I, Hinton G E. ImageNet classification with deep convolutional neural networks. In: Proceedings of Neural Information Processing Systems. Lake Tahoe,Nevada, USA: Curran Associates Inc, 2012. 1097−1105</li>
+  <li>Zeiler M D, Fergus R. Visualizing and understanding convolutional networks. In: Proceedings of European Conference on Computer Vision. Zurich, Switzerland: Springer, 2014.818−833</li>
+  <li><a href="https://arxiv.org/abs/1409.1556">Simonyan K, Zisserman A. Very deep convolutional networks for large-scale image recognition.arXiv: 1409.1556,2014.</a></li>
+  <li>Szegedy C, Liu W, Jia Y Q, Sermanet P, Reed S, Anguelov D. Going deeper with convolutions. In: Proceedings of IEEE Conference on Computer Vision and Pattern Recognition. IEEE: Boston, USA: 2015. 1−9</li>
+  <li>He K M, Zhang X Y, Ren S Q, Sun J. Deep residual learning for image recognition. In: Proceedings of IEEE Conference on Computer Vision and Pattern Recognition. IEEE: LasVegas, USA: 2016. 770−778</li>
+  <li>LeCun Y, Bottou L, Bengio Y, Haffner P. Gradient-based learning applied to document recognition. Proceedings of the IEEE, 1998, 86(11): 2278−2324</li>
+  <li>He K M, Sun J. Convolutional neural networks at constrained time cost. In: Proceedings of Computer Vision and Pattern Recognition. Boston, USA: IEEE, 2015. 5353−5360</li>
+  <li>LeCun Y, Denker J S, Solla S A. Optimal brain damage.In: Proceedings of Neural Information Processing Systems.MIT Press: Denver, Colorado, USA: 1990. 598−605</li>
+  <li>Hassibi B, Stork D G, Wolff G. Optimal brain surgeon: extensions and performance comparisons. In: Proceedings of Neural Information Processing Systems. MIT Press: Denver, Colorado, USA: 1994. 263−270</li>
+  <li><a href="https://arxiv.org/abs/1710.09282">Cheng Y, Wang D, Zhou P, Zhang T. A survey of model compression and acceleration for deep neural networks.arXiv: 1710.09282, 2017.</a></li>
+  <li>Cheng J, Wang P, Li G, Hu Q H, Lu H Q. Recent advances in efficient computation of deep convolutional neural networks.Frontiers of Information Technology &amp; Electronic Engineering, 2018, 19(1): 64−77</li>
+  <li>Lei Jie, Gao Xin, Song Jie, Wang Xing-Lu, Song Ming-Li.Compression of deep networks model: a review. Journal of Software, 2018, 29(02): 251−266( 雷杰 , 高鑫 , 宋杰 , 王兴路 , 宋明黎 . 深度网络模型压缩综述 . 软件学报 , 2018, 29(02):251-266.)</li>
+  <li><a href="https://arxiv.org/abs/1607.03250">Hu H, Peng R, Tai Y W, Tang C K. Network trimming: a data-driven neuron pruning approach towards efficient deep architectures. arXiv: 1607.03250, 2016.</a></li>
+  <li>Cheng Y, Wang D, Zhou P. Model Compression and Acceleration for Deep Neural Networks: The Principles, Progress,and Challenges. IEEE Signal Processing Magazine, 2018,35(1): 126−136</li>
+  <li><a href="https://arxiv.org/abs/1412.6115">Gong Y, Liu L, Yang M, Bourdev L. Compressing deep convolutional networks using vector quantization. arXiv:1412.6115, 2014.</a></li>
+  <li>Reed R. Pruning algorithms-a survey. IEEE Transactions on Neural Networks, 1993, 4(5): 740−747</li>
+  <li><a href="https://arxiv.org/abs/1412.1442">Collins M D, Kohli P. Memory bounded deep convolutional networks. arXiv: 1412.1442, 2014.</a></li>
+  <li><a href="https://arxiv.org/abs/1607.05423">Jin X J, Yuan X T, Feng J S, Yan S C. Training skinny deep neural networks with iterative hard thresholding methods. arXiv: 1607.05423, 2016.</a></li>
+  <li>Zeiler M D, Fergus R. Less is more: towards compact CNNs. In: Proceedings of European Conference on Computer Vision. Amsterdam,The Netherlands: Springer, 2016.662−677</li>
+  <li>Wen W, Wu C P, Wang Y D, Chen Y R, Li H. Learning structured sparsity in deep neural networks. In: Proceedings of Neural Information Processing Systems. Spain: 2016.2074−2082</li>
+  <li>Lebedev V, Lempitsky V. Fast convnets using group-wise brain damage. In: Proceedings of IEEE Conference on Computer Vision and Pattern Recognition. Las Vegas, USA:IEEE, 2016. 2554−2564</li>
+  <li><a href="https://arxiv.org/abs/1712.01312">Louizos C, Welling M, Kingma D P. Learning sparse neural networks through L 0 regularization. arXiv: 1712.01312,2017.</a></li>
+  <li>Hinton G E, Srivastava N, Krizhevsky A, Sutskever I,Salakhutdinov R R. Improving neural networks by preventing co-adaptation of feature detectors.arXiv: 1207.0580,2012.](https://arxiv.org/abs/1207.0580)</li>
+  <li>Srivastava N, Hinton G, Krizhevsky A, Sutskever I,Salakhutdinov R.Dropout: a simple way to prevent neural networks from overfitting. The Journal of Machine Learning Research, 2014, 15(1): 1929−1958</li>
+  <li>Li Z, Gong B, Yang T. Improved dropout for shallow and deep learning. In: Proceedings of Neural Information Processing Systems. Spain: 2016.2523−2531</li>
+  <li>Anwar S, Sung W. Coarse pruning of convolutional neural networks with random masks. In: International Conference on Learning Representation. France: 2017.134−145</li>
+  <li>Hanson S J, Pratt L Y. Comparing biases for minimal network construction with back-propagation. In: Proceedings of Neural Information Processing Systems. Denver, Colorado, USA: 1989. 177−185</li>
+  <li><a href="https://arxiv.org/abs/1510.00149">Han S, Mao H, Dally W J. Deep compression: compressing deep neural networks with pruning, trained quantization and huffman coding. arXiv: 1510.00149,2015.</a></li>
+  <li><a href="https://arxiv.org/abs/1507.06149">Srinivas S, Babu R V. Data-free parameter pruning for deep neural networks. arXiv: 1507.06149, 2015.</a></li>
+  <li><a href="">Guo Y, Yao A, Chen Y. Dynamic network surgery for efficient DNNs. In: Proceedings of Neural Information Processing Systems. Denver, Colorado, USA: 2016. 1379−1387</a></li>
+  <li><a href="">Liu X Y, Jeff Pool, Han S, William J.Dally. Efficient sparse-winograd convolutional neural networks. In: International Conference on Learning Representation. Canada: 2018.</a></li>
+  <li><a href="">He Y, Zhang X, Sun J. Channel pruning for accelerating very deep neural networks. In: Proceedings of International Conference on Computer Vision. Venice, Italy: 2017. 6</a></li>
+  <li><a href="https://arxiv.org/abs/1608.08710">Li H, Kadav A, Durdanovic I, Samet H, Graf H P. Pruning filters for efficient convNets. arXiv: 1608.08710, 2016.</a></li>
+  <li><a href="">Denil M, Shakibi B, Dinh L, De F N. Predicting parameters in deep learning. In: Proceedings of Neural Information Processing Systems. Lake Tahoe, Nevada, United States: 2013. 2148−2156</a></li>
+  <li><a href="">Denil M, Shakibi B, Dinh L, De F N. Predicting parameters in deep learning. In: Proceedings of Neural Information Processing Systems. Lake Tahoe, Nevada, United States: 2013.2148−2156</a></li>
+  <li><a href="">Rigamonti R, Sironi A, Lepetit V, Fua P. Learning separable filters. In: Proceedings of IEEE Conference on Computer Vision and Pattern Recognition.Portland, OR, USA: IEEE,2013. 2754−2761</a></li>
+  <li><a href="https://arxiv.org/abs/1405.3866">Jaderberg M, Vedaldi A, Zisserman A. Speeding up convolutional neural networks with low rank expansions. arXiv:1405.3866, 2014.</a></li>
+  <li><a href="">Denton E, Zaremba W, Bruna J, LeCun Y, Fergus R. Exploiting linear structure within convolutional networks for efficient evaluation. In: Proceedings of Neural Information Processing Systems. Montreal, Quebec, Canada: 2014.1269−1277</a></li>
+  <li><a href="https://arxiv.org/abs/1412.6553">Lebedev V, Ganin Y, Rakhuba M, Oseledets I, Lempitsky V.Speeding-up convolutional neural networks using fine-tuned cp-decomposition. arXiv: 1412.6553, 2014.</a></li>
+  <li><a href="https://arxiv.org/abs/1511.06067">Tai C, Xiao T, Zhang Y, Wang X G. Convolutional neural networks with low-rank regularization. arXiv: 1511.06067, 2015.</a></li>
+  <li><a href="">Zhang X, Zou J, Ming X, He K M, Sun J. Efficient and accurate approximations of nonlinear convolutional networkss.In: Proceedings of IEEE Conference on Computer Vision and Pattern Recognition. Boston, USA: IEEE, 2015. 1984−1992</a></li>
+  <li><a href="https://arxiv.org/abs/1511.06530">Kim Y D, Park E, Yoo S, Choi T, Yang L, Shin D. Compression of deep convolutional neural networks for fast and low power mobile applications. arXiv: 1511.06530, 2015.</a></li>
+  <li><a href="">Wang Y, Xu C, Xu C, Tao D. Beyond filters: Compact feature map for portable deep model. In: Proceedings of International Conference on Machine Learning. Sydney, Australia: 2017. 3703−3711</a></li>
+  <li><a href="">Astrid M, Lee S I. CP-decomposition with tensor power method for convolutional neural networks compression. In:Proceedings of IEEE Conference on Big Data and Smart Computing. Korea: IEEE, 2017. 115−118</a></li>
+  <li><a href="">Bucila C, Caruana R, Niculescu-Mizil A. Model compression. In: Proceedings of The 12th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. Philadelphia, USA: 2006. 535−541</a></li>
+  <li><a href="">Ba L J, Caruana R. Do deep nets really need to be deep?In: Proceedings of Neural Information Processing Systems.Montreal, Quebec, Canada: 2014. 2654−2662</a></li>
+  <li><a href="https://arxiv.org/abs/1503.02531">Hinton G, Vinyals O, Dean J. Distilling the knowledge in a neural network. arXiv: 1503.02531, 2015.</a></li>
+  <li><a href="https://arxiv.org/abs/1412.6550">(Romero A, Ballas N, Kahou S E, Chassang A, Gatta C, Bengio Y. Fitnets: hints for thin deep nets. arXiv: 1412.6550,2014)</a></li>
+  <li><a href="">Luo P, Zhu Z, Liu Z, Wang X G, Tang X O. Face model compression by distilling knowledge from neurons. In: Proceedings of AAAI Conference on Artificial Intelligence. Phoenix,Arizona, USA: 2016. 3560−3566</a></li>
+  <li><a href="https://arxiv.org/abs/1511.05641">Chen T, Goodfellow I, Shlens J. Net2net: accelerating learning via knowledge transfer. arXiv: 1511.05641, 2015.</a></li>
+  <li><a href="">Zagoruyko S, Komodakis N. Paying more attention to attention: improving the performance of convolutional neural networks via attention transfer. In: International Conference on Learning Representation. France: 2017.</a></li>
+  <li><a href="https://arxiv.org/abs/1801.05787">Lucas T, Iryna K, Alykhan T, Ferenc H. Faster gaze prediction with dense networks and Fisher pruning. arXiv:1801.05787, 2018.</a></li>
+  <li><a href="">Yim J, Joo D, Bae J, Kim J. A gift from knowledge distillation: fast optimization, network minimization and transfer learning. In: Proceedings of Computer Vision and Pattern Recognition. Honolulu, HI, USA: IEEE, 2017.</a></li>
+  <li><a href="">Chen G, Choi W, Yu X, Han T, Chandraker M. Learning efficient object detection models with knowledge distillation.In: Proceedings of Neural Information Processing Systems.US: 2017. 742−751</a></li>
+  <li><a href="https://arxiv.org/abs/1312.4400">Lin M, Chen Q, Yan S. Network in network. arXiv:1312.4400, 2013.</a></li>
+  <li><a href="https://arxiv.org/abs/1502.03167">Ioffe S, Szegedy C. Batch normalization: accelerating deep network training by reducing internal covariate shift. arXiv:1502.03167, 2015.</a></li>
+  <li><a href="">Szegedy C, Vanhoucke V, Ioffe S, Shlens J, Wojna Z. Rethinking the inception architecture for computer vision. In:Proceedings of IEEE Conference on Computer Vision and Pattern Recognition. Las Vegas, NV, USA: IEEE, 2016.2818−2826</a></li>
+  <li><a href="">Szegedy C, Ioffe S, Vanhoucke V, Alemi A A. Inception-v4,inception-resnet and the impact of residual connections on learning. In: Proceedings of AAAI Conference on Artificial Intelligence. San Francisco, California USA: 2017. 12</a></li>
+  <li><a href="https://arxiv.org/abs/1800-1807">Chollet F. Xception: Deep learning with depthwise separable convolutions. arXiv: 1800-1807, 2016.</a></li>
+  <li><a href="https://arxiv.org/abs/1511.02583">Chang J R, Chen Y S. Batch-normalized maxout network in network. arXiv: 1511.02583, 2015.</a></li>
+  <li><a href="">Han X, Dai Q. Batch-normalized mlpconv-wise supervised pre-training network in network. Applied Intelligence, 2018,48(1): 142−155</a></li>
+  <li><a href="https://arxiv.org/abs/1505.00387">Srivastava R K, Greff K, Schmidhuber J. Highway networks.arXiv: 1505.00387, 2015.</a></li>
+  <li><a href="">Hochreiter S, Schmidhuber J. Long short-term memory.Neural Computation, 1997, 9(8): 1735−1780</a></li>
+  <li><a href="https://arxiv.org/abs/1605.07648">Larsson G, Maire M, Shakhnarovich G. Fractalnet: ultra-deep neural networks without residuals. arXiv:1605.07648,2016.</a></li>
+  <li><a href="">Huang G, Sun Y, Liu Z, Sedra D, Weinberger K Q. Deep networks with stochastic depth. In: Proceedings of European Conference on Computer Vision. Amsterdam, The Nether-lands: Springer, 2016. 646−661</a></li>
+  <li><a href="">He K M, Zhang X, Ren S, Sun J. Identity mappings in deep residual networks. In: Proceedings of European Conference on Computer Vision. Amsterdam, The Nether-lands:Springer, 2016. 630−645</a></li>
+  <li><a href="">Xie S, Girshick R, Dollar P, Tu Z W, He K M. Aggregated residual transformations for deep neural networks. In: Proceedings of Computer Vision and Pattern Recognition. Honolulu, HI, USA: IEEE, 2017. 5987−5995</a></li>
+  <li><a href="">LeCun Y, Bengio Y, Hinton G. Deep learning. Nature, 2015,521(7553): 436</a></li>
+  <li><a href="https://arxiv.org/abs/1605.07146">Zagoruyko S, Komodakis N. Wide residual networks. arXiv:1605.07146, 2016.</a></li>
+  <li><a href="https://arxiv.org/abs/1603.08029">Targ S, Almeida D, Lyman K. Resnet in resnet: generalizing residual architectures. arXiv: 1603.08029, 2016.</a></li>
+  <li><a href="">Zhang K, Sun M, Han X, Yuan X F, Guo L R, Liu T. Residual networks of residual networks: multilevel residual networks. IEEE Transactions on Circuits and Systems for Video Technology, 2017: 1−1</a></li>
+  <li><a href="https://arxiv.org/abs/1609.05672">Abdi M, Nahavandi S. Multi-residual networks. arXiv:1609.05672, 2016.</a></li>
+  <li><a href="">Huang G, Liu Z, Weinberger K Q. Densely connected convolutional networks. In: Proceedings of Computer Vision and Pattern Recognition. Honolulu, HI, USA: IEEE, 2017.</a></li>
+  <li><a href="">Zhang Ting, Li Yu-Jian, Hu Hai-He, Zhang Ya-Hong. A gender classification model based on cross-connected convolutional neural networks. Acta Automatica Sinica, 2016,42(6): 858-865( 张婷 , 李玉鉴 , 胡海鹤 , 张亚红 . 基于跨连卷积神经网络的性别分类模型 . 自动化学报 , 2016, 42(6): 858-865)</a></li>
+  <li><a href="">Li Yong, Lin Xiao-Zhu, Jiang Meng-Ying. Facial expression recognition with cross-connect LeNet-5 network. Acta Automatica Sinica, 2018, 44(1): 176-182( 李勇 , 林小竹 , 蒋梦莹 . 基于跨连接 LeNet-5 网络的面部表情识别 .自动化学报 , 2018, 44(1): 176-182)</a></li>
+  <li><a href="https://arxiv.org/abs/1704.04861">Howard A G, Zhu M, Chen B, Kalenichenko D. Mobilenets:efficient convolutional neural networks for mobile vision applications. arXiv: 1704.04861, 2017.</a></li>
+  <li><a href="">Sandler M, Howard A, Zhu M, Zhmoginov A, Chen L C.MobileNetV2: inverted residuals and linear bottlenecks. In:Proceedings of Computer Vision and Pattern Recognition.USA: IEEE, 2018. 4510−4520</a></li>
+  <li><a href="">Zhang X, Zhou X, Lin M, Sun J. ShuffleNet: an extremely efficient convolutional neural network for mobile devices. In:Proceedings of Computer Vision and Pattern Recognition.USA: IEEE, 2018.</a></li>
+</ol>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/08/13/learn_cmake_02/" data-toggle="tooltip" data-placement="top" title="cmake 学习笔记 (二)">
+                        Previous<br>
+                        <span>cmake 学习笔记 (二)</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/08/13/leetcode_1108/" data-toggle="tooltip" data-placement="top" title="leetcode 日常练习 1108">
+                        Next<br>
+                        <span>leetcode 日常练习 1108</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

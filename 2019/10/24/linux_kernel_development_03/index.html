@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>Linux内核设计与实现 学习笔记 (三) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/10/24/linux_kernel_development_03/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C/C++" title="C/C++">C/C++</a>
+                        
+                        <a class="tag" href="/tags/#Linux" title="Linux">Linux</a>
+                        
+                        <a class="tag" href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统">操作系统</a>
+                        
+                        <a class="tag" href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计">程序设计</a>
+                        
+                    </div>
+                    <h1>Linux内核设计与实现 学习笔记 (三)</h1>
+                    
+                    
+                    <h2 class="subheading">Linux内核设计与实现 学习笔记 (三)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on October 24, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-10-24 20:25:49</p>
+</blockquote>
+
+<h1 id="linux内核设计与实现-学习笔记-三">Linux内核设计与实现 学习笔记 (三)</h1>
+
+<hr>
+
+<h2 id="第-9-章-内核同步介绍">第 9 章 内核同步介绍</h2>
+
+<p>在单处理器时，只有在中断发生的时候，或者在内核代码明确地请求重新调度、执行另外一个任务时，数据才能被访问。</p>
+
+<p><strong><a href="https://www.cnblogs.com/wahaha02/p/9175637.html">Linux多核并行编程关键技术</a></strong></p>
+<ul>
+  <li>锁技术： Linux kernel提供了多种锁机制，如自旋锁、信号量、互斥量、读写锁、顺序锁等。各种锁的简单比较如下，具体实现和使用细节这里就不展开了，可以参考《Linux内核设计与实现》等书的相关章节。
+    <ul>
+      <li>自旋锁，不休眠，无进程上下文切换开销，可以用在中断上下文和临界区小的场合；</li>
+      <li>信号量，会休眠，支持同时多个并发体进入临界区，可以用在可能休眠或者长的临界区的场合；</li>
+      <li>互斥量，类似与信号量，但只支持同时只有一个并发体进入临界区；</li>
+      <li>读写锁，支持读并发，写写/读写间互斥，读会延迟写，对读友好，适用读侧重场合；</li>
+      <li>顺序锁，支持读并发，写写/读写间互斥，写会延迟读，对写友好，适用写侧重场合；<br>
+锁技术虽然能有效地提供并行执行下的竞态保护，但锁的并行可扩展性很差，无法充分发挥多核的性能优势。锁的粒度太粗会限制扩展性，粒度太细会导致巨大的系统开销，而且设计难度大，容易造成死锁。除了并发可扩展性差和死锁外，锁还会引入很多其他问题，如<a href="https://blog.csdn.net/aazhzhu/article/details/89967346">锁惊群</a>、活锁、饥饿、不公平锁、优先级反转等。不过也有一些技术手段或指导原则能解决或减轻这些问题的风险。</li>
+      <li>按统一的顺序使用锁（锁的层次），解决死锁问题；</li>
+      <li>指数后退，解决活锁/饥饿问题；</li>
+      <li>范围锁（树状锁），解决锁惊群问题；</li>
+      <li>优先级继承，解决优先级反转问题；</li>
+    </ul>
+  </li>
+  <li>原子技术:原子技术主要是解决cache和内存不一致性和乱序执行对原子访问的破坏问题。Linux kernel中主要的原子原语有：
+    <ul>
+      <li>ACCESS_ONCE()、READ_ONCE() and WRITE_ONCE()：禁止编译器对数据访问的优化，强制从内存而不是缓存中获取数据；</li>
+      <li>barrier()：乱序访问内存屏障，限制编译器的乱序优化；</li>
+      <li>smb_wmb()：写内存屏障，刷新store buffer，同时限制编译器和CPU的乱序优化；</li>
+      <li>smb_rmb()：读内存屏障，刷新invalidate queue，同时限制编译器和CPU的乱序优化；</li>
+      <li>smb_mb()：读写内存屏障，同时刷新store buffer和invalidate queue，同时限制编译器和CPU的乱序优化；</li>
+      <li>atomic_inc()/atomic_read()等：整型原子操作；
+严格来说，Linux kernel作为系统软件，实现受硬件影响很大，不同硬件有不同的内存模型，因此，不同于高级语言，Linux kernel的原子原语语义并没有一个统一模型。比如在SMP的ARM64 CPU上，barrier、smb_wmb、smb_rmb的实现与smb_mb都是一样的，都是volatile (“” ::: “memory”)。
+另外，再多提一句的是，atomic_inc()原语为了保证原子性，需要对cache进行刷新，而缓存行在多核体系下传播相当耗时，其多核下的并行可扩展性差。</li>
+    </ul>
+  </li>
+  <li>无锁技术:原子技术，是无锁技术中的一种，除此之外，无锁技术还包括RCU、Hazard pointer等。值得一提的是，这些无锁技术都基于内存屏障实现的。
+    <ul>
+      <li>Hazard pointer主要用于对象的生命周期管理，类似引用计数，但比引用计数有更好的并行可扩展性；</li>
+      <li>RCU(<a href="https://www.cnblogs.com/linhaostudy/p/8463529.html">Linux RCU 机制详解</a>)适用的场景很多，其可以替代：读写锁、引用计数、垃圾回收器、等待事物结束等，而且有更好的并行扩展性。但RCU也有一些不适用的场景，如写侧重；临界区长；临界区内休眠等场景。</li>
+      <li>不过，所有的无锁原语也只能解决读端的并行可扩展性问题，写端的并行可扩展性只能通过数据分割技术来解决。</li>
+    </ul>
+  </li>
+  <li>数据分割技术：分割数据结构，减少共享数据，是解决并行可扩展性的根本办法。对分割友好（即并行友好）的数据结构有：
+    <ul>
+      <li>数组</li>
+      <li>哈希表</li>
+      <li>基树（Radix Tree）/稀疏数组</li>
+      <li>跳跃列表（skip list）<br>
+使用这些便于分割的数据结构，有利于我们通过数据分割来改善并行可扩展性。
+除了使用合适的数据结构外，合理的分割指导规则也很重要：</li>
+      <li>读写分割：以读为主的数据与以写为主的数据分开；</li>
+      <li>路径分割：按独立的代码执行路径来分割数据；</li>
+      <li>专项分割：把经常更新的数据绑定到指定的CPU/线程中；</li>
+      <li>所有权分割：按CPU/线程个数对数据结构进行分割，把数据分割到per-cpu/per-thread中；
+4种分割规则中，所有权分割是分割最彻底的。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>以上这些多核并行编程内容基本上涵盖了Linux kernel中所有的并发编程关键技术。当然并行编程还有很多其他技术没有应用到Linux kernel中的，如无副作用的并行函数式编程技术（Erlang/Go等）、消息传递、MapReduce等等。</p>
+
+<h3 id="91-临界区和竞争条件">9.1 临界区和竞争条件</h3>
+
+<ul>
+  <li>临界区:访问和共享数据操作的代码段；</li>
+  <li>同步:避免并发和防止竞争条件；</li>
+  <li>执行线程:所有正在执行的代码实例的总称。</li>
+</ul>
+
+<p>处理器一般都提供对数据访问的原子操作。来防止数据的乱序</p>
+
+<h3 id="92-加锁">9.2 加锁</h3>
+
+<p>锁强制确保一次有且只有一个线程对数据结构进行操作，或者禁止其它访问。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-24-21-50-10.png" alt="线程锁操作"></p>
+
+<p>锁是使用原子操作实现的，而原子操作不存在竞争。</p>
+
+<h4 id="921-造成并发执行的原因">9.2.1 造成并发执行的原因</h4>
+
+<p>用户空间之所以需要同步；是因为用户程序会被调度程序抢占和重新调度。因为单核系统中线程之间是相互交叉进行的，因此也可以称为伪并发进行。</p>
+
+<p>内核中并发执行的原因：中断、软中断和tasklet、内核抢占、睡眠及用户空间的同步、对称多处理。</p>
+
+<p>注意：两个处理器绝对不能同时访问同一共享数据。</p>
+
+<h4 id="922-了解要保护什么">9.2.2 了解要保护什么</h4>
+
+<p>在Linux 内核编译时,可以配置CONFIG_SMP配置选项控制内核是否支持SMP.当期没有被设置时就不会被编入不必要的代码.</p>
+
+<h3 id="93-死锁">9.3 死锁</h3>
+
+<p>死锁产生的条件和避免手段,请参照往期博客.</p>
+
+<h3 id="94-争用和扩展性">9.4 争用和扩展性</h3>
+
+<p>高度争用的锁会成为系统的瓶颈。锁的设计在开始阶段都很粗，但是当竞争问题变得严重式，设计就更加精细的加锁方向进行。</p>
+
+<h2 id="第-10-章-内核同步方法">第 10 章 内核同步方法</h2>
+
+<h3 id="101-原子操作">10.1 原子操作</h3>
+<p><em>参考连连接：</em></p>
+<ul>
+  <li><a href="https://blog.csdn.net/hunanchenxingyu/article/details/8994379">linux 原子整数操作详解</a></li>
+  <li><a href="https://www.cnblogs.com/fanweisheng/p/11141758.html">linux 原子变量</a></li>
+</ul>
+
+<p>原子操作是其它同步方法的基石–原子操作可以保证指令以原子的方式执行–执行过程不被打断。即使原子操作存在，但是由于执行顺序的不同；问题也有可能发生。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-26-14-36-37.png" alt="原子操作过程"></p>
+
+<p>内核中提供了两组原子操作接口–整数操作和位操作；</p>
+
+<h4 id="1011-原子操作">10.1.1 原子操作</h4>
+
+<p>整数的原子操作只能针对<code class="language-plaintext highlighter-rouge">atomic_t</code>类型的数据进行处理。这样原子函数就只接受<code class="language-plaintext highlighter-rouge">atomic_t</code>的操作。是固体部分<code class="language-plaintext highlighter-rouge">atomic_t</code>确保编译器不对相应的值进行访问优化–原子操作最终接收到正确的内存地址，而不是只是一个别名。并且可以屏蔽不同体系结构之间的差异；</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//linux/types.h</span>
+
+<span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span>
+    <span class="k">volatile</span> <span class="kt">int</span> <span class="n">counter</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">atomic_t</span><span class="p">;</span>
+</code></pre></div></div>
+<p>SPARC体系结构上，缺乏原子指令操作；32位int类型的低8位被嵌入了一个锁；避免并发访问。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-26-14-49-41.png" alt="相关操作"></p>
+
+<p>原子操作整数最常见的用途就是实现计数器。使用下面的原子整数操作可以避免锁的使用。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-26-15-00-50.png" alt="原子整数操作列表"></p>
+
+<p><strong>原子性与顺序性的比较</strong></p>
+
+<p>原子性确保指令在执行期间不被打断，要么完全执行完，要么不执行。顺序性确保即使两台或者多条指令处理下载独立的执行线程中，甚至独立的处理器上，他们本来应该的执行顺序确依然要保持。</p>
+
+<h4 id="1012-64位原子操作">10.1.2 64位原子操作</h4>
+
+<p>因为移植性原因，atomic_t变量大小无法在体系结构之间改变，所以其即便是在64位体系结构下也是32位的。因此存在<code class="language-plaintext highlighter-rouge">atomic64_t</code>类型基本功能完全相同，不同的只有整型变量大小变化。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">typdef</span> <span class="k">struct</span><span class="p">{</span>
+  <span class="k">volatile</span> <span class="kt">long</span> <span class="n">counter</span><span class="p">;</span>
+<span class="p">}</span><span class="n">atomic64_t</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-26-15-20-47.png" alt="原子整型操作"></p>
+
+<h4 id="1013-原子位操作">10.1.3 原子位操作</h4>
+
+<p>内核在<code class="language-plaintext highlighter-rouge">asm/bitops.h</code>中定义了对应的操作。位操作是对普通的内存地址进行操作的。它的参数是一个指针和一个位号。一般32位中；第0位是最低有效位，31位是给定地址的最高有效位。原子位操作是对普通的指针进行的操作，所以不像原子整形对应atomic_t;没有特殊的数据类型。只要指针指向了任何数据都可以进行操作。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">word</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">set_bit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">word</span><span class="p">);</span>  <span class="cm">/* 第0位被设置(原子地) */</span>
+<span class="n">set_bit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">&amp;</span><span class="n">word</span><span class="p">);</span>  <span class="cm">/* 第1位被设置(原子地) */</span>
+<span class="n">printk</span><span class="p">(</span><span class="s">"%u1</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">word</span><span class="p">);</span>          <span class="cm">/* 打印3 */</span>
+<span class="n">clear_bit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">&amp;</span><span class="n">word</span><span class="p">);</span>  <span class="cm">/* 清空第1位 */</span>
+<span class="n">change_bit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">word</span><span class="p">);</span>  <span class="cm">/* 翻转第0位的值，这里它被清空 */</span>
+
+<span class="cm">/* 原子的设置第0位并且返回设置前的值(0) */</span>
+<span class="k">if</span><span class="p">(</span><span class="n">test_and_set_bit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">word</span><span class="p">)){</span>
+  <span class="cm">/* 永远不为真 */</span>
+<span class="p">}</span>
+<span class="cm">/* 将原子位指令与一般的c指令语句混合在一起 */</span>
+<span class="n">word</span><span class="o">=</span><span class="mi">7</span><span class="p">;</span>
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-10-26-15-37-04.png" alt="原子位操作的列表"></p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 搜索第一个被设置的位 */</span>
+<span class="kt">int</span> <span class="nf">find_first_bit</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span><span class="p">);</span>
+<span class="cm">/* 搜索第一个未被设置的位 */</span>
+<span class="kt">int</span> <span class="nf">find_first_zero_bit</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">addr</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="102-自旋锁">10.2 自旋锁</h3>
+
+<p><em>参考链接：</em></p>
+<ul>
+  <li><a href="https://blog.csdn.net/hhhanpan/article/details/80624244">Linux内核同步方法——自旋锁（spin lock）</a></li>
+  <li><a href="https://blog.csdn.net/weixin_29379325/article/details/80326734">linux自旋锁</a></li>
+  <li><a href="https://www.cnblogs.com/sky-heaven/p/9549498.html">深入分析Linux自旋锁【转】</a></li>
+</ul>
+
+<p>为了对复杂的数据结构进行访问和修改，需要锁来提供保护。</p>
+
+<p>Linux内核中的自旋锁(spin lock)–最多只能被一个可执行线程持有。一个执行简称试图获得一个自旋锁，就会一直进行忙循环旋转等待，直到锁可以被使用。一般是请求线程睡眠，直到锁重新可用时再唤醒它。持有自旋锁的时间最好小于完成两次上下文切换的时间。</p>
+
+<h4 id="1021-自旋锁方法">10.2.1 自旋锁方法</h4>
+
+<p>自旋锁的实现基本通过汇编实现，相关代码定义在<code class="language-plaintext highlighter-rouge">asm/spinlock.h</code>中。需要用到的接口定义在<code class="language-plaintext highlighter-rouge">&lt;linux/spinlick.h&gt;</code>中。基本使用形式如下；</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DEFINE_SPINLOCK</span><span class="p">(</span><span class="n">mr_lock</span><span class="p">);</span>
+<span class="n">spin_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_lock</span><span class="p">);</span>
+<span class="cm">/* 临界区 */</span>
+<span class="n">spin_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_lock</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><strong>注意:内核实现的自旋锁不能在递归中使用;必须自己手动释放这个锁</strong></p>
+
+<p>中断处理程序不能使用信号量(会导致睡眠)；但可以使用自旋锁。但是一定要先禁止本地中断(同一个处理器)。否则会程序之间的竞争会引起自旋。不同处理器上无此考虑。内核提供的禁止中断同时请求锁的接口使用方法如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DEFINE_SPINLOCK</span><span class="p">(</span><span class="n">mr_lock</span><span class="p">);</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span>
+<span class="cm">/* 保存中断的当前状态 */</span>
+<span class="n">spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_lock</span><span class="p">,</span><span class="n">flags</span><span class="p">);</span>
+<span class="cm">/* 临界区域 */</span>
+<span class="cm">/* 解锁指定的锁 */</span>
+<span class="n">spin_unlock_irqrestore</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_lock</span><span class="p">,</span><span class="n">flags</span><span class="p">);</span>
+</code></pre></div></div>
+<p>单处理器中，在编译时抛弃掉了锁机制，但是任然需要关闭中断以禁止中断处理程序访问共享数据。加锁和解锁分别可以禁止和允许内核抢占。</p>
+
+<p>锁应该主要针对数据。</p>
+
+<p>编译内核时，可以开启<code class="language-plaintext highlighter-rouge">CONFIG_DEBUG_SPINLOCK</code>选项，为使用自旋锁的代码加入调试检测手段。可以进行锁的调试。需要进一步全程调试锁，应该打开<code class="language-plaintext highlighter-rouge">CONFIG_DEBUG_LOCK_ALLOC</code>选项。</p>
+
+<h4 id="1022-其它针对自旋锁的操作">10.2.2 其它针对自旋锁的操作</h4>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-16-22-10.png" alt="自旋锁的其它操作"></p>
+
+<p>pin lock接口API如下</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">接口API的类型</th>
+      <th style="text-align: left">spinlock中的定义</th>
+      <th style="text-align: left">raw_spinlock的定义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">定义spinlock并初始化</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">DEFINE_SPINLOCK</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">DEFINE_RAW_SPINLOCK</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">动态初始化spin lock</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_lock_init</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_lock_init</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">获取指定的spin lock</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_lock</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_lock</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">获取指定的spin lock同时disable本CPU中断</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_lock_irq</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_lock_irq</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">保存本CPU当前的irq状态，disable本CPU中断并获取指定的spin lock</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_lock_irqsave</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_lock_irqsave</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">获取指定的spin lock同时disable本CPU的bottom half</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_lock_bh</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_lock_bh</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">释放指定的spin lock</td>
+      <td style="text-align: left">` spin_unlock	`</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_unlock</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">释放指定的spin lock同时enable本CPU中断</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_unlock_irq</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_unock_irq</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">释放指定的spin lock同时恢复本CPU的中断状态</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_unlock_irqstore</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_unlock_irqstore</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">获取指定的spin lock同时enable本CPU的bottom half</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_unlock_bh</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_unlock_bh</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">尝试去获取spin lock，如果失败，不会spin，而是返回非零值</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_trylock</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_trylock</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left">判断spin lock是否是locked，如果其他的thread已经获取了该lock，那么返回非零值，否则返回0</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">spin_is_locked</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">raw_spin_is_locked</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="1023-自旋锁和下半部分">10.2.3 自旋锁和下半部分</h4>
+
+<p>函数<code class="language-plaintext highlighter-rouge">spin_lock_bh()</code>用于获取指定锁，同时禁止下半部分的执行。<code class="language-plaintext highlighter-rouge">spin_unlock_bh()</code>执行相反的操作。</p>
+
+<p>下半部分和进行上下文共享数据时，必须对进程上下文中的共享内存进行数据保护，所以需要同时进行加锁和禁止下半部分的执行，在恰当的时间还需要禁止中断。</p>
+
+<p>同类型的tasklet不可能同时运行。所以对于同来tasklet中的共享数据不需要保护。但是不同tasklet需要保护；但是不需要进行下半部分的禁止，因为同一个处理器上绝对不会有tasklet相互抢占的情况</p>
+
+<h3 id="103-读-写自旋锁">10.3 读-写自旋锁</h3>
+<p><em>参考链接：</em> <a href="https://www.jianshu.com/p/a62bd5ae5d8c">Linux系统编程7：读写锁</a></p>
+
+<p>Linux中提供了针对生产者消费者的读写自旋锁。其写锁最多只能被一个写任务持有。读写锁也称共享/排斥锁；并发/排斥锁.使用流程大致如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 初始化读写锁 */</span>
+<span class="n">DEFINE_RWLOCK</span><span class="p">(</span><span class="n">mr_rwlock</span><span class="p">);</span>
+<span class="cm">/* 读者代码 */</span>
+<span class="n">read_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rm_rwlock</span><span class="p">);</span>
+<span class="cm">/* 只读临界区 */</span>
+<span class="n">read_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_rwlock</span><span class="p">);</span>
+
+<span class="cm">/* 写者部分代码 */</span>
+<span class="n">write_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_rwlock</span><span class="p">);</span>
+<span class="cm">/* 代码临界区 */</span>
+<span class="n">write_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_rwlock</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>注意：</p>
+<ul>
+  <li>同时使用读写锁，否则会造成死锁。因为写锁会不断自旋；直到等待所有的读者释放锁–包括他自己。</li>
+  <li>大量的读者会使得，写锁处于饥饿状态
+<img src="https://wangpengcheng.github.io/img/2019-10-27-19-49-24.png" alt="读-写自旋锁方法列表">
+</li>
+</ul>
+
+<h3 id="104-信号量">10.4 信号量</h3>
+<p><em>参考链接：</em></p>
+<ul>
+  <li><a href="https://www.cnblogs.com/fanweisheng/p/11141829.html">linux进程睡眠的介绍</a></li>
+  <li><a href="https://www.cnblogs.com/fanweisheng/p/11141864.html">linux一个进程如何睡眠</a></li>
+</ul>
+
+<p>Linux中的信号量是一种睡眠锁(自旋锁不会引起睡眠;进程的睡眠相当于重新调度);信号量会将其推进一个等待队列；然后让其睡眠。处理器重新获得自由，从而去执行其它代码。信号量的开销比自旋锁大；利用率比较高。</p>
+
+<p>有用结论：</p>
+
+<ul>
+  <li>信号量适合锁被长时间持有的进程。</li>
+  <li>由于执行线程在锁被争用时会睡眠；所以只能在进程上下文中才能获得信号量锁，因为在中断上下文中是不能进行调度的。</li>
+  <li>可以在持有信号量时去睡眠；因为当其他进程试图获得同一信号量时不会因此而死锁</li>
+  <li>占用信号量的同时不能占用自旋锁，否则睡眠时，会造成自旋锁的等待方的死锁。</li>
+</ul>
+
+<h4 id="1041-计数信号量和二值信号量">10.4.1 计数信号量和二值信号量</h4>
+
+<p>信号量同时允许持有者数量可以在声明信号量是指定。每次持有一个则–i;释放一个++i。当i=1时，称为二值信号量(互斥信号量)。不为1时为计数信号量。其本质在于两个原子操作P()和V();现在系统将这两个操作称之为<code class="language-plaintext highlighter-rouge">down()</code>和<code class="language-plaintext highlighter-rouge">up()</code>。</p>
+
+<h4 id="1042-创建和初始化信号量">10.4.2 创建和初始化信号量</h4>
+
+<p>信号量相关代码在文件<code class="language-plaintext highlighter-rouge">asm/semaphore.h</code>中。<code class="language-plaintext highlighter-rouge">strcut semaphore</code>表示信号量。声明方法如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 静态声明和初始化 */</span>
+<span class="k">struct</span> <span class="n">semaphore</span> <span class="n">name</span><span class="p">;</span>
+<span class="n">sema_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">name</span><span class="p">,</span><span class="n">count</span><span class="p">);</span>
+
+<span class="cm">/* 静态预定义初始化 */</span>
+<span class="k">static</span> <span class="nf">DECLARE_MUTEX</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+
+<span class="cm">/* 动态创建一个信号量 */</span>
+<span class="n">init_MUTEX</span><span class="p">(</span><span class="n">sem</span><span class="p">);</span>
+</code></pre></div></div>
+<p>使用方法如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 定义并声明一个信号量 */</span>
+<span class="k">static</span> <span class="nf">DECLARE_MUTEX</span><span class="p">(</span><span class="n">mr_sem</span><span class="p">);</span>
+<span class="cm">/* 尝试获取信号量 */</span>
+<span class="k">if</span><span class="p">(</span><span class="n">down_interruptible</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_sem</span><span class="p">)){</span>
+  <span class="cm">/* 信号被接受，信号量还未获取 */</span>
+<span class="p">}</span>
+<span class="cm">/* 临界区 */</span>
+<span class="cm">/* 释放给定的信号量 */</span>
+<span class="n">up</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_sem</span><span class="p">);</span>
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-20-25-22.png" alt="信号量方法列表"></p>
+
+<h3 id="105-读写信号量">10.5 读写信号量</h3>
+
+<p>定义在<code class="language-plaintext highlighter-rouge">linux/rwsem.h</code>中；可以由<code class="language-plaintext highlighter-rouge">static DECLARE_RWSEM(name)</code>或者<code class="language-plaintext highlighter-rouge">init_rwsem(struct rw_semaphore *sem)</code>进行生成。</p>
+
+<p>所有的读写信号量都是互斥信号量–引用计数等于1;但是只针对写者。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="nf">DECLARE_RWSEM</span><span class="p">(</span><span class="n">mr_rwsem</span><span class="p">);</span>
+<span class="cm">/* 试图获取信号量用于读 */</span>
+<span class="n">down_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_rwsem</span><span class="p">);</span>
+<span class="cm">/* 只读临界区 */</span>
+
+
+<span class="cm">/* 释放信号量 */</span>
+<span class="n">up_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_rwsem</span><span class="p">);</span>
+
+
+<span class="cm">/* 试图获取写信号量 */</span>
+<span class="n">down_write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_rwsem</span><span class="p">);</span>
+<span class="cm">/* 写临界区 */</span>
+
+<span class="cm">/* 释放信号量 */</span>
+<span class="n">up_write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_sem</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="106-互斥体">10.6 互斥体</h3>
+
+<p>互斥体–一个更加简单的睡眠锁。指的是任何可以强制睡眠的强制互斥锁。初始化方法如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 静态定义 */</span>
+<span class="n">DEFINE_MUTEX</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+<span class="cm">/* 动态初始化 */</span>
+<span class="n">mutex_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">);</span>
+
+<span class="cm">/* 互斥量加锁 */</span>
+<span class="n">mutex_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">);</span>
+<span class="cm">/* 临界区 */</span>
+<span class="n">mutex_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-20-47-42.png" alt="Mutex操作列表"></p>
+
+<p>MUTEX的特性如下：</p>
+
+<ul>
+  <li>计数永远是1；任何时刻只有一个任务可以持有</li>
+  <li>mutex上锁者必须负责给其解锁–必须在同一个上下文中。因此其不适合内核同用户空间的复杂同步场景；常用场景是：在同一上下文中上锁和解锁</li>
+  <li>递归地上锁和解锁是不允许的。不能递归的持有同一个锁。</li>
+  <li>当持有一个mutex时，进程不可以退出</li>
+  <li>mutex不能在中断或者下半部分中使用；即使使用<code class="language-plaintext highlighter-rouge">mutex_tryolck()</code>也不行</li>
+  <li>mutex只能通过官方API管理；不可被拷贝、手动初始化或者重复初始化。</li>
+</ul>
+
+<h4 id="1061-信号量和互斥体">10.6.1 信号量和互斥体</h4>
+
+<p>建议首选mutex.</p>
+
+<h4 id="1062-自旋锁和互斥体">10.6.2 自旋锁和互斥体</h4>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-21-04-48.png" alt="自旋锁和信号量的比较"></p>
+
+<h3 id="107-完成变量">10.7 完成变量</h3>
+
+<p>完成变量(completion variable):一个任务打出信号通知另外一个任务发生了某个特定事件；来完成两个任务的同步。例如vfork()系统调用完成时；使用完成变量唤醒父进程。其定义在<code class="language-plaintext highlighter-rouge">linux/completion.h</code>中。使用一下的方法进行初始化</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DECLARE_COMPLETION</span><span class="p">(</span><span class="n">mr_comp</span><span class="p">);</span>
+<span class="n">init_completion</span><span class="p">(</span><span class="n">mr_comp</span><span class="p">);</span>
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-21-30-50.png" alt="完成变量方法"></p>
+
+<h3 id="108-blk大内核锁">10.8 BLK:大内核锁</h3>
+
+<p>BLK是一个全局自旋锁，主要是实现Linux最初的SMP过渡到细粒度加锁机制。其特性如下</p>
+
+<ul>
+  <li>持有它的任务仍然可以睡眠。当任务无法调度时(睡眠)；锁被自动丢弃；调度时，锁重新获得</li>
+  <li>是一种递归锁，进程可以多次请求</li>
+  <li>只能在进程上下文中使用。</li>
+  <li>新用户不允许使用BLK</li>
+</ul>
+
+<p>旧的接口，并不推荐使用。在被持有时会禁止内核抢占。单一处理器内核中，BKL并不执行实际的加锁操作</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-21-41-41.png" alt="BLK函数列表"></p>
+
+<p><strong>注意：自旋锁在单核处理器环境无效；编译器会自动优化取消它；防止锁因为上下文切换被获取，造成死锁.(<a href="https://www.zhihu.com/question/322348374/answer/671698403">为什么说“自旋锁在单处理器环境下无效”</a>)</strong></p>
+
+<h3 id="109-顺序锁">10.9 顺序锁</h3>
+
+<p>顺序锁简称seq锁。提供了简单是机制，用于读写共享数据。主要依靠一个序列计数器来实现。当有数据被写入时，会得到一个锁，并且顺序值会增加，在读取数据之前和之后，序列号都被读取。如果相同则过程没有被写操作打断过。如果是偶数就表明写操作没有发生(写操作会编程奇数，释放编程偶数)</p>
+
+<p>使用方法如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 定义一个锁 */</span>
+<span class="n">seqlock_t</span> <span class="n">mr_seq_lock</span><span class="o">=</span><span class="n">DEFINE_SEQLOCK</span><span class="p">(</span><span class="n">mr_seq_lock</span><span class="p">);</span>
+<span class="cm">/* 写锁 */</span>
+<span class="n">write_seqlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_seq_lock</span><span class="p">);</span>
+<span class="n">write_sequnlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_seq_lock</span><span class="p">);</span>
+
+<span class="cm">/* 读锁被操作 */</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">seq</span><span class="p">;</span>
+<span class="k">do</span><span class="p">{</span>
+    <span class="n">seq</span><span class="o">=</span><span class="n">read_seqbegin</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_seq_lock</span><span class="p">);</span>
+    <span class="cm">/* 读这里的数据 */</span>
+
+<span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">read_seqretry</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mr_seq_lock</span><span class="p">,</span><span class="n">seq</span><span class="p">));</span>
+
+</code></pre></div></div>
+<p>顺序锁使用与数据读者较多的情况；因为这样的校验机制，可以允许写者在能够抢占到对应的信号量。写着不像读写锁那样容易饿死。例如Linux中的<code class="language-plaintext highlighter-rouge">jiffies</code>变量存储了Linux机器启动到当前的时间。它的获取实际上就使用了顺序锁</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">u64</span> <span class="nf">get_jiffies_64</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">seq</span><span class="p">;</span>
+  <span class="n">u64</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">do</span><span class="p">{</span>
+    <span class="n">seq</span><span class="o">=</span><span class="n">read_seqbegin</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xtime_lock</span><span class="p">);</span>
+    <span class="n">ret</span><span class="o">=</span><span class="n">jiffies_64</span><span class="p">;</span>
+  <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">read_seqretry</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xtime_lock</span><span class="p">,</span><span class="n">seq</span><span class="p">));</span>
+  <span class="n">reurn</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/* 更改时间值操作 */</span>
+<span class="n">write_seqlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xtime_lock</span><span class="p">);</span>
+<span class="n">jiffies_64</span><span class="o">+=</span><span class="mi">1</span><span class="p">;</span>
+<span class="n">write_sequnlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xtime_lock</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="1010-禁止抢占">10.10 禁止抢占</h3>
+
+<p>内核是抢占性的；可能随时被停下来。因此一个任务与被抢占的任务可能会在同一个临界区内运行(新调度的任务可能访问被切换的同一个变量)。内核抢占代码使用自旋锁作为非抢占区域的标记。一个自旋锁被持有，内核便不能进行抢占。</p>
+
+<p>可以通过<code class="language-plaintext highlighter-rouge">preempt_disable()</code>禁止内核抢占。直到<code class="language-plaintext highlighter-rouge">preempt_enable()</code>被启用之后才能重新启用。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-22-06-51.png" alt="内核抢占相关函数"></p>
+
+<p>也可以使用<code class="language-plaintext highlighter-rouge">get_cpu()</code>函数；这个函数在返回当前处理器号前首先会关闭内核抢占。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">cpu</span><span class="p">;</span>
+<span class="cm">/* 禁止内核抢占，将cpu设置为当前处理器 */</span>
+<span class="n">cpu</span><span class="o">=</span><span class="n">get_cpu</span><span class="p">();</span>
+<span class="cm">/* 对每个处理器的数据进行操作 */</span>
+<span class="cm">/* 给于内核抢占性 */</span>
+<span class="n">put_cpu</span><span class="p">();</span>
+</code></pre></div></div>
+
+<h3 id="1011-顺序和屏障">10.11 顺序和屏障</h3>
+
+<p>为了防止编译器对指令的乱序，可以屏障(barriers)保证代码顺序的固定执行。例如：<code class="language-plaintext highlighter-rouge">rmb()</code>提供一个“读”内存屏障。确保跨越rmb()的载入动作不会发生重排序–其之前的操作不会被重新排在该调用之后；之后的操作不会排在该调用之前。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-27-22-14-10.png" alt="内存和编译器屏障方法"></p>
+
+<p><strong>注意：对于不同体系结构，屏障的实际效果差别很大。Intel x86 不执行乱序存储，wrmb()就什么都不做</strong></p>
+
+<h2 id="第-11-章-定时器和时间管理">第 11 章 定时器和时间管理</h2>
+
+<h3 id="112-节拍率hz">11.2 节拍率：HZ</h3>
+
+<p>系统定时器频率(HZ)是通过静态预处理定义的。体系结构的不同，HZ的值也不同。具体的值定义在<code class="language-plaintext highlighter-rouge">&lt;asm/param.h&gt;</code>中定义了这个值。注意大多数体系结构的节拍率是可以调节的。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-28-17-01-32.png" alt="时钟中断频率"></p>
+
+<h4 id="1121-理想的hz值">11.2.1 理想的HZ值</h4>
+
+<p>使用高频会让时钟中断产生的更加频繁；会给整个系统带来如下好处：</p>
+<ul>
+  <li>更高的时钟中断解析度；可以提高时间驱动时间的解析度</li>
+  <li>提高了时间驱动事件的准确度</li>
+  <li>执行时间有更高的运行精度</li>
+</ul>
+
+<p>劣势：</p>
+
+<ul>
+  <li>系统负担过重；处理器需要花费大量的时间来处理中断程序。</li>
+  <li>打乱处理器高度缓存增加耗电。</li>
+</ul>
+
+<p>可以在编译内核时，选择不同的时钟频率来指定不同的HZ值。也可以设置<code class="language-plaintext highlighter-rouge">CONFIG_HZ</code>配置选项让cpu根据动态时钟的周期来进行选择。</p>
+
+<h3 id="113-jiffies">11.3 jiffies</h3>
+
+<p><em>参考链接：</em></p>
+<ul>
+  <li>
+<a href="https://www.cnblogs.com/arnoldlu/p/7234443.html">Linux时间子系统之三：jiffies</a>;</li>
+  <li>
+<a href="https://www.cnblogs.com/fanweisheng/p/11141978.html">linux 使用 jiffies 计数器</a>;</li>
+  <li><a href="https://blog.csdn.net/fchyang/article/details/81166470">linux下常用的几个时间函数：gettimeofday和clock_gettime</a></li>
+</ul>
+
+<p>这个变量用来记录自系统启动依赖产生的节拍的总数。启动时该变量初始化为0。没次时钟中断处理程序就会增加该变量的值。jiffies一秒内增加的值为HZ;系统运行时间为jiffies/HZ。其定义在文件<code class="language-plaintext highlighter-rouge">linux/jiffies.h</code>中：<code class="language-plaintext highlighter-rouge">extern unsigned long volatile jiffies;</code></p>
+
+<h4 id="1131-jiffies的内部表示">11.3.1 jiffies的内部表示</h4>
+
+<p>为了避免jiffies的溢出；使用了64位的数来对其进行存储；使用jiffies_64变量的初值覆盖jiffies变量：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">jiffies</span><span class="o">=</span><span class="n">jiffies_64</span><span class="p">;</span>
+</code></pre></div></div>
+<p><img src="https://wangpengcheng.github.io/img/2019-10-29-16-34-51.png" alt="jiffies和jiffies_64的划分"></p>
+
+<p>一般访问代码只会读取jiffies_64 的低32位。可以通过get_jiffies_64()函数读取整个64位数值。</p>
+
+<h4 id="1132-jiffies-的回绕">11.3.2 jiffies 的回绕</h4>
+
+<p>当其变量的存储值超过它的最大范围之后会发生溢出。继续增加会恢复到0。注意当使用jiffies为比较标准作为判断时，可能因为发生回绕；造成其值为0，发生错误的判断；内核提供了对应的宏来处理这种判断：<code class="language-plaintext highlighter-rouge">time_after</code>、<code class="language-plaintext highlighter-rouge">time_before</code>、<code class="language-plaintext highlighter-rouge">time_after_eq</code>、<code class="language-plaintext highlighter-rouge">time_before_eq</code></p>
+
+<h4 id="1133-用户空间和hz">11.3.3 用户空间和HZ</h4>
+
+<p>为了避免内核中的HZ值更改，造成用户空间程序的异常结果;使用USER_HZ来代表用户空间看到的HZ值。通过一定的公式来进行计算；函数<code class="language-plaintext highlighter-rouge">jiffies_64_to_clock_t()</code>将64位的单位从HZ转换为USER_HZ。</p>
+
+<h3 id="114-硬时钟和定时器">11.4 硬时钟和定时器</h3>
+
+<p>操作系统提供了系统定时器和实时时钟。</p>
+
+<h4 id="1141-实时时钟rtc">11.4.1 实时时钟(RTC)</h4>
+
+<p>存放系统时间的设备，即便系统关闭之后，它也可以依靠主板上的微型电池提供电力保持系统的计时。系统启动时会读取RTC来初始化墙上时间，时间存在xtime中。</p>
+
+<h4 id="1142-系统定时器">11.4.2 系统定时器</h4>
+
+<p>提供一种周期性触发中断机制(电子晶振分频或者衰减测量器)。x86体系结构中；主要采用可编程中断时钟(PIT)</p>
+
+<h3 id="115-时钟中断处理程序">11.5 时钟中断处理程序</h3>
+
+<p>时钟中断处理程序：</p>
+
+<ul>
+  <li>体系结构相关部分(硬件中断)；主要内容如下：
+    <ul>
+      <li>获得xtime_lock锁，保护时间戳访问</li>
+      <li>应答或者重新设置系统时钟(需要时)</li>
+      <li>周期性地使用墙上时间更新实时时钟</li>
+      <li>调用体系结构无关的时钟例程：<code class="language-plaintext highlighter-rouge">tick_periodic()</code>
+</li>
+    </ul>
+  </li>
+  <li>体系结构无关部分(中断处理)，使用<code class="language-plaintext highlighter-rouge">tick_periodic()</code>执行下面的更多工作
+    <ul>
+      <li>给jiffies_64变量增加1</li>
+      <li>更新资源消耗的统计值，比如当前进程所消耗的系统时间和用户时间</li>
+      <li>执行已经到期的动态定时器</li>
+      <li>执行sheduler_tick()函数</li>
+      <li>更新墙上时间，该时间存放在xtime变量中</li>
+      <li>计算平均负载值</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="116-实际时间">11.6 实际时间</h3>
+
+<p>当前实际时间(墙上时间)定义在文件<code class="language-plaintext highlighter-rouge">kernel/time/timekeeping.c</code>中
+<code class="language-plaintext highlighter-rouge">struct timespec xtime;</code>
+timespec定义在文件<code class="language-plaintext highlighter-rouge">&lt;linux/time.h&gt;</code>中，形式如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">timespec</span><span class="p">{</span>
+  <span class="n">_kernel_time_t</span> <span class="n">tv_sec</span>  <span class="cm">/* 秒 */</span>
+  <span class="kt">long</span> <span class="n">tv_nsec</span><span class="p">;</span>           <span class="cm">/* ns */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>xtime.tv_sec以秒为单位，存放着UTC以来经过的所有时间。其读写需要xtime_lock锁，它不是普通自旋锁而是一个seqlock锁。使用下面的代码进行时间的读取</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">seq</span><span class="p">;</span>
+<span class="k">do</span><span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">lost</span><span class="p">;</span>
+    <span class="n">seq</span><span class="o">=</span><span class="n">read_seqbegin</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xtime_lock</span><span class="p">);</span>
+    <span class="n">usec</span><span class="o">=</span><span class="n">timer</span><span class="o">-&gt;</span><span class="n">get_offset</span><span class="p">();</span>
+    <span class="n">lost</span><span class="o">=</span><span class="n">jiffies</span><span class="o">-</span><span class="n">wall_jiffies</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">lost</span><span class="p">)</span>
+      <span class="n">usec</span><span class="o">+=</span><span class="n">lost</span><span class="o">*</span><span class="p">(</span><span class="mi">1000000</span><span class="o">/</span><span class="n">HZ</span><span class="p">);</span>
+    <span class="n">sec</span><span class="o">=</span><span class="n">xtime</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">;</span>
+    <span class="n">usec</span><span class="o">+=</span><span class="p">(</span><span class="n">xtime</span><span class="p">.</span><span class="n">tv_nsec</span><span class="o">/</span><span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">read_seqretry</span><span class="p">(</span><span class="o">&amp;</span><span class="n">xtime_lock</span><span class="p">,</span><span class="n">seq</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p>用户获得墙上时间的主要接口是<code class="language-plaintext highlighter-rouge">gettimeofday()</code>；调用<code class="language-plaintext highlighter-rouge">sys_gettimeofday()</code>接口，定义于<code class="language-plaintext highlighter-rouge">kernel/time.c</code></p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">asmlinkage</span> <span class="kt">long</span> <span class="nf">sys_gettimeofday</span><span class="p">(</span><span class="k">struct</span> <span class="n">timeval</span> <span class="o">*</span><span class="n">tv</span><span class="p">,</span><span class="k">struct</span> <span class="n">timezone</span> <span class="o">*</span><span class="n">tz</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">tv</span><span class="p">)){</span>
+    <span class="k">struct</span> <span class="n">timeval</span> <span class="n">ktv</span><span class="p">;</span>
+    <span class="n">do_gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ktv</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">copy_to_user</span><span class="p">(</span><span class="n">tv</span><span class="p">,</span><span class="o">&amp;</span><span class="n">ktv</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ktv</span><span class="p">)))</span>
+      <span class="k">return</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">tz</span><span class="p">)){</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">copy_to_user</span><span class="p">(</span><span class="n">tz</span><span class="p">,</span><span class="o">&amp;</span><span class="n">sys_tz</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">sys_tz</span><span class="p">)))</span>
+      <span class="k">return</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>当输入参数非空时，其参数会进行调用。函数使用示例如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">sysUsecTime</span><span class="p">()</span> 
+<span class="p">{</span> 
+    <span class="k">struct</span> <span class="n">timeval</span>    <span class="n">tv</span><span class="p">;</span> 
+    <span class="k">struct</span> <span class="n">timezone</span> <span class="n">tz</span><span class="p">;</span> 
+       
+    <span class="k">struct</span> <span class="n">tm</span>         <span class="o">*</span><span class="n">p</span><span class="p">;</span> 
+       
+    <span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tz</span><span class="p">);</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">"tv_sec:%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">);</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">"tv_usec:%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">tv</span><span class="p">.</span><span class="n">tv_usec</span><span class="p">);</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">"tz_minuteswest:%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">tz</span><span class="p">.</span><span class="n">tz_minuteswest</span><span class="p">);</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">"tz_dsttime:%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">tz</span><span class="p">.</span><span class="n">tz_dsttime</span><span class="p">);</span> 
+       
+    <span class="n">p</span> <span class="o">=</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">);</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">"time_now:%d%d%d%d%d%d.%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">1900</span><span class="o">+</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">tm_year</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">tm_mon</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">tm_mday</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">tm_hour</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">tm_min</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">tm_sec</span><span class="p">,</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_usec</span><span class="p">);</span> 
+<span class="p">}</span> 
+   
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> 
+<span class="p">{</span> 
+    <span class="n">sysLocalTime</span><span class="p">();</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">"============gettimeofday==============</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> 
+       
+    <span class="n">sysUsecTime</span><span class="p">();</span> 
+       
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> 
+<span class="p">}</span> 
+</code></pre></div></div>
+
+<h3 id="117-定时器">11.7 定时器</h3>
+
+<p>定时器由结构timer_list表示，定义在文件<code class="language-plaintext highlighter-rouge">&lt;linux/timer.h&gt;</code>中</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">timer_list</span><span class="p">{</span>
+  <span class="k">struct</span> <span class="n">list_head</span> <span class="n">entry</span><span class="p">;</span>           <span class="cm">/* 定时器链表的入口 */</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">expires</span><span class="p">;</span>            <span class="cm">/* 以jiffies为单位的定时值 */</span>
+  <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">function</span><span class="p">)(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span>   <span class="cm">/* 定时器处理函数 */</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">data</span><span class="p">;</span>               <span class="cm">/* 传给处理函数的长整型参数 */</span>
+  <span class="k">struct</span> <span class="n">tvec_t_base_s</span> <span class="o">*</span><span class="n">base</span><span class="p">;</span>       <span class="cm">/* 定时器内部值，用户不要使用 */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>定时器使用方法如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 创建定时器 */</span>
+<span class="k">struct</span> <span class="n">timer_list</span> <span class="n">my_timer</span><span class="p">;</span>
+<span class="cm">/* 初始化内部定时器结构,分配内存 */</span>
+<span class="n">init_timer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_timer</span><span class="p">);</span>
+<span class="cm">/* 预定义超时函数 */</span>
+<span class="kt">void</span> <span class="nf">my_timer_function</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">data</span><span class="p">);</span>
+<span class="cm">/* 填充结构中需要的值 */</span>
+<span class="n">my_timer</span><span class="p">.</span><span class="n">expires</span><span class="o">=</span><span class="n">jiffies</span><span class="o">+</span><span class="n">delay</span> <span class="cm">/* 定时器超时时的节拍数 */</span>
+<span class="n">my_timer</span><span class="p">.</span><span class="n">data</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>                <span class="cm">/* 给定时器处理函数传入0值 */</span>
+<span class="n">my_timer</span><span class="p">.</span><span class="n">function</span><span class="o">=</span><span class="n">my_function</span><span class="p">;</span>   <span class="cm">/* 定时器超时时函数的调用 */</span>
+<span class="cm">/* 启动激活定时器 */</span>
+<span class="n">add_timer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_timer</span><span class="p">);</span>
+<span class="cm">/* 更改定时器超时时间;设置新的定时器 */</span>
+<span class="n">mod_timer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_timer</span><span class="p">,</span><span class="n">jiffies</span><span class="o">+</span><span class="n">new_delay</span><span class="p">);</span>
+<span class="cm">/* 删除定时器 */</span>
+<span class="n">del_timer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_timer</span><span class="p">);</span>
+<span class="cm">/* 异步等待并删除定时器 */</span>
+<span class="n">del_timer_sync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_timer</span><span class="p">);</span>
+</code></pre></div></div>
+<p>注意不要删除超时的定时器，它们会自动删除。del_timer()保证定时器不会被激活。但是对于多处理，需要使用<code class="language-plaintext highlighter-rouge">del_timer_sync(&amp;my_timer)</code>来进行异步操作，等待其它核上的定时器的结束。</p>
+
+<h4 id="1172-定时器条件竞争">11.7.2 定时器条件竞争</h4>
+
+<p>因为定时器和当前执行代码的异步性，因此可能存在条件竞争；应该尽量使用<code class="language-plaintext highlighter-rouge">del_timer_sync()</code>取代<code class="language-plaintext highlighter-rouge">del_timer()</code>函数。</p>
+
+<p>因为内核异步执行中断处理程序，所以应该重点保护定时器中断处理程序中的共享数据。</p>
+
+<h4 id="1173-实现定时器">11.7.3 实现定时器</h4>
+
+<p>内核在时钟中断之后会执行定时器，更新当前时间。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">run_local_timers</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">hrtimer_run_queues</span><span class="p">();</span>
+  <span class="cm">/* 执行定时器软中断 */</span>
+  <span class="n">raise_softirq</span><span class="p">(</span><span class="n">TIMER_SOFTIRQ</span><span class="p">);</span>
+  <span class="n">softlockup_tick</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>执行中断，在当前处理器上运行所有的超定时器。为了提高定时器的搜索效率，内核将定时器按照超时时间划分为五组。当定时器超时时间接近时，定时器将随组一起下移。保证了定时器管理代码的高效性。</p>
+
+<h3 id="118-延迟执行">11.8 延迟执行</h3>
+
+<p>内核提供了许多延迟方法处理各种延迟要求。</p>
+
+<h4 id="1181-忙等待">11.8.1 忙等待</h4>
+
+<p>最简单的延迟方法，仅仅在延迟时间是节拍的整数倍，或者精确度要求不高时才可以使用。本质上是在循环中不断旋转直到希望的时钟节拍数耗尽</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 10个节拍 */</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">timeout</span><span class="o">=</span><span class="n">jiffies</span><span class="o">+</span><span class="mi">10</span><span class="p">;</span>
+<span class="k">while</span><span class="p">(</span><span class="n">time_before</span><span class="p">(</span><span class="n">jiffies</span><span class="p">,</span><span class="n">timeout</span><span class="p">))</span>
+  <span class="p">;</span>
+</code></pre></div></div>
+<p>这个方法会消耗CPU资源，效率比较低，当等待时间较长时，应该尽量让任务挂起，允许内核重新执行调度任务。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">timeout</span><span class="o">=</span><span class="n">jiffies</span><span class="o">+</span><span class="mi">5</span><span class="o">*</span><span class="n">HZ</span><span class="p">;</span>
+<span class="k">while</span><span class="p">(</span><span class="n">time_before</span><span class="p">(</span><span class="n">jiffies</span><span class="p">,</span><span class="n">timeout</span><span class="p">)){</span>
+  <span class="cm">/* 重新执行调度 */</span>
+  <span class="n">cond_resched</span><span class="p">();</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>volatile 使得jiffies每次都直接从主内存中货色，不是通过寄存器中的变量别名来访问。从而确保前面的循环能按照预期的方式执行。</p>
+
+<h4 id="1182-短延迟">11.8.2 短延迟</h4>
+
+<p>时间很多(比时钟节拍还短)。并且对延迟的时间很精确。内核提供了下面单个延迟函数，定义在<code class="language-plaintext highlighter-rouge">&lt;linux/delay.h&gt;</code>和<code class="language-plaintext highlighter-rouge">&lt;asm/delay.h&gt;</code>中。并使用<code class="language-plaintext highlighter-rouge">jiffies</code></p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 指定微妙(us)延迟 */</span>
+<span class="kt">void</span> <span class="nf">udelay</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">usecs</span><span class="p">);</span>
+<span class="cm">/* 指定纳秒延迟 */</span>
+<span class="kt">void</span> <span class="nf">ndelay</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nsecs</span><span class="p">);</span>
+<span class="cm">/* 指定毫秒延迟 */</span>
+<span class="kt">void</span> <span class="nf">mdelay</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">msecs</span><span class="p">);</span>
+</code></pre></div></div>
+<p>mdelay间接使用ndelay,ndelay使用<code class="language-plaintext highlighter-rouge">udelay()</code>;udelay依靠执行次数循环达到延迟效果(由内核判断1s内执行多少次循环)。udelay更多的是根据循环的比例进行设置。</p>
+
+<p><strong>BogoMIPS:bogus(伪的)和MIPS(每秒处理百万指令)；主要记录处理器空闲时的速度。该值存放在<code class="language-plaintext highlighter-rouge">loop_per_jiffy</code>中，可以由<code class="language-plaintext highlighter-rouge">/proc/cpuinfo</code>进行读取</strong></p>
+
+<p>内核在启动时利用<code class="language-plaintext highlighter-rouge">calibrate_delay()</code>计算<code class="language-plaintext highlighter-rouge">loop_per_jiffy</code>值。udelay()应当只在小延迟中调用，因为快速机器上的大延迟可能导致溢出。尽量减少使用<code class="language-plaintext highlighter-rouge">mdelay</code>以避免忙等待，消耗CPU资源。</p>
+
+<h3 id="1183-schedule_timeout">11.8.3 schedule_timeout()</h3>
+
+<p>让延迟执行的任务睡眠到指定的延迟时间耗尽后再重新运行。主要是重新调度，因此该方法也不能保证睡眠时间正好等于指定的延迟时间，只能尽量靠近过。指定时间到达后，内核唤醒被延迟的任务并将其重新放回运行队列，用法如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 将任务设置为可中断睡眠状态 */</span>
+<span class="n">set_current_state</span><span class="p">(</span><span class="n">TASK_INTERRUPTIBLE</span><span class="p">);</span>
+<span class="cm">/* 小睡一会儿，“s”秒后唤醒 */</span>
+
+<span class="n">schedule_timeout</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="n">HZ</span><span class="p">);</span>
+</code></pre></div></div>
+<p>注意：</p>
+<ul>
+  <li>使用schedule_timeout任务之前,必须将其窗台设置为<code class="language-plaintext highlighter-rouge">TASK_INTERRUPTIBLE</code>(可接受信号)或者<code class="language-plaintext highlighter-rouge">TASK_UNINTERRUPTIBLE</code>(不可接收信号)。</li>
+  <li>schedule_timeout()需要调用调度程序，必须保证用时短，调用代码应该处于进程上下文中，并且不能持有锁。</li>
+  <li>可以使用<code class="language-plaintext highlighter-rouge">schedule_timeout()</code>函数代替<code class="language-plaintext highlighter-rouge">schedule()</code>函数来，让任务等待某个特定事件的到来。</li>
+</ul>
+
+<h2 id="第-12-章-内存管理">第 12 章 内存管理</h2>
+
+<p>内核的特性决定其内存分配，不像用空间那样简单，处理分配错误也是十分困难。</p>
+
+<h3 id="121-页">12.1 页</h3>
+
+<p>内核键页作为内存管理的基本单位。内存管理单元(MMU,管理内存并把虚拟地址转换为物理地址的硬件)是以页为氮气进行处理。虚拟内存中页是最小单位。</p>
+
+<p>体系结构不同支持的页大小也不同，大多数32位体系结构支持4KB的页，64位支持8KB的页。4KB表示支持4KB大小页，并且有1GB物理内存的机器上，二级页表，物理内存会被划分为262144(2^18)个页。内核使用struct page结构表示系统中的每个物理页，位于<code class="language-plaintext highlighter-rouge">linux/mm_types.h</code>中。主要结构如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">page</span><span class="p">{</span>
+  <span class="cm">/* 存放页的状态(是否为脏页)等 */</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span>         <span class="n">flags</span><span class="p">;</span>
+  <span class="cm">/* 页被引用的次数统计,为-1时表示内核中没有引用这一页 */</span>
+  <span class="n">atomic_t</span>              <span class="n">_count</span><span class="p">;</span>
+  <span class="cm">/* 页缓存引用数目 */</span>
+  <span class="n">atomic_t</span>              <span class="n">_mapcount</span><span class="p">;</span>
+  <span class="cm">/* 私有数据指向 */</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span>         <span class="n">priavte</span><span class="p">;</span>
+  <span class="cm">/* 指向页相关的地址空间 */</span>
+  <span class="k">struct</span> <span class="n">address_space</span>  <span class="o">*</span><span class="n">mapping</span><span class="p">;</span>
+  <span class="n">pgoff_t</span>               <span class="n">index</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="n">list_head</span>      <span class="n">lru</span><span class="p">;</span>
+  <span class="cm">/* 指向页的虚拟地址 */</span>
+  <span class="kt">void</span>                  <span class="o">*</span><span class="k">virtual</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>virtual域是页的虚拟地址。通常情况下，它就是页在虚拟内存中的地址。高端内存，并不是永久地映射到内核地址空间上。这时virtual值为NULL。需要时必须，动态映射这些页。</p>
+
+<p>注意：</p>
+
+<ul>
+  <li>page是与物理页相关而不是与虚拟页相关；内核仅仅用这个数据结构来描述当前时刻在相关的物理页中存放的东西</li>
+  <li>系统中的每个物理页都要分配一个这样的结构体。</li>
+</ul>
+
+<h3 id="122-区">12.2 区</h3>
+
+<p><em>参考连链接：</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/qq_38410730/article/details/81105132">Linux的内核空间（低端内存、高端内存）</a></li>
+  <li><a href="https://www.cnblogs.com/lifan3a/articles/4972064.html">内存映射与DMA笔记</a></li>
+  <li><a href="https://blog.csdn.net/abc3240660/article/details/81484984">Linux内核地址空间的内存分布及分配</a></li>
+  <li><a href="https://blog.csdn.net/f22jay/article/details/7925531">Linux用户空间与内核空间</a></li>
+</ul>
+
+<p>因为硬件的限制性，因此需要内核把页划分为不同的区(zone)。内核对具有相似特性的页来进行分组。Linux中主要处理的硬件缺陷内存寻址问题如下：</p>
+
+<ul>
+  <li>只能用特定的内存地址来执行DMA(直接内存访问)</li>
+  <li>一些体系结构的内存的物理寻址范围比虚拟寻址范围大的多。一些内存不能永久地映射到内核空间上。</li>
+</ul>
+
+<p>针对上述问题，Linux主要使用了四种区：</p>
+
+<ul>
+  <li>ZONE_DMA–区上页能用来执行DMA操作</li>
+  <li>ZONE_DMA32–和ZONE_DMA相似，不过只能被32位设备访问。某些体系结构中该区比ZONE_DMA更大。</li>
+  <li>ZONE_NORMAL–包含能正常映射的页。</li>
+  <li>ZONE_HIGHMEM–包含“高端内存”，其中的页不能永久地映射到内核地址空间。</li>
+</ul>
+
+<p>注意：不同体系结构上分区方式不同。</p>
+
+<p>ZONE_HIGHMEM的工作方式也差不多。在32位x86系统上，其为高于869MB的所有物理内存。其它体系结构上，其ZONE_HIGHMEM为空。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-30-20-13-22.png" alt="x86-32上的区"></p>
+
+<p>内核又将3~4G的虚拟地址空间，划分为如下几个部分:</p>
+
+<p><img src="http://blog.chinaunix.net/attachment/201212/11/27177626_135523006360CV.png" alt="内核地址空间"></p>
+
+<p>896MB又可以细分为ZONE_DMA和ZONE_NORMAL区域.</p>
+<ul>
+  <li>低端内存(ZONE_DMA)：3G-3G+16M 用于DMA __pa线性映射</li>
+  <li>普通内存(ZONE_NORMAL)：3G+16M-3G+896M __pa线性映射 （若物理内存&lt;896M，则分界点就在3G+实际内存）</li>
+  <li>高端内存(ZONE_HIGHMEM)：3G+896-4G 采用动态的分配方式</li>
+</ul>
+
+<p>ZONE_DMA+ZONE_NORMAL属于直接映射区:虚拟地址=3G+物理地址 或 物理地址=虚拟地址-3G，从该区域分配内存不会触发页表操作来建立映射关系。</p>
+
+<p>ZONE_HIGHMEM属于动态映射区:128M虚拟地址空间可以动态映射到(X-896)M(其中X位物理内存大小)的物理内存，从该区域分配内存需要更新页表来建立映射关系，vmalloc就是从该区域申请内存，所以分配速度较慢。</p>
+
+<p>直接映射区的作用是为了保证能够申请到物理地址上连续的内存区域，因为动态映射区，会产生内存碎片，导致系统启动一段时间后，想要成功申请到大量的连续的物理内存，非常困难，但是动态映射区带来了很高的灵活性(比如动态建立映射，缺页时才去加载物理页)。</p>
+
+<p>整体映射关系如下：</p>
+
+<p><img src="https://images0.cnblogs.com/blog2015/687284/201506/041141519417456.jpg" alt="整体映射关系"></p>
+
+<p>内核将物理内存等分成N块4KB，称之为一页，每页都用一个struct page来表示。</p>
+
+<p>下图是通过vmalloc申请了3个page大小的内存示例图，由此可见该区域是虚拟地址连续，物理地址不一定连续：</p>
+
+<p><img src="https://img-blog.csdn.net/20160929211618447" alt="分配方式"></p>
+
+<p>alloc_page和__get_free_page最终都是调用的同一个子函数:</p>
+
+<p><img src="https://img-blog.csdn.net/20160929202400829" alt="内存分配函数调用关系"></p>
+
+<ul>
+  <li>kmalloc: 只能在低端内存区域分配(基于ZONE_NORMAL)，最大32个PAGE，共128K，kzalloc/kcalloc都是其变种 (slab.h中如果定义了KMALLOC_MAX_SIZE宏，那么可以达到8M或者更大)</li>
+  <li>vmalloc: 只能在高端内存区域分配(基于ZONE_HIGHMEM)</li>
+  <li>alloc_page: 可以在高端内存区域分配，也可以在低端内存区域分配，最大4M(2^(MAX_ORDER-1)个PAGE)</li>
+  <li>__get_free_page: 只能在低端内存区域分配，get_zeroed_page是其变种，基于alloc_page实现</li>
+  <li>ioremap是将已知的一段物理内存映射到虚拟地址空间，物理内存可以是片内控制器的寄存器起始地址，也可以是显卡外设上的显存，甚至是通过内核启动参数“mem=”预留的对内核内存管理器不可见的一段物理内存。</li>
+</ul>
+
+<p>kmalloc和vmalloc申请的内存块大小是以字节为单位(实际上考虑到最小细分度，开辟的可能比申请的多，存在些许浪费)，而__get_free_page申请的内存块大小是以PAGE数量为单位。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">__get_free_pages</span><span class="p">(</span><span class="n">gfp_t</span> <span class="n">gfp_mask</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">order</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="n">page</span><span class="p">;</span>
+
+    <span class="cm">/*
+     * __get_free_pages() returns a 32-bit address, which cannot represent
+     * a highmem page
+     */</span>
+    <span class="n">VM_BUG_ON</span><span class="p">((</span><span class="n">gfp_mask</span> <span class="o">&amp;</span> <span class="n">__GFP_HIGHMEM</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">page</span> <span class="o">=</span> <span class="n">alloc_pages</span><span class="p">(</span><span class="n">gfp_mask</span><span class="p">,</span> <span class="n">order</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">page</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span> <span class="n">page_address</span><span class="p">(</span><span class="n">page</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>由上可见，__get_free_pages不能为带__GFP_HIGHMEM标志的请求分配内存。</p>
+
+<p>kmalloc和__get_free_page函数返回的地址都是虚拟地址，和物理地址只差一个固定的偏移值3G，无需操作页表。 
+alloc_page返回的是第一个物理页的page指针，需要经过page_address函数才能取得虚拟地址。 
+(使用alloc_page(s)在高端内存申请大于1个page的内存，就无法保证物理地址上的连续性)</p>
+
+<p>kmalloc基于slab实现的，slab是为分配小内存提供的一种高效机制(slab会把page再细分成更小的颗粒)</p>
+
+<p><img src="http://blog.chinaunix.net/attachment/201505/21/14811365_1432193673zeOw.png" alt="Linux内存分配函数比较"></p>
+
+<p>大页: 
+如果进程太多，页表数据会非常大，此时可以把默认的页大小由4K改为2M或者更大。</p>
+
+<p>如果想要实现大数据DMA，可以用kmalloc申请N个buffer，用<a href="https://blog.csdn.net/u012769691/article/details/46814305">SG DMA(非SG的叫Block DMA)技术传输</a></p>
+
+<p>有些64位体系结构，如Intel的x86-64体系结构可以映射和处理64位的内存空间。因此x86_64没有ZONE_HIGHMEM区，所有的物理内存都处于ZONE_DMA和ZONE_NORMAL区。<strong>用户空间默认从高端内存分配所需内存，虽然x86_64没有高端内存也没有关系，内核设计了适当的回退机制，用户空间一样可以在低端内存分配内存，只不过需要二次映射，浪费一点效率。</strong></p>
+
+<h3 id="拓展关于64位的内存分配">拓展：关于64位的内存分配</h3>
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li><a href="https://blog.csdn.net/liminyu/article/details/12519729">Linux 3.x 内核学习笔记——x86 64位内存管理</a></li>
+  <li><a href="https://blog.csdn.net/hhhanpan/article/details/80548687">64位Linux下的地址映射</a></li>
+  <li><a href="https://www.kernel.org/doc/">Linux Kernel Documentation</a></li>
+  <li><a href="https://www.kernel.org/doc/html/latest/admin-guide/mm/index.html">Linux Memory Management</a></li>
+</ul>
+
+<p>在 x86-64 下，处理器默认 CS， DS， ES， SS的段基址为 0，所以下面就不讨论逻辑地址到线性地址的转换了，因为基址为0，经过运算后线性地址和逻辑地址是一样的。</p>
+
+<p>分页过程会将48-bit的线性地址转换为52-bit的物理地址, 可以看出虽然是64bit的操作系统但在处理器层面并没有提供2^64大小的访问范围.48-bit 线性地址可以有以下 3 种映射分配</p>
+
+<p><img src="https://img-blog.csdn.net/20180602171013337" alt="IA32-e模式下4K页面线性地址映射"></p>
+
+<p>x86_64线性地址不是64bit，物理地址也不是64位，Intel当前CPU最高物理地址是52bit,但实际支持的物理内存地址总线宽度是40bit。x86CPU仅支持64位虚拟地址中的48位。对于用户模式地址，64位中的虚拟地址高16位的地址总被设置为0x0；对于内核模式地址，总被设置为0xF.</p>
+
+<p>这是因为<strong>x86_64处理器地址线只有48条，故而导致硬件要求传入的地址48位到63位地址必须相同。</strong></p>
+
+<p><img src="https://img-blog.csdn.net/20180602171505683" alt="IA32-e模式下线性地址映射"></p>
+
+<p>64位地址采用4层地址映射，如下图：</p>
+
+<p><img src="https://img-blog.csdn.net/20131009181225203?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGltaW55dQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="64位地址映射方式"></p>
+
+<p>pgd、pud、pmd、pte各占了9位，加上12位的页内index，共用了48位。即可管理的地址空间为2^48=256T。而在32位地址模式时，该值仅为2^32=4G。</p>
+
+<p>另外64位地址时支持的物理内存最大为64T，见e820.c中MAX_ARCH_PFN的定义：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define MAX_ARCH_PFN MAXMEM&gt;&gt;PAGE_SHIFT
+</span></code></pre></div></div>
+<p>其中MAXMEM为2^46，PAGE_SHIFT为12。</p>
+
+<p>而在32位地址时最大支持的物理内存为64G（开启PAE选项）。</p>
+
+<p>相对32位地址空间，64位地址空间的具体地址分布如下：</p>
+
+<p><img src="https://img-blog.csdn.net/20131009181344968?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbGltaW55dQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="64和32位的地址空间分布"></p>
+
+<p>64位地址时将0x0000,0000,0000,0000 – 0x0000,7fff,ffff,f000这128T地址用于用户空间。参见定义：</p>
+
+<p><code class="language-plaintext highlighter-rouge">#define TASK_SIZE_MAX  ((1UL&lt;&lt;47)-PAGE_SIZE)</code>；注意这里还减去了一个页面的大小做为保护。</p>
+
+<p>而0xffff,8000,0000,0000以上为系统空间地址。注意：该地址前4个都是f，这是因为目前实际上只用了64位地址中的48位（高16位是没有用的），而从地址0x0000,7fff,ffff,ffff到0xffff,8000,0000,0000中间是一个巨大的空洞，是为以后的扩展预留的。</p>
+
+<p>而真正的系统空间的起始地址，是从0xffff,8800,0000,0000开始的，参见：</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define __PAGE_OFFSET     _AC(0xffff,8800,0000,0000, UL)
+</span></code></pre></div></div>
+<p>而32位地址时系统空间的起始地址为0xC000,0000。</p>
+
+<p>另外0xffff,8800,0000,0000 – 0xffff,c7ff,ffff,ffff这64T直接和物理内存进行映射，0xffff,c900,0000,0000 – 0xffff,e8ff,ffff,ffff这32T用于vmalloc/ioremap的地址空间。</p>
+
+<p>而32位地址空间时，当物理内存大于896M时（Linux2.4内核是896M，3.x内核是884M，是个经验值），由于地址空间的限制，内核只会将0~896M的地址进行映射，而896M以上的空间用做一些固定映射和vmalloc/ioremap。而64位地址时是将所有物理内存都进行映射。</p>
+
+<p><img src="https://www.linuxidc.com/upload/2015_02/150208073889792.png" alt="地址内存映射"></p>
+
+<p>其中每个区都用strcut zone表示，在<code class="language-plaintext highlighter-rouge">&lt;linux/mmzone.h&gt;</code>中定义：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">zone</span> <span class="p">{</span>
+	<span class="cm">/* Read-mostly fields */</span>
+
+	<span class="cm">/* zone watermarks, access with *_wmark_pages(zone) macros */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">_watermark</span><span class="p">[</span><span class="n">NR_WMARK</span><span class="p">];</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">watermark_boost</span><span class="p">;</span>
+
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_reserved_highatomic</span><span class="p">;</span>
+
+	<span class="cm">/*
+	 * We don't know if the memory that we're going to allocate will be
+	 * freeable or/and it will be released eventually, so to avoid totally
+	 * wasting several GB of ram we must reserve some of the lower zone
+	 * memory (otherwise we risk to run OOM on the lower zones despite
+	 * there being tons of freeable ram on the higher zones).  This array is
+	 * recalculated at runtime if the sysctl_lowmem_reserve_ratio sysctl
+	 * changes.
+	 */</span>
+	<span class="kt">long</span> <span class="n">lowmem_reserve</span><span class="p">[</span><span class="n">MAX_NR_ZONES</span><span class="p">];</span>
+
+<span class="cp">#ifdef CONFIG_NUMA
+</span>	<span class="kt">int</span> <span class="n">node</span><span class="p">;</span>
+<span class="cp">#endif
+</span>	<span class="k">struct</span> <span class="n">pglist_data</span>	<span class="o">*</span><span class="n">zone_pgdat</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">per_cpu_pageset</span> <span class="n">__percpu</span> <span class="o">*</span><span class="n">pageset</span><span class="p">;</span>
+
+<span class="cp">#ifndef CONFIG_SPARSEMEM
+</span>	<span class="cm">/*
+	 * Flags for a pageblock_nr_pages block. See pageblock-flags.h.
+	 * In SPARSEMEM, this map is stored in struct mem_section
+	 */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="o">*</span><span class="n">pageblock_flags</span><span class="p">;</span>
+<span class="cp">#endif </span><span class="cm">/* CONFIG_SPARSEMEM */</span><span class="cp">
+</span>
+	<span class="cm">/* zone_start_pfn == zone_start_paddr &gt;&gt; PAGE_SHIFT */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">zone_start_pfn</span><span class="p">;</span>
+
+	<span class="cm">/*
+	 * spanned_pages is the total pages spanned by the zone, including
+	 * holes, which is calculated as:
+	 * 	spanned_pages = zone_end_pfn - zone_start_pfn;
+	 *
+	 * present_pages is physical pages existing within the zone, which
+	 * is calculated as:
+	 *	present_pages = spanned_pages - absent_pages(pages in holes);
+	 *
+	 * managed_pages is present pages managed by the buddy system, which
+	 * is calculated as (reserved_pages includes pages allocated by the
+	 * bootmem allocator):
+	 *	managed_pages = present_pages - reserved_pages;
+	 *
+	 * So present_pages may be used by memory hotplug or memory power
+	 * management logic to figure out unmanaged pages by checking
+	 * (present_pages - managed_pages). And managed_pages should be used
+	 * by page allocator and vm scanner to calculate all kinds of watermarks
+	 * and thresholds.
+	 *
+	 * Locking rules:
+	 *
+	 * zone_start_pfn and spanned_pages are protected by span_seqlock.
+	 * It is a seqlock because it has to be read outside of zone-&gt;lock,
+	 * and it is done in the main allocator path.  But, it is written
+	 * quite infrequently.
+	 *
+	 * The span_seq lock is declared along with zone-&gt;lock because it is
+	 * frequently read in proximity to zone-&gt;lock.  It's good to
+	 * give them a chance of being in the same cacheline.
+	 *
+	 * Write access to present_pages at runtime should be protected by
+	 * mem_hotplug_begin/end(). Any reader who can't tolerant drift of
+	 * present_pages should get_online_mems() to get a stable value.
+	 */</span>
+	<span class="n">atomic_long_t</span>		<span class="n">managed_pages</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">spanned_pages</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">present_pages</span><span class="p">;</span>
+
+	<span class="k">const</span> <span class="kt">char</span>		<span class="o">*</span><span class="n">name</span><span class="p">;</span>
+
+<span class="cp">#ifdef CONFIG_MEMORY_ISOLATION
+</span>	<span class="cm">/*
+	 * Number of isolated pageblock. It is used to solve incorrect
+	 * freepage counting problem due to racy retrieving migratetype
+	 * of pageblock. Protected by zone-&gt;lock.
+	 */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">nr_isolate_pageblock</span><span class="p">;</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#ifdef CONFIG_MEMORY_HOTPLUG
+</span>	<span class="cm">/* see spanned/present_pages for more description */</span>
+	<span class="n">seqlock_t</span>		<span class="n">span_seqlock</span><span class="p">;</span>
+<span class="cp">#endif
+</span>
+	<span class="kt">int</span> <span class="n">initialized</span><span class="p">;</span>
+
+	<span class="cm">/* Write-intensive fields used from the page allocator */</span>
+	<span class="n">ZONE_PADDING</span><span class="p">(</span><span class="n">_pad1_</span><span class="p">)</span>
+
+	<span class="cm">/* free areas of different sizes */</span>
+	<span class="k">struct</span> <span class="n">free_area</span>	<span class="n">free_area</span><span class="p">[</span><span class="n">MAX_ORDER</span><span class="p">];</span>
+
+	<span class="cm">/* zone flags, see below */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">flags</span><span class="p">;</span>
+
+	<span class="cm">/* Primarily protects free_area */</span>
+	<span class="n">spinlock_t</span>		<span class="n">lock</span><span class="p">;</span>
+
+	<span class="cm">/* Write-intensive fields used by compaction and vmstats. */</span>
+	<span class="n">ZONE_PADDING</span><span class="p">(</span><span class="n">_pad2_</span><span class="p">)</span>
+
+	<span class="cm">/*
+	 * When free pages are below this point, additional steps are taken
+	 * when reading the number of free pages to avoid per-cpu counter
+	 * drift allowing watermarks to be breached
+	 */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">percpu_drift_mark</span><span class="p">;</span>
+
+<span class="cp">#if defined CONFIG_COMPACTION || defined CONFIG_CMA
+</span>	<span class="cm">/* pfn where compaction free scanner should start */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">compact_cached_free_pfn</span><span class="p">;</span>
+	<span class="cm">/* pfn where async and sync compaction migration scanner should start */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">compact_cached_migrate_pfn</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">compact_init_migrate_pfn</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">compact_init_free_pfn</span><span class="p">;</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#ifdef CONFIG_COMPACTION
+</span>	<span class="cm">/*
+	 * On compaction failure, 1&lt;&lt;compact_defer_shift compactions
+	 * are skipped before trying again. The number attempted since
+	 * last failure is tracked with compact_considered.
+	 */</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">compact_considered</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">compact_defer_shift</span><span class="p">;</span>
+	<span class="kt">int</span>			<span class="n">compact_order_failed</span><span class="p">;</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#if defined CONFIG_COMPACTION || defined CONFIG_CMA
+</span>	<span class="cm">/* Set to true when the PG_migrate_skip bits should be cleared */</span>
+	<span class="n">bool</span>			<span class="n">compact_blockskip_flush</span><span class="p">;</span>
+<span class="cp">#endif
+</span>
+	<span class="n">bool</span>			<span class="n">contiguous</span><span class="p">;</span>
+
+	<span class="n">ZONE_PADDING</span><span class="p">(</span><span class="n">_pad3_</span><span class="p">)</span>
+	<span class="cm">/* Zone statistics */</span>
+	<span class="n">atomic_long_t</span>		<span class="n">vm_stat</span><span class="p">[</span><span class="n">NR_VM_ZONE_STAT_ITEMS</span><span class="p">];</span>
+	<span class="n">atomic_long_t</span>		<span class="n">vm_numa_stat</span><span class="p">[</span><span class="n">NR_VM_NUMA_STAT_ITEMS</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">____cacheline_internodealigned_in_smp</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>其中的lock域是一个自旋锁，它防止该结构被并发访问。但它只保护结构，不是保护驻留在这个区中的所有页；没有锁来保护单个页。</p>
+
+<p>watermark数组持有该区的最小值、最低和最高水平值。内核使用水位为每个内存区设置合适的内存消耗基准；该值随着空闲内存的多少而变化。</p>
+
+<p>name域是一个以NULL结束的字符串表示这个区的名字。内核启动期间初始化这个值，其代码位于<code class="language-plaintext highlighter-rouge">mm/page_alloc.c</code>中。</p>
+
+<h3 id="123--获得页">12.3  获得页</h3>
+
+<p>内核中存在请求内存符底层机制，并提供了对它进行访问的接口。以页为基本单位，进行保存。定义在<code class="language-plaintext highlighter-rouge">linux/gfp.h</code>中，其中的核心函数是：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 分配2^order个连续的物理页，并返回一个指针，指向第一个页的page结构体，如果出错就返回NULL */</span>
+
+<span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="nf">alloc_pages</span><span class="p">(</span><span class="n">gfp_t</span> <span class="n">gfp_mask</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">order</span><span class="p">);</span>
+<span class="cm">/* 将页的物理地址转换为逻辑地址,返回指向逻辑地址的指针 */</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">page_address</span><span class="p">(</span><span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="n">page</span><span class="p">);</span>
+<span class="cm">/* 直接创建并返回第一个页的逻辑地址 */</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">__get_free_pages</span><span class="p">(</span><span class="n">gfp_t</span> <span class="n">gfp_mask</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">order</span><span class="p">);</span>
+<span class="cm">/* 获取单个页 */</span>
+<span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="nf">alloc_page</span><span class="p">(</span><span class="n">gfp_t</span> <span class="n">gfp_mask</span><span class="p">);</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">__get_free_page</span><span class="p">()</span><span class="n">gfp_t</span> <span class="n">gfp_mask</span><span class="p">);</span>
+<span class="cm">/* 返回页内容全为0 */</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">get_zeroed_page</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">gfp_mask</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-31-21-03-49.png" alt="低级页分配方法"></p>
+
+<h4 id="1232-释放页">12.3.2 释放页</h4>
+
+<p>可以使用如下函数进行页的释放</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="n">__free_pages</span><span class="p">(</span><span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="n">page</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">order</span><span class="p">)</span>
+<span class="kt">void</span> <span class="n">free_pages</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">addr</span><span class="p">,</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">order</span><span class="p">)</span>
+<span class="kt">void</span> <span class="n">free_page</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">addr</span><span class="p">)</span>
+</code></pre></div></div>
+<p>页的释放错误可能会引起内核的崩溃。</p>
+
+<h3 id="124-kmalloc">12.4 kmalloc()</h3>
+
+<p>其在<code class="language-plaintext highlighter-rouge">&lt;linxu/slab.h&gt;</code>中声明；可以获取以字节为党文的一块内核内存。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="o">*</span><span class="n">kmalloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span><span class="n">gfp_t</span> <span class="n">flags</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="1241-gfp_mask标志">12.4.1 gfp_mask标志</h4>
+
+<p>页和内存的分配都使用了分配器标志，它有一下三类：</p>
+
+<ol>
+  <li>
+    <p>行为修饰符：内核应当如何分配所需的内存
+<img src="https://wangpengcheng.github.io/img/2019-10-31-21-13-21.png" alt="行为修饰符类别">
+<img src="https://wangpengcheng.github.io/img/2019-10-31-21-14-37.png" alt="行为修饰符类别2">
+可以同时多个指定：<code class="language-plaintext highlighter-rouge">ptr=kmalloc(size,__GFP_WAIT|__GFP_IO|GFP_FS)</code></p>
+  </li>
+  <li>区修饰符：从那儿进行内存分配。
+<img src="https://wangpengcheng.github.io/img/2019-10-31-21-16-12.png" alt="区修饰符">
+注意：
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">__GFP_HIGHMEM</code>中<code class="language-plaintext highlighter-rouge">ZONE_HIGHMEM</code>优先</li>
+      <li>如果没有任何指定，就优先从<code class="language-plaintext highlighter-rouge">ZONE_NORMAL</code>进行分配。</li>
+      <li>不能给<code class="language-plaintext highlighter-rouge">__get_free_pages()</code>或者<code class="language-plaintext highlighter-rouge">kmalloc()</code>指定<code class="language-plaintext highlighter-rouge">ZONE_HIGHMEM</code>.其返回的是逻辑地址不是page结构，只有<code class="language-plaintext highlighter-rouge">alloc_pages()</code>才能分配高端内存</li>
+    </ul>
+  </li>
+  <li>类型标志:组合了行为修饰符和区修饰符。
+<img src="https://wangpengcheng.github.io/img/2019-10-31-21-20-48.png" alt="类型标志">
+<img src="https://wangpengcheng.github.io/img/2019-10-31-21-21-30.png" alt="类型标志修饰表">
+<img src="https://wangpengcheng.github.io/img/2019-10-31-21-22-43.png" alt="什么时候用什么标志">
+</li>
+</ol>
+
+<p>不能睡眠表示，即使没有足够的连续内存块可以使用，内核也可能无法释放出可用内存，因为内核不能让调用者休眠。因此<code class="language-plaintext highlighter-rouge">GFP_ATOMIC</code>分配成功的机会比较小。在中断处理程序、软中断和tasklet中使用较多。</p>
+
+<h4 id="1242-kfree">12.4.2 kfree()</h4>
+
+<p>定义在<code class="language-plaintext highlighter-rouge">&lt;linux/slab.h&gt;</code>中</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">kfree</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>释放内存已经被释放或者不是由kmalloc分配的将会引起严重后果。注意使用避免内存泄露。</p>
+
+<h3 id="125-vmalloc">12.5 vmalloc()</h3>
+
+<p>vmalloc()主要是逻辑地址的分配，物理内存可能不连续。这也是用户空间分配函数的工作方式。其在物理RAM中不是需要连续的。vmallo()的性能较低，需要对物理地址进行一一映射。会导致比直接内存映射大得多的TLB抖动。使用示例</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">char</span><span class="o">*</span> <span class="n">buf</span><span class="p">;</span>
+<span class="n">buf</span><span class="o">=</span><span class="n">vmalloc</span><span class="p">(</span><span class="mi">16</span><span class="o">*</span><span class="n">PAGE_SIZE</span><span class="p">);</span><span class="cm">/* get 16 pages */</span> 
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">...</span>
+
+<span class="n">vfree</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="126-slab层">12.6 slab层</h3>
+
+<p><em>参考链接：</em></p>
+
+<ul>
+  <li>
+    <p><a href="https://www.cnblogs.com/pengdonglin137/p/3878552.html">Linux内存管理中的slab分配器</a>;</p>
+  </li>
+  <li>
+    <h1 id="linux伙伴算法简介"><a href="https://www.cnblogs.com/cherishui/p/4246133.html">linux伙伴算法简介</a></h1>
+  </li>
+</ul>
+
+<p>slab层主要作为数据结构高速缓冲层的角色；能方便开发人员随时获取空闲的链表。</p>
+
+<p>Linux内核中基于伙伴算法实现的分区页框分配器适合大块内存的请求，它所分配的内存区是以页框为基本单位的。对于内核中小块连续内存的请求，比 如说几个字节或者几百个字节，如果依然分配一个页框来来满足该请求，那么这很明显就是一种浪费，即产生内部碎片（internal fragmentation）</p>
+
+<p>为了解决小块内存的分配，Linux内核基于Solaris 2.4中的slab分配算法实现了自己的slab分配器。除此之外，slab分配器另一个主要功能是作为一个高速缓存，它用来存储内核中那些经常分配并释放的对象。</p>
+
+<p>slab分配器有以下三个基本目标：</p>
+
+<ol>
+  <li>
+    <p>减少伙伴算法在分配小块连续内存时所产生的内部碎片；</p>
+  </li>
+  <li>
+    <p>将频繁使用的对象缓存起来，减少分配、初始化和释放对象的时间开销。</p>
+  </li>
+  <li>
+    <p>通过着色技术调整对象以更好的使用硬件高速缓存；</p>
+  </li>
+</ol>
+
+<h4 id="1261-slab层的设计">12.6.1 slab层的设计</h4>
+
+<p>slab将不同的对象划分为所谓的高速缓存组，其中每个缓存组都存放不同类型的对象。每种对象类型对应一个高速缓存。kmalloc()建立在slab层之上，使用了一组通用高速缓存</p>
+
+<p>高速缓存被划分为slab，一个slab由一个或者多个连续的物理页组成。每个高速缓存由多个slab组成。每个slab包含一些对象成员(被缓存的数据结构)。当内核需要分配一个新的对象时，先从部分满的slab中进行分配。实在找不到就重新分配一个。</p>
+
+<p>磁盘索引节点在内存中由inode进行管理，其由slab进行分配。</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-31-21-51-37.png" alt="高速缓存、slab及对象之间的关系"></p>
+
+<p>每个高速缓存都使用kmem_cache结构来表示。这个包含三个链表:slabs_full、slabs_partial和slab_empty；存放在kmem_list3(定义于<code class="language-plaintext highlighter-rouge">mm/slab.c</code>)结构中.其基本数据结构如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">slab</span><span class="p">{</span>
+  <span class="cm">/* 链表连接节点 */</span>
+  <span class="k">struct</span> <span class="n">list_head</span> <span class="n">list</span><span class="p">;</span>
+  <span class="cm">/* slab着色的偏移量 */</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">colouroff</span><span class="p">;</span>
+  <span class="cm">/* slab中的第一个对象 */</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">s_mem</span><span class="p">;</span>
+  <span class="cm">/* slab中已分配的对象数 */</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">inuse</span><span class="p">;</span>
+  <span class="cm">/* 第一个空闲对象(如果有的话) */</span>
+  <span class="n">kmem_bufctl_t</span> <span class="n">free</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>slab分配器可以通过<code class="language-plaintext highlighter-rouge">__get_free_pages()</code>创建新的slab</p>
+
+<p><img src="https://wangpengcheng.github.io/img/2019-10-31-21-58-32.png" alt="创建内存函数"></p>
+
+<p><strong>高速缓存分类</strong></p>
+
+<ul>
+  <li>普通高速缓存：普通高速缓存并不针对内核中特定的对象，它首先会为kmem_cache结构本身提供高 速缓存，这类缓存保存在cache_cache变量中，该变量即代表的是cache_chain链表中的第一个元素。</li>
+  <li>专用高速缓存：是根据内核所需，通过指定具体的对象而创建。</li>
+</ul>
+
+<h4 id="1262-slab分配器的接口">12.6.2 slab分配器的接口</h4>
+
+<p>每个高速缓存通过kmem_cache结构来描述，这个结构中包含了对当前高速缓存各种属性信息的描述。所有的高速缓存通过双链表组织在一起，形成 高速缓存链表cache_chain。</p>
+
+<p>slab分配器所提供的小块连续内存的分配是通过通用高速缓存实现的。通用高速缓存所提供的对象具有几何分布的大小，范围为32到131072字节。内核中提供了kmalloc()和kfree()两个接口分别进行内存的申请和释放。</p>
+
+<p>kmem_cache_create()用于对一个指定的对象创建高速缓存。它从cache_cache普通高速缓存中为新的专有缓存分配一个高速 缓存描述符，并把这个描述符插入到高速缓存描述符形成的cache_chain链表中。kmem_cache_destory()用于撤销一个高速缓存， 并将它从cache_chain链表上删除。</p>
+
+<p>一个新的高速缓存通过一下函数创建</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">kmem_cache</span> <span class="o">*</span><span class="n">kmem_cache_create</span><span class="p">(</span>
+                                    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="cm">/* 高速缓存名称 */</span>
+                                    <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="cm">/* 高速缓存中每个元素的大小 */</span>
+                                    <span class="kt">size_t</span> <span class="n">align</span><span class="p">,</span><span class="cm">/* slab内第一个对象的偏移，保证页内对齐 */</span>
+                                    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">,</span><span class="cm">/* 可选设置项，用来控制高速缓存的行为 */</span>
+                                    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">ctor</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="cm">/* 高速缓存构造函数，添加高速缓存时才被调用一般为NULL */</span>
+                                    <span class="p">)</span>
+</code></pre></div></div>
+<p>flags可选参数如下：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">SLAB_HWCACHE_ALIGN</code>–命令slab层把一个slab内的所有对象按照高速缓存对齐。防止“错误的共享”。以浪费内存为待见，进行性能的提升。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SLAB_POISON</code>–使用已知的值填充slab，有利于对为初始化内存的访问。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SLAB_RED_ZONE</code>–slab层在已分配的内存周围插入“红色警戒区”以探测缓冲越界。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SLAB_PANIC</code>–当分配失败时提醒slab层。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">SLAB_CHACHE_DMA</code>–表示命令slab层使用可以执行DMA的内存给每个slab分配空间。只有分配DMA对象并且必须驻留在<code class="language-plaintext highlighter-rouge">ZONE_DMA</code>区时才需要这个标志。</li>
+</ul>
+
+<p>内核初始化期间，定义于<code class="language-plaintext highlighter-rouge">kernel/fork.c</code>的fork_init()中会创建高速缓存.</p>
+
+<p>删除一个高速缓存</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">kmem_cache_destroy</span><span class="p">(</span><span class="k">struct</span> <span class="n">kmem_cache</span> <span class="o">*</span><span class="n">cachep</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>创建高速缓存后可以，通过下列函数获取对象:</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">void kmem_cache_alloc(struct kmem_cache *cachep,gfp_t flags)</code>，查找空闲页，没有slab就自己分配一个。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">void kmem_cache_free(struct kmem_cache *cachep,void *objp)</code>:释放一个对象</li>
+</ul>
+
+<p>下面是一个使用示例：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*  定义全局变量存放高速缓存指针 */</span>
+
+<span class="k">struct</span> <span class="n">kmem_cache</span> <span class="o">*</span><span class="n">task_struct_cachep</span><span class="p">;</span>
+<span class="cm">/* 创建一个task_struct类型的高速缓存，存放在ARCH_MIN_TASKALIGH个字节偏移的地方 */</span>
+<span class="n">task_struct_cachep</span><span class="o">=</span><span class="n">kmem_cache_create</span><span class="p">(</span><span class="s">"task_struct"</span><span class="p">,</span>
+                                    <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span><span class="p">),</span>
+                                    <span class="n">ARCH_MIN_TASKALIGH</span><span class="p">,</span>
+                                    <span class="n">SLAB_PANIC</span><span class="o">|</span><span class="n">SLAB_NOTRACK</span><span class="p">,</span>
+                                    <span class="nb">NULL</span>
+                                    <span class="p">);</span>
+<span class="cm">/* 定义数据结构 */</span>
+<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span><span class="p">;</span>
+<span class="cm">/* 从高速缓存中获取对象 */</span>
+<span class="n">tsk</span><span class="o">=</span><span class="n">kmem_cache_alloc</span><span class="p">(</span><span class="n">task_struct_cachep</span><span class="p">,</span><span class="n">GFP_KERNEL</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">tsk</span><span class="p">)</span> <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="cm">/* 销毁对象，并将内存返回给高速缓存 */</span>
+<span class="c1">//kmem_cache_free(task_struct_cachep,tsk);</span>
+
+<span class="cm">/* 防止被破坏，阻止其被撤销 */</span>
+
+<span class="kt">int</span> <span class="n">err</span><span class="p">;</span>
+<span class="n">err</span><span class="o">=</span><span class="n">kmem_cache_destroy</span><span class="p">(</span><span class="n">task_struct_cachep</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="cm">/* 出错，撤销高速缓存 */</span>
+
+</code></pre></div></div>
+<h3 id="127-在栈上的静态分配">12.7 在栈上的静态分配</h3>
+
+<p>内核在创建进程的时候，在创建task_struct的同时，会为进程创建相应的堆栈。每个进程会有两个栈，一个用户栈，存在于用户空间，一个内核栈，存在于内核空间。</p>
+
+<p>当进程在用户空间运行时，cpu堆栈指针寄存器里面的内容是用户堆栈地址，使用用户栈；</p>
+
+<p>当进程在内核空间运行时，cpu堆栈指针寄存器里面的内容是内核栈空间地址，使用内核栈。</p>
+
+<p>当进程因为中断或者系统调用而陷入内核态之行时，进程所使用的堆栈也要从用户栈转到内核栈。
+进程陷入内核态后，先把用户态堆栈的地址保存在内核栈之中，然后设置堆栈指针寄存器的内容为内核栈的地址，这样就完成了用户栈向内核栈的转换；当进程从内核态恢复到用户态之行时，在内核态之行的最后将保存在内核栈里面的用户栈的地址恢复到堆栈指针寄存器即可。这样就实现了内核栈和用户栈的互转。</p>
+
+<p>那么，我们知道从内核转到用户态时用户栈的地址是在陷入内核的时候保存在内核栈里面的，但是在陷入内核的时候，我们是如何知道内核栈的地址的呢？</p>
+
+<p>关键在进程从用户态转到内核态的时候，进程的内核栈总是空的。这是因为，当进程在用户态运行时，使用的是用户栈，当进程陷入到内核态时，内核栈保存进程在内核态运行的相关信心，但是一旦进程返回到用户态后，内核栈中保存的信息无效，会全部恢复，因此每次进程从用户态陷入内核的时候得到的内核栈都是空的。所以在进程陷入内核的时候，直接把内核栈的栈顶地址给堆栈指针寄存器就可以了。</p>
+
+<p>每个进程的内核栈大小既依赖于体系结构，也与编译选项有关。一般每个进程都用两页(32位8KB,64位16KB)的内核栈。</p>
+
+<h4 id="1271-单页内核栈">12.7.1 单页内核栈</h4>
+
+<p>内核栈可以是1页也可以是2页，取决于编译时的配置选项。</p>
+
+<h4 id="1271-在栈上光明正大的工作">12.7.1 在栈上光明正大的工作</h4>
+
+<p>因为thread_info在栈末端，栈溢出是会损害这个数据，进行动态分配(new)是比较适用于大块内存的分配。动态分配内存是一种明智的选择。</p>
+
+<h3 id="128-高端内存的映射">12.8 高端内存的映射</h3>
+
+<p>高端内存的页不能永久地映射到内核地址空间上。因此，通过alloc_pages()函数以<code class="language-plaintext highlighter-rouge">__GFP_HIGHMEM</code>标志获得的页不可能有逻辑地址。</p>
+
+<h4 id="1281-永久映射">12.8.1 永久映射</h4>
+
+<p>使用<code class="language-plaintext highlighter-rouge">void *kmap(struct page *page)</code>函数映射给定的page到内核地址空间。如果是低端则会返回该页的虚拟地址；如果是高端则会建立一个永久映射，再返回地址。函数可以睡眠。可以使用<code class="language-plaintext highlighter-rouge">void kunmap(struct page *page)</code>解除对应的映射。</p>
+
+<h4 id="1282-临时映射">12.8.2 临时映射</h4>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/zhanghaiyang9999/article/details/82143032">Linux kmap和kmap_atomic解析</a>;<a href="https://www.cnblogs.com/linhaostudy/p/10206300.html">高端内存映射之kmap_atomic固定映射–Linux内存管理(二十一)
+</a>;<a href="https://www.cnblogs.com/liuxiaoming/p/3219682.html">linux内存映射</a></p>
+
+<p>kernel 可以原子地映射一个高端内存页到 kernel 中的保留映射集中的一个，此保留映射集也是专门用于中断上下文等不能睡眠的地方映射高端内存页的需要。</p>
+
+<p>临时映射，不能睡眠，绝对不会阻塞；通过下列函数建立一个临时映射：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 建立临时映射 */</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">kmap_atomic</span><span class="p">(</span><span class="k">struct</span> <span class="n">page</span> <span class="o">*</span><span class="n">page</span><span class="p">,</span><span class="k">enum</span> <span class="n">km_type</span> <span class="n">type</span><span class="p">);</span>
+<span class="cm">/* 同下列函数取消映射 */</span>
+<span class="kt">void</span> <span class="nf">kunmap_atomic</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">kvaddr</span><span class="p">,</span><span class="k">enum</span> <span class="n">km_type</span> <span class="n">type</span><span class="p">);</span>
+</code></pre></div></div>
+<p>kernel可以在多个cpu上同时运行不同的task，然而它们共同使用一个内存地址空间，也就是说，地址空间对于多个cpu看到的是同一个，kmap_atomic使用的是地址空间顶部的一小段地址空间，内核逻辑将这一小段地址空间分成了若干个节，每一节的大小是一个page的大小，可以用来映射一个page，根据公用地址空间的原理，所有的cpu共同使用这些节，因此如何能保证N个cpu调用kmap_atomic不会将page映射到一个地址呢？这就是这个数学公式所起的作用：
+idx = type + KM_TYPE_NR*smp_processor_id();
+vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+其中KM_TYPE_NR代表type的最大值加1：</p>
+
+<p><img src="https://images0.cnblogs.com/blog/215944/201307/27200819-58ab448ef15440e98c97941e234a76f2.jpg" alt="页框管理图"></p>
+
+<h3 id="129-每个cpu的分配">12.9 每个CPU的分配</h3>
+
+<p>每个CPU上的数据，对于给定的处理器其数据是唯一的。每个CPU的数据存放在一个数组中。数组中的每一项对应着系统上一个存在的处理器。按照当前处理器号确定这个数组的当前元素。访问数据的方式如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">cpu</span><span class="p">;</span>
+<span class="cm">/* 获取当前处理器，并禁止内核抢占 */</span>
+<span class="n">cpu</span><span class="o">=</span><span class="n">get_cpu</span><span class="p">();</span>
+<span class="cm">/* 获取数据 */</span>
+<span class="n">my_percpu</span><span class="p">[</span><span class="n">cpu</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+<span class="n">printk</span><span class="p">(</span><span class="s">"my_percpu on cpu=%d is %lu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">cpu</span><span class="p">,</span><span class="n">my_percpu</span><span class="p">(</span><span class="n">cpu</span><span class="p">));</span>
+<span class="cm">/* 激活内核抢占 */</span>
+<span class="n">put_cpu</span><span class="p">();</span>
+</code></pre></div></div>
+
+<h3 id="1210-新的每个cpu接口">12.10 新的每个CPU接口</h3>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/wh8_2011/article/details/53138377">linux percpu机制解析</a>;<a href="http://www.wowotech.net/linux_kenrel/per-cpu.html">Linux内核同步机制之（二）：Per-CPU变量</a></p>
+
+<p>操作系统创建percpu接口定义在<code class="language-plaintext highlighter-rouge">linux/percpu.h</code>中；声明了所有的接口操作例程，可以在文件<code class="language-plaintext highlighter-rouge">mm/slab.c</code>和<code class="language-plaintext highlighter-rouge">asm/percpu.h</code>中找到他们的定义。</p>
+
+<h4 id="12101-编译时每个cpu数据">12.10.1 编译时每个CPU数据</h4>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 定义每个CPU变量 */</span>
+<span class="n">DEFINE_PER_CPU</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="n">name</span><span class="p">);</span>
+<span class="cm">/* 声明变量 */</span>
+<span class="n">DECLARE_PER_CPU</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="n">name</span><span class="p">);</span>
+<span class="cm">/* 返回当前cpu的值并++ */</span>
+<span class="n">get_cpu_var</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+<span class="cm">/* 增加指定处理器上的数据 */</span>
+<span class="n">per_cpu</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">cpu</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+<span class="cm">/* 完成，重新激活内核抢占 */</span>
+<span class="n">put_cpu_var</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<p>注意：per_cpu函数既不会禁止内核抢占，也不会提供任何形式上的锁。</p>
+
+<h4 id="12102-运行时的每个cpu数据">12.10.2 运行时的每个CPU数据</h4>
+
+<p>相关原型定义在文件<code class="language-plaintext highlighter-rouge">linux/percpu.h</code>中</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 宏为，系统中的每个处理器分配一个指定类型对象的实例 */</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">allocate_perccpu</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">__alloc_percpu</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span><span class="kt">size_t</span> <span class="n">align</span><span class="p">);</span>
+<span class="cm">/* 释放内存 */</span>
+<span class="kt">void</span> <span class="nf">free_percpu</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="p">);</span>
+</code></pre></div></div>
+<p>下面是一个简单的使用</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="o">*</span><span class="n">percpu_ptr</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">foo</span><span class="p">;</span>
+<span class="n">percpu_ptr</span><span class="o">=</span><span class="n">alloc_precpu</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">ptr</span><span class="p">)</span>
+  <span class="cm">/* 内存分配错误... */</span>
+<span class="n">foo</span><span class="o">=</span><span class="n">get_cpu_var</span><span class="p">(</span><span class="n">percpu_ptr</span><span class="p">);</span>
+<span class="cm">/* 操作foo ... */</span>
+
+<span class="cm">/* 重新释放锁 */</span>
+<span class="n">put_cpu_var</span><span class="p">(</span><span class="n">percpu_ptr</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="1211-使用每个cpu数据的原因">12.11 使用每个CPU数据的原因</h3>
+
+<p>可以有效减少，数据锁定。方便梳理器快速访问内存。</p>
+
+<h3 id="1212-分配函数的选择">12.12 分配函数的选择</h3>
+
+<p>需要连续物理内存，可以使用某个低级页分配器或者<code class="language-plaintext highlighter-rouge">kmalloc()</code>；</p>
+
+<p>高端内存分配，使用<code class="language-plaintext highlighter-rouge">alloc_pages()</code>
+虚拟内存使用<code class="language-plaintext highlighter-rouge">vmalloc()</code>函数</p>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/10/24/interview/" data-toggle="tooltip" data-placement="top" title="武海拾遗录">
+                        Previous<br>
+                        <span>武海拾遗录</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/10/24/linux_kernel_development_04/" data-toggle="tooltip" data-placement="top" title="Linux内核设计与实现 学习笔记 (四)">
+                        Next<br>
+                        <span>Linux内核设计与实现 学习笔记 (四)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

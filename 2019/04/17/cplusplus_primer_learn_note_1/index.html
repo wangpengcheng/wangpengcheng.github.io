@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer  学习笔记 (一) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/04/17/cplusplus_primer_learn_note_1/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                    </div>
+                    <h1>C++ Primer  学习笔记 (一)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer  学习记录 (一)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on April 17, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h1 id="c-primer学习笔记">C++ Primer学习笔记</h1>
+<blockquote>
+  <p>2019-4-17 12:31:29 编写记录如下；</p>
+</blockquote>
+
+<h2 id="第1章-开始">第1章 开始</h2>
+<h3 id="stdcin-中的循环流使用">std::cin 中的循环流使用</h3>
+<p><em>参考链接：</em><a href="https://bbs.csdn.net/topics/390809866">while(cin » num)循环输入问题</a><a href="https://blog.csdn.net/imkelt/article/details/51925479">C++ cin输入流 详细用法</a>;<a href="https://www.nowcoder.com/discuss/35189">C++怎么解决输入两行数据的</a>;<a href="https://www.cnblogs.com/zhuruibi/p/9458107.html">C++从键盘读入数组并存储</a></p>
+
+<p>C++ 中可以使用<code class="language-plaintext highlighter-rouge">while(std::cin &gt;&gt; value){//Code }</code>的方式来进行循环数据的读入，直到没有输出为止；示例代码如下：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/*
+输入样例： 3 4 5 6
+输出 ： Sum is :18
+ */</span>
+
+<span class="cp">#inlude &lt;iostream&gt;
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="c1">//循环读取数据</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">value</span><span class="p">){</span>
+        <span class="n">sm</span><span class="o">+=</span><span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">out</span><span class="o">&lt;&lt;</span><span class="s">"Sum is:"</span><span class="o">&lt;&lt;</span><span class="n">sum</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">:</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>注意：</p>
+
+<ul>
+  <li>当键盘向程序中输入数据时，对于文件结束；Windows是<code class="language-plaintext highlighter-rouge">Ctrl+Z</code>然后 <code class="language-plaintext highlighter-rouge">Enter</code>或者<code class="language-plaintext highlighter-rouge">Return</code>;UNIX 中是<code class="language-plaintext highlighter-rouge">Ctrl+D</code> 然后再加<code class="language-plaintext highlighter-rouge">enter</code>;</li>
+  <li>当缓冲区中有残留数据时，<code class="language-plaintext highlighter-rouge">std::cin</code>会直接去读取缓冲区的数据而不会请求键盘输入。重要的是，回车符也会被存在输入缓冲区中。</li>
+  <li>当程序中有多个等待循环输入时，需要使用<code class="language-plaintext highlighter-rouge">cin.clear()</code>来重置循环状态，方便再次输入;</li>
+</ul>
+
+<h1 id="第二章-变量和基本类型">第二章 变量和基本类型</h1>
+
+<h2 id="c变量和基本类型">C++变量和基本类型</h2>
+<h3 id="c中的基本类型">C++中的基本类型</h3>
+<p><em>参考链接：</em><a href="https://blog.csdn.net/zcyzsy/article/details/77935651">C/C++中基本数据类型所占内存大小</a>;<a href="https://blog.csdn.net/yimingsilence/article/details/54730438">C/C++中基本数据类型在不同系统中所占空间大小</a>;</p>
+
+<p>C++中定义了算术类型(arithmetic type)和空类型(void)在内的基础数据结构算术类型表如下：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">类型</th>
+      <th style="text-align: center">含义</th>
+      <th style="text-align: center">最小尺寸</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">bool</td>
+      <td style="text-align: center">布尔类型</td>
+      <td style="text-align: center">未定义</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">char</td>
+      <td style="text-align: center">centered</td>
+      <td style="text-align: center">8位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">wchart_t</td>
+      <td style="text-align: center">宽字符</td>
+      <td style="text-align: center">16位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">chart16_t</td>
+      <td style="text-align: center">Unicode字符</td>
+      <td style="text-align: center">16位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">chart32_t</td>
+      <td style="text-align: center">Unicode字符</td>
+      <td style="text-align: center">32位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">short</td>
+      <td style="text-align: center">短整型</td>
+      <td style="text-align: center">16位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">int</td>
+      <td style="text-align: center">整型</td>
+      <td style="text-align: center">16位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">long</td>
+      <td style="text-align: center">长整型</td>
+      <td style="text-align: center">32位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">long long</td>
+      <td style="text-align: center">长整型</td>
+      <td style="text-align: center">64位</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">float</td>
+      <td style="text-align: center">单精度浮点数</td>
+      <td style="text-align: center">6位有效数字</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">double</td>
+      <td style="text-align: center">双精度浮点数</td>
+      <td style="text-align: center">10位有效数字</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">long double</td>
+      <td style="text-align: center">扩展精度浮点数</td>
+      <td style="text-align: center">10位有效数字</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ul>
+  <li>关于不同类型，字节内存分配的问题，不同的操作系统存在不同的内存分配策略；因此不一定按照上面的进行分配(倍数规则和整圆规则)；详细内容参看参考链接。</li>
+  <li>对于C++中的字节对齐内容需要重点考虑(<a href="https://blog.csdn.net/sweetfather/article/details/78487563">C++ 字节对齐的总结(原因和作用)</a>;<a href="https://blog.csdn.net/chengonghao/article/details/51674166">C/C++ 字节对齐</a>;<a href="https://www.cnblogs.com/zhao-zongsheng/p/9099603.html">从硬件到语言，详解C++的内存对齐（memory alignment）</a>);</li>
+  <li>c++中除去布尔类型和扩展的字符类型之外，其它类型可以划分为带符号的(signed)和无符号的(unsigned)两种；无符号仅能表示大于0的值。器字节内存分配也有所不同；（<a href="https://blog.csdn.net/zhenlin123/article/details/81062635">C/C++ unsigned 详细探讨</a>）;</li>
+</ul>
+
+<h3 id="c中的声明和定义">C++中的声明和定义</h3>
+<p>C++中使用分离式编译机制，允许每个文件被单独编译；为了支持这种模式；C++语言将声明和定义区分开来；声明(declaration) 使得名字为程序所知；定义（definition）负责创建与名字关联的实体。
+如果想要声明一个变量而非定义它，就在变量名字前添加关键字<code class="language-plaintext highlighter-rouge">extern</code>;而且不要显示的初始化变量：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">extern</span> <span class="kt">int</span> <span class="n">i</span> <span class="p">;</span><span class="c1">//声明i 而非定义i</span>
+
+<span class="kt">int</span> <span class="n">j</span><span class="p">;</span><span class="c1">//声明并定义j</span>
+</code></pre></div></div>
+<h3 id="c中的类型转换">C++中的类型转换：</h3>
+<p>C++中的类型转换分为显式转换和隐式转换2种；显式转换直接在代码中注明其转换类型;如<code class="language-plaintext highlighter-rouge">double a=1.002;int i=(int)a;</code>将类型进行显式转换；同时也存在隐式转换；如<code class="language-plaintext highlighter-rouge">int i=10/1.0</code>;其中<code class="language-plaintext highlighter-rouge">10/1.0</code>即包含隐式的<code class="language-plaintext highlighter-rouge">int</code>到<code class="language-plaintext highlighter-rouge">double</code>的转换，<code class="language-plaintext highlighter-rouge">=</code>又进行了一次<code class="language-plaintext highlighter-rouge">double</code>到<code class="language-plaintext highlighter-rouge">int</code>的隐式转换；隐式转换在编码规范中不推荐；应该劲量使用显式转换；</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">bool</span> <span class="n">b</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>      <span class="c1">//b为真</span>
+
+<span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">b</span><span class="p">;</span>        <span class="c1">//i的值为1</span>
+
+<span class="n">i</span><span class="o">=</span><span class="mf">3.14</span><span class="p">;</span>         <span class="c1">//i的值为3</span>
+
+<span class="kt">double</span> <span class="n">pi</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>    <span class="c1">//pi的值为3.0</span>
+
+<span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">c</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="c1">//假设char占a比特，c的值为255</span>
+
+<span class="kt">signed</span> <span class="kt">char</span> <span class="n">c2</span><span class="o">=</span><span class="mi">256</span><span class="p">;</span> <span class="c1">//假设char:占8比特，c2的值是未定义的</span>
+</code></pre></div></div>
+<ul>
+  <li>当数字加减超过数据类型的取值范围的时候，就会按照位运算进行取模，输出结果是取模之后的结果（<a href="https://blog.csdn.net/eastlhu/article/details/72809256">C++ 带符号和无符号char类型赋值超出表示范围的情况</a>）；</li>
+</ul>
+
+<p>例如：8比特大小的unsigned char可以表示0至255区间内的值，如果我们赋了一个区间以外的值，则实际的结果是该值对256（总数）取模后所得的余数。
+因此，把-1赋给8比特大小的unsigned char所得的结果是255，使用2种方法计算：</p>
+
+<blockquote>
+  <p>有整数a和b，a对b进行取模或取余运算</p>
+
+  <p>1、求整数商：c=a/b</p>
+
+  <ul>
+    <li>取模运算在计算商值向负无穷方向舍弃小数位</li>
+    <li>取余运算在计算商值向0方向舍弃小数位</li>
+  </ul>
+
+  <p>2、计算模或者余数：r=a-(c*b)</p>
+
+  <ul>
+    <li>取模运算遵循尽可能让商小，取余运算遵循尽可能让余数的绝对值小。因此，取模和取余的结果不同。</li>
+    <li>mod为取模，rem为取余，取模和取余所得的结果在a和b(同为整数) 符号相同 的时候是相等的</li>
+    <li>当a和b符号一致时，求模运算和求余运算所得的c的值一致，因此结果一致。但是当符号不一致的时候，结果不一样。</li>
+    <li>具体来说，求模运算结果的符号和b一致，求余运算结果的符号和a一致</li>
+  </ul>
+</blockquote>
+
+<p>在本例中，将-1和256带入a和b，c=-1/256，向负无穷方向舍弃小数得-1，计算得r=255.</p>
+<blockquote>
+  <p>计算机中带符号的整数采用二进制的补码进行存储;
+正数的补码等于其二进制编码;
+负数的补码等于其绝对值的二进制编码，取反，再加1;
+在本例中，-1的绝对值是1，二进制编码为0000 0001，取反加1就是1111 1111;
+unsigned是无符号数，会把1111 1111看成正数，刚好是255的二进制编码。</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kt">unsigned</span> <span class="n">u</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">i</span><span class="o">=-</span><span class="mi">42</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">i</span><span class="o">+</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//正确：输出32</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">u</span><span class="o">+</span><span class="n">i</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">//如果int占32位，输出4294967264</span>
+<span class="c1">//上面讲-42转化为unsigned int 负数转化为无符号函数，类似于直接给无符号数赋值一个负值；等于这个负数加上无符号数的模。  </span>
+
+<span class="kt">unsigned</span> <span class="n">ul</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span><span class="n">u2</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">u1</span><span class="o">-</span><span class="n">u2</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="c1">//正确：输出32；</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">u2</span><span class="o">-</span><span class="n">u1</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="c1">//正确：不过，结果是取模后的值；</span>
+
+</code></pre></div></div>
+
+<p>GCC编译器32位机和64位机各个类型变量所占字节数</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">C类型</th>
+      <th style="text-align: left">32位机器(字节)</th>
+      <th style="text-align: left">64位机器(字节)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">char</code></td>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left">1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">short</code></td>
+      <td style="text-align: left">2</td>
+      <td style="text-align: left">2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">int</code></td>
+      <td style="text-align: left">4</td>
+      <td style="text-align: left">4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">long int</code></td>
+      <td style="text-align: left">4</td>
+      <td style="text-align: left">8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">long long</code></td>
+      <td style="text-align: left">8</td>
+      <td style="text-align: left">8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">char *</code></td>
+      <td style="text-align: left">4</td>
+      <td style="text-align: left">8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">float</code></td>
+      <td style="text-align: left">4</td>
+      <td style="text-align: left">4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">double</code></td>
+      <td style="text-align: left">8</td>
+      <td style="text-align: left">8</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="字面常量值">字面常量值：</h3>
+<p>字面常量值就是常量；如<code class="language-plaintext highlighter-rouge">10/*十进制*/</code>；<code class="language-plaintext highlighter-rouge">014/*八进制*/</code>；<code class="language-plaintext highlighter-rouge">0x14/*十六进制*/</code>；包含整数和字符；C++11标准中允许使用<code class="language-plaintext highlighter-rouge">{}</code>进行数据对象的初始化，但是C++98中并不允许；例</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span> <span class="o">&gt;</span> <span class="n">main_test</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">};</span>
+</code></pre></div></div>
+<h3 id="c中的关键字">C++中的关键字</h3>
+<p><em>参考链接：</em> <a href="https://blog.csdn.net/scmuzi18/article/details/53696778">C++关键字详解</a>;</p>
+
+<p>C++中存在预定义的关键字；如下图所示</p>
+
+<p><img src="https://wangpengcheng.github.io/img/cplusplus_key_words.png" alt="C++关键字表格"></p>
+
+<p>注：上表中为C++98/03中的63个关键字，其中红色标注为C语言中的32个关键字。C++11中有73个关键字，新增加的10个为：<code class="language-plaintext highlighter-rouge">alignas、alignof、char16_t、char32_t、constexpr、decltype、noexpect、nullptr、static_assert、thread_local</code></p>
+
+<ol>
+  <li>asm
+   _asm是一个语句的分隔符。不能单独出现，必须接汇编指令。一组被大括号包含的指令或一对空括号。
+例：
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="n">_asm</span>
+<span class="p">{</span>
+  <span class="n">mov</span> <span class="n">al</span><span class="p">,</span><span class="mi">2</span>
+  <span class="n">mov</span> <span class="n">dx</span><span class="p">,</span><span class="mh">0xD007</span>
+  <span class="n">out</span> <span class="n">al</span><span class="p">,</span><span class="n">dx</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+    <p>也可以在每个汇编指令前加<code class="language-plaintext highlighter-rouge">_asm</code></p>
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>  <span class="n">_asm</span> <span class="n">mov</span> <span class="n">al</span><span class="p">,</span><span class="mi">2</span>
+  <span class="n">_asm</span> <span class="n">mov</span> <span class="n">dx</span><span class="p">,</span><span class="mh">0xD007</span>
+  <span class="n">_asm</span> <span class="n">out</span> <span class="n">al</span><span class="p">,</span><span class="n">dx</span>
+</code></pre></div>    </div>
+  </li>
+  <li>auto 
+   auto关键字会根据初始值自动推断变量的数据类型。不是每个编译器都支持auto。
+   例：
+    <div class="language-c++ highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="k">auto</span> <span class="err"> </span><span class="n">x</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span> <span class="err"> </span><span class="c1">//使用整数7对变量x进行初始化，可推断x为int型。</span>
+
+ <span class="k">auto</span> <span class="err"> </span><span class="n">y</span><span class="o">=</span><span class="mf">1.234</span><span class="p">;</span> <span class="err"> </span><span class="c1">//使用浮点数1.234对变量y进行初始化，可推断y为double型。</span>
+</code></pre></div>    </div>
+  </li>
+  <li>*_cast
+   即 <code class="language-plaintext highlighter-rouge">const_cast</code>、<code class="language-plaintext highlighter-rouge">dynamic_cast</code>、<code class="language-plaintext highlighter-rouge">reinterpret_cast</code>、<code class="language-plaintext highlighter-rouge">static_cast</code>。
+   C++类型风格来性转换。<code class="language-plaintext highlighter-rouge">const_cast</code>删除const变量的属性，方便赋值；<code class="language-plaintext highlighter-rouge">dynamic_cast</code>用于将一个父类对象的指针转换为子类对象的指针或引用；<code class="language-plaintext highlighter-rouge">reinterpret_cast</code>将一种类型转换为另一种不同的类型；<code class="language-plaintext highlighter-rouge">static_cast</code>用于静态转换，任何转换都可以用它，但他不能用于两个不相关的类型转换。</li>
+  <li><code class="language-plaintext highlighter-rouge">bool、true、false</code></li>
+</ol>
+
+<p><code class="language-plaintext highlighter-rouge">bool</code>即为布尔类型，属于基本类型中的整数类型，取值为真和假。<code class="language-plaintext highlighter-rouge">true</code>和<code class="language-plaintext highlighter-rouge">false</code>是具有布尔类型的字面量，为右值，即表示真和假。
+注<code class="language-plaintext highlighter-rouge">：</code>字面量<code class="language-plaintext highlighter-rouge">：</code>用于表达源代码中一个固定值的表示法。</p>
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">break</code>、<code class="language-plaintext highlighter-rouge">cotinue</code>、<code class="language-plaintext highlighter-rouge">goto</code> 
+   <code class="language-plaintext highlighter-rouge">break</code>用于跳出<code class="language-plaintext highlighter-rouge">for</code>、<code class="language-plaintext highlighter-rouge">while</code>循环或<code class="language-plaintext highlighter-rouge">switch</code>语句。<code class="language-plaintext highlighter-rouge">continue</code>用于调到一个循环的起始位置。goto用于无条件跳转到函数内得标号处。一般情况不建议使用<code class="language-plaintext highlighter-rouge">goto</code>，风险较大。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">switch</code>、<code class="language-plaintext highlighter-rouge">case</code>、<code class="language-plaintext highlighter-rouge">default</code>
+   <code class="language-plaintext highlighter-rouge">switch</code>分支语句的起始，根据<code class="language-plaintext highlighter-rouge">switch</code>条件跳转到<code class="language-plaintext highlighter-rouge">case</code>标号或<code class="language-plaintext highlighter-rouge">defalut</code>标记的分支上。</p>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">catch</code>、<code class="language-plaintext highlighter-rouge">throw</code>、<code class="language-plaintext highlighter-rouge">try</code>
+   用于异常处理。<code class="language-plaintext highlighter-rouge">try</code>指定<code class="language-plaintext highlighter-rouge">try</code>块的起始，<code class="language-plaintext highlighter-rouge">try</code>块后的<code class="language-plaintext highlighter-rouge">catch</code>可以捕获异常。异常由<code class="language-plaintext highlighter-rouge">throw</code>抛出。<code class="language-plaintext highlighter-rouge">throw</code>在函数中还表示动态异常规范。
+8、<code class="language-plaintext highlighter-rouge">char</code>、<code class="language-plaintext highlighter-rouge">wchar_t</code>
+   表示字符型和宽字符型这些整数类型（属于基本类型），但一般只专用于表示字符。<code class="language-plaintext highlighter-rouge">char</code>（和<code class="language-plaintext highlighter-rouge">signed char</code>、<code class="language-plaintext highlighter-rouge">unsigned char</code>一起）事实上定义了字节的大小。<code class="language-plaintext highlighter-rouge">char</code>表示单字节字符，<code class="language-plaintext highlighter-rouge">wchar_t</code>表示多字节字符。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">const</code>、<code class="language-plaintext highlighter-rouge">volatile</code>
+   <code class="language-plaintext highlighter-rouge">const</code>和<code class="language-plaintext highlighter-rouge">volatile</code>是类型修饰符，语法类似，用于变量或函数参数声明，也可以限制非静态成员函数。<code class="language-plaintext highlighter-rouge">const</code>表示只读类型（指定类型安全性，保护对象不被意外修改），<code class="language-plaintext highlighter-rouge">volatile</code>指定被修饰的对象类型的读操作是副作用（因此读取不能被随便优化合并，适合映射I/O寄存器等）。
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">volatile</code>:
+        <ul>
+          <li>当读取一个变量时，为提高存取速度，编译器优化时有时会先把变量读取到一个寄存器中，以后再取变量值时，就直接从寄存器中取值。</li>
+          <li>优化器在用到<code class="language-plaintext highlighter-rouge">volatile</code>变量时必须每次都小心地重新读取这个变量的值，而不是使用保存到寄存器里的备份。
+ <code class="language-plaintext highlighter-rouge">volatile</code>适用于多线程应用中被几个任务共享的变量。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">struct</code>、<code class="language-plaintext highlighter-rouge">class</code>、<code class="language-plaintext highlighter-rouge">union</code>
+  用于类型声明。<code class="language-plaintext highlighter-rouge">class</code>是一般的类类型。<code class="language-plaintext highlighter-rouge">struct</code>在C++中是特殊的类类型，声明中仅默认隐式的成员和基类访问限定与<code class="language-plaintext highlighter-rouge">class</code>不同（<code class="language-plaintext highlighter-rouge">struct</code>是<code class="language-plaintext highlighter-rouge">public</code>，<code class="language-plaintext highlighter-rouge">class</code>是<code class="language-plaintext highlighter-rouge">private</code>）。<code class="language-plaintext highlighter-rouge">union</code>是联合体类型。满足特定条件类类型——<code class="language-plaintext highlighter-rouge">POD struct</code>或<code class="language-plaintext highlighter-rouge">POD union</code>可以和C语言中的<code class="language-plaintext highlighter-rouge">struct</code>和<code class="language-plaintext highlighter-rouge">union</code>对应兼容。
+注：POD类型（Plain Old Data）,plain—代表普通类型，old—代表可以与C语言兼容。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">new</code>、<code class="language-plaintext highlighter-rouge">delete</code>
+   <code class="language-plaintext highlighter-rouge">new</code>、<code class="language-plaintext highlighter-rouge">delete</code>属于操作符，可以被重载。<code class="language-plaintext highlighter-rouge">new</code>表示向内存申请一段新的空间，申请失败会抛出异常。<code class="language-plaintext highlighter-rouge">new</code>会先调用<code class="language-plaintext highlighter-rouge">operator new</code>函数，再在<code class="language-plaintext highlighter-rouge">operator new</code>函数里调用<code class="language-plaintext highlighter-rouge">malloc</code>函数分配空间，然后再调构造函数。<code class="language-plaintext highlighter-rouge">delete</code>不仅会清理资源，还会释放空间。<code class="language-plaintext highlighter-rouge">delete</code>县调用析构函数，其次调用<code class="language-plaintext highlighter-rouge">operator delete</code>函数，最后在<code class="language-plaintext highlighter-rouge">operator delete</code>函数里面调用<code class="language-plaintext highlighter-rouge">free</code>函数。<code class="language-plaintext highlighter-rouge">malloc</code>申请内存失败会返回空。<code class="language-plaintext highlighter-rouge">free</code>只是清理了资源，并没有释放空间。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">do</code>、<code class="language-plaintext highlighter-rouge">for</code>、<code class="language-plaintext highlighter-rouge">while</code>
+  循环语句的组成部分，C和C++都支持这3种循环。</li>
+  <li>数值类型，如 <code class="language-plaintext highlighter-rouge">int</code>、<code class="language-plaintext highlighter-rouge">double</code>、<code class="language-plaintext highlighter-rouge">float</code>、<code class="language-plaintext highlighter-rouge">short</code>、<code class="language-plaintext highlighter-rouge">long</code>、<code class="language-plaintext highlighter-rouge">signed</code>、<code class="language-plaintext highlighter-rouge">unsigned</code>
+　　<code class="language-plaintext highlighter-rouge">signed</code>和<code class="language-plaintext highlighter-rouge">unsigned</code>作为前缀修饰整数类型，分别表示有符号和无符号。<code class="language-plaintext highlighter-rouge">signed</code>和<code class="language-plaintext highlighter-rouge">unsigned</code>修饰<code class="language-plaintext highlighter-rouge">char</code>类型，构成<code class="language-plaintext highlighter-rouge">unsigned char</code>和<code class="language-plaintext highlighter-rouge">signed char</code>，和<code class="language-plaintext highlighter-rouge">char</code>都不是相同的类型；不可修饰<code class="language-plaintext highlighter-rouge">wchar_t</code>、<code class="language-plaintext highlighter-rouge">char16_t</code>和<code class="language-plaintext highlighter-rouge">char32_t</code>。其它整数类型的<code class="language-plaintext highlighter-rouge">signed</code>省略或不省略，含义不变。<code class="language-plaintext highlighter-rouge">signed</code>或<code class="language-plaintext highlighter-rouge">unsigned</code>可单独作为类型，相当于<code class="language-plaintext highlighter-rouge">signed int</code>和<code class="language-plaintext highlighter-rouge">unsigned int</code>。
+　　<code class="language-plaintext highlighter-rouge">double</code>和<code class="language-plaintext highlighter-rouge">float</code>专用于浮点数，<code class="language-plaintext highlighter-rouge">double</code>表示双精度，精度不小于<code class="language-plaintext highlighter-rouge">float</code>表示的浮点数。<code class="language-plaintext highlighter-rouge">long double</code>则是C++11指定的精度不小于<code class="language-plaintext highlighter-rouge">double</code>的浮点数。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">if</code>和<code class="language-plaintext highlighter-rouge">else</code>
+   条件语句的组成部分。if表示条件，之后else表示否定分支。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">enum</code>
+  构成枚举类型名的关键字。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">explicit</code>
+    该关键字的作用就是避免自定义类型隐式转换为类类型。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">export</code>
+　　使用该关键字可实现模板函数的外部调用。对模板类型，可以在头文件中声明模板类和模板函数；在代码文件中，使用关键字export来定义具体的模板类对象和模板函数；然后在其他用户代码文件中，包含声明头文件后，就可以使用该这些对象和函数。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">extern</code>
+  当出现<code class="language-plaintext highlighter-rouge">extern "C"</code>时，表示 <code class="language-plaintext highlighter-rouge">extern "C"</code>之后的代码按照C语言的规则去编译；当<code class="language-plaintext highlighter-rouge">extern</code>修饰变量或函数时，表示其具有外部链接属性，即其既可以在本模块中使用也可以在其他模块中使用。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">friend</code>
+  友元。使其不受访问权限控制的限制。例如，在1个类中，私有变量外部是不能直接访问的。可是假如另外1个类或函数要访问本类的1个私有变量时，可以把这个函数或类声明为本类的友元函数或友元类。这样他们就可以直接访问本类的私有变量。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">inline</code>
+ 内联函数，在编译时将所调用的函数代码直接嵌入到主调函数中。各个编译器的实现方式可能不同。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mutable</code>
+　　<code class="language-plaintext highlighter-rouge">mutable</code>也是为了突破<code class="language-plaintext highlighter-rouge">const</code>的限制而设置的。被<code class="language-plaintext highlighter-rouge">mutable</code>修饰的变量，将永远处于可变的状态，即使在一个<code class="language-plaintext highlighter-rouge">const</code>函数中。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">namespace</code>
+　　C++标准程序库中的所有标识符都被定义于一个名为<code class="language-plaintext highlighter-rouge">std</code>的<code class="language-plaintext highlighter-rouge">namespace</code>中。命名空间除了系统定义的名字空间之外，还可以自己定义，定义命名空间用关键字<code class="language-plaintext highlighter-rouge">namespace</code>，使用命名空间时用符号<code class="language-plaintext highlighter-rouge">::</code>指定。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">operator</code>　　
+   和操作符连用，指定一个重载了的操作符函数，比如，operator+。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">public</code>、<code class="language-plaintext highlighter-rouge">protected</code>、<code class="language-plaintext highlighter-rouge">private</code>
+   这三个都为权限修饰符。<code class="language-plaintext highlighter-rouge">public</code>为公有的，访问不受限制；<code class="language-plaintext highlighter-rouge">protected</code>为保护的，只能在本类和友元中访问；<code class="language-plaintext highlighter-rouge">private</code>为私有的，只能在本类、派生类和友元中访问。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">register</code>
+　　提示编译器尽可能把变量存入到CPU内部寄存器中。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">return</code>：<code class="language-plaintext highlighter-rouge">return</code>表示从被调函数返回到主调函数继续执行，返回时可附带一个返回值，由return后面的参数指定。return通常是必要的，因为函数调用的时候计算结果通常是通过返回值带出的。如果函数执行不需要返回计算结果，也经常需要返回一个状态码来表示函数执行的顺利与否（-1和0就是最常用的状态码），主调函数可以通过返回值判断被调函数的执行情况.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">static</code>：可修饰变量（静态全局变量，静态局部变量），也可以修饰函数和类中的成员函数。static修饰的变量的周期为整个函数的生命周期。具有静态生存期的变量，只在函数第一次调用时进行初始化，在没有显示初始化的情况下，系统把他们初始化微0.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">sizeof</code>
+   返回类型名或表达式具有的类型对应的大小。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">template</code>
+    声明一个模板，模板函数，模板类等。模板的特化。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">this</code>
+    每个类成员函数都隐含了一个<code class="language-plaintext highlighter-rouge">this</code>指针，用来指向类本身。<code class="language-plaintext highlighter-rouge">this</code>指针一般可以省略。但在赋值运算符重载的时候要显示使用。静态成员函数没有<code class="language-plaintext highlighter-rouge">this</code>指针。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">typedef</code>
+    <code class="language-plaintext highlighter-rouge">typedef</code>声明，为现有数据类型创建一个新的名字。便于程序的阅读和编写。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">virtual</code>
+    声明虚基类，虚函数。虚函数=0时，则为纯虚函数，纯虚函数所在的类称为抽象类。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">typeid</code>
+    <code class="language-plaintext highlighter-rouge">typeid</code>是一个操作符，返回结果为标准库种类型的引用。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">typename</code>
+    <code class="language-plaintext highlighter-rouge">typename</code>关键字告诉编译器把一个特殊的名字解释为一个类型。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">using</code>
+     (1)、在当前文件引入命名空间，例<code class="language-plaintext highlighter-rouge">using namespace std</code>;
+     (2)、在子类中使用，<code class="language-plaintext highlighter-rouge">using</code>声明引入基类成员名称。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">void</code>
+    特殊的”空”类型，指定函数无返回值或无参数。</li>
+</ol>
+
+<h3 id="复合类型">复合类型</h3>
+<p>C++中的复合类型是指基于其他类型定义的类型；C++语言中基本的复合类型有：引用(&amp;)和指针(*);</p>
+
+<p>引用(&amp;)主要是为对象起了另外一个名字；注意引用类型的初始值必须是一个对象。</p>
+<h4 id="指针">指针</h4>
+<p>指针(*)也是间接指向另外一种类型的复合类型；但其相对引用有一下不同点：
+    * 指针本身是一个对象，允许对指针赋值和拷贝;而且在指针的声明周期内它可以先后指向几个不同的对象
+    * 指针无需在定义时赋值。和其它的内置类型一样，在块作用域内定义的指针如果没有初始化，也将拥有一个不确定的值。
+指针操作中<code class="language-plaintext highlighter-rouge">&amp;</code>操作符，表示取地址作用</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">int</span> <span class="n">ival</span><span class="o">=</span><span class="mi">42</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">p</span><span class="o">=&amp;</span><span class="n">ival</span><span class="p">;</span><span class="c1">//p存放变量ival的地址,即p指针指向ival;</span>
+
+</code></pre></div></div>
+<p>指针的值：</p>
+<ol>
+  <li>指向一个对象</li>
+  <li>指向紧邻对象所占空间的下一个位置</li>
+  <li>空指针，意味着指针没有指向任何对象</li>
+  <li>无效指针，上述情况之外的其它值。
+注意：</li>
+  <li>如果指针指向了一个对象；则允许使用解应用符<code class="language-plaintext highlighter-rouge">*</code>来访问对象。</li>
+  <li>对于指针变量，初始化时可以使用NULL来方便内存分配判断；但是在C++11标准中对象指针使用nullptr;对于未初始化的int 等基本数据类型可以使用NULL;</li>
+</ol>
+
+<h4 id="void-指针">void* 指针</h4>
+<p>void* 指针是C语言中的保留项目，它是一种特殊的指针类型；可以用于存放任意对象的地址；
+但是因为void* 指针的不确定性，也意味着我们无法确定能够在这个对象上进行哪些操作。
+注意：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kt">int</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">;</span><span class="c1">//p1指向int的指针；p2是int类型 </span>
+
+  <span class="kt">int</span><span class="o">**</span> <span class="n">pi</span><span class="c1">//一个指向int指针的指针</span>
+</code></pre></div></div>
+<h4 id="const-关键字">const 关键字</h4>
+<h5 id="const--int-和int-constconst-int--cosntconst-int-">const * int 和int *const、const int * cosnt、const int &amp;</h5>
+<p><em>参考链接：</em><a href="https://blog.csdn.net/itworld123/article/details/78967080">const int、const int *、int *cosnt、const int * const、const int &amp;的区别</a>;</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">int const * </code>:该指针变量指向的是常量，即该指针变量的内容可以改变，但是该内容指向的内容不可改变！;即底层const(常量指针)；（其与<code class="language-plaintext highlighter-rouge">const int *</code>相同）；</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">int *const</code>:声明该指针变量为常变量，即指针变量里面的内容不可改变，但是该内容指向的内容可以改变;即为常指针。</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">const int * cosnt</code>:指向一个内容不可变的指针，且指向对象地址不能变；</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">const int &amp;</code>:在引用前面加上const，代表该引用为常引用，即被引用的对象不可改变。若是在形参中使用，则不可达到在函数里面修改变量值的目的。</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">const</code>关键字修饰的变量会在编译的时候将定义的字符串替换掉，为了提高编译效率和防止文件冲突，默认状态下const对象仅在文件内有效；
+注意：</p>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">const</code>是变量的值无法改变（有待商榷）；<code class="language-plaintext highlighter-rouge">static</code>是指变量直接在堆上分配内存，内存不会销毁，但是值可以改变；</li>
+  <li>当某一个文件中的const变量希望它能够在其它文件之间共享的时候；即在一个问价中定义const，而在其它多个文件中使用它，需要在<code class="language-plaintext highlighter-rouge">const</code>关键字前添加<code class="language-plaintext highlighter-rouge">extern</code>关键字；</li>
+</ol>
+
+<blockquote>
+  <p>我们始终记住若const限定符在<code class="language-plaintext highlighter-rouge">*</code>之前，则const限定的是<code class="language-plaintext highlighter-rouge">*ptr</code>而不限定ptr。也就是说，ptr可以改变其所指向的对象，但不能通过该指针修改其所指向对象的值。</p>
+</blockquote>
+
+<blockquote>
+  <p>若const限定符在<code class="language-plaintext highlighter-rouge">*</code>之后，则const限定的是<code class="language-plaintext highlighter-rouge">ptr</code>而不限定<code class="language-plaintext highlighter-rouge">*ptr</code>。也就是说，ptr不可以改变其所指向的对象，但能通过该指针修改其所指向对象的值。</p>
+</blockquote>
+
+<blockquote>
+  <p>若在<em>之前有const限定符且在</em>之后也有const限定符，则ptr与*ptr都被限定。也就是说，ptr既不可以改变其所指向的对象，也不能通过该指针修改其所指向对象的值。</p>
+</blockquote>
+
+<p><strong>只要在*之后有const 限定符，则该指针在声明时必须初始化。</strong></p>
+
+<h5 id="constexpr和常量表达式">constexpr和常量表达式</h5>
+<p><strong>常量表达式:（const expression）</strong>是指不会改变并且在编译过程中就能得到计算结果的表达式；一个对象/表达式是不是常量表达式；由它的数据类型和初始值共同决定。例：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">int</span> <span class="n">max_files</span><span class="o">=</span><span class="mi">20</span><span class="p">;</span><span class="c1">//max_files 是常量表达式</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">limit</span><span class="o">=</span><span class="n">max_files</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="c1">//limit 是常量表达式</span>
+
+<span class="kt">int</span> <span class="n">staff_size</span><span class="o">=</span><span class="mi">27</span><span class="p">;</span><span class="c1">//staff_size 不是常量表达式</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">sz</span><span class="o">=</span><span class="n">get_size</span><span class="p">();</span><span class="c1">//运行时才知道值，因此不是常量；</span>
+</code></pre></div></div>
+<p><strong>constexpr变量</strong>
+C++11允许将变量声明为<code class="language-plaintext highlighter-rouge">constexpr</code>类型以便由编译器来验证变量的值是否是一个常量表达式。声明为constexpr的变量移动是一个产量，而且必须用常量表达式初始化：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">constexpr</span> <span class="kt">int</span> <span class="n">mf</span><span class="o">=</span><span class="mi">20</span><span class="p">;</span><span class="c1">//20是常量表达式</span>
+
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">limit</span><span class="o">=</span><span class="n">mf</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="c1">//mf+1是常量表达式</span>
+
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="n">sz</span><span class="o">=</span><span class="n">size</span><span class="p">();</span><span class="c1">//只有当size是一个constexpr函数时才是一条正确的声明语句</span>
+</code></pre></div></div>
+<p><strong>指针和constexpr</strong>
+在constexpr声明中如果定义了一个指针，限定符constexpr仅对指针有效，与指针所指对象无关；</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">p</span><span class="o">=</span><span class="nb">nullptr</span><span class="p">;</span><span class="c1">//p是一个指向整型常量的指针</span>
+
+<span class="k">constexpr</span> <span class="kt">int</span> <span class="o">*</span><span class="n">q</span><span class="o">=</span><span class="nb">nullptr</span><span class="p">;</span><span class="c1">//q是一个指向整数的常量指针；constexpr把她所东一的对象置为了顶层const</span>
+</code></pre></div></div>
+
+<h4 id="类型别名typedef关键字">类型别名typedef关键字</h4>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">typedef int my_int</code>:将<code class="language-plaintext highlighter-rouge">int </code>取别名为<code class="language-plaintext highlighter-rouge">my_int</code>;</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">typede 函数</code>：定义函数类型(常用语C语言中；C++慎用)；例：</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="kt">long</span> <span class="nf">SetStringPtr</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">);</span><span class="c1">//预定于函数输入输出类型</span>
+
+<span class="k">typedef</span> <span class="kt">long</span> <span class="nf">GetStringPtr</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">,</span> <span class="kt">long</span><span class="p">);</span><span class="c1">//预定于函数输入输出类型</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+   <span class="n">SetStringPtr</span> <span class="o">*</span> <span class="n">SetString</span><span class="p">;</span><span class="c1">//初始化函数指针</span>
+
+   <span class="n">GetStringPtr</span> <span class="o">*</span> <span class="n">GetString</span><span class="p">;</span><span class="c1">//初始化函数指针</span>
+   <span class="n">DWORD</span>          <span class="n">count</span><span class="p">;</span>
+   <span class="kt">char</span>           <span class="n">buffer</span><span class="p">[</span><span class="mi">80</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">IExample</span><span class="p">;</span>
+<span class="c1">//实例化函数</span>
+<span class="kt">long</span> <span class="nf">SetString</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="k">return</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">IExample</span> <span class="o">*</span> <span class="n">example</span><span class="p">;</span><span class="c1">//使用结构体对象</span>
+
+<span class="n">example</span><span class="o">-&gt;</span><span class="n">SetString</span> <span class="o">=</span> <span class="n">SetString</span><span class="p">;</span><span class="c1">//使用函数；</span>
+</code></pre></div></div>
+
+<h4 id="auto关键字">auto关键字；</h4>
+<p>auto关键字在C++11中得到了广泛使用；但是他是基于C++模板类型推断的，因此需要慎重使用；多用于循环迭代中；例：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">arc</span><span class="p">,</span><span class="kt">char</span> <span class="k">const</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">3</span><span class="p">};</span>
+    <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">temp</span> <span class="o">:</span> <span class="n">v</span><span class="p">){</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">temp</span><span class="o">&lt;&lt;</span><span class="sc">'\t'</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="decltype类型指示符">decltype类型指示符</h4>
+<p>decltype 是C++11新引入的关键字，帮助从表达式推断定义的变量的类型。
+注意：</p>
+<ol>
+  <li>decltype 处理顶层const和引用的方式与auto有些许不同；</li>
+  <li>如果decltype使用的表达式不是一个变量，则decltype返回表达式结果对应的类型，当有时返回一个引用类型的时候；表达式的结果对象，能够作为一条赋值语句的左值。</li>
+  <li>dectype((variable))(注意是双层括号)的结果永远是引用，而decltype(variable)结果只有当variable本身就是一个引用时才是。</li>
+</ol>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">int</span> <span class="n">ci</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">cj</span><span class="o">=</span><span class="n">ci</span><span class="p">;</span>
+<span class="k">decltype</span><span class="p">(</span><span class="n">cj</span><span class="p">)</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="c1">//x 类型是const int</span>
+
+<span class="k">decltype</span><span class="p">(</span><span class="n">cj</span><span class="p">)</span> <span class="n">y</span><span class="o">=</span><span class="n">x</span><span class="p">;</span><span class="c1">//y的类型是const int&amp;,y绑定到变量x</span>
+
+<span class="k">decltype</span><span class="p">(</span><span class="n">cj</span><span class="p">)</span> <span class="n">z</span><span class="p">;</span><span class="c1">//错误，z是一个引用必须初始化</span>
+
+<span class="c1">//decltype 的结果可以是引用类型</span>
+
+<span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">42</span><span class="err">，</span><span class="o">*</span><span class="n">p</span><span class="o">=&amp;</span><span class="n">i</span><span class="p">,</span><span class="o">&amp;</span><span class="n">r</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+<span class="k">decltype</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">0</span><span class="p">)</span> <span class="n">b</span><span class="p">;</span><span class="c1">//加法的结果是int，因此b是一个（未初始化的）int</span>
+
+<span class="k">decltype</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="n">c</span><span class="p">;</span><span class="c1">//错误：c是int&amp;,必须初始化</span>
+
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/04/12/git_note/" data-toggle="tooltip" data-placement="top" title="git 学习笔记">
+                        Previous<br>
+                        <span>git 学习笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/04/17/nvcc_learn_note/" data-toggle="tooltip" data-placement="top" title="NVCC 学习笔记">
+                        Next<br>
+                        <span>NVCC 学习笔记</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

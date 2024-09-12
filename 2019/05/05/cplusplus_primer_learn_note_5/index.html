@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>C++ Primer 学习笔记 (五) - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/05/05/cplusplus_primer_learn_note_5/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-miui6.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-miui6.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                        <a class="tag" href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程">基础编程</a>
+                        
+                        <a class="tag" href="/tags/#std%20%E6%A0%87%E5%87%86%E5%BA%93" title="std 标准库">std 标准库</a>
+                        
+                    </div>
+                    <h1>C++ Primer 学习笔记 (五)</h1>
+                    
+                    
+                    <h2 class="subheading">C++ Primer 学习记录 (五)</h2>
+                    
+                    <span class="meta">Posted by 敬方 on May 5, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<blockquote>
+  <p>2019-5-5 21:25:45 终于开始进入c++标准库的学习了</p>
+</blockquote>
+
+<h1 id="第ii部分-c-标准库">第II部分 C++ 标准库</h1>
+
+<h2 id="第8章-io库">第8章 IO库</h2>
+
+<p>C++中没有直接的输入和输出库，而是使用标准库的IO库来进行IO操作，下面让我们进入IO的世界吧</p>
+
+<h3 id="81-io类">8.1 IO类</h3>
+<p>IO基本类和头文件如下表：</p>
+
+<p>IO库的类型和对应头文件</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">头文件</th>
+      <th style="text-align: left">类型</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">iostream</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">istream,wistream</code> 从流读取数据；<code class="language-plaintext highlighter-rouge">ostream,wostream</code> 从流输出数据；<code class="language-plaintext highlighter-rouge">iostream,wiostream</code>读写流</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fstream</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">ifstream,wifstream</code> 从文件读取数据；<code class="language-plaintext highlighter-rouge">ofstream,wofstream</code> 从文件写入数据；<code class="language-plaintext highlighter-rouge">fstream,wfstream</code> 读写文件；</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">sstream</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">istringstream,wistringstream</code>从<code class="language-plaintext highlighter-rouge">string</code>读取数据;<code class="language-plaintext highlighter-rouge">ostringstream,wostringstream</code>向<code class="language-plaintext highlighter-rouge">string</code>写入数据;<code class="language-plaintext highlighter-rouge">stringstream,wstringstream</code> 读写<code class="language-plaintext highlighter-rouge">string</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ul>
+  <li>IO对象无拷贝或者赋值–通过重载拷贝构造函数和赋值操作，禁止拷贝和赋值；或者<strong>将拷贝构造函数与赋值函数，声明为private，并且不给出实现</strong>
+</li>
+  <li>在函数后面使用<code class="language-plaintext highlighter-rouge">=delete</code>；例如：<code class="language-plaintext highlighter-rouge">NoCopyable(const NoCopyable&amp;) = delete;</code>;其中
+delete表明函数已删除。使用会报错：”尝试使用已删除的函数”;（参考：<a href="https://blog.csdn.net/qqqqqqqqqq1qqqqqqqqq/article/details/46006791">C++禁止对象拷贝</a>）</li>
+</ul>
+
+<p><strong>c++中的浅拷贝和深拷贝</strong></p>
+
+<p><em>参考链接：</em> <a href="https://www.cnblogs.com/zsq1993/p/5791130.html">C++本质：类的赋值运算符=的重载，以及深拷贝和浅拷贝</a>；<a href="https://blog.csdn.net/shine_journey/article/details/53081523">C++的拷贝构造函数、operator=运算符重载，深拷贝和浅拷贝、explicit关键字</a>；</p>
+
+<p>c++默认的拷贝构造函数和赋值运算符都是简单的浅拷贝，直接使用其它变量初始化对象，并没有重新分配内存，<strong>但是如果实行浅拷贝，也就是把对象里的值完全复制给另一个对象，如A=B。这时，如果B中有一个成员变量指针已经申请了内存，那A中的那个成员变量也指向同一块内存。这就出现了问题：当B把内存释放了（如：析构），这时A内的指针就是野指针了，出现运行错误。</strong>因此类的成员变量需要动态开辟堆内存，此时，深拷贝尤为重要。默认类的缺省函数都是浅拷贝函数。简单示例如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//原始浅拷贝</span>
+
+<span class="cp">#include &lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">Data</span> <span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">Data</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="n">Data</span><span class="p">(</span><span class="kt">int</span> <span class="n">_data</span><span class="p">)</span> <span class="o">:</span><span class="n">data</span><span class="p">(</span><span class="n">_data</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"constructor"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">//简单赋值浅拷贝</span>
+
+    <span class="n">Data</span><span class="o">&amp;</span> <span class="k">operator</span> <span class="o">=</span> <span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="n">_data</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"operator = (const int _data)"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_data</span><span class="p">;</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nl">private:</span>
+    <span class="kt">int</span> <span class="n">data</span><span class="p">;</span>   
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Data</span> <span class="n">data1</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">Data</span> <span class="n">data2</span><span class="p">,</span> <span class="n">data3</span><span class="p">;</span>
+    <span class="n">data2</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">data3</span> <span class="o">=</span> <span class="n">data2</span><span class="p">;</span><span class="c1">//调用编译器提供的默认的赋值运算符重载函数，当自定义析构函数的时候会存在问题</span>
+ 
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//深拷贝</span>
+
+<span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">MyStr</span> <span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">MyStr</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="n">MyStr</span><span class="p">(</span><span class="kt">int</span> <span class="n">_id</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">_name</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"constructor"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="n">id</span> <span class="o">=</span> <span class="n">_id</span><span class="p">;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="p">[</span><span class="n">strlen</span><span class="p">(</span><span class="n">_name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+        <span class="n">strcpy_s</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">_name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span><span class="n">_name</span><span class="p">);</span> 
+    <span class="p">}</span>
+    <span class="c1">//深拷贝构造函数</span>
+
+    <span class="n">MyStr</span><span class="p">(</span><span class="k">const</span> <span class="n">MyStr</span> <span class="o">&amp;</span><span class="n">str</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"copy constructor"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="n">id</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">delete</span> <span class="n">name</span><span class="p">;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="p">[</span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+        <span class="c1">//拷贝数据</span>
+
+        <span class="n">strcpy_s</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span><span class="n">str</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">MyStr</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">MyStr</span><span class="o">&amp;</span> <span class="n">str</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"operator="</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">str</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+                <span class="k">delete</span> <span class="n">name</span><span class="p">;</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="p">[</span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+            <span class="c1">//拷贝字符长度</span>
+
+            <span class="n">strcpy_s</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span><span class="n">str</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+
+            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="o">~</span><span class="n">MyStr</span><span class="p">()</span> 
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"deconstructor"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="k">delete</span> <span class="n">name</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="nl">private:</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">MyStr</span> <span class="n">str1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s">"Jack"</span><span class="p">);</span>
+    <span class="n">MyStr</span> <span class="n">str2</span><span class="p">;</span>
+    <span class="n">str2</span> <span class="o">=</span> <span class="n">str1</span><span class="p">;</span>
+    <span class="n">MyStr</span> <span class="n">str3</span> <span class="o">=</span> <span class="n">str2</span><span class="p">;</span>
+    <span class="k">return</span><span class="p">;</span>
+
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<p>IO库条件状态：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">状态</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm::iostate</code></td>
+      <td style="text-align: left">strm是一种IO类型。iostream是一种机器相关的整型提供了表达条件状态的完整功能</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm::badbit</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">strm::badbit</code>用来指出流已崩溃</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm::failbit</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">strm::failbit</code>用来指出一个IO操作失败了</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm::eofbit</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">strm::eofbit</code>用来指出流达到了文件结束</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm::goodbit</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">strm::goodbit</code>用来指出流未处于错误状态。此值保证为零</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.eof()</code></td>
+      <td style="text-align: left">流 s 的 <code class="language-plaintext highlighter-rouge">eofbit</code> 置位，则返回 <code class="language-plaintext highlighter-rouge">true</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.fail()</code></td>
+      <td style="text-align: left">流 s 的 <code class="language-plaintext highlighter-rouge">failbit</code> 或 <code class="language-plaintext highlighter-rouge">badbit</code> 置位，则返回 true</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.bad()</code></td>
+      <td style="text-align: left">流 s 的 badbit 置位，则返回 true</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.good()</code></td>
+      <td style="text-align: left">若流 s 处于有效状态，则返回 true</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.clear()</code></td>
+      <td style="text-align: left">将流 s 中的所有条件状态位复位，将流的状态设置为有效。返回void</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.clear(flag)</code></td>
+      <td style="text-align: left">根据给定的 flags 标志位，将流 s 中对于条件状态位复位。 flag 的类型是<code class="language-plaintext highlighter-rouge">strm::iostate</code>。返回 void</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.setstate(flag)</code></td>
+      <td style="text-align: left">根据给定的 flags 标志位，将流 s 中对于条件状态位置位。 flag 的类型是strm::iostate。返回 void</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.rdstate()</code></td>
+      <td style="text-align: left">返回流 s 的当前条件，返回值类型为 <code class="language-plaintext highlighter-rouge">strm::iostate</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>四种条件状态</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">状态</th>
+      <th style="text-align: left">含义</th>
+      <th style="text-align: left">数值</th>
+      <th style="text-align: left"><code class="language-plaintext highlighter-rouge">good()</code></th>
+      <th style="text-align: left"><code class="language-plaintext highlighter-rouge">eof()</code></th>
+      <th style="text-align: left"><code class="language-plaintext highlighter-rouge">bad()</code></th>
+      <th style="text-align: left"><code class="language-plaintext highlighter-rouge">fail()</code></th>
+      <th style="text-align: left"><code class="language-plaintext highlighter-rouge">rdstate()</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ios::goodbit</code></td>
+      <td style="text-align: left">流状态完全正常</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">goodbit</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ios::eofbit</code></td>
+      <td style="text-align: left">已达到文件结束</td>
+      <td style="text-align: left">2</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">eofbit</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ios::badbit</code></td>
+      <td style="text-align: left">输入（输出）流出现非致命错误，可挽回</td>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">badbit</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ios::failbit</code></td>
+      <td style="text-align: left">输入（输出）流出现致命错误，不可挽回</td>
+      <td style="text-align: left">4</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">0</td>
+      <td style="text-align: left">1</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">failbit</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>文件结束</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">状态</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm::eofbit</code></td>
+      <td style="text-align: left">
+<code class="language-plaintext highlighter-rouge">strm::eofbit</code>用来指出流达到了文件结束</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.eof()</code></td>
+      <td style="text-align: left">流 s 的 <code class="language-plaintext highlighter-rouge">eofbit</code> 置位，则返回 <code class="language-plaintext highlighter-rouge">true</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ul>
+  <li>一个流一旦发生错误，其上后续的IO操作都会失败。因此一般使用<code class="language-plaintext highlighter-rouge">while(cin&gt;&gt;word)</code>来检测是否成功。</li>
+</ul>
+
+<p>iostate 类型用来表示流状态的完整功能。使用示例如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">auto</span> <span class="n">old_state</span><span class="o">=</span><span class="n">cin</span><span class="p">.</span><span class="n">restate</span><span class="p">();</span> <span class="c1">//记住cin的状态</span>
+
+<span class="n">cin</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span><span class="c1">//使得cin有效</span>
+
+<span class="n">process_input</span><span class="p">(</span><span class="n">cin</span><span class="p">);</span> <span class="c1">//使用cin</span>
+
+<span class="n">cin</span><span class="p">.</span><span class="n">setstate</span><span class="p">(</span><span class="n">old_state</span><span class="p">);</span><span class="c1">//设置cin为原有状态。</span>
+
+<span class="n">cin</span><span class="p">.</span><span class="n">clear</span><span class="p">(</span><span class="n">cin</span><span class="p">.</span><span class="n">rdstate</span><span class="p">()</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">cin</span><span class="p">.</span><span class="n">failbit</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">cin</span><span class="p">.</span><span class="n">badbit</span><span class="p">);</span><span class="c1">//复位failbit和badbit,保持其他标志位不变。</span>
+
+</code></pre></div></div>
+
+<h4 id="管理输出缓冲">管理输出缓冲</h4>
+
+<p>每个输出流都管理一个缓冲区，用来保存程序读写的数据；例如<code class="language-plaintext highlighter-rouge">os&lt;&lt;"Please enter a value:";</code>中文本串可能被立即打印出来，但也有可能被操作系统保存在缓冲区中，随后打印。</p>
+
+<p>注意：如果程序异常崩溃，输出缓冲区不会更新，数据很可能停留在缓冲区中等待打印。因此当程序崩溃后，需要确定已经输出的数据确实已经刷新了，否则可能将大量时间浪费在追踪代码为什么没有执行上面。</p>
+
+<p>输入和输出流也是可以正常关联的：利用<code class="language-plaintext highlighter-rouge">ostream</code>的<code class="language-plaintext highlighter-rouge">tie</code>实现相关操作。<code class="language-plaintext highlighter-rouge">tie()</code>当前关联到的输出流，<code class="language-plaintext highlighter-rouge">tie(&amp;o)</code>关联到o输出流。多个流可以关联到同一个<code class="language-plaintext highlighter-rouge">ostream</code>;下面是使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cin</span><span class="p">.</span><span class="n">tie</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cout</span><span class="p">);</span> <span class="c1">//将标准cin与cout关联在一起。</span>
+
+<span class="n">ostream</span> <span class="o">*</span><span class="n">old_tie</span><span class="o">=</span><span class="n">cin</span><span class="p">,</span><span class="n">tie</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span><span class="c1">//关联空流</span>
+
+<span class="n">cin</span><span class="p">.</span><span class="n">tie</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cerr</span><span class="p">);</span> <span class="c1">//读取cin会刷新cerr而不是cout</span>
+
+<span class="n">cin</span><span class="p">.</span><span class="n">tie</span><span class="p">(</span><span class="n">old_tie</span><span class="p">);</span> <span class="c1">//重建cin和cout间的正常关联。</span>
+
+</code></pre></div></div>
+
+<h4 id="文件输入输出">文件输入输出</h4>
+<p><em>参考链接:</em> <a href="http://www.cplusplus.com/reference/fstream/fstream/">fstream参考</a>；</p>
+
+<p>fstream特有操作：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">名称</th>
+      <th style="text-align: left">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fstream fstrm</code></td>
+      <td style="text-align: left">创建一个未绑定的文件流</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fstream fstrm（s）</code></td>
+      <td style="text-align: left">创建一个fstream，并打开名为s的文件。默认的文件模式mode依赖于fstream的类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fstream fstrm（s，mode）</code></td>
+      <td style="text-align: left">与前一个构造函数类似，但按指定mode打开文件</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fstrm.open(s)</code></td>
+      <td style="text-align: left">打开名为s的文件，并将文件与fstrm绑定，默认的文件mode依赖于fstream的类型，返回void</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fstrm.close()</code></td>
+      <td style="text-align: left">关闭与fstrm绑定的文件，返回void</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">fstrm.is_open()</code></td>
+      <td style="text-align: left">返回一个bool值，指出与fstrm关联的文件是否成功打开且尚未关闭</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>文件的打开有两种方式：</p>
+
+<ul>
+  <li>在初始化输入输出对象时，直接构建；如： <code class="language-plaintext highlighter-rouge">ifstream in(ifile)</code>
+</li>
+  <li>先声明，再使用<code class="language-plaintext highlighter-rouge">open</code>函数关联文件；例如：</li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ifile</span><span class="o">=</span><span class="s">"c:/Windows/assembly/test"</span><span class="p">;</span>
+<span class="n">ifstream</span> <span class="nf">in</span><span class="p">(</span><span class="n">ifile</span><span class="p">);</span> <span class="c1">//构筑一个ifstream并打开给定文件</span>
+
+<span class="n">ofstream</span> <span class="n">out</span><span class="p">;</span> <span class="c1">//输出文件流未与任何文件相关联。</span>
+
+<span class="n">out</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">ifile</span><span class="o">+</span><span class="s">".txt"</span><span class="p">);</span><span class="c1">//打开指定文件</span>
+
+<span class="n">in</span><span class="p">.</span><span class="n">close</span><span class="p">();</span> <span class="c1">//关闭文件</span>
+
+
+</code></pre></div></div>
+
+<p>注意：</p>
+<ul>
+  <li>当一个<code class="language-plaintext highlighter-rouge">fstream</code>对象呗销毁时,<code class="language-plaintext highlighter-rouge">close</code>会自动被调用。</li>
+  <li>默认模式打开文件进行输出将自动打开文件的长度截为零，即 <strong>删除已有内容</strong>。 （细节！！）</li>
+</ul>
+
+<p>文件读写模式：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">模式</th>
+      <th style="text-align: left">作用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">in</code></td>
+      <td style="text-align: left">读方式打开</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">out</code></td>
+      <td style="text-align: left">写方式打开</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">app</code></td>
+      <td style="text-align: left">每次写操作前均定位到文件末尾</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">ate</code></td>
+      <td style="text-align: left">打开文件后立即定位到文件末尾</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">trunc</code></td>
+      <td style="text-align: left">截断文件</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">binary</code></td>
+      <td style="text-align: left">二进制方式进行io</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：以<code class="language-plaintext highlighter-rouge">out</code>模式打开文件会丢弃已有数据，因此常需要附加<code class="language-plaintext highlighter-rouge">app</code>模式；例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ofstream</span> <span class="nf">out</span><span class="p">(</span><span class="s">"file1"</span><span class="p">);</span><span class="c1">// 输出模式打开文件并截断文件</span>
+
+<span class="n">ofstream</span> <span class="nf">out2</span><span class="p">(</span><span class="s">"file1"</span><span class="p">,</span><span class="n">ofstream</span><span class="o">::</span><span class="n">out</span><span class="p">);</span><span class="c1">//隐含第截断文件</span>
+
+<span class="n">ofstream</span> <span class="nf">out3</span><span class="p">(</span><span class="s">"file1"</span><span class="p">,</span><span class="n">ofstream</span><span class="o">::</span><span class="n">out</span> <span class="o">|</span> <span class="n">ofstream</span><span class="o">::</span><span class="n">trunc</span><span class="p">);</span>
+<span class="c1">//保留文件内容显式指定app模式。</span>
+
+<span class="n">ofstream</span> <span class="nf">app</span><span class="p">(</span><span class="s">"file2"</span><span class="p">,</span><span class="n">ofstream</span><span class="o">::</span><span class="n">app</span><span class="p">);</span>
+<span class="c1">//隐含为输出模式 </span>
+
+<span class="n">ofstream</span> <span class="nf">app2</span><span class="p">(</span><span class="s">"file2"</span><span class="p">,</span><span class="n">ofstream</span><span class="o">::</span><span class="n">out</span> <span class="o">|</span> <span class="n">ofstream</span><span class="o">::</span><span class="n">app</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>每次使用open函数都可以再次更改文件模式。
+文件流使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># include&lt;iostream&gt;
+# include&lt;fstream&gt;
+# include&lt;string&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+ 
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//读取初始文件内容，并输出显示</span>
+    
+    <span class="n">ifstream</span> <span class="n">in</span><span class="p">;</span>
+    <span class="n">in</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="s">"guest.txt"</span><span class="p">);</span>
+    <span class="kt">char</span> <span class="n">ch</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">in</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Here are the current contents of thepeople.text's file:"</span> <span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">in</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">ch</span><span class="p">))</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ch</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="n">in</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+ 
+    <span class="p">}</span>
+ 
+    <span class="c1">// 添加内容到文件</span>
+    
+    <span class="n">ofstream</span> <span class="n">out</span><span class="p">;</span>
+    <span class="n">out</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="s">"D:guest.txt"</span><span class="p">,</span> <span class="n">ofstream</span><span class="o">::</span><span class="n">app</span><span class="p">);</span>  
+    <span class="c1">//out.open("people.txt", ios_base::app);</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">out</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"failed to open file"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Please enter content:"</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">str</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">getline</span><span class="p">(</span><span class="n">cin</span><span class="p">,</span> <span class="n">str</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">str</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">out</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="o">&lt;&lt;</span><span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">out</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="c1">//读取修改后的文件内容，并输出显示</span>
+
+    <span class="n">in</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="s">"guest.txt"</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">in</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Here are the revised contents of the people.text's file:"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">in</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">ch</span><span class="p">))</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ch</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="n">in</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="p">}</span>
+ 
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+ 
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h3 id="string-流">string 流</h3>
+
+<p>string相关流继承关系如下图：</p>
+
+<p><img src="http://www.pconline.com.cn/pcedu/empolder/gj/c/0504/pic/08cppios01.gif" alt="相关继承关系"></p>
+
+<p>stringstream的特有操作</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">sstream strm</code></td>
+      <td style="text-align: left">定义字符串头文件类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">sstream strm(s)</code></td>
+      <td style="text-align: left">保存string s的一个拷贝</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm.str()</code></td>
+      <td style="text-align: left">返回strm所保存的<code class="language-plaintext highlighter-rouge">string</code>的拷贝</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">strm.str(s)</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">string s</code> 拷贝到<code class="language-plaintext highlighter-rouge">strm</code>中。返回<code class="language-plaintext highlighter-rouge">void</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="第-9-章顺序容器">第 9 章顺序容器</h2>
+
+<p>容器是一些特定类型对象的集合。顺序容器为程序员提供了控制元素存储和访问顺序的能力。下面是简介表</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">类型</th>
+      <th style="text-align: left">特点</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">vector</code></td>
+      <td style="text-align: left">可变大小数组。支持快速随机访问。在尾部之外的位置插入或者删除元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">deque</code></td>
+      <td style="text-align: left">双端队列。支持快速随机访问。在头尾插入/删除速度很快</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">list</code></td>
+      <td style="text-align: left">双向链表。只支持双向顺序访问。在<code class="language-plaintext highlighter-rouge">list</code>中任何位置进行插入/删除操作速度都很快</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">forward_list</code></td>
+      <td style="text-align: left">单向链表。只支持单向顺序访问。在链表任何位置进行插入/删除操作速度都很快</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">array</code></td>
+      <td style="text-align: left">固定大小数组。支持快速随机访问。不能添加或者删除元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">string</code></td>
+      <td style="text-align: left">与<code class="language-plaintext highlighter-rouge">vector</code>相似的容器，但是专门保存字符。随机访问快。在尾部插入/删除速度很快</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>下面是一些选择容器的基本原则：</p>
+
+<ul>
+  <li>除非有很好的理由，否则应使用<code class="language-plaintext highlighter-rouge">vector</code>
+</li>
+  <li>如果你的程序有很多小元素，且额外开销很重要，则不要使用<code class="language-plaintext highlighter-rouge">list</code>或者<code class="language-plaintext highlighter-rouge">forward_list</code>。</li>
+  <li>如果程序要求随机访问元素，应该使用<code class="language-plaintext highlighter-rouge">vector</code>或者<code class="language-plaintext highlighter-rouge">deque</code>。</li>
+  <li>如果程序要求在容器的中间插入或者删除元素，应该使用<code class="language-plaintext highlighter-rouge">list</code>或者<code class="language-plaintext highlighter-rouge">forward_list</code>。</li>
+  <li>如果程序需要在头尾位置插入或者删除元素，但不会在中间位置进行插入，则使用<code class="language-plaintext highlighter-rouge">deque</code>。</li>
+  <li>如果程序只有在读取输入时才需要在容器中间位置插入元素，随后需要随机访问元素，则：
+    <ul>
+      <li>首先，确定是否真的需要在容器中间位置添加元素，当处理输入数据时，通常可以很容易地向<code class="language-plaintext highlighter-rouge">vector</code>追加数据，然后再调用标准库<code class="language-plaintext highlighter-rouge">sort</code>函数来重新排列容器中的元素，从而避免在中间位置添加元素。</li>
+      <li>如果必须在中间位置插入元素，考虑在输入阶段使用<code class="language-plaintext highlighter-rouge">list</code>，一旦输入完成，将<code class="language-plaintext highlighter-rouge">list</code>中的内容拷贝到一个<code class="language-plaintext highlighter-rouge">vector</code>中。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>容器操作：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">类型别名</th>
+      <th style="text-align: left">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">iterator</code></td>
+      <td style="text-align: left">此容器类型的迭代器类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">const_iterator</code></td>
+      <td style="text-align: left">可以读取元素，但不能修改元素的迭代器类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">size_type</code></td>
+      <td style="text-align: left">无符号整数类型，足够保存此种容器类型最大可能容器的大小</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">difference_type</code></td>
+      <td style="text-align: left">带符号整数类型，足够保存两个迭代器之间的距离</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">value_type</code></td>
+      <td style="text-align: left">元素类型</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">reference</code></td>
+      <td style="text-align: left">元素的左值类型；与<code class="language-plaintext highlighter-rouge">value_type&amp;</code>含义相同</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">const_reference</code></td>
+      <td style="text-align: left">元素的<code class="language-plaintext highlighter-rouge">const</code>左值类型(即，<code class="language-plaintext highlighter-rouge">const value_type&amp;</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">构造函数</th>
+      <th style="text-align: left">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">C c</code></td>
+      <td style="text-align: left">默认构造函数，构造空容器(array)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">C c1(c2)</code></td>
+      <td style="text-align: left">构造<code class="language-plaintext highlighter-rouge">c2</code>的拷贝<code class="language-plaintext highlighter-rouge">c1</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">C c(b,e)</code></td>
+      <td style="text-align: left">构造<code class="language-plaintext highlighter-rouge">c</code>,将迭代器<code class="language-plaintext highlighter-rouge">b</code>和<code class="language-plaintext highlighter-rouge">e</code>指定的范围内的元素拷贝到<code class="language-plaintext highlighter-rouge">c</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">C c{a,b,c ...}</code></td>
+      <td style="text-align: left">列表初始化<code class="language-plaintext highlighter-rouge">c</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">赋值与<code class="language-plaintext highlighter-rouge">swap</code>
+</th>
+      <th style="text-align: left">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c1=c2</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">c1</code>中的元素替换为<code class="language-plaintext highlighter-rouge">c2</code>中元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c1={a,b,c...}</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">c1</code>中的元素替换为列表中元素(不适用于array)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">a.swap(b) or swap(a,b) </code></td>
+      <td style="text-align: left">交换a和b的元素</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">大小</th>
+      <th style="text-align: left">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.size()</code></td>
+      <td style="text-align: left">c中元素的数目(不支持<code class="language-plaintext highlighter-rouge">forward_list</code>)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.max_size()</code></td>
+      <td style="text-align: left">c可保存的最大元素数目</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.empty()</code></td>
+      <td style="text-align: left">若<code class="language-plaintext highlighter-rouge">c</code>中存储了元素，返回<code class="language-plaintext highlighter-rouge">fasle</code>,否则返回<code class="language-plaintext highlighter-rouge">true</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td>添加/删除元素</td>
+      <td>操作</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">c.insert(args)</code></td>
+      <td>将<code class="language-plaintext highlighter-rouge">args</code>中的元素拷贝进<code class="language-plaintext highlighter-rouge">c</code>
+</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">c.emplace(inits)</code></td>
+      <td>适用<code class="language-plaintext highlighter-rouge">inits</code>构造<code class="language-plaintext highlighter-rouge">c</code>中的一个元素</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">c.clear()</code></td>
+      <td>删除<code class="language-plaintext highlighter-rouge">c</code>中所有的元素，返回<code class="language-plaintext highlighter-rouge">void</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">关系运算符</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">==,!=</code></td>
+      <td style="text-align: left">所有容器都支持相等(不等)运算符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">&lt;,&lt;=,&gt;,&gt;=</code></td>
+      <td style="text-align: left">关系运算符(无序关联容器不支持)</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">获取迭代器</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.begin(),c.end()</code></td>
+      <td style="text-align: left">返回指向<code class="language-plaintext highlighter-rouge">c</code>的首元素和尾元素之后位置的迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.cbegin(),c.cend()</code></td>
+      <td style="text-align: left">返回<code class="language-plaintext highlighter-rouge">const_iterator</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">反向容器的额外成员(不支持<code class="language-plaintext highlighter-rouge">forward_list</code>)</th>
+      <th style="text-align: left">解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">reverse_iterator</code></td>
+      <td style="text-align: left">按逆序寻址</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">const_reverse_iterator</code></td>
+      <td style="text-align: left">不能修改元素的逆序迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.rbegin(),c.rend()</code></td>
+      <td style="text-align: left">返回指向cz的尾元素和首元素之前位置的迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.crbegin(),c.crend()</code></td>
+      <td style="text-align: left">返回<code class="language-plaintext highlighter-rouge">const_reverse_iterator</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>迭代器</strong></p>
+
+<p>迭代器范围是标准库的基础，标砖库的很多操作都是基于迭代器产生的。<code class="language-plaintext highlighter-rouge">begin</code>迭代器迭代器指向迭代器开头的元素；<code class="language-plaintext highlighter-rouge">last</code>迭代器指向尾元素之后的元素；即不是指向尾部元素，元素范围为<strong>左闭右开</strong></p>
+
+<p>代码示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">list</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">a</span><span class="o">=</span><span class="p">{</span><span class="s">"string1"</span><span class="p">,</span><span class="s">"string2"</span><span class="p">,</span><span class="s">"string3"</span><span class="p">};</span>
+<span class="k">auto</span> <span class="n">it1</span><span class="o">=</span><span class="n">a</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="c1">//lsit&lt;string&gt;::iterator;</span>
+
+<span class="k">auto</span> <span class="n">it2</span><span class="o">=</span><span class="n">a</span><span class="p">.</span><span class="n">rbegin</span><span class="p">();</span><span class="c1">//list&lt;string&gt;::reverse_iterator;</span>
+
+<span class="k">auto</span> <span class="n">it3</span><span class="o">=</span><span class="n">a</span><span class="p">.</span><span class="n">cbegin</span><span class="p">();</span> <span class="c1">//list&lt;string&gt;::const_iterator;</span>
+
+<span class="k">auto</span> <span class="n">it4</span><span class="o">=</span><span class="n">a</span><span class="p">.</span><span class="n">crbegin</span><span class="p">();</span><span class="c1">//list&lt;string&gt;::const_reverse_iterator</span>
+</code></pre></div></div>
+
+<p>注意：</p>
+
+<ul>
+  <li>顺序容器不需要写访问时，应该尽量使用<code class="language-plaintext highlighter-rouge">cbegin</code>和<code class="language-plaintext highlighter-rouge">cend</code>；</li>
+  <li>只有顺序容器不包括(array)的构造函数才能接受大小参数</li>
+  <li>拷贝构造只有当容器类型匹配时才能成立，</li>
+  <li>当将一个容器初始化为另外一个容器的拷贝的时候，两个容器的容器类型和元素类型都必须相同。</li>
+</ul>
+
+<p><strong>标准库array具有固定大小</strong>
+与内置数组一样，标准库array的大小也是类型的一部分。当定义一个<code class="language-plaintext highlighter-rouge">array</code>时，除了指定元素类型，还要指定容器大小；使用array类型，也必须指定元素类型的大小；array初始化会自动给与0值。内置数组不允许拷贝，但是array类型允许拷贝。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span> <span class="p">,</span><span class="mi">42</span><span class="o">&gt;</span><span class="p">;</span> <span class="c1">//类型为：保存42个int的数组</span>
+
+<span class="n">array</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="mi">10</span><span class="o">&gt;</span><span class="p">;</span> <span class="c1">//类型为：保存10个 string的数组</span>
+
+<span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="mi">10</span><span class="o">&gt;::</span><span class="n">size_type</span> <span class="n">i</span><span class="p">;</span><span class="c1">//数组类型包括元素类型和大小</span>
+
+<span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">size_type</span> <span class="n">j</span><span class="p">;</span> <span class="c1">//错误:array&lt;int&gt;不是一个类型</span>
+
+</code></pre></div></div>
+
+<p><strong>替换操作 <code class="language-plaintext highlighter-rouge">assign</code></strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">函数</th>
+      <th style="text-align: left">功能</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">seq.assign(b,e)</code></td>
+      <td style="text-align: left">将seq中的元素替换为迭代器b和e所示到范围中的元素。迭代器b和eb不能指向seq中的元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">seq.assign(li)</code></td>
+      <td style="text-align: left">将seq中的元素替换为初始化列表li中的元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">seq.assign(n,t)</code></td>
+      <td style="text-align: left">将seq中的元素替换为n个值为t的元素</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>使用：<code class="language-plaintext highlighter-rouge">vector&lt;int &gt; b(10,5);vector&lt;int&gt; a;a.assgin(b.cbegin(),b.cend());</code></p>
+
+<p>注意：赋值运算会导致指向左边容器内部的迭代器、引用和指针失效。而<code class="language-plaintext highlighter-rouge">swap</code>操作将容器内容交换不会导致容器的迭代器、引用和指针失效(容器类型为array和string的情况除外)；例如，假定<code class="language-plaintext highlighter-rouge">iter</code>在<code class="language-plaintext highlighter-rouge">swap</code>之前指向<code class="language-plaintext highlighter-rouge">svecl[3]</code>中的string,那么在<code class="language-plaintext highlighter-rouge">swap</code>之后它指向<code class="language-plaintext highlighter-rouge">svec2[3]</code>的元素。但是array会真正交换他们的元素。因此交换两个array所需的时间与array中元素的数目成正比。</p>
+
+<h5 id="关系运算符">关系运算符</h5>
+<p>每个容器类型都支持相等运算符(==和!=)除了无序关联容器外，都支持关系运算符(&gt;、&gt;=、&lt;、&lt;=)。关系运算符两边必须是相同类型的容器，且必须保存相同类型的元素。元素相等比较规则如下：</p>
+
+<ol>
+  <li>如果两个容器具有相同大小且所有元素都两两对应相等，则这个容器相等，否则不相等。</li>
+  <li>如果两个容器大小不相同，但较小容器中每个元素都等于较大容器中的对应元素，则较小容器小于较大容器</li>
+  <li>如果两个容器都不是另外一个容器的前缀子序列，则他们的比较结果取决于第一个不相等的元素的比较结果。</li>
+  <li>只有当其元素类型也定义了相应的比较运算符的时候，我们才可以使用关系运算符来，比较两个容器。</li>
+</ol>
+
+<h5 id="向顺序容器中添加元素">向顺序容器中添加元素</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作名称</th>
+      <th style="text-align: left">作用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.push_bcak(t)</code></td>
+      <td style="text-align: left">在c的尾部创建并插入一个元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.push_back(t)</code></td>
+      <td style="text-align: left">在c的头部创建并插入一个元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.insert(p,t)</code></td>
+      <td style="text-align: left">在迭代器p指向的元素之前创建插入一个元素，返回指向新添加元素的迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.insert(p,n,t)</code></td>
+      <td style="text-align: left">在迭代器p指向的元素之前创建插入n个元素，返回指向新添加元素第一个元素的迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.insert(p,b,e)</code></td>
+      <td style="text-align: left">将迭代器b和e指定的范围内的元素插入到迭代器p指向的元素之前，返回指向新添加元素第一个元素的迭代器；若p为空则返回p</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.insert(p,il)</code></td>
+      <td style="text-align: left">il是一个花括号包围的元素值列表。将这些给定值插入到迭代器p指向的元素之前，返回指向新添加的第一个元素的迭代器</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意：</p>
+
+<ul>
+  <li>向一个<code class="language-plaintext highlighter-rouge">vector</code>、<code class="language-plaintext highlighter-rouge">string</code>或者<code class="language-plaintext highlighter-rouge">deque</code>插入元素会使所有指向容器的迭代器、引用和指针失效。</li>
+  <li>容器元素插入和初始化都是拷贝</li>
+  <li>使用插入<code class="language-plaintext highlighter-rouge">insert</code>的时候会返回插入的值</li>
+</ul>
+
+<p><strong>使用emplace操作</strong></p>
+
+<p>新标准中引入了三个新成员函数-<code class="language-plaintext highlighter-rouge">emplace_front</code>、<code class="language-plaintext highlighter-rouge">emplace</code>和<code class="language-plaintext highlighter-rouge">emplace_back</code>它们与<code class="language-plaintext highlighter-rouge">insert</code>系列操作相同，
+注意：</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">emplace</code>函数在容器中直接构造元素，传递给<code class="language-plaintext highlighter-rouge">emplace</code>函数的参数必须与元素类型的构造函数相匹配。</li>
+</ul>
+
+<p>例如：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">c</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="s">"99999"</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mf">15.99</span><span class="p">);</span><span class="c1">//错误没有接受三个参数的`push_back`版本</span>
+
+<span class="n">c</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="s">"99999"</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mf">15.99</span><span class="p">);</span><span class="c1">//正确创建一个临时的`push_back`版本</span>
+</code></pre></div></div>
+
+<h5 id="顺序容器中访问元素操作">顺序容器中访问元素操作</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.back()</code></td>
+      <td style="text-align: left">返回c中尾元素的引用。若c空，函数行为未定义</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.front()</code></td>
+      <td style="text-align: left">返回c中首元素的引用。若c空，函数行为未定义</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c[n]</code></td>
+      <td style="text-align: left">返回c中下标为n元素的引用。若c空，n&gt;=c.size()函数行为未定义</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.at(n)</code></td>
+      <td style="text-align: left">返回c中下标为n元素的引用。若越界抛出异常</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>建议：尽量使用at函数，避免下标越界</p>
+
+<h5 id="顺序容器中删除元素操作">顺序容器中删除元素操作</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.pop_back()</code></td>
+      <td style="text-align: left">删除c中尾部元素，若c空，函数行为未定义</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.pop_front()</code></td>
+      <td style="text-align: left">删除c中首元素的引用。若c空，函数行为未定义</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.erase(n)</code></td>
+      <td style="text-align: left">删除迭代器p所指的元素，返回一个指向被删除元素之后元素的迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.erase(b,e)</code></td>
+      <td style="text-align: left">删除迭代器b和e所指定范围内的元素。返回指向最后一个被删除元素之后元素的迭代器</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.clear()</code></td>
+      <td style="text-align: left">删除c中所有元素。返回<code class="language-plaintext highlighter-rouge">void</code>
+</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意对于单链表而言有许多不同之处</p>
+
+<p><img src="http://wangpengcheng.github.io/img/fowrd_list_insert.png" alt="链表操作"></p>
+
+<p>当在forword_list中添加或者删除元素时，我们必须关注两个迭代器-一个指向我们要处理的元素，另外一个指向其前驱元素。例如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">forward_list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">flst</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">}</span><span class="err">；</span>
+<span class="k">auto</span> <span class="n">prev</span><span class="o">=</span><span class="n">flst</span><span class="p">.</span><span class="n">before_begin</span><span class="p">();</span> <span class="c1">//表示flst的首前元素</span>
+
+<span class="k">auto</span> <span class="n">curr</span><span class="o">=</span><span class="n">flst</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>   <span class="c1">//表示flst中的第一个元素</span>
+
+<span class="k">while</span><span class="p">(</span><span class="n">curr</span><span class="o">!=</span><span class="n">flst</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">curr</span><span class="o">%</span><span class="mi">2</span><span class="p">){</span>
+        <span class="n">curr</span><span class="o">=</span><span class="n">flst</span><span class="p">.</span><span class="n">erase_after</span><span class="p">(</span><span class="n">prev</span><span class="p">);</span> <span class="c1">//删除并移动curr</span>
+
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="n">prev</span><span class="o">=</span><span class="n">curr</span><span class="p">;</span><span class="c1">//移动迭代器curr,指向下一个元素，prev指向curr之前的元素</span>
+        
+        <span class="o">++</span><span class="n">curr</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+<h5 id="容器操作可能会使迭代器失效">容器操作可能会使迭代器失效</h5>
+
+<p><em>参考链接：</em> <a href="https://www.cnblogs.com/fnlingnzb-learner/p/9300073.html">C++迭代器失效的几种情况总结</a>；<a href="https://blog.csdn.net/Yinghuhu333333/article/details/80744440">C++之迭代器失效及解决</a>；</p>
+
+<p>在向容器中添加元素之后：</p>
+
+<ul>
+  <li>如果容器是<code class="language-plaintext highlighter-rouge">vector</code>或者<code class="language-plaintext highlighter-rouge">string</code>，且存在存储空间被重新分配，则指向容器的迭代器、指针和引用内存都会失效。如果没有重新分配内存，指向插入位置之前的元素的迭代器、指针和引用仍然有效，但是指向插入之后的元素迭代器、指针和引用都会失效</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">deque</code>插入到除首尾位置之外的任何位置都会导致迭代器、指针和引用失效。如果在首尾位置添加元素，迭代器会失效，但是指向存在的元素的引用和指针不会失效。</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">list</code>和<code class="language-plaintext highlighter-rouge">forward_list</code>指向容器的迭代器（包括尾后迭代器和首前迭代器）、指针和引用仍有效。</li>
+</ul>
+
+<p>在删除一个元素后</p>
+
+<ul>
+  <li>对于<code class="language-plaintext highlighter-rouge">list</code>和<code class="language-plaintext highlighter-rouge">forward_list</code>指向容器其它位置的迭代器、引用指针任然有效。</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">deque</code>如果在首尾之外的任何位置删除元素，那么指向被删除元素之外其它元素的迭代器、引用或者指针也会失效。如果删除的是尾部元素，则尾后的迭代器也会失效，但其它迭代器、引用和指针不受影响；如果删除首尾元素，这些也不会受影响。</li>
+  <li>对于<code class="language-plaintext highlighter-rouge">vector</code>和<code class="language-plaintext highlighter-rouge">string</code>,指向被删除元素之前元素的迭代器、引用和指针仍然有效。注意当我们删除元素时，尾后迭代器总是会失效。</li>
+</ul>
+
+<p>因为添加删除原来的元素后，<code class="language-plaintext highlighter-rouge">end</code>迭代器总是会失效，因此尽量不要保存<code class="language-plaintext highlighter-rouge">end</code>返回的迭代器</p>
+
+<p>vector和string 的容器大小管理操作
+<code class="language-plaintext highlighter-rouge">capacity()</code>容器在不扩张内存空间的情况下可以容纳多少个元素，<code class="language-plaintext highlighter-rouge">reserve</code>允许我们通知容器它应该准备保存多少个元素</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.shrink_to_fit()</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">capacity（）</code>减小为和<code class="language-plaintext highlighter-rouge">size</code>相同大小</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.capacity()</code></td>
+      <td style="text-align: left">不重新分配内存空间的话，c可以保存多少元素</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">c.reserve(n)</code></td>
+      <td style="text-align: left">分配至少能容纳n个元素的内存空间</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注意： reserve并不改变容器元素中的数量，它仅仅影响vector预先分配多大的内存空间。</p>
+
+<h5 id="额外的string操作">额外的string操作</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.insert(pos,args)</code></td>
+      <td style="text-align: left">在迭代器pos之前插入args指定的字符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.erase(pos,len)</code></td>
+      <td style="text-align: left">删除从位置<code class="language-plaintext highlighter-rouge">pos</code>开始的<code class="language-plaintext highlighter-rouge">len</code>个字符。如果len 被省略则删除从<code class="language-plaintext highlighter-rouge">pos</code>开始至s末尾的所有字符。返回一个指向<code class="language-plaintext highlighter-rouge">s</code>的引用</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.assign(args)</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">s</code>中的字符串替换为<code class="language-plaintext highlighter-rouge">args</code>指定的字符。返回一个指向<code class="language-plaintext highlighter-rouge">s</code>的引用</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.append(args)</code></td>
+      <td style="text-align: left">将<code class="language-plaintext highlighter-rouge">s</code>后添加<code class="language-plaintext highlighter-rouge">args</code>指定的字符。返回一个指向<code class="language-plaintext highlighter-rouge">s</code>的引用</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.replace(range,args)</code></td>
+      <td style="text-align: left">删除<code class="language-plaintext highlighter-rouge">range</code>范围内的字符，替换为<code class="language-plaintext highlighter-rouge">args</code>指定的字符，返回<code class="language-plaintext highlighter-rouge">s</code>的引用</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>string搜索操作</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.find(args)</code></td>
+      <td style="text-align: left">查找<code class="language-plaintext highlighter-rouge">s</code>中第一次出现的位置</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.rfind(args)</code></td>
+      <td style="text-align: left">查找<code class="language-plaintext highlighter-rouge">s</code>中最后一次出现的位置</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.find_frist_of(args)</code></td>
+      <td style="text-align: left">在<code class="language-plaintext highlighter-rouge">s</code>中查找<code class="language-plaintext highlighter-rouge">args</code>中任何一个字符，第一次出现的位置</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.find_last_of(args)</code></td>
+      <td style="text-align: left">在<code class="language-plaintext highlighter-rouge">s</code>中查找<code class="language-plaintext highlighter-rouge">args</code>中任何一个字符，最后一次出现的位置</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.find_frist_not_of(args)</code></td>
+      <td style="text-align: left">在<code class="language-plaintext highlighter-rouge">s</code>中查找第一个不在<code class="language-plaintext highlighter-rouge">args</code>中的字符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">s.find_last_not_of(args)</code></td>
+      <td style="text-align: left">在<code class="language-plaintext highlighter-rouge">s</code>中查找最后一个不在<code class="language-plaintext highlighter-rouge">args</code>中的字符</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//循环查找下一个数</span>
+
+<span class="n">string</span><span class="o">::</span><span class="n">size_type</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="k">while</span><span class="p">((</span><span class="n">pos</span><span class="o">=</span><span class="n">name</span><span class="p">.</span><span class="n">find_frist_of</span><span class="p">(</span><span class="n">number</span><span class="p">,</span><span class="n">pos</span><span class="p">))</span><span class="o">!=</span><span class="n">string</span><span class="o">::</span><span class="n">npos</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"found number at index: "</span><span class="o">&lt;&lt;</span><span class="n">pos</span>
+        <span class="o">&lt;&lt;</span><span class="s">"element is "</span><span class="o">&lt;&lt;</span><span class="n">name</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+        <span class="o">++</span><span class="n">pos</span><span class="p">;</span><span class="c1">//移动到下一个字符    </span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">compare</code>比较字符串；<code class="language-plaintext highlighter-rouge">to_string()</code>将数字转化为字符串。</p>
+
+<p><strong>string和数值之间的转换</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">操作</th>
+      <th style="text-align: left">含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">to_string(val)</code></td>
+      <td style="text-align: left">将任意一种算术类型<code class="language-plaintext highlighter-rouge">val</code>转化为<code class="language-plaintext highlighter-rouge">string</code>
+</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stoi(s,p,b)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">int</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stol(s,p,b)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">long</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stoul(s,p,b)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">unsigned long</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stoll(s,p,b)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">long long</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stoull(s,p,b)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">unsigned long long</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stof(s,p)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">float</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stod(s,p)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">long long</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">stold(s,p)</code></td>
+      <td style="text-align: left">返回s的起始字符子串(整数内容)的数值 <code class="language-plaintext highlighter-rouge">long double</code>,b是转换基数，p是<code class="language-plaintext highlighter-rouge">size_t</code>指针</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="容器适配">容器适配</h3>
+
+<p>出来标准容器外还有三个顺序容器适配器： <code class="language-plaintext highlighter-rouge">stack</code>、<code class="language-plaintext highlighter-rouge">queue</code>和<code class="language-plaintext highlighter-rouge">proiority_queue</code>。本质上，一个适配器是一种机制，能使某种事物的行为看起来像另外一种事物一样。例如<code class="language-plaintext highlighter-rouge">stack</code>适配器接受一个顺序容器，并使其操作像一个stack一样。下面是使用示例：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">stk</span><span class="p">(</span><span class="n">deq</span><span class="p">);</span><span class="c1">//从deq拷贝元素到stk</span>
+
+<span class="n">stack</span><span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">str_stk</span><span class="p">;</span><span class="c1">//在vector上实现的空栈</span>
+
+<span class="n">stack</span><span class="o">&lt;</span><span class="n">string</span> <span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span> <span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">str_stk2</span><span class="p">(</span><span class="n">svec</span><span class="p">);</span><span class="c1">//str_stk2在vector上实现，初始化时保存svec的拷贝</span>
+
+</code></pre></div></div>
+
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/05/04/parallel_application_development_and_optimizatio/" data-toggle="tooltip" data-placement="top" title="并行应用开发和优化概论阅读笔记">
+                        Previous<br>
+                        <span>并行应用开发和优化概论阅读笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/05/12/cplusplus_primer_learn_note_6/" data-toggle="tooltip" data-placement="top" title="C++ Primer 学习笔记(六)">
+                        Next<br>
+                        <span>C++ Primer 学习笔记(六)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

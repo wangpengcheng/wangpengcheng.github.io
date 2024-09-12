@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="never">
+<!--可以让img标签预加载网络图片-->
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Leaning and function with your new object.">
+    <meta name="keywords" content="JF, JF Blog, 敬方的个人博客, OpenCV, 敬方, Qt, C++, 流媒体，计算机视觉，高性能计算">
+    <meta name="theme-color" content="#000000">
+    
+    <title>qml book 学习笔记 - 敬方的个人博客 | JF Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Safari Webpage Icon    by-BY -->
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wangpengcheng.github.io//2019/04/10/qmlbook/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="https://wangpengcheng.github.io//css/syntax.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+<script>MathJax={"tex":{"inlineMath":[["$","$"],["\\(","\\)"]],"displayMath":[["$$","$$"],["\\[","\\]"]]},"svg":{"fontCache":"global"},"svg":{"fontCache":"global"}}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">My Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-ios10.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-ios10.jpg')
+    }
+
+    
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#qml" title="qml">qml</a>
+                        
+                        <a class="tag" href="/tags/#C++" title="C++">C++</a>
+                        
+                    </div>
+                    <h1>qml book 学习笔记</h1>
+                    
+                    
+                    <h2 class="subheading">qml book 的学习笔记</h2>
+                    
+                    <span class="meta">Posted by 敬方 on April 10, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<p>#qml book 学习笔记
+<em>参考链接</em>:<a href="https://cwc1987.gitbooks.io/qmlbook-in-chinese">qmlbook</a></p>
+
+<blockquote>
+  <p>2019-3-25 21:45:00</p>
+</blockquote>
+
+<h2 id="10多媒体multimedia">10.多媒体(Multimedia)</h2>
+<p>多媒体模仿需要准备措施：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">import</span> <span class="nx">QtMultimedia</span> <span class="mf">5.0</span>
+</code></pre></div></div>
+<h3 id="101-多媒体播放">10.1 多媒体播放</h3>
+<p>qml基础播放控件示例</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.0</span> 
+<span class="k">import</span> <span class="nx">QtMultimedia</span> <span class="mf">5.0</span> <span class="c1">//使用多媒体</span>
+<span class="k">import</span> <span class="nx">QtSystemInfo</span> <span class="mf">5.0</span> <span class="c1">//使用系统信息</span>
+
+<span class="kt">Item</span> <span class="p">{</span>
+    <span class="nl">width</span><span class="p">:</span> <span class="mi">1024</span>
+    <span class="nl">height</span><span class="p">:</span> <span class="mi">600</span>
+
+    <span class="kt">MediaPlayer</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">player</span>
+        <span class="nl">source</span><span class="p">:</span> <span class="dl">"</span><span class="s2">trailer_400p.ogg</span><span class="dl">"</span> <span class="c1">//设置视频源</span>
+    <span class="p">}</span>
+
+    <span class="kt">VideoOutput</span> <span class="p">{</span>
+        <span class="nl">anchors.fill</span><span class="p">:</span> <span class="nx">parent</span> <span class="c1">//填充父类</span>
+        <span class="nl">source</span><span class="p">:</span> <span class="nx">player</span> <span class="c1">//设置显示视频源</span>
+    <span class="p">}</span>
+
+    <span class="nl">Component.onCompleted</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">player</span><span class="p">.</span><span class="nx">play</span><span class="p">();</span> <span class="c1">//加载后直接播放</span>
+    <span class="p">}</span>
+
+    <span class="kt">ScreenSaver</span> <span class="p">{</span>   <span class="c1">//禁止屏幕保护，防止视频因为屏幕保护中断</span>
+        <span class="nl">screenSaverEnabled</span><span class="p">:</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>对于MediaPlayer元素而言，使用volume（音量）、duration 和position可以用来创建进度条。例（基础播放器）：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Rectangle</span> <span class="p">{</span> <span class="c1">//进度条rectangle</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">progressBar</span>
+
+        <span class="nl">anchors.left</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">left</span>
+        <span class="nl">anchors.right</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">right</span>
+        <span class="nl">anchors.bottom</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">bottom</span>
+        <span class="nl">anchors.margins</span><span class="p">:</span> <span class="mi">100</span>
+        <span class="nl">height</span><span class="p">:</span> <span class="mi">30</span>
+        <span class="nl">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">lightGray</span><span class="dl">"</span>
+        <span class="kt">Rectangle</span> <span class="p">{</span> <span class="c1">//进度滑块</span>
+            <span class="nl">anchors.left</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">left</span>
+            <span class="nl">anchors.top</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">top</span>
+            <span class="nl">anchors.bottom</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">bottom</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="nx">player</span><span class="p">.</span><span class="nx">duration</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">?</span><span class="nx">parent</span><span class="p">.</span><span class="nx">width</span><span class="o">*</span><span class="nx">player</span><span class="p">.</span><span class="nx">position</span><span class="o">/</span><span class="nx">player</span><span class="p">.</span><span class="nx">duration</span><span class="p">:</span><span class="mi">0</span><span class="c1">//设置进度条长度</span>
+            <span class="nl">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">darkGray</span><span class="dl">"</span>
+        <span class="p">}</span>
+        <span class="kt">MouseArea</span> <span class="p">{</span>
+            <span class="nl">anchors.fill</span><span class="p">:</span> <span class="nx">parent</span>
+            <span class="nl">onClicked</span><span class="p">:</span> <span class="p">{</span> <span class="c1">//添加点击事件</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">player</span><span class="p">.</span><span class="nx">seekable</span><span class="p">)</span>
+                    <span class="nx">player</span><span class="p">.</span><span class="nx">position</span> <span class="o">=</span> <span class="nx">player</span><span class="p">.</span><span class="nx">duration</span> <span class="o">*</span> <span class="nx">mouse</span><span class="p">.</span><span class="nx">x</span><span class="o">/</span><span class="nx">width</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="kt">Connections</span> <span class="p">{</span> <span class="c1">//设置连接函数</span>
+        <span class="nl">target</span><span class="p">:</span> <span class="nx">player</span>
+        <span class="nl">onMediaObjectChanged</span><span class="p">:</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">player</span><span class="p">.</span><span class="nx">mediaObject</span><span class="p">)</span>
+                <span class="nx">player</span><span class="p">.</span><span class="nx">mediaObject</span><span class="p">.</span><span class="nx">notifyInterval</span> <span class="o">=</span> <span class="mi">50</span><span class="p">;</span><span class="c1">//设置每个position之间的更新毫秒数</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+<p>MediaPlay 中status用来监听播放器状态,使用autoPlay属性能够帮助自动播放一个视频，当设置视频为循环播放时，设置loops属性值为 MediaPlayer.Infinite ;status详细参数如下：</p>
+
+<ol>
+  <li>MediaPlayer.UnknownStatus-未知状态；</li>
+  <li>MediaPlayer.NoMedia-播放器没有指定媒体资源，播放停止；</li>
+  <li>MediaPlayer.Loading - 播放器正在加载媒体</li>
+  <li>MediaPlayer.Loaded - 媒体已经加载完毕，播放停止</li>
+  <li>MediaPlayer.Stalled - 加载媒体已经停止</li>
+  <li>MediaPlayer.Buffering - 媒体正在缓冲</li>
+  <li>MediaPlayer.Buffered - 媒体缓冲完成</li>
+  <li>MediaPlayer.EndOfMedia - 媒体播放完毕，播放停止</li>
+  <li>MediaPlayer.InvalidMedia - 无法播放媒体，播放停止
+    <h2 id="102声音效果sounds-effects">10.2声音效果(Sounds Effects)</h2>
+    <p>qml中使用SoundEffect 来作为控制声音的主要控制元素，同时在MediaPlayer元素中通过设置SoundEffect.Infinite 来提供无限制重复播放</p>
+    <h2 id="103-视频流video-streams">10.3 视频流（Video Streams）</h2>
+    <p>可以使用Camera元素作为摄像机视频流的实时流媒体源;例：
+```qml
+import QtQuick 2.0
+import QtMultimedia 5.0</p>
+  </li>
+</ol>
+
+<p>Item {
+    width: 1024
+    height: 600</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>VideoOutput {
+    anchors.fill: parent
+    source: camera
+}
+
+Camera {
+    id: camera
+} } ``` ## 10.4 捕捉图像 qml中通过设置Camera的对象属性来捕捉图像，详见qml中[Camera文档](https://doc.qt.io/qt-5/qml-qtmultimedia-camera.html);
+</code></pre></div></div>
+
+<blockquote>
+  <p>2019-3-29 20:10:20</p>
+  <h2 id="105-实现一个播放列表在qml中使用listmodel和connection-实现循环播放列表">10.5 实现一个播放列表，在QML中使用listModel和Connection 实现循环播放列表</h2>
+  <p>```qml
+/*PlayList组件 start */
+        Playlist {
+        id: playlist</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    mediaPlayer: player
+
+    items: ListModel {
+        ListElement { source: "trailer_400p.ogg" }
+        ListElement { source: "trailer_400p.ogg" }
+        ListElement { source: "trailer_400p.ogg" }
+    }
+}
+MediaPlayer {
+    id: player
+}
+</code></pre></div></div>
+
+<p>/<em>PLayLIst组件 end</em>/</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Item {
+id: root
+
+property int index: 0
+property MediaPlayer mediaPlayer
+property ListModel items: ListModel {}
+
+function setIndex(i)
+{
+    console.log("setting index to: " + i);
+
+    index = i;
+
+    if (index &lt; 0 || index &gt;= items.count)
+    {
+        index = -1;
+        mediaPlayer.source = "";
+    }
+    else
+        mediaPlayer.source = items.get(index).source;
+}
+
+function next()
+{
+    setIndex(index + 1);
+}
+
+function previous()
+{
+    setIndex(index + 1);
+}
+ Connections {
+    target: root.mediaPlayer
+
+    onStopped: {
+        if (root.mediaPlayer.status == MediaPlayer.EndOfMedia)
+        {
+            root.next();
+            if (root.index == -1)
+                root.mediaPlayer.stop();
+            else
+                root.mediaPlayer.play();
+        }
+    }
+} ```
+</code></pre></div></div>
+
+<h1 id="11-qml网络network">11 QML网络(NetWork)</h1>
+<p>本章主要讲述，如何使用QQuick来实现QML中的网络通信；QML和HTML很像2，可以通过远程来加载和解释QML文档；利用Loader来加载QML文件</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.0</span>
+<span class="kt">Loader</span><span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span><span class="kd">root</span>
+    <span class="nl">source</span><span class="p">:</span><span class="dl">"</span><span class="s2">http://localhost:8080/main2.qml</span><span class="dl">"</span>
+    <span class="kt">onLoad</span><span class="p">{</span>
+        <span class="nx">root</span><span class="p">.</span><span class="nx">width</span><span class="o">=</span><span class="nx">item</span><span class="p">.</span><span class="nx">width</span>
+        <span class="nx">root</span><span class="p">.</span><span class="nx">height</span><span class="o">=</span><span class="nx">item</span><span class="p">.</span><span class="nx">height</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="113-http-请求http-requests">11.3 HTTP 请求（HTTP Requests）</h3>
+<p>QML 中XMLHttpRequest对象允许用户注册一个响应操作函数和一个链接。一个请求能够使用http动作来发送（如get，post，put，delete，等等）。当响应到达时，会调用注册的操作函数。操作函数会被调用多次。每次调用请求的状态都已经改变（例如信息头部已接收，或者响应完成）。JS例子如下</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">request</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span>
+    <span class="nx">xhr</span><span class="p">.</span><span class="nx">onreadystatechange</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">===</span> <span class="nx">XMLHttpRequest</span><span class="p">.</span><span class="nx">HEADERS_RECEIVED</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">print</span><span class="p">(</span><span class="dl">'</span><span class="s1">HEADERS_RECEIVED</span><span class="dl">'</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">===</span> <span class="nx">XMLHttpRequest</span><span class="p">.</span><span class="nx">DONE</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">print</span><span class="p">(</span><span class="dl">'</span><span class="s1">DONE</span><span class="dl">'</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">http://example.com</span><span class="dl">"</span><span class="p">);</span>
+    <span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>QML 中完整组件代码如下：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.0</span>
+
+<span class="kt">Rectangle</span> <span class="p">{</span>
+    <span class="nl">width</span><span class="p">:</span> <span class="mi">320</span>
+    <span class="nl">height</span><span class="p">:</span> <span class="mi">480</span>
+    <span class="kt">ListView</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">view</span>
+        <span class="nl">anchors.fill</span><span class="p">:</span> <span class="nx">parent</span>
+        <span class="nl">delegate</span><span class="p">:</span> <span class="kt">Thumbnail</span> <span class="p">{</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="nx">view</span><span class="p">.</span><span class="nx">width</span>
+            <span class="nl">text</span><span class="p">:</span> <span class="nx">modelData</span><span class="p">.</span><span class="nx">title</span>
+            <span class="nl">iconSource</span><span class="p">:</span> <span class="nx">modelData</span><span class="p">.</span><span class="nx">media</span><span class="p">.</span><span class="nx">m</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">function</span> <span class="nx">request</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span><span class="c1">//定义XMLHTTP请求</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">onreadystatechange</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">===</span> <span class="nx">XMLHttpRequest</span><span class="p">.</span><span class="nx">HEADERS_RECEIVED</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">print</span><span class="p">(</span><span class="dl">'</span><span class="s1">HEADERS_RECEIVED</span><span class="dl">'</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">===</span> <span class="nx">XMLHttpRequest</span><span class="p">.</span><span class="nx">DONE</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nx">print</span><span class="p">(</span><span class="dl">'</span><span class="s1">DONE</span><span class="dl">'</span><span class="p">)</span><span class="c1">//输出DONE</span>
+                <span class="kd">var</span> <span class="nx">json</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">responseText</span><span class="p">.</span><span class="nx">toString</span><span class="p">())</span>
+                <span class="nx">view</span><span class="p">.</span><span class="nx">model</span> <span class="o">=</span> <span class="nx">json</span><span class="p">.</span><span class="nx">items</span><span class="c1">//重新设置json模式</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">http://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&tags=munich</span><span class="dl">"</span><span class="p">);</span><span class="c1">//指定链接</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span><span class="c1">//发送请求</span>
+    <span class="p">}</span>
+
+    <span class="nl">Component.onCompleted</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nx">request</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>使用XMLHTTPS可以加载请求本地文件，可以像上面一样将地址链接改成本地路径即可；例如：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">colors.json</span><span class="dl">"</span><span class="p">);</span><span class="c1">//加载本地的一个color.json文件</span>
+</code></pre></div></div>
+<p>也可以使用XmlListModel来替代XMLHttpRequest访问本地文件。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mport</span> <span class="nx">QtQuick</span><span class="p">.</span><span class="nx">XmlListModel</span> <span class="mf">2.0</span>
+
+<span class="kt">XmlListModel</span> <span class="p">{</span>
+    <span class="nl">source</span><span class="p">:</span> <span class="dl">"</span><span class="s2">http://localhost:8080/colors.xml</span><span class="dl">"</span>
+    <span class="nl">query</span><span class="p">:</span> <span class="dl">"</span><span class="s2">/colors</span><span class="dl">"</span>
+    <span class="kt">XmlRole</span> <span class="p">{</span> <span class="nl">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">color</span><span class="dl">'</span><span class="p">;</span> <span class="nl">query</span><span class="p">:</span> <span class="dl">'</span><span class="s1">name/string()</span><span class="dl">'</span> <span class="p">}</span>
+    <span class="kt">XmlRole</span> <span class="p">{</span> <span class="nl">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">value</span><span class="dl">'</span><span class="p">;</span> <span class="nl">query</span><span class="p">:</span> <span class="dl">'</span><span class="s1">value/string()</span><span class="dl">'</span> <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//注意XmlListModel只能用来读取XML文件，不能读取JSON文件。</span>
+</code></pre></div></div>
+<h2 id="118-web-sockets">11.8 Web Sockets</h2>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">Qt</span><span class="p">.</span><span class="nx">WebSockets</span> <span class="mf">1.0</span>
+
+<span class="kt">WebSocket</span> <span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span> <span class="kd">socket</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="12-存储storage">12 存储（Storage）</h1>
+<p>在Qt5.2中，配置（Settings）被加入到QML中。编程接口仍然在实验模块中，这意味着接口可能在未来会改变。这里需要注意</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//本例用来对一个矩形框配置颜色。每次用户点击窗口生成一个新的随机颜色。应用程序关闭后重启你将会看到你最后看到的颜色。 默认的颜色是用来初始化根矩形框的颜色。</span>
+<span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.0</span>
+<span class="k">import</span> <span class="nx">Qt</span><span class="p">.</span><span class="nx">labs</span><span class="p">.</span><span class="nx">settings</span> <span class="mf">1.0</span>
+
+<span class="kt">Rectangle</span> <span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span> <span class="kd">root</span>
+    <span class="nl">width</span><span class="p">:</span> <span class="mi">320</span><span class="p">;</span> <span class="nl">height</span><span class="p">:</span> <span class="mi">240</span>
+    <span class="nl">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">#000000</span><span class="dl">'</span>
+    <span class="kt">Settings</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">settings</span>
+        <span class="kd">property</span> <span class="kt">alias</span> <span class="nl">color</span><span class="p">:</span> <span class="nx">root</span><span class="p">.</span><span class="nx">color</span>
+    <span class="p">}</span>
+    <span class="kt">MousArea</span> <span class="p">{</span>
+        <span class="nl">anchors.fill</span><span class="p">:</span> <span class="nx">parent</span>
+        <span class="nl">onClicked</span><span class="p">:</span> <span class="nx">root</span><span class="p">.</span><span class="nx">color</span> <span class="o">=</span> <span class="nx">Qt</span><span class="p">.</span><span class="nx">hsla</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">(),</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//eg2:每次颜色值的变化都被存储在配置中。这可能不是我们需要的。只有在要求使用标准属性的时候才存储配置。</span>
+<span class="kt">Rectangle</span> <span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span> <span class="kd">root</span>
+    <span class="nl">color</span><span class="p">:</span> <span class="nx">settings</span><span class="p">.</span><span class="nx">color</span>
+    <span class="kt">Settings</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">settings</span>
+        <span class="kd">property</span> <span class="kt">color</span> <span class="nl">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">#000000</span><span class="dl">'</span>
+    <span class="p">}</span>
+    <span class="kd">function</span> <span class="nx">storeSettings</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// executed maybe on destruction</span>
+        <span class="nx">settings</span><span class="p">.</span><span class="nx">color</span> <span class="o">=</span> <span class="nx">root</span><span class="p">.</span><span class="nx">color</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//可以使用category属性存储不同种类的配置。</span>
+<span class="kt">Settings</span> <span class="p">{</span>
+    <span class="nl">category</span><span class="p">:</span> <span class="dl">'</span><span class="s1">window</span><span class="dl">'</span>
+    <span class="kd">property</span> <span class="kt">alias</span> <span class="nl">x</span><span class="p">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">x</span>
+    <span class="kd">property</span> <span class="kt">alias</span> <span class="nl">y</span><span class="p">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">x</span>
+    <span class="kd">property</span> <span class="kt">alias</span> <span class="nl">width</span><span class="p">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">width</span>
+    <span class="kd">property</span> <span class="kt">alias</span> <span class="nl">height</span><span class="p">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">height</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="122-本地存储---sqllocal-storage---sql">12.2 本地存储 - SQL（Local Storage - SQL）</h2>
+<p>Qt Quick支持一个与浏览器由区别的本地存储编程接口。需要使用”import QtQuick.LocalStorage 2.0”语句来导入后才能使用这个编程接口。通常使用基于给定的数据库名称和版本号使用系统特定位置的唯一文件ID号来存储数据到一个SQLITE数据库中。无法列出或者删除已有的数据库。你可以使用QQmlEngine::offlineStoragePate()来寻找本地存储。使用这个编程接口你首选需要创建一个数据库对象，然后在这个数据库上创建数据库事务。每个事务可以包含一个或多个SQL查询。当一个SQL查询在事务中失败后，事务会回滚。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//使用本地存储从一个简单的注释表中读取一个文本列：</span>
+<span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.2</span>
+<span class="k">import</span> <span class="nx">QtQuick</span><span class="p">.</span><span class="nx">LocalStorage</span> <span class="mf">2.0</span>
+
+<span class="kt">Item</span> <span class="p">{</span>
+    <span class="nl">Component.onCompleted</span><span class="p">:</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">db</span> <span class="o">=</span> <span class="nx">LocalStorage</span><span class="p">.</span><span class="nx">openDatabaseSync</span><span class="p">(</span><span class="dl">"</span><span class="s2">MyExample</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">1.0</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Example database</span><span class="dl">"</span><span class="p">,</span> <span class="mi">10000</span><span class="p">);</span>
+        <span class="nx">db</span><span class="p">.</span><span class="nx">transaction</span><span class="p">(</span> <span class="kd">function</span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">executeSql</span><span class="p">(</span><span class="dl">'</span><span class="s1">select * from notes</span><span class="dl">'</span><span class="p">);</span>
+            <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">result</span><span class="p">.</span><span class="nx">rows</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">print</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">rows</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">text</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="13-动态qmldynamic-qml">13 动态QML（Dynamic QML）</h1>
+<h2 id="131-动态加载组件loading-components-dynamically">13.1 动态加载组件（Loading Components Dynamically）</h2>
+<p>动态加载QML不同组成部分最简单的方法是使用加载元素项（Loader element）。它作为一个占位符项用来加载项。项的加载通过资源属性（source property）或者资源组件（sourceCompontent）属性控制。加载元素项通过给定的URL链接加载项，然后实例化一个组件。
+加载元素项（loader）作为一个占位符用于被加载项的加载。它的大小基于被加载项的大小而定，反之亦然。如果加载元素定义了大小，或者通过锚定（anchoring）定义了宽度和高度，被加载项将会被设置为加载元素项的大小。如果加载元素项没有设置大小，它将会根据被加载项的大小而定。
+下面例子演示了使用加载元素项（Loader Element）将两个分离的用户界面部分加载到一个相同的空间。这个主意是我们有一个快速拨号界面，可以是数字界面或模拟界面。
+首先设置Loader element元素加载项，使用State加载不同状态下的QML文件</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Loader</span> <span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span> <span class="kd">dialLoader</span>
+    <span class="nl">anchors.fill</span><span class="p">:</span> <span class="nx">parent</span>
+<span class="p">}</span>
+<span class="nx">states</span><span class="p">:</span> <span class="p">[</span>
+        <span class="kt">State</span> <span class="p">{</span>
+            <span class="nl">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">analog</span><span class="dl">"</span>
+            <span class="kt">PropertyChanges</span> <span class="p">{</span> <span class="nl">target</span><span class="p">:</span> <span class="nx">analogButton</span><span class="p">;</span> <span class="nl">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">green</span><span class="dl">"</span><span class="p">;</span> <span class="p">}</span>
+            <span class="kt">PropertyChanges</span> <span class="p">{</span> <span class="nl">target</span><span class="p">:</span> <span class="nx">dialLoader</span><span class="p">;</span> <span class="nl">source</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Analog.qml</span><span class="dl">"</span><span class="p">;</span> <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="kt">State</span> <span class="p">{</span>
+            <span class="nl">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">digital</span><span class="dl">"</span>
+            <span class="kt">PropertyChanges</span> <span class="p">{</span> <span class="nl">target</span><span class="p">:</span> <span class="nx">digitalButton</span><span class="p">;</span> <span class="nl">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">green</span><span class="dl">"</span><span class="p">;</span> <span class="p">}</span>
+            <span class="kt">PropertyChanges</span> <span class="p">{</span> <span class="nl">target</span><span class="p">:</span> <span class="nx">dialLoader</span><span class="p">;</span> <span class="nl">source</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Digital.qml</span><span class="dl">"</span><span class="p">;</span> <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+</code></pre></div></div>
+<p>为了使被加载项更加生动，它的速度属性必须根项的速度属性绑定。不能够使用直接绑定来绑定属性，因为项不是总在加载，并且这会随着时间而改变。需要使用一个东西来替换绑定元素（Binding Element）。绑定目标属性（target property），每次加载元素项改变时会触发已加载完成（onLoaded）信号。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">oader</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">dialLoader</span>
+
+        <span class="nl">anchors.left</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">left</span>
+        <span class="nl">anchors.right</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">right</span>
+        <span class="nl">anchors.top</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">top</span>
+        <span class="nl">anchors.bottom</span><span class="p">:</span> <span class="nx">analogButton</span><span class="p">.</span><span class="nx">top</span>
+
+        <span class="nl">onLoaded</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nx">binder</span><span class="p">.</span><span class="nx">target</span> <span class="o">=</span> <span class="nx">dialLoader</span><span class="p">.</span><span class="nx">item</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kt">Binding</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">binder</span>
+
+        <span class="nl">property</span><span class="p">:</span> <span class="dl">"</span><span class="s2">speed</span><span class="dl">"</span>
+        <span class="nl">value</span><span class="p">:</span> <span class="nx">speed</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+<p>当被加载项加载完成后，加载完成信号（onLoaded）会触发加载QML的动作。类似的，QML完成加载以来与组建构建完成（Component.onCompleted）信号。所有组建都可以使用这个信号，无论它们何时加载。例如，当整个用户界面完成加载后，整个应用程序的根组建可以使用它来启动自己。</p>
+
+<h3 id="1311-间接连接connecting-indirectly">13.1.1 间接连接（Connecting Indirectly)</h3>
+<p>动态创建QML元素时，无法使用onSignalName静态配置来连接信号。必须使用连接元素（Connection element）来完成连接信号。它可以连接一个目标元素任意数量的信号。
+通过设置连接元素（Connection element）的目标属性，信号可以像正常的方法连接。也就是使用onSignalName方法。不管怎样，通过改变目标属性可以在不同的时间监控不同的元素。
+下面这个例子中，用户界面由两个可点击区域组成。当其中一个区域点击后，会使用一个闪烁的动画。左边区域的代码段如下所示。在鼠标区域（MouseArea）中，左点击动画（leftClickedAnimation）被触发，导致区域闪烁。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Rectangle</span> <span class="p">{</span>
+            <span class="nl">id</span><span class="p">:</span> <span class="kd">leftRectangle</span>
+            <span class="nl">width</span><span class="p">:</span> <span class="mi">290</span>
+            <span class="nl">height</span><span class="p">:</span> <span class="mi">200</span>
+            <span class="nl">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">green</span><span class="dl">"</span>
+            <span class="kt">MouseArea</span> <span class="p">{</span>
+                <span class="nl">id</span><span class="p">:</span> <span class="kd">leftMouseArea</span>
+                <span class="nl">anchors.fill</span><span class="p">:</span> <span class="nx">parent</span>
+                <span class="nl">onClicked</span><span class="p">:</span> <span class="nx">leftClickedAnimation</span><span class="p">.</span><span class="nx">start</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="kt">Text</span> <span class="p">{</span>
+                <span class="nl">anchors.centerIn</span><span class="p">:</span> <span class="nx">parent</span>
+                <span class="nl">font.pixelSize</span><span class="p">:</span> <span class="mi">30</span>
+                <span class="nl">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">white</span><span class="dl">"</span>
+                <span class="nl">text</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Click me!</span><span class="dl">"</span>
+            <span class="p">}</span>
+            <span class="c1">//连接元素（Connection element）。当状态为激活时会触发第三个动画，即元素的目标。</span>
+           <span class="kt">Connections</span> <span class="p">{</span>
+                <span class="nl">id</span><span class="p">:</span> <span class="kd">connections</span>
+                <span class="nl">onClicked</span><span class="p">:</span> <span class="nx">activeClickedAnimation</span><span class="p">.</span><span class="nx">start</span><span class="p">();</span>
+            <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>使用Connetion 可以进行间接链接</p>
+
+<h3 id="1312-间接绑定binding-indirectly">13.1.2 （间接绑定）Binding Indirectly</h3>
+<p>与无法直接连接动态创建元素的信号类似，也无法脱离桥接元素（bridge element）与动态创建元素绑定属性。为了绑定任意元素的属性，包括动态创建元素，需要使用绑定元素（Binding element）。绑定元素（Bindging element）允许你指定一个目标元素（target element），一个属性用来绑定，一个值用来绑定这个属性。通过使用绑定元素（Binding elelemt），例如，绑定一个动态加载元素（dynamically loaded element）的属性。
+eg:</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kt">Loader</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">dialLoader</span>
+        <span class="nl">anchors.left</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">left</span>
+        <span class="nl">anchors.right</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">right</span>
+        <span class="nl">anchors.top</span><span class="p">:</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">top</span>
+        <span class="nl">anchors.bottom</span><span class="p">:</span> <span class="nx">analogButton</span><span class="p">.</span><span class="nx">top</span>
+        <span class="nl">onLoaded</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nx">binder</span><span class="p">.</span><span class="nx">target</span> <span class="o">=</span> <span class="nx">dialLoader</span><span class="p">.</span><span class="nx">item</span><span class="p">;</span><span class="c1">//将binder属性绑定到Loader上</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kt">Binding</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">binder</span>
+        <span class="nl">property</span><span class="p">:</span> <span class="dl">"</span><span class="s2">speed</span><span class="dl">"</span>
+        <span class="nl">value</span><span class="p">:</span> <span class="nx">speed</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="132-创建与销毁对象creating-and-destroying-objects">13.2 创建与销毁对象（Creating and Destroying Objects）</h2>
+<p>创建一个组件的状态可以用来跟踪它的状态属性。可以使用的状态值包括组件为空（Component.NULL）、组件加载中（Component.Loading）、组件可用（Component.Ready）和组件错误（Component.Error）。从空（NULL）状态到加载中（Loading）再到可用（Ready）通常是一个工作流。在任何一个阶段状态都可以变为错误（Error）。在这种情况下，组件无法被用来创建新的对象实例。Component.errorString()函数用来检索用户可读的错误描述。
+当加载连接缓慢的组件时，可以使用进度（progress）属性。它的范围从0.0意味着为加载任何东西，到1.0表明加载已完成。当组件的状态改变为可用（Ready）时，组件可以用实例化对象。下面的代码演示了如何实现这样的方法，考虑组件变为可用或者创建失败，同时组件加载时间可能会比较慢。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">component</span><span class="p">;</span>
+<span class="kd">function</span> <span class="nx">createImageObject</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">component</span> <span class="o">=</span> <span class="nx">Qt</span><span class="p">.</span><span class="nx">createComponent</span><span class="p">(</span><span class="dl">"</span><span class="s2">dynamic-image.qml</span><span class="dl">"</span><span class="p">);</span><span class="c1">//通过qml动态创建组件</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">component</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="nx">Component</span><span class="p">.</span><span class="nx">Ready</span> <span class="o">||</span> <span class="nx">component</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="nx">Component</span><span class="p">.</span><span class="nb">Error</span><span class="p">)</span><span class="c1">//查看组件是否被成功创建</span>
+        <span class="nx">finishCreation</span><span class="p">();</span>
+    <span class="k">else</span>
+        <span class="nx">component</span><span class="p">.</span><span class="nx">statusChanged</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="nx">finishCreation</span><span class="p">);</span><span class="c1">//组件已经被成功创建</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">finishCreation</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">component</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="nx">Component</span><span class="p">.</span><span class="nx">Ready</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">image</span> <span class="o">=</span> <span class="nx">component</span><span class="p">.</span><span class="nx">createObject</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="p">{</span><span class="dl">"</span><span class="s2">x</span><span class="dl">"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="dl">"</span><span class="s2">y</span><span class="dl">"</span><span class="p">:</span> <span class="mi">100</span><span class="p">});</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">image</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Error creating image</span><span class="dl">"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">component</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="nx">Component</span><span class="p">.</span><span class="nb">Error</span><span class="p">)</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Error loading component:</span><span class="dl">"</span><span class="p">,</span> <span class="nx">component</span><span class="p">.</span><span class="nx">errorString</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>在main.qml 中使用这种方法如下</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.0</span>
+<span class="k">import</span> <span class="dl">"</span><span class="s2">create-component.js</span><span class="dl">"</span> <span class="k">as</span> <span class="nx">ImageCreator</span>
+<span class="kt">Item</span> <span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span> <span class="kd">root</span>
+
+    <span class="nl">width</span><span class="p">:</span> <span class="mi">1024</span>
+    <span class="nl">height</span><span class="p">:</span> <span class="mi">600</span>
+
+    <span class="nl">Component.onCompleted</span><span class="p">:</span> <span class="nx">ImageCreator</span><span class="p">.</span><span class="nx">createImageObject</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>创建对象（createObject）函数接受两个参数。第一个参数是父对象。第二个参数是按照格式{“name”: value, “name”: value}组成的一串属性和值。下面的例子演示了这种用法。注意，属性参数是可选的。例：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">var</span> <span class="nx">image</span> <span class="o">=</span> <span class="nx">component</span><span class="p">.</span><span class="nx">createObject</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="p">{</span><span class="dl">"</span><span class="s2">x</span><span class="dl">"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="dl">"</span><span class="s2">y</span><span class="dl">"</span><span class="p">:</span> <span class="mi">100</span><span class="p">});</span>
+</code></pre></div></div>
+
+<h3 id="1322-从文本中动态实例化项dynamically-instantiating-items-from-text">13.2.2 从文本中动态实例化项（Dynamically Instantiating Items from Text）</h3>
+<p>可以使用Qt.createQmlObject函数来从，文本中创建一个对象；这个函数接受三个参数：qml，parent和filepath。qml参数包含了用来实例化的QML代码字符串。parent参数为新创建的对象提供了一个父对象。filepath参数用于存储创建对象时的错误报告。这个函数的结果返回一个新的对象或者一个NULL；（注意：createQmlObject函数通常会立即返回结果。为了成功调用这个函数，所有的依赖调用需要保证已经被加载。这意味着如果函数调用了未加载的组件，这个调用就会失败并且返回null。为了更好的处理这个问题，必须使用createComponent/createObject方法。）
+eg:</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.0</span>
+<span class="kt">Item</span> <span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span> <span class="kd">root</span>
+
+    <span class="nl">width</span><span class="p">:</span> <span class="mi">1024</span>
+    <span class="nl">height</span><span class="p">:</span> <span class="mi">600</span>
+
+    <span class="kd">function</span> <span class="nx">createItem</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">Qt</span><span class="p">.</span><span class="nx">createQmlObject</span><span class="p">(</span><span class="dl">"</span><span class="s2">import QtQuick 2.0; Rectangle { x: 100; y: 100; width: 100;
+    height:100; color: </span><span class="se">\"</span><span class="s2">blue</span><span class="se">\"</span><span class="s2"> }</span><span class="dl">"</span><span class="p">,</span> <span class="nx">root</span><span class="p">,</span> <span class="dl">"</span><span class="s2">dynamicItem</span><span class="dl">"</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nl">Component.onCompleted</span><span class="p">:</span> <span class="nx">root</span><span class="p">.</span><span class="nx">createItem</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="1323-管理动态创建的元素managing-dynamically-created-elements">13.2.3 管理动态创建的元素（Managing Dynamically Created Elements）</h3>
+<p>动态创建的对象也可以动态销毁。当这样做时，有一个法则：永远不要尝试销毁一个你没有创建的对象。这也包括你已经创建的元素，但不要使用动态机制比如Component.createObject或者createQmlObject。eg:</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">item</span> <span class="o">=</span> <span class="nx">Qt</span><span class="p">.</span><span class="nx">createQmlObject</span><span class="p">(...);</span>
+<span class="p">...</span>
+<span class="nx">item</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+</code></pre></div></div>
+
+<h2 id="133-跟踪动态对象tracking-dynamic-objects">13.3 跟踪动态对象（Tracking Dynamic Objects）</h2>
+<p>Qt.createQmlObject方法可以用于实例化QML字符串。然后这种方法有局限性。最全面的解决方案是动态创建使用Qt.createComponent函数创建组件。然后通过调用组件的createObject函数来创建对象。由于绑定与信号连接依赖于对象id，或者访问实例化对象。对于动态创建的对象需要另外一种方法，为了创建绑定，需要使用绑定元素（Binding element），连接元素（Connections element）使得与动态创建对象连接信号成为可能。
+模型是一个链表模型（ListModel），用已创建的项进行填充。实例化时跟踪对象引用的资源URL。后者不是需要严格跟踪的对象，但是以后会派上用场。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">QtQuick</span> <span class="mf">2.0</span>
+<span class="k">import</span> <span class="dl">"</span><span class="s2">create-object.js</span><span class="dl">"</span> <span class="k">as</span> <span class="nx">CreateObject</span>
+<span class="kt">Item</span> <span class="p">{</span>
+    <span class="nl">id</span><span class="p">:</span> <span class="kd">root</span>
+
+    <span class="kt">ListModel</span> <span class="p">{</span>
+        <span class="nl">id</span><span class="p">:</span> <span class="kd">objectsModel</span>
+    <span class="p">}</span>
+
+    <span class="kd">function</span> <span class="nx">addPlanet</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">CreateObject</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="dl">"</span><span class="s2">planet.qml</span><span class="dl">"</span><span class="p">,</span> <span class="nx">root</span><span class="p">,</span> <span class="nx">itemAdded</span><span class="p">);</span><span class="c1">//使用回调函数</span>
+    <span class="p">}</span>
+
+    <span class="kd">function</span> <span class="nx">addRocket</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">CreateObject</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="dl">"</span><span class="s2">rocket.qml</span><span class="dl">"</span><span class="p">,</span> <span class="nx">root</span><span class="p">,</span> <span class="nx">itemAdded</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kd">function</span> <span class="nx">itemAdded</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">objectsModel</span><span class="p">.</span><span class="nx">append</span><span class="p">({</span><span class="dl">"</span><span class="s2">obj</span><span class="dl">"</span><span class="p">:</span> <span class="nx">obj</span><span class="p">,</span> <span class="dl">"</span><span class="s2">source</span><span class="dl">"</span><span class="p">:</span> <span class="nx">source</span><span class="p">})</span><span class="c1">//将创建对象添加到ListModel中</span>
+    <span class="p">}</span>
+    <span class="kd">function</span> <span class="nx">clearItems</span><span class="p">()</span> <span class="p">{</span><span class="c1">//clear 函数实现对对象的清除</span>
+        <span class="k">while</span><span class="p">(</span><span class="nx">objectsModel</span><span class="p">.</span><span class="nx">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">objectsModel</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="nx">obj</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+            <span class="nx">objectsModel</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="14-javascript">14 JavaScript</h1>
+<p>下面有一个简短的例子是关于如何在QML中混合适用JS：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Button</span> <span class="p">{</span>
+  <span class="nl">width</span><span class="p">:</span> <span class="mi">200</span>
+  <span class="nl">height</span><span class="p">:</span> <span class="mi">300</span>
+  <span class="kd">property</span> <span class="kt">bool</span> <span class="nl">toggle</span><span class="p">:</span> <span class="kc">false</span>
+  <span class="nl">text</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Click twice to exit</span><span class="dl">"</span>
+
+  <span class="c1">// JS function</span>
+  <span class="kd">function</span> <span class="nx">doToggle</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">toggle</span> <span class="o">=</span> <span class="o">!</span><span class="nx">toggle</span>
+  <span class="p">}</span>
+  <span class="nl">onTriggered</span><span class="p">:</span> <span class="p">{</span>
+    <span class="c1">// this is JavaScript</span>
+    <span class="nx">doToggle</span><span class="p">();</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">toggle</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">Qt</span><span class="p">.</span><span class="nx">quit</span><span class="p">()</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>因此在QML中JavaScript作为一个单独的JS函数，作为一个JS模块可以在很多地方使用，它可以与每一个右边的属性绑定。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">mport</span> <span class="dl">"</span><span class="s2">util.js</span><span class="dl">"</span> <span class="k">as</span> <span class="nx">Util</span> <span class="c1">// import a pure JS module</span>
+
+<span class="kt">Button</span> <span class="p">{</span>
+  <span class="nl">width</span><span class="p">:</span> <span class="mi">200</span>
+  <span class="nl">height</span><span class="p">:</span> <span class="nx">width</span><span class="o">*</span><span class="mi">2</span> <span class="c1">// JS on the right side of property binding</span>
+
+  <span class="c1">// standalone function (not really useful)</span>
+  <span class="kd">function</span> <span class="nx">log</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Button&gt; </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">msg</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nl">onTriggered</span><span class="p">:</span> <span class="p">{</span>
+    <span class="c1">// this is JavaScript</span>
+    <span class="nx">log</span><span class="p">();</span>
+    <span class="nx">Qt</span><span class="p">.</span><span class="nx">quit</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>15 Qt and C++
+15.5 C++ 数据模型
+qt对于C++类在qml中的使用，需要实现动态数据绑定，使用Q_INVOKABLE函数定义使得可以在QML中调用它们。另一种方法是将它们定义为公共槽函数。例：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// inserts a color at the index (0 at begining, count-1 at end)</span>
+<span class="nx">Q_INVOKABLE</span> <span class="k">void</span> <span class="nx">insert</span><span class="p">(</span><span class="nx">int</span> <span class="nx">index</span><span class="p">,</span> <span class="kd">const</span> <span class="nx">QString</span><span class="o">&amp;</span> <span class="nx">colorValue</span><span class="p">);</span>
+<span class="c1">// uses insert to insert a color at the end</span>
+<span class="nx">Q_INVOKABLE</span> <span class="k">void</span> <span class="nx">append</span><span class="p">(</span><span class="kd">const</span> <span class="nx">QString</span><span class="o">&amp;</span> <span class="nx">colorValue</span><span class="p">);</span>
+<span class="c1">// removes a color from the index</span>
+<span class="nx">Q_INVOKABLE</span> <span class="k">void</span> <span class="nx">remove</span><span class="p">(</span><span class="nx">int</span> <span class="nx">index</span><span class="p">);</span>
+<span class="c1">// clear the whole model (e.g. reset)</span>
+<span class="nx">Q_INVOKABLE</span> <span class="k">void</span> <span class="nx">clear</span><span class="p">();</span>
+</code></pre></div></div>
+<p>接下在再使用Q_INVOKABLE()方法来实现，对象属性与操作方法发的绑定，通过使用READ等关键字指明关键函数。例：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// gives the size of the model</span>
+<span class="nx">Q_PROPERTY</span><span class="p">(</span><span class="nx">int</span> <span class="nx">count</span> <span class="nx">READ</span> <span class="nx">count</span> <span class="nx">NOTIFY</span> <span class="nx">countChanged</span><span class="p">)</span>
+<span class="c1">// gets a color at the index</span>
+<span class="nx">Q_INVOKABLE</span> <span class="nx">QColor</span> <span class="kd">get</span><span class="p">(</span><span class="nx">int</span> <span class="nx">index</span><span class="p">);</span>
+</code></pre></div></div>
+<p>最后在main.cpp等主函数或者其他初始化函数中，必须使用qmlRegisterType&lt;&gt;函数将C++类注册到qml中，再使用qml加载函数才能在qml中调用 <em>参考链接</em>：(qmlRegisterType 的功能以及用法)[https://blog.csdn.net/wangyachao0803/article/details/80838534];例：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="nx">include</span> <span class="o">&lt;</span><span class="nx">QtGui</span><span class="o">&gt;</span>
+<span class="err">#</span><span class="nx">include</span> <span class="o">&lt;</span><span class="nx">QtQml</span><span class="o">&gt;</span>
+
+<span class="err">#</span><span class="nx">include</span> <span class="dl">"</span><span class="s2">valuemodel.h</span><span class="dl">"</span>
+<span class="err">#</span><span class="nx">include</span> <span class="dl">"</span><span class="s2">adaptivemodel.h</span><span class="dl">"</span>
+
+<span class="nx">int</span> <span class="nx">main</span><span class="p">(</span><span class="nx">int</span> <span class="nx">argc</span><span class="p">,</span> <span class="nx">char</span> <span class="o">*</span><span class="nx">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="nx">QGuiApplication</span> <span class="nx">app</span><span class="p">(</span><span class="nx">argc</span><span class="p">,</span> <span class="nx">argv</span><span class="p">);</span>
+    <span class="c1">//注册AdaptiveModel类</span>
+    <span class="nx">qmlRegisterType</span><span class="o">&lt;</span><span class="nx">AdaptiveModel</span><span class="o">&gt;</span><span class="p">(</span><span class="dl">"</span><span class="s2">org.example</span><span class="dl">"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="dl">"</span><span class="s2">AdaptiveModel</span><span class="dl">"</span><span class="p">);</span>
+    <span class="c1">//注册ValueModel类</span>
+    <span class="nx">qmlRegisterType</span><span class="o">&lt;</span><span class="nx">ValueModel</span><span class="o">&gt;</span><span class="p">(</span><span class="dl">"</span><span class="s2">org.example</span><span class="dl">"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ValueModel</span><span class="dl">"</span><span class="p">);</span>
+    <span class="c1">//加载qml</span>
+    <span class="nx">QQmlApplicationEngine</span> <span class="nx">engine</span><span class="p">;</span>
+    <span class="nx">engine</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">QUrl</span><span class="p">(</span><span class="nx">QStringLiteral</span><span class="p">(</span><span class="dl">"</span><span class="s2">qrc:/main.qml</span><span class="dl">"</span><span class="p">)));</span>
+
+    <span class="k">return</span> <span class="nx">app</span><span class="p">.</span><span class="nx">exec</span><span class="p">();</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h1 id="16-c扩展qmlextending-qml-with-c">16 C++扩展QML（Extending QML with C++）</h1>
+<p>QML执行在受限的空间中，QML作为一种语言提供的功能有时是被限制的。通过C++写的本地函数可以扩展QML运行时的功能。应用程序可以充分利用基础平台的性能和自由度。</p>
+<h2 id="161-理解qml运行环境understanding-the-qml-run-time">16.1 理解QML运行环境（Understanding the QML Run-time）</h2>
+<p>一种更偷懒的方式是通过上下文属性直接设置。进行C++类对qml的注册</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">QScopedPointer</span><span class="o">&lt;</span><span class="nx">CurrentTime</span><span class="o">&gt;</span> <span class="nx">current</span><span class="p">(</span><span class="k">new</span> <span class="nx">CurrentTime</span><span class="p">());</span><span class="c1">//设置上下文</span>
+
+<span class="nx">QQmlApplicationEngine</span> <span class="nx">engine</span><span class="p">;</span>
+
+<span class="nx">engine</span><span class="p">.</span><span class="nx">rootContext</span><span class="p">().</span><span class="nx">setContextProperty</span><span class="p">(</span><span class="dl">"</span><span class="s2">current</span><span class="dl">"</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">value</span><span class="p">())</span>
+
+<span class="nx">engine</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">source</span><span class="p">);</span>
+</code></pre></div></div>
+<p>注意：不要混淆setContextProperty()和setProperty()。setContextProperty()是设置一个qml上下文的属性，setProperty()是设置一个QObject的动态属性值，这对你没什么帮助。
+通常有以下几种不同的方式扩展QML：</p>
+
+<ul>
+  <li>上下文属性 - setContextProperty()；</li>
+  <li>引擎注册类型 - 在main.cpp中调用qmlRegisterType；</li>
+  <li>QML扩展插件；</li>
+</ul>
+
+<p>上下文属性使用对于小型的应用程序使用非常方便。它们不需要你做太多的事情就可以将系统编程接口暴露为友好的全局对象。它有助于确保不会出现命名冲突（例如使用（$）这种特殊符号，例如$.currentTime）。在JS变量中$是一个有效的字符。
+注册QML类型允许用户从QML中控制一个c++对象的生命周期。上下文属性无法完成这间事情。它也不会破坏全局命名空间。所有的类型都需要先注册，并且在程序启动时会链接所有库，这在大多数情况下都不是一个问题。
+QML扩展插件提供了最灵活的扩展系统。它允许你在插件中注册类型，在第一个QML文件调用导入鉴定时会加载这个插件。由于使用了一个QML单例这也不会再破坏全局命名空间。插件允许你跨项目重用模块，这在你使用Qt包含多个项目时非常方便。</p>
+
+<h2 id="162-插件内容plugin-content">16.2 插件内容（Plugin Content）</h2>
+<p>插件是一个已定义接口的库，它只在需要时才被加载。这与一个库在程序启动时被链接和加载不同。在QML场景下，这个接口叫做QQmlExtensionPlugin。我们关心其中的两个方法initializeEngine()和registerTypes()。当插件被加载时，首先会调用initializeEngine()，它允许我们访问引擎将插件对象暴露给根上下文。大多数时候你只会使用到registerTypes()方法。它允许你注册你自定义的QML类型到引擎提供的地址上。</p>
+<h2 id="163-创建插件creating-the-plugin">16.3 创建插件（Creating the plugin）</h2>
+<p>Qt Creator包含了一个创建QtQuick 2 QML Extension Plugin向导，我们使用它来创建一个叫做fileio 的插件，这个插件包含了一个从org.example.io中启动的FileIO对象。插件类源于QQmlExtensionPlugin，并且实现了registerTypes() 函数。Q_PLUGIN_METADATA是强制标识这个插件作为一个qml扩展插件。除此之外没有其它特殊的地方了。如下，定义插件类：</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="nx">ifndef</span> <span class="nx">FILEIO_PLUGIN_H</span>
+<span class="err">#</span><span class="nx">define</span> <span class="nx">FILEIO_PLUGIN_H</span>
+
+<span class="err">#</span><span class="nx">include</span> <span class="o">&lt;</span><span class="nx">QQmlExtensionPlugin</span><span class="o">&gt;</span>
+<span class="kd">class</span> <span class="nx">FileioPlugin</span> <span class="p">:</span> <span class="kr">public</span> <span class="kt">QQmlExtensionPlugin</span>
+<span class="p">{</span>
+    <span class="nx">Q_OBJECT</span>
+    <span class="nx">Q_PLUGIN_METADATA</span><span class="p">(</span><span class="nx">IID</span> <span class="dl">"</span><span class="s2">org.qt-project.Qt.QQmlExtensionInterface</span><span class="dl">"</span><span class="p">)</span>
+
+<span class="nl">public</span><span class="p">:</span>
+    <span class="k">void</span> <span class="nx">registerTypes</span><span class="p">(</span><span class="kd">const</span> <span class="nx">char</span> <span class="o">*</span><span class="nx">uri</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="err">#</span><span class="nx">endif</span> <span class="c1">// FILEIO_PLUGIN_H</span>
+</code></pre></div></div>
+<p>在实现registerTypes中我们使用qmlRegisterType函数注册了我们的FileIO类。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">#</span><span class="nx">include</span> <span class="dl">"</span><span class="s2">fileio_plugin.h</span><span class="dl">"</span>
+<span class="err">#</span><span class="nx">include</span> <span class="dl">"</span><span class="s2">fileio.h</span><span class="dl">"</span>
+<span class="err">#</span><span class="nx">include</span> <span class="o">&lt;</span><span class="nx">qqml</span><span class="p">.</span><span class="nx">h</span><span class="o">&gt;</span>
+<span class="k">void</span> <span class="nx">FileioPlugin</span><span class="p">::</span><span class="nx">registerTypes</span><span class="p">(</span><span class="kd">const</span> <span class="nx">char</span> <span class="o">*</span><span class="nx">uri</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// @uri org.example.io</span>
+    <span class="nx">qmlRegisterType</span><span class="o">&lt;</span><span class="nx">FileIO</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">uri</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="dl">"</span><span class="s2">FileIO</span><span class="dl">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>模块统一资源标识符（例如org.example.io）。这似乎是从外面设置的。看你查找你的项目文件夹是，你会发现一个qmldir文件。这个文件指定了你的qml插件内容或者最好是你插件中关于QML的部分。它看起来应该像这样。</p>
+<div class="language-qml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">module</span> <span class="nx">org</span><span class="p">.</span><span class="nx">example</span><span class="p">.</span><span class="nx">io</span>
+<span class="nx">plugin</span> <span class="nx">fileio</span>
+</code></pre></div></div>
+
+
+                <hr style="visibility: hidden;">
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/04/10/markdown_learning_note/" data-toggle="tooltip" data-placement="top" title="markdown 学习笔记">
+                        Previous<br>
+                        <span>markdown 学习笔记</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/04/11/Urlendcodec/" data-toggle="tooltip" data-placement="top" title="C++ Encode 学习笔记">
+                        Next<br>
+                        <span>C++ Encode 学习笔记</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                <!--Gitalk评论start  -->
+                
+                <!-- 引入Gitalk评论插件  -->
+                <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+                <script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+                <div id="gitalk-container"></div>
+                <!-- 引入一个生产md5的js，用于对id值进行处理，防止其过长 -->
+                <!-- Thank DF:https://github.com/NSDingFan/NSDingFan.github.io/issues/3#issuecomment-407496538 -->
+                <script src="/js/md5.min.js"></script>
+                <script type="text/javascript">
+                    var gitalk = new Gitalk({
+                    clientID: '0224d5b04da044c201d4',
+                    clientSecret: 'ccd26d0c1d8d4cc3377be7cb388f854ad2b4e5d0',
+                    repo: 'wangpengcheng.github.io',
+                    owner: 'wangpengcheng',
+                    admin: ['wangpengcheng'],
+                    distractionFreeMode: true,
+                    id: md5(location.pathname),
+                    });
+                    gitalk.render('gitalk-container');
+                </script>
+                
+                <!-- Gitalk end -->
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C++" title="C++" rel="37">
+                                    C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B" title="基础编程" rel="24">
+                                    基础编程
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#C/C++" title="C/C++" rel="26">
+                                    C/C++
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%90%8E%E5%8F%B0%E5%BC%80%E5%8F%91" title="后台开发" rel="12">
+                                    后台开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#C" title="C" rel="4">
+                                    C
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B" title="网络编程" rel="8">
+                                    网络编程
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#STL%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90" title="STL源码解析" rel="4">
+                                    STL源码解析
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#Linux" title="Linux" rel="18">
+                                    Linux
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" title="操作系统" rel="12">
+                                    操作系统
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1" title="程序设计" rel="14">
+                                    程序设计
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%BC%98%E5%8C%96" title="优化" rel="4">
+                                    优化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#UML" title="UML" rel="4">
+                                    UML
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#UNIX" title="UNIX" rel="5">
+                                    UNIX
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0" title="学习笔记" rel="14">
+                                    学习笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%9D%A2%E8%AF%95" title="面试" rel="12">
+                                    面试
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#Java" title="Java" rel="11">
+                                    Java
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0" title="读书笔记" rel="6">
+                                    读书笔记
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E4%B8%AD%E9%97%B4%E4%BB%B6" title="中间件" rel="5">
+                                    中间件
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#go" title="go" rel="4">
+                                    go
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0" title="阅读笔记" rel="5">
+                                    阅读笔记
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#KVM" title="KVM" rel="4">
+                                    KVM
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#QEMU" title="QEMU" rel="4">
+                                    QEMU
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#%E8%99%9A%E6%8B%9F%E5%8C%96" title="虚拟化" rel="5">
+                                    虚拟化
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://zhengwuyang.com">WY</a></li>
+                    
+                        <li><a href="http://www.jianshu.com/u/e71990ada2fd">简书·JF</a></li>
+                    
+                        <li><a href="https://apple.com">Apple</a></li>
+                    
+                        <li><a href="https://developer.apple.com/">Apple Developer</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        // BY Fix:去除标题前的‘#’ issues:<https://github.com/qiubaiying/qiubaiying.github.io/issues/137>
+        // anchors.options = {
+        //   visible: 'always',
+        //   placement: 'right',
+        //   icon: '#'
+        // };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/wangpengcheng">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright © My Blog 2024
+                    <br>
+                    Theme on <a href="https://github.com/wangpengcheng/wangpengcheng.github.io.git">GitHub</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px" height="20px" src="https://ghbtns.com/github-btn.html?user=wangpengcheng&repo=wangpengcheng.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js"></script>
+
+<!-- Service Worker -->
+
+<script type="text/javascript">
+    if(navigator.serviceWorker){
+        // For security reasons, a service worker can only control the pages that are in the same directory level or below it. That's why we put sw.js at ROOT level.
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {console.log('Service Worker Registered. ', registration)})
+            .catch((error) => {console.log('ServiceWorker registration failed: ', error)})
+    }
+</script>
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async('/js/jquery.tagcloud.js',function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = '4b4b33b70559d548603afcd03258bacb';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/apple-touch-icon.png" width="0" height="0">
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
